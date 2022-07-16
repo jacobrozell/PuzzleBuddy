@@ -10,10 +10,27 @@ import SwiftUI
 // enter day you start
 // enter day you want to finish the puzzle
 // based on puzzle piece count -> calc how many peices you need to complete per day
+//
+// Stats:
+// avg peices per hour
+// total time worked
+// day of week completed
+
+
+// Version History
+// 1.0 -> App works locally and caches
+// 1.1 -> Adds Cloud
+// 1.3 -> Add Stats
+
+// Sponsorship from certain puzzle brands to be featured in the app?
+//struct PuzzleWishlist {
+//    @Published var wishlistLink: [URL]
+//}
+
 
 // MARK: - Puzzle
-struct Puzzle: Identifiable {
-    enum Pieces: Int {
+class Puzzle: ObservableObject {
+    enum Pieces: Int, CaseIterable, Identifiable {
         case twentyFive = 25
         case fifty = 50
         case hundred = 100
@@ -21,22 +38,34 @@ struct Puzzle: Identifiable {
         case thousand = 1000
         case twoThousand = 2000
         case fiveThousand = 5000
+
+        var id: Int {
+            self.rawValue
+        }
     }
 
-    enum Rating: String {
+    enum Rating: String, CaseIterable, Identifiable {
         case one
         case two
         case three
         case forur
         case five
+
+        var id: String {
+            self.rawValue
+        }
     }
 
-    enum Difficulty: Int {
+    enum Difficulty: Int, CaseIterable, Identifiable {
         case one = 1
         case two
         case three
         case four
         case five
+
+        var id: Int {
+            self.rawValue
+        }
     }
 
     struct PuzzleTime {
@@ -51,24 +80,31 @@ struct Puzzle: Identifiable {
     }
 
     var id: UUID = UUID()
-    var name: String
-    var pieces: Pieces
-    var rating: Rating?
-    var difficulty: Difficulty?
-    var estimatedTimeSpent: PuzzleTime?
-    var completionDate: Date
-//    var
+    @Published var name: String = ""
+    @Published var pieces: Pieces = .thousand
+    @Published var rating: Rating?
+    @Published var difficulty: Difficulty?
+    @Published var estimatedTimeSpent: PuzzleTime?
+    @Published var completionDate: Date = Date()
+
+    internal init(name: String) {
+        self.name = name
+    }
+
+//    var category
 //    var barcode // scan barcode on certain brands
 //    var timer // ability to start timer in app ?
 
 //    var price: Double
 //    var notes: String
-//    var image: UIImage
+//    var image: UIImage // reverse image search to find info
+    // var urlLink
+
 }
 
 extension Puzzle {
     static func fixture() -> Puzzle {
-        return .init(id: UUID(), name: "Puzzle", pieces: .thousand, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 5, minutes: 0), completionDate: Date())
+        return .init(name: "")
     }
 }
 
@@ -80,7 +116,6 @@ class PuzzleStore: ObservableObject {
 // MARK: - ContentView
 struct ContentView: View {
     @StateObject var ps = PuzzleStore()
-
     @State private var present = false
 
     var body: some View {
@@ -99,7 +134,7 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $present) {
-                    PuzzleForm()
+                    PuzzleForm(ps: ps)
                 }
         }
     }
@@ -129,10 +164,67 @@ struct PuzzleList: View {
 
 // MARK: - PuzzleForm
 struct PuzzleForm: View {
-    @State private var editingPuzzle: Puzzle = .fixture()
+    @ObservedObject var ps: PuzzleStore
+
+    @State private var name: String = ""
+    @State private var pieces: Puzzle.Pieces = .thousand
+    @State private var rating: Puzzle.Rating = .three
+    @State private var difficulty: Puzzle.Difficulty = .three
 
     var body: some View {
-        Text("Puzzle Form")
+        VStack {
+            GroupBox {
+                // Name
+                TextField("Name", text: $name, prompt: Text("Puzzle Name"))
+
+                // peices
+                Picker(selection: $pieces) {
+                    ForEach(Puzzle.Pieces.allCases) { peices in
+                        Text("\(peices.rawValue)")
+                            .id(peices.rawValue)
+                    }
+                } label: {
+                    Text("# of Peices")
+                }
+
+                // rating
+                Picker(selection: $rating) {
+                    ForEach(Puzzle.Rating.allCases) { rating in
+                        Text("\(rating.rawValue)")
+                            .id(rating.rawValue)
+                    }
+                } label: {
+                    Text("Rating")
+                }
+                .pickerStyle(.segmented)
+
+                // difficulty
+                Picker(selection: $difficulty) {
+                    ForEach(Puzzle.Difficulty.allCases) { difficulty in
+                        Text("\(difficulty.rawValue)")
+                            .id(difficulty.rawValue)
+                    }
+                } label: {
+                    Text("Difficulty")
+                }
+                .pickerStyle(.segmented)
+                .padding()
+
+                // estimatedTimeSpent
+                // completionDate - defaults to today
+            }
+
+            Button {
+                if !name.isEmpty {
+                    ps.puzzles.append(.init(name: name))
+                }
+            } label: {
+                Text("Submit")
+            }
+            .padding()
+            .disabled(name.isEmpty)
+            .opacity(name.isEmpty ? 0.60 : 1.0)
+        }
     }
 }
 
