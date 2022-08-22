@@ -14,6 +14,9 @@
 		0B0CD5F8287E650400774CDB /* Puzzle_BuddyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD5F7287E650400774CDB /* Puzzle_BuddyTests.swift */; };
 		0B0CD602287E650400774CDB /* Puzzle_BuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */; };
 		0B0CD604287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */; };
+		0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E47288C4F1000696180 /* PuzzleObject.swift */; };
+		0B660E4A288C4F2B00696180 /* PuzzleForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E49288C4F2B00696180 /* PuzzleForm.swift */; };
+		0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E4B288C4F6700696180 /* PuzzleList.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +47,9 @@
 		0B0CD5FD287E650400774CDB /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITests.swift; sourceTree = "<group>"; };
 		0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		0B660E47288C4F1000696180 /* PuzzleObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleObject.swift; sourceTree = "<group>"; };
+		0B660E49288C4F2B00696180 /* PuzzleForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleForm.swift; sourceTree = "<group>"; };
+		0B660E4B288C4F6700696180 /* PuzzleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleList.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,10 +100,13 @@
 		0B0CD5E5287E650200774CDB /* Puzzle Buddy */ = {
 			isa = PBXGroup;
 			children = (
-				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
-				0B0CD5E8287E650200774CDB /* ContentView.swift */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
+				0B0CD5E8287E650200774CDB /* ContentView.swift */,
 				0B0CD5EC287E650400774CDB /* Preview Content */,
+				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
+				0B660E49288C4F2B00696180 /* PuzzleForm.swift */,
+				0B660E4B288C4F6700696180 /* PuzzleList.swift */,
+				0B660E47288C4F1000696180 /* PuzzleObject.swift */,
 			);
 			path = "Puzzle Buddy";
 			sourceTree = "<group>";
@@ -258,7 +267,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				0B0CD5E9287E650200774CDB /* ContentView.swift in Sources */,
+				0B660E4A288C4F2B00696180 /* PuzzleForm.swift in Sources */,
 				0B0CD5E7287E650200774CDB /* Puzzle_BuddyApp.swift in Sources */,
+				0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */,
+				0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
