@@ -5,7 +5,11 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
+import FirebaseAuth
 import SwiftUI
+
+// MARK: - PuzzleUser
+public typealias PuzzleUser = FirebaseAuth.User
 
 // MARK: - Puzzle
 class Puzzle: ObservableObject {
