@@ -25,14 +25,14 @@ class Puzzle: ObservableObject {
         }
     }
 
-    enum Difficulty: Int, CaseIterable, Identifiable {
-        case one = 1
+    enum Difficulty: String, CaseIterable, Identifiable {
+        case one = "1"
         case two
         case three
         case four
         case five
 
-        var id: Int {
+        var id: String {
             self.rawValue
         }
     }

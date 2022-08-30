@@ -23,7 +23,7 @@ struct PuzzleView: View {
     var body: some View {
         PuzzleList(ps: ps)
             .navigationViewStyle(.stack)
-            .navigationTitle(Text("Puzzle Buddy"))
+            .navigationTitle(Text("Welcome \(auth.username)"))
             .toolbar {
                 ToolbarItem(placement: .bottomBar) {
                     Button {
@@ -59,9 +59,9 @@ struct PuzzleView: View {
             }
     }
 }
-//
+
 //struct CPuzzleView_Previews: PreviewProvider {
 //    static var previews: some View {
-//        PuzzleView(user: .fixture())
+//        PuzzleView(user: .)
 //    }
 //}

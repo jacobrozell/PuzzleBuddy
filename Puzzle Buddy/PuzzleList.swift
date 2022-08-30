@@ -69,8 +69,8 @@ struct PuzzleDetail: View {
                 Spacer()
 
                 if let difficulty = puzzle.difficulty {
-                    Text("Difficulty: \(difficulty.rawValue.formatted())")
-                        .foregroundColor(Color.red.opacity(0.50 * Double(difficulty.rawValue)))
+                    Text("Difficulty: \(difficulty.rawValue)")
+                        .foregroundColor(Color.red.opacity(0.50 * (Double(difficulty.rawValue) ?? 0.0)))
                 }
 
                 Spacer()
@@ -81,7 +81,7 @@ struct PuzzleDetail: View {
 
                 Text(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted)).italic()
             }
-            .padding(.vertical)
+            .padding()
         }
     }
 }

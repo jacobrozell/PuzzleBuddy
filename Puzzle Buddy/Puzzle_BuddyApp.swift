@@ -8,20 +8,19 @@
 import FirebaseAuth
 import SwiftUI
 
+
 @main
 struct Puzzle_BuddyApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject var eh = ErrorHandling()
-    @StateObject var auth = FirebaseAuthProvider()
+    @StateObject var authProvider = FirebaseAuthProvider()
 
     var body: some Scene {
         WindowGroup {
             LoginView()
-                .environmentObject(eh)
-                .environmentObject(auth)
                 .withErrorHandling()
+                .environmentObject(authProvider)
                 .task {
-                    auth.user = Auth.auth().currentUser
+                    authProvider.user = Auth.auth().currentUser
                 }
         }
     }

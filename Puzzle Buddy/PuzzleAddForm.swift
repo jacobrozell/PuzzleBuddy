@@ -10,11 +10,12 @@ import SwiftUI
 // MARK: - PuzzleForm
 struct PuzzleForm: View {
     @ObservedObject var ps: PuzzleStore
+    @EnvironmentObject var eh: ErrorHandling
 
     @State private var name: String = ""
     @State private var pieces: Int?
-    @State private var rating: Puzzle.Rating = .three
-    @State private var difficulty: Puzzle.Difficulty = .three
+    @State private var rating: String = "3"
+    @State private var difficulty: String = "3"
     @State private var hoursSpent: Int?
     @State private var minutesSpent: Int?
     @State private var completionDate: Date = Date()
@@ -78,11 +79,14 @@ struct PuzzleForm: View {
             }
 
             Button {
-                if !name.isEmpty {
-                    ps.puzzles.append(.init(name: name, pieces: pieces ?? 500, rating: rating, difficulty: difficulty, estimatedTimeSpent: .init(hours: 3, minutes: 0), completionDate: Date()))
+                do {
+                    try ps.add(puzzle: .init(name: name, pieces: pieces ?? 100, rating: .init(rawValue: rating), difficulty: .init(rawValue: difficulty), estimatedTimeSpent: .init(hours: hoursSpent ?? 0, minutes: minutesSpent ?? 0)))
+
+                    // dismiss view
+                    isPresented = false
+                } catch {
+                    eh.handle(title: "Error Adding Puzzle!", message: "\(error.localizedDescription)")
                 }
-                // dismiss view
-                isPresented = false
             } label: {
                 Text("Submit")
                     .contentShape(Rectangle())

@@ -1,4 +1,5 @@
 import FirebaseAuth
+import FirebaseFirestore
 
 @MainActor
 public class FirebaseAuthProvider: ObservableObject {
@@ -10,6 +11,7 @@ public class FirebaseAuthProvider: ObservableObject {
     @Published var login = ""
     @Published var password = ""
     @Published var user: FirebaseAuth.User?
+    @Published var username: String = ""
 
     public init() {}
 
@@ -24,6 +26,15 @@ public class FirebaseAuthProvider: ObservableObject {
         // Attempt to sign user in
         let result = try await Auth.auth().signIn(withEmail: login, password: password)
         self.user = result.user
+
+        // Find Username From DataBase
+//        self.username = Firestore.firestore().collection("users")
+    }
+
+    public func createAccount(with name: String, email: String, password: String) async throws {
+        try await Auth.auth().createUser(withEmail: email, password: password)
+        try await Firestore.firestore().collection("users").document("\(email)").setData(["name": name, "puzzles": []])
+        self.user = Auth.auth().currentUser
     }
 
     public func logout() throws {
