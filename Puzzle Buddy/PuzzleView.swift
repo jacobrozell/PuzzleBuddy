@@ -23,7 +23,7 @@ struct PuzzleView: View {
     var body: some View {
         PuzzleList(ps: ps)
             .navigationViewStyle(.stack)
-            .navigationTitle(Text("Welcome \(auth.username)"))
+            .navigationTitle(Text("Welcome \(auth.user?.email ?? "Anon")"))
             .toolbar {
                 ToolbarItem(placement: .bottomBar) {
                     Button {
