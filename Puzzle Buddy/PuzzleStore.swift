@@ -52,12 +52,12 @@ class PuzzleStore: ObservableObject {
     }
 
     func delete(at offsets: IndexSet) {
-//        let puzzlesRef = store.collection(path).
+        let puzzlesRef = store.collection(path)
 
-//        let puzzlesRef = store.collection("puzzles")
-        puzzles.remove(atOffsets: offsets)
-
-//        #warning("delete on database")
-
+        for this in offsets {
+            let puzzle = self.puzzles[this]
+            puzzlesRef.document(puzzle.name).delete()
+            puzzles.remove(atOffsets: offsets)
+        }
     }
 }
