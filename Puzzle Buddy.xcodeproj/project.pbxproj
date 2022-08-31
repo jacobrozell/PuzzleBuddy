@@ -27,6 +27,7 @@
 		0B85808728C0032D00CE3B91 /* PuzzleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808628C0032D00CE3B91 /* PuzzleCell.swift */; };
 		0B85808928C0049300CE3B91 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808828C0049300CE3B91 /* SettingsView.swift */; };
 		0B85808B28C004E800CE3B91 /* PuzzleTabbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */; };
+		0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808C28C005DD00CE3B91 /* CreateAccount.swift */; };
 		0BA2D53728BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
 		0BA2D53828BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
 		0BA2D53928BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
@@ -75,6 +76,7 @@
 		0B85808628C0032D00CE3B91 /* PuzzleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleCell.swift; sourceTree = "<group>"; };
 		0B85808828C0049300CE3B91 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleTabbar.swift; sourceTree = "<group>"; };
+		0B85808C28C005DD00CE3B91 /* CreateAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccount.swift; sourceTree = "<group>"; };
 		0BA2D53628BE650000132868 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0BA2D54228BE718C00132868 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		0BA2D54328BE718C00132868 /* FirbaseAuthProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirbaseAuthProvider.swift; sourceTree = "<group>"; };
@@ -119,10 +121,10 @@
 			isa = PBXGroup;
 			children = (
 				0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */,
+				0B0CD5E4287E650200774CDB /* Products */,
 				0B0CD5E5287E650200774CDB /* Puzzle Buddy */,
 				0B0CD5F6287E650400774CDB /* Puzzle BuddyTests */,
 				0B0CD600287E650400774CDB /* Puzzle BuddyUITests */,
-				0B0CD5E4287E650200774CDB /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -141,10 +143,10 @@
 			children = (
 				0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */,
 				0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */,
+				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BA2D53628BE650000132868 /* AppDelegate.swift */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
 				0BA2D54128BE718C00132868 /* Login */,
-				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BE5C08228BFC2C8001CD479 /* Views */,
 				0BE5C08328BFC2E4001CD479 /* Helpers */,
 				0BA2D55428BE721900132868 /* Util */,
@@ -169,10 +171,24 @@
 			path = "Puzzle BuddyUITests";
 			sourceTree = "<group>";
 		};
+		0B85808E28C0065A00CE3B91 /* PuzzleViews */ = {
+			isa = PBXGroup;
+			children = (
+				0B660E49288C4F2B00696180 /* PuzzleAddForm.swift */,
+				0B0CD5E8287E650200774CDB /* PuzzleView.swift */,
+				0B660E4B288C4F6700696180 /* PuzzleList.swift */,
+				0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */,
+				0B85808628C0032D00CE3B91 /* PuzzleCell.swift */,
+				0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */,
+			);
+			path = PuzzleViews;
+			sourceTree = "<group>";
+		};
 		0BA2D54128BE718C00132868 /* Login */ = {
 			isa = PBXGroup;
 			children = (
 				0BA2D54228BE718C00132868 /* LoginView.swift */,
+				0B85808C28C005DD00CE3B91 /* CreateAccount.swift */,
 				0BA2D54328BE718C00132868 /* FirbaseAuthProvider.swift */,
 				0BA2D54728BE718C00132868 /* ForgotPasswordView.swift */,
 			);
@@ -191,13 +207,8 @@
 		0BE5C08228BFC2C8001CD479 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				0B660E49288C4F2B00696180 /* PuzzleAddForm.swift */,
+				0B85808E28C0065A00CE3B91 /* PuzzleViews */,
 				0B85808828C0049300CE3B91 /* SettingsView.swift */,
-				0B0CD5E8287E650200774CDB /* PuzzleView.swift */,
-				0B660E4B288C4F6700696180 /* PuzzleList.swift */,
-				0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */,
-				0B85808628C0032D00CE3B91 /* PuzzleCell.swift */,
-				0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -367,6 +378,7 @@
 				0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */,
 				0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */,
 				0BA2D55728BE76C500132868 /* PuzzleStore.swift in Sources */,
+				0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */,
 				0BA2D54D28BE718D00132868 /* ForgotPasswordView.swift in Sources */,
 				0BA2D54928BE718D00132868 /* FirbaseAuthProvider.swift in Sources */,
 			);
