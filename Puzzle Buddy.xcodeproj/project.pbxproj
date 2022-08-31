@@ -24,6 +24,9 @@
 		0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E47288C4F1000696180 /* PuzzleObject.swift */; };
 		0B660E4A288C4F2B00696180 /* PuzzleAddForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E49288C4F2B00696180 /* PuzzleAddForm.swift */; };
 		0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E4B288C4F6700696180 /* PuzzleList.swift */; };
+		0B85808728C0032D00CE3B91 /* PuzzleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808628C0032D00CE3B91 /* PuzzleCell.swift */; };
+		0B85808928C0049300CE3B91 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808828C0049300CE3B91 /* SettingsView.swift */; };
+		0B85808B28C004E800CE3B91 /* PuzzleTabbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */; };
 		0BA2D53728BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
 		0BA2D53828BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
 		0BA2D53928BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
@@ -69,6 +72,9 @@
 		0B660E47288C4F1000696180 /* PuzzleObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleObject.swift; sourceTree = "<group>"; };
 		0B660E49288C4F2B00696180 /* PuzzleAddForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleAddForm.swift; sourceTree = "<group>"; };
 		0B660E4B288C4F6700696180 /* PuzzleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleList.swift; sourceTree = "<group>"; };
+		0B85808628C0032D00CE3B91 /* PuzzleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleCell.swift; sourceTree = "<group>"; };
+		0B85808828C0049300CE3B91 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleTabbar.swift; sourceTree = "<group>"; };
 		0BA2D53628BE650000132868 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0BA2D54228BE718C00132868 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		0BA2D54328BE718C00132868 /* FirbaseAuthProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirbaseAuthProvider.swift; sourceTree = "<group>"; };
@@ -186,8 +192,11 @@
 			isa = PBXGroup;
 			children = (
 				0B660E49288C4F2B00696180 /* PuzzleAddForm.swift */,
+				0B85808828C0049300CE3B91 /* SettingsView.swift */,
 				0B0CD5E8287E650200774CDB /* PuzzleView.swift */,
 				0B660E4B288C4F6700696180 /* PuzzleList.swift */,
+				0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */,
+				0B85808628C0032D00CE3B91 /* PuzzleCell.swift */,
 				0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */,
 			);
 			path = Views;
@@ -344,11 +353,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B85808928C0049300CE3B91 /* SettingsView.swift in Sources */,
 				0BA2D53728BE650000132868 /* AppDelegate.swift in Sources */,
 				0BA2D55228BE720500132868 /* SecureInputView.swift in Sources */,
+				0B85808B28C004E800CE3B91 /* PuzzleTabbar.swift in Sources */,
 				0BA2D54828BE718D00132868 /* LoginView.swift in Sources */,
 				0B0CD5E9287E650200774CDB /* PuzzleView.swift in Sources */,
 				0B660E4A288C4F2B00696180 /* PuzzleAddForm.swift in Sources */,
+				0B85808728C0032D00CE3B91 /* PuzzleCell.swift in Sources */,
 				0B0CD5E7287E650200774CDB /* Puzzle_BuddyApp.swift in Sources */,
 				0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */,
 				0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */,

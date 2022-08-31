@@ -7,6 +7,34 @@
 
 import SwiftUI
 
+// MARK: - PuzzleListWrapper
+struct PuzzleListWrapper: View {
+    @EnvironmentObject var auth: FirebaseAuthProvider
+    @EnvironmentObject var eh: ErrorHandling
+    @ObservedObject var ps: PuzzleStore
+    @State private var present = false
+
+    var body: some View {
+        VStack {
+            PuzzleList(ps: ps)
+                .navigationViewStyle(.columns)
+                .navigationTitle(Text("Welcome \(auth.user?.displayName ?? "Anon")!"))
+                .sheet(isPresented: $present) {
+                    PuzzleForm(ps: ps, isPresented: $present)
+                }
+
+            Button {
+                present.toggle()
+            } label: {
+                Image(systemName: "plus.circle")
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+            }
+            .padding()
+        }
+    }
+}
+
 // MARK: - PuzzleList
 struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
@@ -24,62 +52,11 @@ struct PuzzleList: View {
     }
 }
 
-// MARK: - PuzzleCell
-struct PuzzleCell: View {
-    let puzzle: Puzzle
-
-    var body: some View {
-        NavigationLink {
-            PuzzleDetail(puzzle: puzzle)
-        } label: {
-            PuzzleCellView(puzzle: puzzle)
-                .padding(.horizontal)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-    }
-}
-
-// MARK: PuzzleCellView
-private struct PuzzleCellView: View {
-    let puzzle: Puzzle
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text(puzzle.name)
-                    .font(.headline)
-
-                Spacer()
-
-                Text("Pieces: \(puzzle.pieces)")
-                    .font(.body)
-                    .padding(.vertical)
-            }
-
-            Divider()
-
-            HStack {
-                Text("Rating: \(puzzle.rating?.rawValue ?? "None")")
-                    .font(.subheadline)
-
-                Spacer()
-
-                Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "None")")
-                    .font(.subheadline)
-            }
-            .padding(.horizontal)
-        }
-    }
-}
-
 // MARK: - Previews
-struct PuzzleCellPreview: PreviewProvider {
+struct PuzzleListPreviews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            PuzzleCell(puzzle: .fixture())
-            PuzzleCell(puzzle: .fixture())
-            PuzzleCell(puzzle: .fixture())
+        Group {
+            PuzzleList(ps: .init())
         }
     }
 }

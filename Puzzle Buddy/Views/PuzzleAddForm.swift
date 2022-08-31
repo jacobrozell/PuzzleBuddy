@@ -112,10 +112,10 @@ struct PuzzleForm: View {
 }
 
 // MARK: - Preview
-//struct PuzzleForm_Preview: PreviewProvider {
-//    static var previews: some View {
-//        Group {
-//            PuzzleForm(ps: .init(), isPresented: .constant(false))
-//        }
-//    }
-//}
+struct PuzzleForm_Preview: PreviewProvider {
+    static var previews: some View {
+        Group {
+            PuzzleForm(ps: .init(), isPresented: .constant(false))
+        }
+    }
+}
