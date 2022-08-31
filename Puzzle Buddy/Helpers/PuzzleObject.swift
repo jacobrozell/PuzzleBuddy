@@ -40,6 +40,10 @@ class Puzzle: ObservableObject {
     struct PuzzleTime {
         var hours: Int?
         var minutes: Int?
+
+        func toName() -> String {
+            "\(hours ?? 0)hr \(minutes ?? 0)min"
+        }
     }
 
     enum Status {

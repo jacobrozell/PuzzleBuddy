@@ -30,7 +30,7 @@ struct LoginView: View {
                 }
                 .padding()
                 .ignoresSafeArea(.all, edges: .horizontal)
-                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitleDisplayMode(.automatic)
                 .navigationBarTitle("Sign-Up/Sign-In")
                 .padding(.vertical)
             }
@@ -76,6 +76,7 @@ private struct LoginStack: View {
                 }
                 .buttonStyle(.bordered)
                 .buttonBorderShape(.capsule)
+                .disabled(auth.login.isEmpty || auth.password.isEmpty)
 
                 NavigationLink {
                     PuzzleView()

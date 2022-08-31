@@ -53,6 +53,7 @@ struct PuzzleDetail: View {
                         Text("\(puzzle.estimatedTimeSpent?.hours ?? 0)hr \(puzzle.estimatedTimeSpent?.minutes ?? 0)min")
                     }
                 }
+                
                 Spacer()
             }
         }
