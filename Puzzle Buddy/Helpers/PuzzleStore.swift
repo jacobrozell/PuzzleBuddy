@@ -54,6 +54,10 @@ class PuzzleStore: ObservableObject {
         puzzlesRef.document(puzzle.name).setData([
             "name": puzzle.name,
             "pieces": puzzle.pieces,
+            "rating": puzzle.rating?.rawValue ?? "",
+            "dificulty": puzzle.difficulty?.rawValue ?? "",
+            "completionDate": puzzle.completionDate.ISO8601Format(),
+            "estimatedTimeSpent": puzzle.estimatedTimeSpent?.toName() ?? "",
             "owner": puzzleUser.email!
         ]) { error in
             if let error = error {
