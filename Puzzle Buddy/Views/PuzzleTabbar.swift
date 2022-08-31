@@ -75,6 +75,6 @@ struct PuzzleTabbar: View {
 
 struct PuzzleTabbar_Previews: PreviewProvider {
     static var previews: some View {
-        PuzzleTabbar()
+        PuzzleTabbar(ps: .init())
     }
 }
