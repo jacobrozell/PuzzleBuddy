@@ -48,7 +48,7 @@ private struct LoginStack: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
-            TextField("Email / Login ID", text: $auth.login)
+            TextField("Email", text: $auth.login)
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
                 .keyboardType(.emailAddress)

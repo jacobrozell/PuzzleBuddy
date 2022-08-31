@@ -27,10 +27,10 @@ class Puzzle: ObservableObject {
 
     enum Difficulty: String, CaseIterable, Identifiable {
         case one = "1"
-        case two
-        case three
-        case four
-        case five
+        case two = "2"
+        case three = "3"
+        case four = "4"
+        case five = "5"
 
         var id: String {
             self.rawValue
@@ -60,7 +60,13 @@ class Puzzle: ObservableObject {
         self.name = name
     }
 
-    internal init(name: String, pieces: Int, rating: Rating?, difficulty: Difficulty?, estimatedTimeSpent: PuzzleTime?, completionDate: Date = Date()) {
+    internal init(name: String,
+                  pieces: Int,
+                  rating: Rating? = nil,
+                  difficulty: Difficulty? = nil,
+                  estimatedTimeSpent: PuzzleTime = .init(hours: 0, minutes: 0),
+                  completionDate: Date = Date())
+    {
         self.name = name
         self.pieces = pieces
         self.rating = rating

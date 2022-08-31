@@ -30,7 +30,7 @@ public class FirebaseAuthProvider: ObservableObject {
 
     public func createAccount(with name: String, email: String, password: String) async throws {
         try await Auth.auth().createUser(withEmail: email, password: password)
-        try await Firestore.firestore().collection("users").document("\(email)").setData(["name": name, "puzzles": []])
+        try await Firestore.firestore().collection("users").document("\(email)").setData(["username": name])
         self.user = Auth.auth().currentUser
     }
 

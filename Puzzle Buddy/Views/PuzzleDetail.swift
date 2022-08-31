@@ -1,43 +1,11 @@
 //
-//  PuzzleList.swift
+//  PuzzleDetail.swift
 //  Puzzle Buddy
 //
-//  Created by Jacob Rozell on 7/23/22.
+//  Created by Jacob Rozell on 8/31/22.
 //
 
 import SwiftUI
-
-// MARK: - PuzzleList
-struct PuzzleList: View {
-    @ObservedObject var ps: PuzzleStore
-
-    var body: some View {
-        List {
-            ForEach(ps.puzzles, id: \.id) { p in
-                PuzzleCell(puzzle: p)
-            }
-            .onDelete(perform: ps.delete(at:))
-        }
-        .listStyle(.automatic)
-    }
-}
-
-// MARK: - PuzzleCell
-struct PuzzleCell: View {
-    let puzzle: Puzzle
-
-    var body: some View {
-        NavigationLink {
-            PuzzleDetail(puzzle: puzzle)
-        } label: {
-            VStack {
-                Text("**Name: \(puzzle.name)**")
-                    .lineLimit(2)
-                    .padding(.vertical)
-            }
-        }
-    }
-}
 
 struct PuzzleDetail: View {
     let puzzle: Puzzle
@@ -83,5 +51,11 @@ struct PuzzleDetail: View {
             }
             .padding()
         }
+    }
+}
+
+struct PuzzleDetail_Previews: PreviewProvider {
+    static var previews: some View {
+        PuzzleDetail()
     }
 }

@@ -15,7 +15,7 @@ struct PuzzleView: View {
     @StateObject var ps: PuzzleStore
     @State private var present = false
     @State private var showProfileOptions = false
-    @State private var showCreateAccount = false
+    @State private var showCreateAccount = true
 
     /// User init
     init(user: PuzzleUser) {
@@ -30,7 +30,7 @@ struct PuzzleView: View {
     var body: some View {
         PuzzleList(ps: ps)
             .navigationViewStyle(.stack)
-            .navigationTitle(Text("Welcome \(auth.user?.email ?? "Anon")"))
+            .navigationTitle(Text("Welcome \(auth.user?.displayName ?? "Anon")!"))
             .toolbar {
                 ToolbarItem(placement: .bottomBar) {
                     Button {
@@ -66,7 +66,7 @@ struct PuzzleView: View {
                     }
 
                     if auth.shouldBypassAccount {
-                        NavigationLink(isActive: $showCreateAccount) {
+                        NavigationLink {
                             CreateAccount(isActive: $showCreateAccount)
                         } label: {
                             Text("Create Account")
@@ -77,8 +77,8 @@ struct PuzzleView: View {
     }
 }
 
-//struct CPuzzleView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PuzzleView(user: .)
-//    }
-//}
+struct CPuzzleView_Previews: PreviewProvider {
+    static var previews: some View {
+        PuzzleView()
+    }
+}
