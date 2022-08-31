@@ -29,8 +29,7 @@ struct PuzzleDetail: View {
 
                 HStack {
                     // rating
-                    Text("Rating: \(puzzle.rating?.rawValue ?? "5")")
-                        .font(.headline)
+                    RatingsView(puzzle: puzzle)
 
                     Spacer()
 

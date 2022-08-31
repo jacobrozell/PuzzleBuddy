@@ -30,6 +30,8 @@ struct PuzzleListWrapper: View {
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
             }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle)
             .padding()
         }
     }

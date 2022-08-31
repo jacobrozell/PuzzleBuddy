@@ -28,6 +28,15 @@
 		0B85808928C0049300CE3B91 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808828C0049300CE3B91 /* SettingsView.swift */; };
 		0B85808B28C004E800CE3B91 /* PuzzleTabbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */; };
 		0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808C28C005DD00CE3B91 /* CreateAccount.swift */; };
+		0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
+		0B85809128C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
+		0B85809228C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
+		0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
+		0B85809528C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
+		0B85809628C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
+		0B85809828C0086700CE3B91 /* DifficultyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809728C0086700CE3B91 /* DifficultyView.swift */; };
+		0B85809928C0086700CE3B91 /* DifficultyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809728C0086700CE3B91 /* DifficultyView.swift */; };
+		0B85809A28C0086700CE3B91 /* DifficultyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809728C0086700CE3B91 /* DifficultyView.swift */; };
 		0BA2D53728BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
 		0BA2D53828BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
 		0BA2D53928BE650000132868 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D53628BE650000132868 /* AppDelegate.swift */; };
@@ -77,6 +86,9 @@
 		0B85808828C0049300CE3B91 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleTabbar.swift; sourceTree = "<group>"; };
 		0B85808C28C005DD00CE3B91 /* CreateAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccount.swift; sourceTree = "<group>"; };
+		0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "88010-puzzle.gif"; sourceTree = "<group>"; };
+		0B85809328C0082300CE3B91 /* RatingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingsView.swift; sourceTree = "<group>"; };
+		0B85809728C0086700CE3B91 /* DifficultyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyView.swift; sourceTree = "<group>"; };
 		0BA2D53628BE650000132868 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0BA2D54228BE718C00132868 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		0BA2D54328BE718C00132868 /* FirbaseAuthProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FirbaseAuthProvider.swift; sourceTree = "<group>"; };
@@ -145,6 +157,7 @@
 				0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */,
 				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BA2D53628BE650000132868 /* AppDelegate.swift */,
+				0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
 				0BA2D54128BE718C00132868 /* Login */,
 				0BE5C08228BFC2C8001CD479 /* Views */,
@@ -184,6 +197,15 @@
 			path = PuzzleViews;
 			sourceTree = "<group>";
 		};
+		0B85809B28C0099600CE3B91 /* HelperViews */ = {
+			isa = PBXGroup;
+			children = (
+				0B85809328C0082300CE3B91 /* RatingsView.swift */,
+				0B85809728C0086700CE3B91 /* DifficultyView.swift */,
+			);
+			path = HelperViews;
+			sourceTree = "<group>";
+		};
 		0BA2D54128BE718C00132868 /* Login */ = {
 			isa = PBXGroup;
 			children = (
@@ -207,8 +229,9 @@
 		0BE5C08228BFC2C8001CD479 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				0B85808E28C0065A00CE3B91 /* PuzzleViews */,
 				0B85808828C0049300CE3B91 /* SettingsView.swift */,
+				0B85809B28C0099600CE3B91 /* HelperViews */,
+				0B85808E28C0065A00CE3B91 /* PuzzleViews */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -338,6 +361,7 @@
 			files = (
 				0B0CD5EB287E650400774CDB /* Assets.xcassets in Resources */,
 				0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
+				0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -345,6 +369,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B85809128C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 				0B523F0928BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -353,6 +378,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B85809228C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 				0B523F0A28BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -377,8 +403,10 @@
 				0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */,
 				0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */,
 				0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */,
+				0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */,
 				0BA2D55728BE76C500132868 /* PuzzleStore.swift in Sources */,
 				0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */,
+				0B85809828C0086700CE3B91 /* DifficultyView.swift in Sources */,
 				0BA2D54D28BE718D00132868 /* ForgotPasswordView.swift in Sources */,
 				0BA2D54928BE718D00132868 /* FirbaseAuthProvider.swift in Sources */,
 			);
@@ -389,6 +417,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0BA2D53828BE650000132868 /* AppDelegate.swift in Sources */,
+				0B85809928C0086700CE3B91 /* DifficultyView.swift in Sources */,
+				0B85809528C0082300CE3B91 /* RatingsView.swift in Sources */,
 				0B0CD5F8287E650400774CDB /* Puzzle_BuddyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -397,9 +427,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0B85809A28C0086700CE3B91 /* DifficultyView.swift in Sources */,
 				0BA2D53928BE650000132868 /* AppDelegate.swift in Sources */,
 				0B0CD602287E650400774CDB /* Puzzle_BuddyUITests.swift in Sources */,
 				0B0CD604287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift in Sources */,
+				0B85809628C0082300CE3B91 /* RatingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
