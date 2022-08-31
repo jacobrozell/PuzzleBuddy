@@ -12,6 +12,7 @@ public class FirebaseAuthProvider: ObservableObject {
     @Published var password = ""
     @Published var user: FirebaseAuth.User?
     @Published var shouldBypassAccount = false
+    @Published var displayName: String = ""
 
     public init() {}
 

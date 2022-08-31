@@ -15,7 +15,7 @@ struct PuzzleView: View {
     @StateObject var ps: PuzzleStore
     @State private var present = false
     @State private var showProfileOptions = false
-    @State private var showCreateAccount = true
+    @State private var showCreateAccount = false
 
     /// User init
     init(user: PuzzleUser) {
@@ -28,28 +28,47 @@ struct PuzzleView: View {
     }
 
     var body: some View {
-        PuzzleList(ps: ps)
-            .navigationViewStyle(.stack)
-            .navigationTitle(Text("Welcome \(auth.user?.displayName ?? "Anon")!"))
-            .toolbar {
-                ToolbarItem(placement: .bottomBar) {
+        NavigationView {
+            TabView {
+                VStack {
+                    PuzzleList(ps: ps)
+                        .navigationViewStyle(.columns)
+                        .navigationTitle(Text("Welcome \(auth.user?.displayName ?? "Anon")!"))
+                        .sheet(isPresented: $present) {
+                            PuzzleForm(ps: ps, isPresented: $present)
+                        }
+
                     Button {
                         present.toggle()
                     } label: {
                         Image(systemName: "plus.circle")
+                            .frame(maxWidth: .infinity)
+                            .contentShape(Rectangle())
+                    }
+                    .padding()
+                }
+                .tabItem {
+                    Label {
+                        Text("Puzzles")
+                    } icon: {
+                        Image(systemName: "list.bullet.circle.fill")
                     }
                 }
 
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showProfileOptions = true
-                    } label: {
-                        Image(systemName: "person.circle.fill")
+                VStack {
+                    Text("Settings")
+                        .navigationTitle("Settings")
+                }
+                .tabItem {
+                    Label {
+                        Text("Settings")
+                    } icon: {
+                        Image(systemName: "gearshape")
                     }
                 }
             }
-            .sheet(isPresented: $present) {
-                PuzzleForm(ps: ps, isPresented: $present)
+            .popover(isPresented: $showCreateAccount) {
+                CreateAccount(isActive: $showCreateAccount)
             }
             .confirmationDialog("Profile Options", isPresented: $showProfileOptions) {
                 VStack {
@@ -66,14 +85,24 @@ struct PuzzleView: View {
                     }
 
                     if auth.shouldBypassAccount {
-                        NavigationLink {
-                            CreateAccount(isActive: $showCreateAccount)
+                        Button {
+                            showCreateAccount = true
                         } label: {
                             Text("Create Account")
                         }
                     }
                 }
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showProfileOptions = true
+                    } label: {
+                        Image(systemName: "person.circle.fill")
+                    }
+                }
+            }
+        }
     }
 }
 
