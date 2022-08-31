@@ -11,48 +11,50 @@ struct PuzzleDetail: View {
     let puzzle: Puzzle
 
     var body: some View {
-        VStack {
-            Image(systemName: "puzzlepiece.extension.fill")
-                .resizable()
-                .aspectRatio(1.5/1, contentMode: .fit)
-                .padding()
-                .foregroundColor(Color.blue.opacity(0.5))
-                .padding(.horizontal)
-
-            Text(puzzle.name)
-                .font(.title)
-
-            Text("\(puzzle.pieces) Pieces")
-                .font(.subheadline)
-
-
-            HStack {
-                // rating
-                Text("Rating: \(puzzle.rating?.rawValue ?? "5")")
-                    .font(.headline)
-
-                Spacer()
-
-                // difficulty
-                Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "1")")
-
-            }
-            .padding()
-
-            // Completion Date
+        ScrollView {
             VStack {
-                HStack {
-                    Text("Date Completed: ")
-                    Text(puzzle.completionDate, style: .date)
-                }
+                Image(systemName: "puzzlepiece.extension.fill")
+                    .resizable()
+                    .aspectRatio(1.5/1, contentMode: .fit)
+                    .padding()
+                    .foregroundColor(Color.blue.opacity(0.5))
+                    .padding(.horizontal)
+
+                Text(puzzle.name)
+                    .font(.title)
+
+                Text("\(puzzle.pieces) Pieces")
+                    .font(.subheadline)
+
 
                 HStack {
-                    Text("Estimated Time Spent:")
+                    // rating
+                    Text("Rating: \(puzzle.rating?.rawValue ?? "5")")
+                        .font(.headline)
 
-                    Text("\(puzzle.estimatedTimeSpent?.hours ?? 0)hr \(puzzle.estimatedTimeSpent?.minutes ?? 0)min")
+                    Spacer()
+
+                    // difficulty
+                    Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "1")")
+
                 }
+                .padding()
+
+                // Completion Date
+                VStack {
+                    HStack {
+                        Text("Date Completed: ")
+                        Text(puzzle.completionDate, style: .date)
+                    }
+
+                    HStack {
+                        Text("Estimated Time Spent:")
+
+                        Text("\(puzzle.estimatedTimeSpent?.hours ?? 0)hr \(puzzle.estimatedTimeSpent?.minutes ?? 0)min")
+                    }
+                }
+                Spacer()
             }
-            Spacer()
         }
     }
 }
