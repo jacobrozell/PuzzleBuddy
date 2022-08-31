@@ -9,7 +9,9 @@ import SwiftUI
 
 // MARK: - PuzzleList
 struct PuzzleList: View {
+    @EnvironmentObject var auth: FirebaseAuthProvider
     @ObservedObject var ps: PuzzleStore
+    @EnvironmentObject var eh: ErrorHandling
 
     var body: some View {
         List {
@@ -30,11 +32,54 @@ struct PuzzleCell: View {
         NavigationLink {
             PuzzleDetail(puzzle: puzzle)
         } label: {
-            VStack {
-                Text("**Name: \(puzzle.name)**")
-                    .lineLimit(2)
+            PuzzleCellView(puzzle: puzzle)
+                .padding(.horizontal)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+    }
+}
+
+// MARK: PuzzleCellView
+private struct PuzzleCellView: View {
+    let puzzle: Puzzle
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text(puzzle.name)
+                    .font(.headline)
+
+                Spacer()
+
+                Text("Pieces: \(puzzle.pieces)")
+                    .font(.body)
                     .padding(.vertical)
             }
+
+            Divider()
+
+            HStack {
+                Text("Rating: \(puzzle.rating?.rawValue ?? "None")")
+                    .font(.subheadline)
+
+                Spacer()
+
+                Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "None")")
+                    .font(.subheadline)
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
+// MARK: - Previews
+struct PuzzleCellPreview: PreviewProvider {
+    static var previews: some View {
+        VStack {
+            PuzzleCell(puzzle: .fixture())
+            PuzzleCell(puzzle: .fixture())
+            PuzzleCell(puzzle: .fixture())
         }
     }
 }

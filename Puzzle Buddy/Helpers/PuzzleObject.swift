@@ -92,6 +92,6 @@ class Puzzle: ObservableObject {
 
 extension Puzzle {
     static func fixture() -> Puzzle {
-        return .init(name: "Puzzle Buddy Test")
+        .init(name: "Puzzle Buddy Test", pieces: 1000, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 10, minutes: 5), completionDate: Date())
     }
 }

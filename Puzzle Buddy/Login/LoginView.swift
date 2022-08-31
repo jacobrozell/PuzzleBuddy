@@ -13,10 +13,10 @@ struct LoginView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     
     var body: some View {
-        NavigationView {
-            if let user = auth.user {
-                PuzzleView(user: user)
-            } else {
+        if let user = auth.user {
+            PuzzleView(user: user)
+        } else {
+            NavigationView {
                 VStack {
                     Image(systemName: "puzzlepiece.fill")
                         .resizable()
@@ -48,77 +48,88 @@ private struct LoginStack: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
-            TextField("Email", text: $auth.login)
-                .disableAutocorrection(true)
-                .autocapitalization(.none)
-                .keyboardType(.emailAddress)
-                .textFieldStyle(.roundedBorder)
-                .padding(.horizontal, 16)
+            Section {
+                TextField("Display Name", text: $auth.displayName)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                    .keyboardType(.namePhonePad)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, 16)
+            }
 
-            SecureInputView("Password", text: $auth.password)
-                .padding(.horizontal, 16)
-                .textFieldStyle(.roundedBorder)
+            Section {
+                TextField("Email", text: $auth.login)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                    .keyboardType(.emailAddress)
+                    .textFieldStyle(.roundedBorder)
+                    .padding(.horizontal, 16)
 
-            VStack {
-                Button {
-                    Task {
-                        do {
-                            try await auth.login()
-                        } catch {
-                            errorHandling.handle(title: "Login Failed", message: "\(error.localizedDescription)")
-                        }
-                    }
-                } label: {
-                    Text("Log in")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .contentShape(Capsule())
-                }
-                .buttonStyle(.bordered)
-                .buttonBorderShape(.capsule)
-                .disabled(auth.login.isEmpty || auth.password.isEmpty)
-
-                NavigationLink {
-                    PuzzleView()
-                        .task {
-                            auth.bypassAccount()
-                        }
-                } label: {
-                    Text("Bypass Account")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .contentShape(Capsule())
-                        .foregroundColor(.red)
-                }
-
-                Spacer()
+                SecureInputView("Password", text: $auth.password)
+                    .padding(.horizontal, 16)
+                    .textFieldStyle(.roundedBorder)
 
                 VStack {
-                    // Forgot Password Button
                     Button {
-                        isActiveForgotPassword = true
+                        Task {
+                            do {
+                                try await auth.login()
+                            } catch {
+                                errorHandling.handle(title: "Login Failed", message: "\(error.localizedDescription)")
+                            }
+                        }
                     } label: {
-                        Text("Forgot Password")
-                            .italic()
-                            .underline()
-                            .foregroundColor(.primary)
-                            .contentShape(Rectangle())
-                            .padding(2)
+                        Text("Log in")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.capsule)
+                    .disabled(auth.login.isEmpty || auth.password.isEmpty)
+
+                    NavigationLink {
+                        PuzzleView()
+                            .task {
+                                auth.bypassAccount()
+                            }
+                    } label: {
+                        Text("Bypass Account")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .contentShape(Capsule())
+                            .foregroundColor(.red)
                     }
 
-                    // Create Account
-                    NavigationLink(isActive: $isActive) {
-                        CreateAccount(isActive: $isActive)
-                    } label: {
-                        Text("Create Account")
-                            .italic()
-                            .underline()
-                            .foregroundColor(.primary)
-                            .contentShape(Rectangle())
-                            .padding(2)
+                    Spacer()
+
+                    VStack {
+                        // Forgot Password Button
+                        Button {
+                            isActiveForgotPassword = true
+                        } label: {
+                            Text("Forgot Password")
+                                .italic()
+                                .underline()
+                                .foregroundColor(.primary)
+                                .contentShape(Rectangle())
+                                .padding(2)
+                        }
+
+                        // Create Account
+                        NavigationLink(isActive: $isActive) {
+                            CreateAccount(isActive: $isActive)
+                        } label: {
+                            Text("Create Account")
+                                .italic()
+                                .underline()
+                                .foregroundColor(.primary)
+                                .contentShape(Rectangle())
+                                .padding(2)
+                        }
                     }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
         }
         .sheet(isPresented: $isActiveForgotPassword) {
