@@ -15,9 +15,16 @@ struct PuzzleView: View {
     @StateObject var ps: PuzzleStore
     @State private var present = false
     @State private var showProfileOptions = false
+    @State private var showCreateAccount = false
 
+    /// User init
     init(user: PuzzleUser) {
         _ps = StateObject(wrappedValue: PuzzleStore(user: user))
+    }
+
+    /// Bypass
+    init() {
+        _ps = StateObject(wrappedValue: PuzzleStore())
     }
 
     var body: some View {
@@ -46,14 +53,24 @@ struct PuzzleView: View {
             }
             .confirmationDialog("Profile Options", isPresented: $showProfileOptions) {
                 VStack {
-                    Button {
-                        do {
-                            try auth.logout()
-                        } catch {
-                            eh.handle(title: "Logout failed", message: "Whoops")
+                    if let _ = auth.user {
+                        Button {
+                            do {
+                                try auth.logout()
+                            } catch {
+                                eh.handle(title: "Logout failed", message: "Whoops")
+                            }
+                        } label: {
+                            Text("Sign-Out")
                         }
-                    } label: {
-                        Text("Signout")
+                    }
+
+                    if auth.shouldBypassAccount {
+                        NavigationLink(isActive: $showCreateAccount) {
+                            CreateAccount(isActive: $showCreateAccount)
+                        } label: {
+                            Text("Create Account")
+                        }
                     }
                 }
             }

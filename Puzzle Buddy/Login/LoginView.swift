@@ -20,14 +20,9 @@ struct LoginView: View {
                 VStack {
                     Image(systemName: "puzzlepiece.fill")
                         .resizable()
-                        .aspectRatio(1, contentMode: .fill)
-                        .padding(.vertical)
-
-                    Text("Login")
-                        .italic()
-                        .font(.title)
-                        .foregroundColor(.primary)
-                        .frame(alignment: .bottom)
+                        .aspectRatio(2/1, contentMode: .fit)
+                        .padding()
+                        .foregroundColor(.blue)
 
                     Spacer()
 
@@ -35,8 +30,8 @@ struct LoginView: View {
                 }
                 .padding()
                 .ignoresSafeArea(.all, edges: .horizontal)
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationBarTitle("Login")
+                .navigationBarTitleDisplayMode(.large)
+                .navigationBarTitle("Sign-Up/Sign-In")
                 .padding(.vertical)
             }
         }
@@ -64,10 +59,6 @@ private struct LoginStack: View {
                 .padding(.horizontal, 16)
                 .textFieldStyle(.roundedBorder)
 
-            //            Toggle("Remember me:", isOn: $rememberMe)
-            //                .padding(.horizontal, 16)
-            //                .frame(alignment: .leading)
-
             VStack {
                 Button {
                     Task {
@@ -79,6 +70,24 @@ private struct LoginStack: View {
                     }
                 } label: {
                     Text("Log in")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+
+                NavigationLink {
+                    PuzzleView()
+                        .task {
+                            auth.bypassAccount()
+                        }
+                } label: {
+                    Text("Bypass Account")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .contentShape(Capsule())
+                        .foregroundColor(.red)
                 }
 
                 Spacer()

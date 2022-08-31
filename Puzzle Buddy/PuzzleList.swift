@@ -50,13 +50,13 @@ struct PuzzleDetail: View {
             Text(puzzle.name)
 
             // rating
-//            Text(puzzle.rating ?? .five)
+            Text(puzzle.rating?.rawValue ?? "5")
 
             // difficulty
-//            Text(puzzle.difficulty ?? .one)
+            Text(puzzle.difficulty?.rawValue ?? "1")
 
             // total time spent
-//            Text("\(puzzle.estimatedTimeSpent?.hours ?? 0)hr \(puzzle.estimatedTimeSpent?.minutes ?? 0)min")
+            Text("\(puzzle.estimatedTimeSpent?.hours ?? 0)hr \(puzzle.estimatedTimeSpent?.minutes ?? 0)min")
 
             // Completion Date
 //            Text(puzzle.completionDate)

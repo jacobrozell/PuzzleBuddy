@@ -80,7 +80,14 @@ struct PuzzleForm: View {
 
             Button {
                 do {
-                    try ps.add(puzzle: .init(name: name, pieces: pieces ?? 100, rating: .init(rawValue: rating), difficulty: .init(rawValue: difficulty), estimatedTimeSpent: .init(hours: hoursSpent ?? 0, minutes: minutesSpent ?? 0)))
+                    try ps.add(puzzle: .init(
+                        name: name,
+                        pieces: pieces ?? 100,
+                        rating: .init(rawValue: rating),
+                        difficulty: .init(rawValue: difficulty),
+                        estimatedTimeSpent: .init(
+                            hours: hoursSpent ?? 0,
+                            minutes: minutesSpent ?? 0)))
 
                     // dismiss view
                     isPresented = false

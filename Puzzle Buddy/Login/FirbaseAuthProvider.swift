@@ -11,6 +11,7 @@ public class FirebaseAuthProvider: ObservableObject {
     @Published var login = ""
     @Published var password = ""
     @Published var user: FirebaseAuth.User?
+    @Published var shouldBypassAccount = false
 
     public init() {}
 
@@ -31,6 +32,11 @@ public class FirebaseAuthProvider: ObservableObject {
         try await Auth.auth().createUser(withEmail: email, password: password)
         try await Firestore.firestore().collection("users").document("\(email)").setData(["name": name, "puzzles": []])
         self.user = Auth.auth().currentUser
+    }
+
+    public func bypassAccount() {
+        Auth.auth().signInAnonymously()
+        shouldBypassAccount = true
     }
 
     public func logout() throws {
