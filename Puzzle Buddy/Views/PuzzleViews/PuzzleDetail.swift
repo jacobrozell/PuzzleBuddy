@@ -8,59 +8,97 @@
 import SwiftUI
 
 struct PuzzleDetail: View {
-    let puzzle: Puzzle
+    @ObservedObject var ps: PuzzleStore
+    @State private var isEditable = false
+    @State private var puzzle: Puzzle
+
+    init(ps: PuzzleStore, puzzle: Puzzle) {
+        _ps = ObservedObject(wrappedValue: ps)
+        self.puzzle = puzzle
+    }
 
     var body: some View {
-        ScrollView {
-            VStack {
-                Image(systemName: "puzzlepiece.extension.fill")
-                    .resizable()
-                    .aspectRatio(1.5/1, contentMode: .fit)
-                    .padding()
-                    .foregroundColor(Color.blue.opacity(0.5))
-                    .padding(.horizontal)
-
-                Text(puzzle.name)
-                    .font(.title)
-
-                Text("\(puzzle.pieces) Pieces")
-                    .font(.subheadline)
-
-
-                HStack {
-                    // rating
-                    RatingsView(puzzle: puzzle)
-
-                    Spacer()
-
-                    // difficulty
-                    Text("Difficulty: \(puzzle.difficulty.rawValue)")
-
+        VStack {
+            if isEditable {
+                PuzzleFormInternal(puzzle: $puzzle)
+            } else {
+                ScrollView {
+                    DetailView(puzzle: puzzle)
                 }
-                .padding()
-
-                // Completion Date
-                VStack {
-                    HStack {
-                        Text("Date Completed: ")
-                        Text(puzzle.completionDate, style: .date)
+            }
+        }
+        .navigationTitle("\(puzzle.name)")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    guard isEditable else {
+                        isEditable.toggle()
+                        return
                     }
 
-                    HStack {
-                        Text("Estimated Time Spent:")
+                    // Save Pressed
+                    //Attempt to save to database
+                    // Then Switch back if successful
+                    isEditable.toggle()
 
-                        Text(puzzle.estimatedTimeSpent.toName())
-                    }
+                } label: {
+                    Text("\(isEditable ? "Save" : "Edit")")
                 }
-                
-                Spacer()
             }
         }
     }
 }
 
+// MARK: - DetailView
+struct DetailView: View {
+    let puzzle: Puzzle
+
+    var body: some View {
+        VStack {
+            Image(systemName: "puzzlepiece.extension.fill")
+                .resizable()
+                .aspectRatio(2.5/2, contentMode: .fill)
+                .foregroundColor(Color.accentColor)
+                .padding(.horizontal)
+
+            Text(puzzle.name)
+                .font(.title)
+
+            Text("\(puzzle.pieces) Pieces")
+                .font(.subheadline)
+
+            RatingsView(puzzle: puzzle)
+                .padding(.vertical)
+
+            Divider()
+
+            Text("Difficulty: \(puzzle.difficulty.rawValue)")
+
+            // Completion Date
+            VStack {
+                HStack {
+                    Text("Date Completed: ")
+                    Text(puzzle.completionDate, style: .date)
+                }
+
+                HStack {
+                    Text("Estimated Time Spent:")
+
+                    Text(puzzle.estimatedTimeSpent.toName())
+                }
+            }
+
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Previews
 struct PuzzleDetail_Previews: PreviewProvider {
     static var previews: some View {
-        PuzzleDetail(puzzle: .fixture())
+        NavigationView {
+            PuzzleDetail(ps: .init(), puzzle: .fixture())
+        }
     }
 }

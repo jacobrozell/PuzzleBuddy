@@ -99,4 +99,8 @@ class PuzzleStore: ObservableObject {
     private func deleteLocally(at offsets: IndexSet) {
         puzzles.remove(atOffsets: offsets)
     }
+
+    func update(puzzle: Puzzle) {
+        print("TODO")
+    }
 }

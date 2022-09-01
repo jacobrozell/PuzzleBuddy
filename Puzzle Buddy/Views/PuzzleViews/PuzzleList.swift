@@ -17,10 +17,6 @@ struct PuzzleListWrapper: View {
     var body: some View {
         VStack {
             PuzzleList(ps: ps)
-                .navigationTitle("Your Puzzle Buddy")
-                .sheet(isPresented: $present) {
-                    PuzzleForm(ps: ps, isPresented: $present)
-                }
 
             Button {
                 present.toggle()
@@ -33,19 +29,23 @@ struct PuzzleListWrapper: View {
             .buttonBorderShape(.roundedRectangle)
             .padding()
         }
+        .navigationTitle("Your Puzzle Buddy")
+        .sheet(isPresented: $present) {
+            PuzzleForm(isPresented: $present, ps: ps)
+        }
     }
 }
 
 // MARK: - PuzzleList
 struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
-    @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
+    @ObservedObject var ps: PuzzleStore
 
     var body: some View {
         List {
             ForEach(ps.puzzles, id: \.id) { p in
-                PuzzleCell(puzzle: p)
+                PuzzleCell(ps: ps, puzzle: p)
             }
             .onDelete(perform: ps.delete(at:))
         }
