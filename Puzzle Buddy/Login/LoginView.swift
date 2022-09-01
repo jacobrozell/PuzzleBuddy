@@ -58,15 +58,6 @@ private struct LoginStack: View {
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
             Section {
-                TextField("Display Name", text: $auth.displayName)
-                    .disableAutocorrection(true)
-                    .autocapitalization(.none)
-                    .keyboardType(.namePhonePad)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal, 16)
-            }
-
-            Section {
                 TextField("Email", text: $auth.login)
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
@@ -114,16 +105,16 @@ private struct LoginStack: View {
 
                     VStack {
                         // Forgot Password Button
-                        Button {
-                            isActiveForgotPassword = true
-                        } label: {
-                            Text("Forgot Password")
-                                .italic()
-                                .underline()
-                                .foregroundColor(.primary)
-                                .contentShape(Rectangle())
-                                .padding(2)
-                        }
+//                        Button {
+//                            isActiveForgotPassword = true
+//                        } label: {
+//                            Text("Forgot Password")
+//                                .italic()
+//                                .underline()
+//                                .foregroundColor(.primary)
+//                                .contentShape(Rectangle())
+//                                .padding(2)
+//                        }
 
                         // Create Account
                         NavigationLink(isActive: $isActive) {

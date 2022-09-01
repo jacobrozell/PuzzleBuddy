@@ -89,7 +89,6 @@ struct PuzzleForm: View {
                 Section {
                     DatePicker("Completion Date", selection: $completionDate)
                         .datePickerStyle(.graphical)
-                        .padding(.vertical)
                 } header: {
                     Text("Date Completed")
                 }
