@@ -28,30 +28,60 @@ private struct PuzzleCellView: View {
     let puzzle: Puzzle
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
+        VStack(alignment: .center) {
+            VStack {
                 Text(puzzle.name)
                     .font(.headline)
+                    .aspectRatio(contentMode: .fill)
+                    .lineLimit(0)
+
+                Divider()
+
+                RatingsView(puzzle: puzzle)
+                    .padding(.top)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top)
+            .padding(.vertical)
+
+            HStack(alignment: .top) {
+                VStack {
+                    Text("Total Pieces:")
+                        .bold()
+
+                    Text("\(puzzle.pieces)")
+                        .padding(.vertical)
+                }
+                .padding(.vertical)
+                .aspectRatio(contentMode: .fill)
 
                 Spacer()
 
-                Text("Pieces: \(puzzle.pieces)")
-                    .font(.body)
-                    .padding(.vertical)
+                VStack {
+                    Text("Time Spent:")
+                        .bold()
+
+                    Text(puzzle.estimatedTimeSpent.toName())
+                        .padding(.vertical)
+                }
+                .padding(.vertical)
+                .aspectRatio(contentMode: .fill)
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical)
 
-            Divider()
-
-            HStack {
-                Text("Rating: \(puzzle.rating?.rawValue ?? "None")")
-                    .font(.subheadline)
-
-                Spacer()
-
-                Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "None")")
-                    .font(.subheadline)
+            HStack(alignment: .bottom) {
+                Text("Completed:")
+                Text(puzzle.completionDate, style: .offset)
             }
-            .padding(.horizontal)
+        }
+        .overlay(alignment: .topLeading) {
+            Text(puzzle.difficulty.rawValue)
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(8)
+                .background(Color.red)
+                .clipShape(Circle())
         }
     }
 }

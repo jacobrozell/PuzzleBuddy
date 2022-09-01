@@ -38,11 +38,22 @@ class Puzzle: ObservableObject {
     }
 
     struct PuzzleTime {
-        var hours: Int?
-        var minutes: Int?
+        var hours: Int
+        var minutes: Int
+
+        init(hours: Int? = nil, minutes: Int? = nil) {
+            self.hours = hours ?? 0
+            self.minutes = minutes ?? 0
+        }
+
+        init(name: String) {
+            let intArray = name.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({ Int($0) })
+            self.hours = intArray.first ?? 0
+            self.minutes = intArray.last ?? 0
+        }
 
         func toName() -> String {
-            "\(hours ?? 0)hr \(minutes ?? 0)min"
+            "\(hours)hr:\(minutes)min"
         }
     }
 
@@ -55,21 +66,17 @@ class Puzzle: ObservableObject {
     var id: UUID = UUID()
     @Published var name: String = ""
     @Published var pieces: Int = 500
-    @Published var rating: Rating?
-    @Published var difficulty: Difficulty?
-    @Published var estimatedTimeSpent: PuzzleTime?
+    @Published var rating: Rating
+    @Published var difficulty: Difficulty
+    @Published var estimatedTimeSpent: PuzzleTime
     @Published var completionDate: Date = Date()
-
-    internal init(name: String) {
-        self.name = name
-    }
 
     internal init(name: String,
                   pieces: Int,
-                  rating: Rating? = nil,
-                  difficulty: Difficulty? = nil,
-                  estimatedTimeSpent: PuzzleTime = .init(hours: 0, minutes: 0),
-                  completionDate: Date = Date())
+                  rating: Rating,
+                  difficulty: Difficulty,
+                  estimatedTimeSpent: PuzzleTime,
+                  completionDate: Date)
     {
         self.name = name
         self.pieces = pieces

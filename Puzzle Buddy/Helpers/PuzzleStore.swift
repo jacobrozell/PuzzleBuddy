@@ -37,7 +37,16 @@ class PuzzleStore: ObservableObject {
                 return
             }
 
-            self.puzzles = result.documents.compactMap({ Puzzle(name: $0.data()["name"] as! String) })
+            self.puzzles = result.documents.compactMap({
+                Puzzle(
+                    name: $0.data()["name"] as! String,
+                    pieces: $0.data()["pieces"] as! Int,
+                    rating: .init(rawValue: $0.data()["rating"] as! String) ?? .three,
+                    difficulty: .init(rawValue: $0.data()["difficulty"] as! String) ?? .three,
+                    estimatedTimeSpent: .init(name: $0.data()["estimatedTimeSpent"] as! String),
+                    completionDate: ($0.data()["completionDate"] as! Timestamp).dateValue()
+                )
+            })
         }
     }
 
@@ -54,10 +63,10 @@ class PuzzleStore: ObservableObject {
         puzzlesRef.document(puzzle.name).setData([
             "name": puzzle.name,
             "pieces": puzzle.pieces,
-            "rating": puzzle.rating?.rawValue ?? "",
-            "dificulty": puzzle.difficulty?.rawValue ?? "",
-            "completionDate": puzzle.completionDate.ISO8601Format(),
-            "estimatedTimeSpent": puzzle.estimatedTimeSpent?.toName() ?? "",
+            "rating": puzzle.rating.rawValue,
+            "difficulty": puzzle.difficulty.rawValue,
+            "completionDate": puzzle.completionDate,
+            "estimatedTimeSpent": puzzle.estimatedTimeSpent.toName(),
             "owner": puzzleUser.email!
         ]) { error in
             if let error = error {

@@ -25,6 +25,7 @@ struct PuzzleTabbar: View {
                     Image(systemName: "list.bullet.circle.fill")
                 }
             }
+            .navigationTitle("Your Puzzle Buddy")
 
             SettingsView()
             .tabItem {
@@ -34,6 +35,7 @@ struct PuzzleTabbar: View {
                     Image(systemName: "gearshape")
                 }
             }
+            .navigationTitle("Settings")
         }
         .popover(isPresented: $showCreateAccount) {
             CreateAccount(isActive: $showCreateAccount)
@@ -66,7 +68,12 @@ struct PuzzleTabbar: View {
                 Button {
                     showProfileOptions = true
                 } label: {
-                    Image(systemName: "person.circle.fill")
+                    VStack {
+                        Image(systemName: "person.circle.fill")
+
+                        Text(auth.user?.email ?? "")
+                            .font(.footnote)
+                    }
                 }
             }
         }

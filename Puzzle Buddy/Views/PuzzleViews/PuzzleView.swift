@@ -28,6 +28,7 @@ struct PuzzleView: View {
         NavigationView {
             PuzzleTabbar(ps: ps)
         }
+        .navigationViewStyle(.stack)
     }
 }
 

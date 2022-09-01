@@ -20,6 +20,13 @@ struct PuzzleForm: View {
     @State private var minutesSpent: Int?
     @State private var completionDate: Date = Date()
 
+    var isValid: Bool {
+        return !name.isEmpty
+        && (pieces != nil)
+        && !rating.isEmpty
+        && !difficulty.isEmpty
+    }
+
     @Binding var isPresented: Bool
 
     var body: some View {
@@ -27,54 +34,64 @@ struct PuzzleForm: View {
             Form {
                 Section {
                     TextField("Name", text: $name, prompt: Text("Puzzle Name"))
+                        .keyboardType(.namePhonePad)
+                        .disableAutocorrection(true)
 
                     TextField("Pieces", value: $pieces, format: .number, prompt: Text("# of Pieces"))
+                        .keyboardType(.numberPad)
 
-                    TextField("Hours Spent", value: $hoursSpent, format: .number, prompt: Text("Estimated Hours Spent"))
+                    HStack {
+                        Text("Rating:")
 
-                    TextField("Minutes Spent", value: $minutesSpent, format: .number, prompt: Text("Estimated Minutes Spent"))
+                        Spacer()
+
+                        Picker("Rating", selection: $rating) {
+                            ForEach(Puzzle.Rating.allCases) { rating in
+                                Text("\(rating.rawValue)")
+                                    .id(rating)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+
+                    HStack {
+                        Text("Difficulty:")
+
+                        Spacer()
+
+                        Picker("Difficulty", selection: $difficulty) {
+                            ForEach(Puzzle.Difficulty.allCases) { difficulty in
+                                Text("\(difficulty.rawValue)")
+                                    .id(difficulty)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+
                 } header: {
                     Text("Puzzle Info")
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                // rating
                 Section {
-                    Picker("Rating", selection: $rating) {
-                        ForEach(Puzzle.Rating.allCases) { rating in
-                            Text("\(rating.rawValue)")
-                                .id(rating.id)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+                    TextField("Hours Spent", value: $hoursSpent, format: .number, prompt: Text("Estimated Hours Spent"))
+                        .keyboardType(.numberPad)
+
+                    TextField("Minutes Spent", value: $minutesSpent, format: .number, prompt: Text("Estimated Minutes Spent"))
+                        .keyboardType(.numberPad)
                 } header: {
-                    Text("Rating")
+                    Text("Stats")
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
                 Section {
-                    Picker("Difficulty", selection: $difficulty) {
-                        ForEach(Puzzle.Difficulty.allCases) { difficulty in
-                            Text("\(difficulty.rawValue)")
-                                .id(difficulty.id)
-                        }
-                    }
-                    .pickerStyle(.segmented)
+                    DatePicker("Completion Date", selection: $completionDate)
+                        .datePickerStyle(.graphical)
+                        .padding(.vertical)
                 } header: {
-                    Text("Difficulty")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                Section {
-                    // completionDate - defaults to today
-                    DatePicker("Completion Date", selection: $completionDate).datePickerStyle(.graphical)
-                } header: {
-                    Text("Completion Date")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Text("Date Completed")
                 }
             }
 
@@ -83,11 +100,12 @@ struct PuzzleForm: View {
                     try ps.add(puzzle: .init(
                         name: name,
                         pieces: pieces ?? 100,
-                        rating: .init(rawValue: rating),
-                        difficulty: .init(rawValue: difficulty),
+                        rating: .init(rawValue: rating) ?? .three,
+                        difficulty: .init(rawValue: difficulty) ?? .three,
                         estimatedTimeSpent: .init(
                             hours: hoursSpent ?? 0,
-                            minutes: minutesSpent ?? 0)))
+                            minutes: minutesSpent ?? 0),
+                        completionDate: completionDate))
 
                     // dismiss view
                     isPresented = false
@@ -104,10 +122,9 @@ struct PuzzleForm: View {
             .background(Color.blue)
             .cornerRadius(16.0)
             .padding(.horizontal)
-            .disabled(name.isEmpty)
-            .opacity(name.isEmpty ? 0.6 : 1.0)
+            .disabled(!isValid)
+            .opacity(!isValid ? 0.6 : 1.0)
         }
-
     }
 }
 

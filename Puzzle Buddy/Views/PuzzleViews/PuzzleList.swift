@@ -17,8 +17,7 @@ struct PuzzleListWrapper: View {
     var body: some View {
         VStack {
             PuzzleList(ps: ps)
-                .navigationViewStyle(.columns)
-                .navigationTitle(Text("Welcome \(auth.user?.displayName ?? "Anon")!"))
+                .navigationTitle("Your Puzzle Buddy")
                 .sheet(isPresented: $present) {
                     PuzzleForm(ps: ps, isPresented: $present)
                 }
@@ -58,7 +57,12 @@ struct PuzzleList: View {
 struct PuzzleListPreviews: PreviewProvider {
     static var previews: some View {
         Group {
-            PuzzleList(ps: .init())
+            let ps = PuzzleStore()
+            PuzzleList(ps: ps)
+                .task {
+                    ps.puzzles.append(.fixture())
+                    ps.puzzles.append(.fixture())
+                }
         }
     }
 }

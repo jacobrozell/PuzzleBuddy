@@ -34,7 +34,7 @@ struct PuzzleDetail: View {
                     Spacer()
 
                     // difficulty
-                    Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "1")")
+                    Text("Difficulty: \(puzzle.difficulty.rawValue)")
 
                 }
                 .padding()
@@ -49,7 +49,7 @@ struct PuzzleDetail: View {
                     HStack {
                         Text("Estimated Time Spent:")
 
-                        Text("\(puzzle.estimatedTimeSpent?.hours ?? 0)hr \(puzzle.estimatedTimeSpent?.minutes ?? 0)min")
+                        Text(puzzle.estimatedTimeSpent.toName())
                     }
                 }
                 

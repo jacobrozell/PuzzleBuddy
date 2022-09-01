@@ -11,7 +11,7 @@ struct DifficultyView: View {
     let puzzle: Puzzle
     
     var body: some View {
-        Text("Difficulty: \(puzzle.difficulty?.rawValue ?? "1")")
+        Text("Difficulty: \(puzzle.difficulty.rawValue)")
     }
 }
 
