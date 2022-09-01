@@ -63,7 +63,7 @@ struct PuzzleFormInternal: View {
                     Picker("Rating", selection: $puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
                             Text("\(rating.rawValue)")
-                                .id(rating.rawValue)
+                                .id(rating)
                         }
                     }
                     .pickerStyle(.menu)
@@ -77,7 +77,7 @@ struct PuzzleFormInternal: View {
                     Picker("Difficulty", selection: $puzzle.difficulty) {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
                             Text("\(difficulty.rawValue)")
-                                .id(difficulty.rawValue)
+                                .id(difficulty)
                         }
                     }
                     .pickerStyle(.menu)
@@ -104,7 +104,7 @@ struct PuzzleFormInternal: View {
                     Picker("Status", selection: $puzzle.status) {
                         ForEach(Puzzle.Status.allCases) { status in
                             Text(status.rawValue)
-                                .id(status.rawValue)
+                                .id(status)
                         }
                     }
                     .pickerStyle(.menu)

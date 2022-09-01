@@ -44,7 +44,8 @@ class PuzzleStore: ObservableObject {
                     rating: .init(rawValue: $0.data()["rating"] as! String) ?? .three,
                     difficulty: .init(rawValue: $0.data()["difficulty"] as! String) ?? .three,
                     estimatedTimeSpent: .init(name: $0.data()["estimatedTimeSpent"] as! String),
-                    completionDate: ($0.data()["completionDate"] as! Timestamp).dateValue()
+                    completionDate: ($0.data()["completionDate"] as! Timestamp).dateValue(),
+                    status: Puzzle.Status(rawValue: $0.data()["status"] as! String) ?? .todo
                 )
             })
         }
@@ -67,6 +68,7 @@ class PuzzleStore: ObservableObject {
             "difficulty": puzzle.difficulty.rawValue,
             "completionDate": puzzle.completionDate,
             "estimatedTimeSpent": puzzle.estimatedTimeSpent.toName(),
+            "status": puzzle.status.rawValue,
             "owner": puzzleUser.email!
         ]) { error in
             if let error = error {

@@ -42,41 +42,27 @@ struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
-    @State private var listStatus: Puzzle.Status = .completed
-    @State private var filterInt: Int = 1 {
-        didSet {
-            switch filterInt {
-            case 0:
-                listStatus = .todo
-
-            case 1:
-                listStatus = .completed
-
-            case 2:
-                listStatus = .inProgress
-
-            default:
-                listStatus = .todo
-            }
-        }
-    }
+    @State private var listStatus: String = Puzzle.Status.completed.rawValue
 
     var body: some View {
         List {
             VStack {
-                Picker("Sort by: Status", selection: $filterInt) {
-                    Text("To-Do").tag(0)
+                Picker("Sort by: Status", selection: $listStatus) {
+                    Text("To-Do")
+                        .tag(Puzzle.Status.todo.rawValue)
 
-                    Text("Completed").tag(1)
+                    Text("Completed")
+                        .tag(Puzzle.Status.completed.rawValue)
 
-                    Text("In-Progress").tag(2)
+                    Text("In-Progress")
+                        .tag(Puzzle.Status.inProgress.rawValue)
 
                 }
                 .pickerStyle(.segmented)
                 .padding()
 
                 // List
-                ForEach(ps.puzzles.filter({ $0.status == listStatus }), id: \.id) { p in
+                ForEach(ps.puzzles.filter({ $0.status.rawValue == listStatus }), id: \.id) { p in
                     PuzzleCell(ps: ps, puzzle: p)
                 }
                 .onDelete(perform: ps.delete(at:))
