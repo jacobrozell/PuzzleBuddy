@@ -14,6 +14,7 @@ struct PuzzleListWrapper: View {
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
 
+
     var body: some View {
         VStack {
             PuzzleList(ps: ps)
@@ -41,13 +42,45 @@ struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
+    @State private var listStatus: Puzzle.Status = .completed
+    @State private var filterInt: Int = 1 {
+        didSet {
+            switch filterInt {
+            case 0:
+                listStatus = .todo
+
+            case 1:
+                listStatus = .completed
+
+            case 2:
+                listStatus = .inProgress
+
+            default:
+                listStatus = .todo
+            }
+        }
+    }
 
     var body: some View {
         List {
-            ForEach(ps.puzzles, id: \.id) { p in
-                PuzzleCell(ps: ps, puzzle: p)
+            VStack {
+                Picker("Sort by: Status", selection: $filterInt) {
+                    Text("To-Do").tag(0)
+
+                    Text("Completed").tag(1)
+
+                    Text("In-Progress").tag(2)
+
+                }
+                .pickerStyle(.segmented)
+                .padding()
+
+                // List
+                ForEach(ps.puzzles.filter({ $0.status == listStatus }), id: \.id) { p in
+                    PuzzleCell(ps: ps, puzzle: p)
+                }
+                .onDelete(perform: ps.delete(at:))
             }
-            .onDelete(perform: ps.delete(at:))
         }
         .listStyle(.automatic)
     }

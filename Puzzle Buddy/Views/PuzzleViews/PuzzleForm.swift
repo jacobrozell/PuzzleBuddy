@@ -93,8 +93,22 @@ struct PuzzleFormInternal: View {
                 TextField("Hours Spent", value: $puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
                     .keyboardType(.numberPad)
 
-                TextField("Minutes Spent", value: $puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Minutes Spent"))
+                TextField("Minutes Spent", value: $puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
                     .keyboardType(.numberPad)
+
+                HStack {
+                    Text("Status:")
+
+                    Spacer()
+
+                    Picker("Status", selection: $puzzle.status) {
+                        ForEach(Puzzle.Status.allCases) { status in
+                            Text(status.rawValue)
+                                .id(status.rawValue)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                }
             } header: {
                 Text("Stats")
                     .font(.headline)

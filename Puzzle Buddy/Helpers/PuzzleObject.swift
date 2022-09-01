@@ -57,10 +57,14 @@ class Puzzle: ObservableObject {
         }
     }
 
-    enum Status {
-        case todo
-        case inProgress
-        case completed
+    enum Status: String, CaseIterable, Identifiable {
+        case todo = "To-Do"
+        case inProgress = "In-Progress"
+        case completed = "Completed"
+
+        var id: String {
+            self.rawValue
+        }
     }
 
     var id: UUID = UUID()
@@ -70,20 +74,23 @@ class Puzzle: ObservableObject {
     @Published var difficulty: Difficulty
     @Published var estimatedTimeSpent: PuzzleTime
     @Published var completionDate: Date = Date()
+    @Published var status: Status = .todo
 
     internal init(name: String,
                   pieces: Int,
                   rating: Rating,
                   difficulty: Difficulty,
                   estimatedTimeSpent: PuzzleTime,
-                  completionDate: Date)
-    {
+                  completionDate: Date,
+                  status: Status = .todo
+    ) {
         self.name = name
         self.pieces = pieces
         self.rating = rating
         self.difficulty = difficulty
         self.estimatedTimeSpent = estimatedTimeSpent
         self.completionDate = completionDate
+        self.status = status
     }
 
 //    var category
@@ -97,8 +104,16 @@ class Puzzle: ObservableObject {
 
 }
 
+// MARK: - PuzzleFixture
 extension Puzzle {
     static func fixture() -> Puzzle {
-        .init(name: "Puzzle Buddy Test", pieces: 1000, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 10, minutes: 5), completionDate: Date())
+        .init(name: "Puzzle Buddy Test",
+              pieces: 1000,
+              rating: .three,
+              difficulty: .three,
+              estimatedTimeSpent: .init(hours: 10, minutes: 5),
+              completionDate: Date(),
+              status: .todo
+        )
     }
 }
