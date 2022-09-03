@@ -8,11 +8,36 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject var auth: FirebaseAuthProvider
+    @EnvironmentObject var eh: ErrorHandling
+
     var body: some View {
-        VStack {
-            Text("Settings")
+        List {
+            Section {
+                if let _ = auth.user {
+                    Button {
+                        do {
+                            try auth.logout()
+                        } catch {
+                            eh.handle(title: "Logout failed", message: "Whoops")
+                        }
+                    } label: {
+                        Text("Sign-Out")
+                    }
+                }
+
+                // Delete Account
+
+                // Export Data
+
+                // Reset Password
+
+            } header: {
+                Text("Account Settings")
+            }
+
+            // Notification Settings
         }
-        .navigationTitle("Settings")
     }
 }
 

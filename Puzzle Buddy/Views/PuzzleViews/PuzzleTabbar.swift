@@ -17,25 +17,29 @@ struct PuzzleTabbar: View {
 
     var body: some View {
         TabView {
-            PuzzleListWrapper(ps: ps)
-            .tabItem {
-                Label {
-                    Text("Puzzles")
-                } icon: {
-                    Image(systemName: "list.bullet.circle.fill")
-                }
+            Group {
+                PuzzleListWrapper(ps: ps)
+                    .tabItem {
+                        Label {
+                            Text("Puzzles")
+                        } icon: {
+                            Image(systemName: "list.bullet.circle.fill")
+                        }
+                    }
+                    .navigationTitle("Your Puzzle Buddy")
             }
-            .navigationTitle("Your Puzzle Buddy")
 
-            SettingsView()
-            .tabItem {
-                Label {
-                    Text("Settings")
-                } icon: {
-                    Image(systemName: "gearshape")
-                }
+            Group {
+                SettingsView()
+                    .tabItem {
+                        Label {
+                            Text("Settings")
+                        } icon: {
+                            Image(systemName: "gearshape")
+                        }
+                    }
+                    .navigationTitle("Settings")
             }
-            .navigationTitle("Settings")
         }
         .popover(isPresented: $showCreateAccount) {
             CreateAccount(isActive: $showCreateAccount)
@@ -63,20 +67,20 @@ struct PuzzleTabbar: View {
                 }
             }
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button {
-                    showProfileOptions = true
-                } label: {
-                    VStack {
-                        Image(systemName: "person.circle.fill")
-
-                        Text(auth.user?.email ?? "")
-                            .font(.footnote)
-                    }
-                }
-            }
-        }
+//        .toolbar {
+//            ToolbarItem(placement: .navigationBarTrailing) {
+//                Button {
+//                    showProfileOptions = true
+//                } label: {
+//                    VStack {
+//                        Image(systemName: "person.circle.fill")
+//
+//                        Text(auth.user?.email ?? "")
+//                            .font(.footnote)
+//                    }
+//                }
+//            }
+//        }
     }
 }
 

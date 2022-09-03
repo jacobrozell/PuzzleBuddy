@@ -22,7 +22,8 @@ struct PuzzleListWrapper: View {
             Button {
                 present.toggle()
             } label: {
-                Image(systemName: "plus.circle")
+                Text("Add Puzzle")
+                    .font(.title)
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
             }
@@ -30,7 +31,6 @@ struct PuzzleListWrapper: View {
             .buttonBorderShape(.roundedRectangle)
             .padding()
         }
-        .navigationTitle("Your Puzzle Buddy")
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
         }
@@ -45,30 +45,32 @@ struct PuzzleList: View {
     @State private var listStatus: String = Puzzle.Status.completed.rawValue
 
     var body: some View {
-        List {
-            VStack {
-                Picker("Sort by: Status", selection: $listStatus) {
-                    Text("To-Do")
-                        .tag(Puzzle.Status.todo.rawValue)
+        VStack {
+            Picker("Sort by: Status", selection: $listStatus) {
+                Text("To-Do")
+                    .tag(Puzzle.Status.todo.rawValue)
 
-                    Text("Completed")
-                        .tag(Puzzle.Status.completed.rawValue)
+                Text("Completed")
+                    .tag(Puzzle.Status.completed.rawValue)
 
-                    Text("In-Progress")
-                        .tag(Puzzle.Status.inProgress.rawValue)
+                Text("In-Progress")
+                    .tag(Puzzle.Status.inProgress.rawValue)
+            }
+            .pickerStyle(.segmented)
+            .padding()
 
-                }
-                .pickerStyle(.segmented)
-                .padding()
-
+            List {
                 // List
-                ForEach(ps.puzzles.filter({ $0.status.rawValue == listStatus }), id: \.id) { p in
-                    PuzzleCell(ps: ps, puzzle: p)
+                ForEach(ps.puzzles, id: \.id) { p in
+                    if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
+                        PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                    }
                 }
                 .onDelete(perform: ps.delete(at:))
             }
         }
         .listStyle(.automatic)
+        .animation(.linear, value: listStatus)
     }
 }
 

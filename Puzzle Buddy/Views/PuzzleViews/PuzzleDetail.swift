@@ -27,6 +27,7 @@ struct PuzzleDetail: View {
                 }
             }
         }
+        .animation(.easeInOut, value: isEditable)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
