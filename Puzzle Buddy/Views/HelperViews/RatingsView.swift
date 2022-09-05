@@ -12,9 +12,9 @@ struct RatingsView: View {
 
     var body: some View {
         StarsView(rating: Binding(get: {
-            Double(rating.rawValue) ?? 1
+            rating.rawValue
         }, set: { newValue in
-            rating = Puzzle.Rating(double: newValue)
+            rating = Puzzle.Rating(rawValue: newValue) ?? .one
         }))
     }
 }

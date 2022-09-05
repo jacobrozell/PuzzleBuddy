@@ -13,37 +13,19 @@ public typealias PuzzleUser = FirebaseAuth.User
 
 // MARK: - Puzzle
 class Puzzle: ObservableObject {
-    enum Rating: String, CaseIterable, Identifiable {
-        case one = "1"
-        case two = "2"
-        case three = "3"
-        case four = "4"
-        case five = "5"
+    enum Rating: Double, CaseIterable, Identifiable {
+        case one = 1.0
+        case oneHalf = 1.5
+        case two = 2.0
+        case twoHalf = 2.5
+        case three = 3.0
+        case threeHalf = 3.5
+        case four = 4.0
+        case fourHalf = 4.5
+        case five = 5.0
 
-        var id: String {
+        var id: Double {
             self.rawValue
-        }
-
-        init(double: Double) {
-            switch double {
-            case 1.0:
-                self = .one
-
-            case 2.0:
-                self = .two
-
-            case 3.0:
-                self = .three
-
-            case 4.0:
-                self = .four
-
-            case 5.0:
-                self = .five
-
-            default:
-                self = .one
-            }
         }
     }
 
@@ -80,7 +62,7 @@ class Puzzle: ObservableObject {
 
         /// Returns # of minutes
         func toMin() -> Int {
-            return (self.hours * 60) + self.minutes
+            return max((self.hours * 60) + self.minutes, 1)
         }
     }
 

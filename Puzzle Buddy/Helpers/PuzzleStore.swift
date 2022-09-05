@@ -38,17 +38,57 @@ class PuzzleStore: ObservableObject {
             }
 
             self.puzzles = result.documents.compactMap({
-                Puzzle(
-                    name: $0.data()["name"] as! String,
-                    pieces: $0.data()["pieces"] as! Int,
-                    rating: .init(rawValue: $0.data()["rating"] as! String) ?? .three,
-                    difficulty: .init(rawValue: $0.data()["difficulty"] as! String) ?? .three,
-                    estimatedTimeSpent: .init(name: $0.data()["estimatedTimeSpent"] as! String),
-                    completionDate: ($0.data()["completionDate"] as! Timestamp).dateValue(),
-                    status: Puzzle.Status(rawValue: $0.data()["status"] as! String) ?? .todo
-                )
+                self.parsePuzzle($0.data())
             })
         }
+    }
+
+    func parsePuzzle(_ data: [String: Any]) -> Puzzle {
+        let p: Puzzle = .fixture()
+
+        if let name = data["name"] as? String {
+            p.name = name
+        } else {
+            print("KeyError: name not found")
+        }
+
+        if let pieces = data["pieces"] as? Int {
+            p.pieces = pieces
+        } else {
+            print("KeyError: pieces not found")
+        }
+
+        if let rating = data["rating"] as? Double {
+            p.rating = Puzzle.Rating(rawValue: rating) ?? .one
+        } else {
+            print("KeyError: rating not found")
+        }
+
+        if let difficulty = data["difficulty"] as? String {
+            p.difficulty = Puzzle.Difficulty(rawValue: difficulty) ?? .one
+        } else {
+            print("KeyError: difficulty not found")
+        }
+
+        if let estimatedTimeSpent = data["estimatedTimeSpent"] as? String {
+            p.estimatedTimeSpent = Puzzle.PuzzleTime(name: estimatedTimeSpent)
+        } else {
+            print("KeyError: estimatedTimeSpent not found")
+        }
+
+        if let completionDate = data["completionDate"] as? Timestamp {
+            p.completionDate = completionDate.dateValue()
+        } else {
+            print("KeyError: completionDate not found")
+        }
+
+        if let status = data["status"] as? String {
+            p.status = Puzzle.Status(rawValue: status) ?? .todo
+        } else {
+            print("KeyError: status not found")
+        }
+
+        return p
     }
 
     func add(puzzle: Puzzle) throws {
