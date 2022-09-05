@@ -23,6 +23,28 @@ class Puzzle: ObservableObject {
         var id: String {
             self.rawValue
         }
+
+        init(double: Double) {
+            switch double {
+            case 1.0:
+                self = .one
+
+            case 2.0:
+                self = .two
+
+            case 3.0:
+                self = .three
+
+            case 4.0:
+                self = .four
+
+            case 5.0:
+                self = .five
+
+            default:
+                self = .one
+            }
+        }
     }
 
     enum Difficulty: String, CaseIterable, Identifiable {

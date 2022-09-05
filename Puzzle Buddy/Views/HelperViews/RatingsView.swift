@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct RatingsView: View {
-    @Binding var rating: Double
+    @Binding var rating: Puzzle.Rating
 
     var body: some View {
-        StarsView(rating: $rating)
+        StarsView(rating: Binding(get: {
+            Double(rating.rawValue) ?? 1
+        }, set: { newValue in
+            rating = Puzzle.Rating(double: newValue)
+        }))
     }
 }
 
@@ -60,6 +64,6 @@ private struct StarsView: View {
 
 struct RatingsView_Previews: PreviewProvider {
     static var previews: some View {
-        RatingsView(rating: .constant(3.0))
+        RatingsView(rating: .constant(.one))
     }
 }

@@ -66,7 +66,7 @@ struct DetailView: View {
                 Divider()
 
                 GroupBox {
-                    RatingsView(puzzle: $puzzle)
+                    RatingsView(rating: $puzzle.rating)
                 }
                 .padding()
 

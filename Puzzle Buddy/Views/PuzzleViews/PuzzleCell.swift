@@ -37,7 +37,7 @@ private struct PuzzleCellView: View {
 
                 Divider()
 
-                RatingsView(puzzle: $puzzle)
+                RatingsView(rating: $puzzle.rating)
                     .padding(.top)
             }
             .frame(maxWidth: .infinity)
