@@ -57,40 +57,118 @@ struct DetailView: View {
 
     var body: some View {
         VStack {
-            Image(systemName: "puzzlepiece.extension.fill")
-                .resizable()
-                .aspectRatio(2.5/2, contentMode: .fill)
-                .foregroundColor(Color.accentColor)
-                .padding(.horizontal)
+            GroupBox {
+                Image(systemName: "puzzlepiece.extension.fill")
+                    .resizable()
+                    .foregroundColor(Color.accentColor)
+                    .aspectRatio(contentMode: .fit)
+                    .padding()
+                    .frame(width: 150, height: 150, alignment: .center)
 
-            Text(puzzle.name)
-                .font(.title)
 
-            Text("\(puzzle.pieces) Pieces")
-                .font(.subheadline)
+                Text("\(puzzle.name)")
+                    .bold()
+                    .font(.body)
 
-            RatingsView(puzzle: puzzle)
-                .padding(.vertical)
+                Divider()
 
-            Divider()
-
-            Text("Difficulty: \(puzzle.difficulty.rawValue)")
-
-            // Completion Date
-            VStack {
-                HStack {
-                    Text("Date Completed: ")
-                    Text(puzzle.completionDate, style: .date)
+                GroupBox {
+                    RatingsView(puzzle: puzzle)
                 }
+                .padding()
 
-                HStack {
-                    Text("Estimated Time Spent:")
+                Text("Difficulty: \(puzzle.difficulty.rawValue)")
+                    .font(.subheadline)
+            }
+            .clipShape(Capsule())
+            .padding(.horizontal)
 
-                    Text(puzzle.estimatedTimeSpent.toName())
+            GroupBox {
+                VStack(spacing: 30) {
+                    HStack(spacing: 0) {
+                        Text("Status: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text("\(puzzle.status.rawValue)")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Brand: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text("IamABrand.inc")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Completed: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text(puzzle.completionDate, style: .date)
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Pieces: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text("\(puzzle.pieces)")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Time Spent: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text(puzzle.estimatedTimeSpent.toName())
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Pieces per min (ppm):")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text("\(puzzle.pieces / (puzzle.estimatedTimeSpent.toMin()))")
+                            .font(.subheadline)
+                            .bold()
+
+                        Text(" (ppm)")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
                 }
             }
-
-            Spacer()
+            .padding()
         }
     }
 }

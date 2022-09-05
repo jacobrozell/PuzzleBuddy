@@ -55,6 +55,11 @@ class Puzzle: ObservableObject {
         func toName() -> String {
             "\(hours)hr:\(minutes)min"
         }
+
+        /// Returns # of minutes
+        func toMin() -> Int {
+            return (self.hours * 60) + self.minutes
+        }
     }
 
     enum Status: String, CaseIterable, Identifiable {
