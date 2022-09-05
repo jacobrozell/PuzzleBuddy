@@ -70,7 +70,7 @@ struct PuzzleList: View {
             }
         }
         .listStyle(.automatic)
-        .animation(.linear, value: listStatus)
+        .animation(.default, value: listStatus)
     }
 }
 

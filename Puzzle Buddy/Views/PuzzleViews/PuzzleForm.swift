@@ -64,6 +64,7 @@ struct PuzzleFormInternal: View {
                         ForEach(Puzzle.Rating.allCases) { rating in
                             Text("\(rating.rawValue)")
                                 .id(rating)
+                                .tag(rating)
                         }
                     }
                     .pickerStyle(.menu)
@@ -78,6 +79,7 @@ struct PuzzleFormInternal: View {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
                             Text("\(difficulty.rawValue)")
                                 .id(difficulty)
+                                .tag(difficulty)
                         }
                     }
                     .pickerStyle(.menu)
@@ -105,6 +107,7 @@ struct PuzzleFormInternal: View {
                         ForEach(Puzzle.Status.allCases) { status in
                             Text(status.rawValue)
                                 .id(status)
+                                .tag(status)
                         }
                     }
                     .pickerStyle(.menu)

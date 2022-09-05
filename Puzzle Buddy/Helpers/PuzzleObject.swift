@@ -42,14 +42,14 @@ class Puzzle: ObservableObject {
         var minutes: Int
 
         init(hours: Int? = nil, minutes: Int? = nil) {
-            self.hours = hours ?? 0
-            self.minutes = minutes ?? 0
+            self.hours = hours ?? 1
+            self.minutes = minutes ?? 1
         }
 
         init(name: String) {
             let intArray = name.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({ Int($0) })
-            self.hours = intArray.first ?? 0
-            self.minutes = intArray.last ?? 0
+            self.hours = intArray.first ?? 1
+            self.minutes = intArray.last ?? 1
         }
 
         func toName() -> String {
