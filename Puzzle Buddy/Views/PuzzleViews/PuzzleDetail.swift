@@ -5,6 +5,7 @@
 //  Created by Jacob Rozell on 8/31/22.
 //
 
+import FirebaseFirestore
 import SwiftUI
 
 struct PuzzleDetail: View {
@@ -34,6 +35,8 @@ struct PuzzleDetail: View {
 
                     // Save Pressed
                     //Attempt to save to database
+                    #warning("add reference to ps here")
+//                    ps.update(puzzle: puzzle)
                     // Then Switch back if successful
                     isEditable.toggle()
 

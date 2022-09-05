@@ -111,6 +111,19 @@ class Puzzle: ObservableObject {
 //    var image: UIImage // reverse image search to find info
     // var urlLink
 
+    func getDataFields() -> [String: Any] {
+        return [
+            "name": name,
+            "pieces": pieces,
+            "rating": rating.rawValue,
+            "difficulty": difficulty.rawValue,
+            "completionDate": completionDate,
+            "estimatedTimeSpent": estimatedTimeSpent.toName(),
+            "status": status.rawValue,
+        ]
+        
+    }
+
 }
 
 // MARK: - PuzzleFixture

@@ -101,16 +101,7 @@ class PuzzleStore: ObservableObject {
 
         let puzzlesRef = store.collection(path)
 
-        puzzlesRef.document(puzzle.name).setData([
-            "name": puzzle.name,
-            "pieces": puzzle.pieces,
-            "rating": puzzle.rating.rawValue,
-            "difficulty": puzzle.difficulty.rawValue,
-            "completionDate": puzzle.completionDate,
-            "estimatedTimeSpent": puzzle.estimatedTimeSpent.toName(),
-            "status": puzzle.status.rawValue,
-            "owner": puzzleUser.email!
-        ]) { error in
+        puzzlesRef.document(puzzle.name).setData(puzzle.getDataFields()) { error in
             if let error = error {
                 print("Error adding Puzzle: \(error.localizedDescription)")
             } else {
@@ -143,6 +134,12 @@ class PuzzleStore: ObservableObject {
     }
 
     func update(puzzle: Puzzle) {
-        print("TODO")
+        store.collection(path).document(puzzle.name).updateData(puzzle.getDataFields()) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                print("Puzzle: \(puzzle.name) updated succesfully!")
+            }
+        }
     }
 }
