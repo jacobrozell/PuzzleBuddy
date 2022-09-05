@@ -8,14 +8,8 @@
 import SwiftUI
 
 struct PuzzleDetail: View {
-    @ObservedObject var ps: PuzzleStore
     @State private var isEditable = false
-    @State private var puzzle: Puzzle
-
-    init(ps: PuzzleStore, puzzle: Puzzle) {
-        _ps = ObservedObject(wrappedValue: ps)
-        self.puzzle = puzzle
-    }
+    @Binding var puzzle: Puzzle
 
     var body: some View {
         VStack {
@@ -23,7 +17,7 @@ struct PuzzleDetail: View {
                 PuzzleFormInternal(puzzle: $puzzle)
             } else {
                 ScrollView {
-                    DetailView(puzzle: puzzle)
+                    DetailView(puzzle: $puzzle)
                 }
             }
         }
@@ -53,7 +47,7 @@ struct PuzzleDetail: View {
 
 // MARK: - DetailView
 struct DetailView: View {
-    let puzzle: Puzzle
+    @Binding var puzzle: Puzzle
 
     var body: some View {
         VStack {
@@ -62,9 +56,8 @@ struct DetailView: View {
                     .resizable()
                     .foregroundColor(Color.accentColor)
                     .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
                     .padding()
-                    .frame(width: 150, height: 150, alignment: .center)
-
 
                 Text("\(puzzle.name)")
                     .bold()
@@ -73,7 +66,7 @@ struct DetailView: View {
                 Divider()
 
                 GroupBox {
-                    RatingsView(puzzle: puzzle)
+                    RatingsView(puzzle: $puzzle)
                 }
                 .padding()
 
@@ -177,7 +170,7 @@ struct DetailView: View {
 struct PuzzleDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            PuzzleDetail(ps: .init(), puzzle: .fixture())
+            PuzzleDetail(puzzle: .constant(.fixture()))
         }
     }
 }

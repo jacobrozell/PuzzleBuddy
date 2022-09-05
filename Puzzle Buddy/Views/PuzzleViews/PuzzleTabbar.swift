@@ -19,6 +19,7 @@ struct PuzzleTabbar: View {
         TabView {
             Group {
                 PuzzleListWrapper(ps: ps)
+                    .navigationTitle("Your Puzzle Buddy")
                     .tabItem {
                         Label {
                             Text("Puzzles")
@@ -26,11 +27,11 @@ struct PuzzleTabbar: View {
                             Image(systemName: "list.bullet.circle.fill")
                         }
                     }
-                    .navigationTitle("Your Puzzle Buddy")
             }
 
             Group {
                 SettingsView()
+                    .navigationTitle("Settings")
                     .tabItem {
                         Label {
                             Text("Settings")
@@ -38,7 +39,6 @@ struct PuzzleTabbar: View {
                             Image(systemName: "gearshape")
                         }
                     }
-                    .navigationTitle("Settings")
             }
         }
         .popover(isPresented: $showCreateAccount) {
@@ -67,20 +67,6 @@ struct PuzzleTabbar: View {
                 }
             }
         }
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                Button {
-//                    showProfileOptions = true
-//                } label: {
-//                    VStack {
-//                        Image(systemName: "person.circle.fill")
-//
-//                        Text(auth.user?.email ?? "")
-//                            .font(.footnote)
-//                    }
-//                }
-//            }
-//        }
     }
 }
 

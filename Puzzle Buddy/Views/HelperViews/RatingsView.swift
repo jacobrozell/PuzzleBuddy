@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct RatingsView: View {
-    let puzzle: Puzzle
+    @Binding var rating: Double
 
     var body: some View {
-        StarsView(rating: Float(puzzle.rating.rawValue) ?? 3)
+        StarsView(rating: $rating)
     }
 }
 
@@ -19,15 +19,15 @@ private struct StarsView: View {
     private static let MAX_RATING: Float = 5 // Defines upper limit of the rating
     private static let COLOR = Color.orange // The color of the stars
 
-    let rating: Float
+    @Binding var rating: Double
     private let fullCount: Int
     private let emptyCount: Int
     private let halfFullCount: Int
 
-    init(rating: Float) {
-        self.rating = rating
-        fullCount = Int(rating)
-        emptyCount = Int(StarsView.MAX_RATING - rating)
+    init(rating: Binding<Double>) {
+        self._rating = rating
+        fullCount = Int(rating.wrappedValue)
+        emptyCount = Int(StarsView.MAX_RATING - Float(rating.wrappedValue))
         halfFullCount = (Float(fullCount + emptyCount) < StarsView.MAX_RATING) ? 1 : 0
     }
 
@@ -60,6 +60,6 @@ private struct StarsView: View {
 
 struct RatingsView_Previews: PreviewProvider {
     static var previews: some View {
-        RatingsView(puzzle: .fixture())
+        RatingsView(rating: .constant(3.0))
     }
 }
