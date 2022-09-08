@@ -24,13 +24,13 @@ private struct StarsView: View {
     private static let COLOR = Color.orange // The color of the stars
 
     @Binding var rating: Double
-    private let fullCount: Int
-    private let emptyCount: Int
-    private let halfFullCount: Int
+    @State private var fullCount: Int
+    @State private var emptyCount: Int
+    @State private var halfFullCount: Int = 0
 
     init(rating: Binding<Double>) {
         self._rating = rating
-        fullCount = Int(rating.wrappedValue)
+        self.fullCount = Int(rating.wrappedValue)
         emptyCount = Int(StarsView.MAX_RATING - Float(rating.wrappedValue))
         halfFullCount = (Float(fullCount + emptyCount) < StarsView.MAX_RATING) ? 1 : 0
     }
@@ -47,6 +47,15 @@ private struct StarsView: View {
                 self.emptyStar
             }
         }
+        .task {
+            calc()
+        }
+    }
+
+    private func calc() {
+        fullCount = Int($rating.wrappedValue)
+        emptyCount = Int(StarsView.MAX_RATING - Float($rating.wrappedValue))
+        halfFullCount = (Float(fullCount + emptyCount) < StarsView.MAX_RATING) ? 1 : 0
     }
 
     private var fullStar: some View {

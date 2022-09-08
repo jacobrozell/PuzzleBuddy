@@ -9,6 +9,7 @@ import FirebaseFirestore
 import SwiftUI
 
 struct PuzzleDetail: View {
+    @ObservedObject var ps: PuzzleStore
     @State private var isEditable = false
     @Binding var puzzle: Puzzle
 
@@ -36,7 +37,7 @@ struct PuzzleDetail: View {
                     // Save Pressed
                     //Attempt to save to database
                     #warning("add reference to ps here")
-//                    ps.update(puzzle: puzzle)
+                    ps.update(puzzle: puzzle)
                     // Then Switch back if successful
                     isEditable.toggle()
 
@@ -173,7 +174,7 @@ struct DetailView: View {
 struct PuzzleDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            PuzzleDetail(puzzle: .constant(.fixture()))
+            PuzzleDetail(ps: .init(), puzzle: .constant(.fixture()))
         }
     }
 }

@@ -9,11 +9,12 @@ import SwiftUI
 
 // MARK: - PuzzleCell
 struct PuzzleCell: View {
+    @ObservedObject var ps: PuzzleStore
     @Binding var puzzle: Puzzle
 
     var body: some View {
         NavigationLink {
-            PuzzleDetail(puzzle: $puzzle)
+            PuzzleDetail(ps: ps, puzzle: $puzzle)
         } label: {
             PuzzleCellView(puzzle: $puzzle)
                 .padding(.horizontal)
@@ -92,8 +93,8 @@ private struct PuzzleCellView: View {
 struct PuzzleCellPreview: PreviewProvider {
     static var previews: some View {
         VStack {
-            PuzzleCell(puzzle: .constant(.fixture()))
-            PuzzleCell(puzzle: .constant(.fixture()))
+            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
+            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
         }
     }
 }
