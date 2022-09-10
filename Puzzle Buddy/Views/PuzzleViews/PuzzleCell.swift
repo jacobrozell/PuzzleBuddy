@@ -17,7 +17,7 @@ struct PuzzleCell: View {
             PuzzleDetail(ps: ps, puzzle: $puzzle)
         } label: {
             PuzzleCellView(puzzle: $puzzle)
-                .padding(.horizontal)
+                .padding()
         }
         .frame(maxWidth: .infinity)
         .padding()
@@ -71,12 +71,16 @@ private struct PuzzleCellView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical)
 
-            HStack(alignment: .bottom) {
+            VStack {
                 Text("Completed:")
+                    .bold()
+                
                 Text(puzzle.completionDate, style: .date)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity)
+                    .lineLimit(0)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .aspectRatio(contentMode: .fit)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
         .overlay(alignment: .topLeading) {
             Text(puzzle.difficulty.rawValue)
