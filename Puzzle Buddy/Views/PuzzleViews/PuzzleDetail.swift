@@ -16,7 +16,7 @@ struct PuzzleDetail: View {
     var body: some View {
         VStack {
             if isEditable {
-                PuzzleFormInternal(puzzle: $puzzle)
+                PuzzleFormInternal(formVm: .init(puzzle: puzzle))
             } else {
                 ScrollView {
                     DetailView(puzzle: $puzzle)
@@ -36,8 +36,8 @@ struct PuzzleDetail: View {
 
                     // Save Pressed
                     //Attempt to save to database
-                    #warning("add reference to ps here")
                     ps.update(puzzle: puzzle)
+                    
                     // Then Switch back if successful
                     isEditable.toggle()
 

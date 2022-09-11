@@ -9,39 +9,52 @@ import Photos
 import PhotosUI
 import SwiftUI
 
+class PuzzleFormViewModel: ObservableObject {
+    @Published var puzzle: Puzzle
+
+    init() {
+        self.puzzle = .init(name: "", pieces: 0, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 0, minutes: 0), completionDate: Date())
+    }
+
+    init(puzzle: Puzzle) {
+        self.puzzle = puzzle
+    }
+}
+
 // MARK: - PuzzleForm
 struct PuzzleForm: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
     @Binding var isPresented: Bool
 
-    @State private var puzzle: Puzzle
+    @StateObject var formVm: PuzzleFormViewModel
 
     /// Detail Init
     init(puzzle: Puzzle, ps: PuzzleStore) {
         self._ps = ObservedObject(wrappedValue: ps)
         self._isPresented = .constant(false)
-        self.puzzle = puzzle
+        self._formVm = StateObject(wrappedValue: PuzzleFormViewModel(puzzle: puzzle))
     }
 
     /// Normal Path Init
     init(isPresented: Binding<Bool>, ps: PuzzleStore) {
         self._ps = ObservedObject(wrappedValue: ps)
         self._isPresented = isPresented
-        self.puzzle = .init(name: "", pieces: 0, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 0, minutes: 0), completionDate: Date())
+        self._formVm = StateObject(wrappedValue: PuzzleFormViewModel())
     }
 
     var body: some View {
         VStack {
-            PuzzleFormInternal(puzzle: $puzzle)
-            SubmitAddButton(ps: ps, puzzle: $puzzle, isPresented: $isPresented)
+            PuzzleFormInternal(formVm: formVm)
+
+            SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented)
         }
     }
 }
 
 // MARK: - PuzzleFormInternal
 struct PuzzleFormInternal: View {
-    @Binding var puzzle: Puzzle
+    @ObservedObject var formVm: PuzzleFormViewModel
 
     var body: some View {
         Form {
@@ -52,7 +65,7 @@ struct PuzzleFormInternal: View {
 
                         Spacer()
 
-                        TextField("Name", text: $puzzle.name, prompt: Text("Puzzle Name"))
+                        TextField("Name", text: $formVm.puzzle.name, prompt: Text("Puzzle Name"))
                             .keyboardType(.namePhonePad)
                             .disableAutocorrection(true)
                             .multilineTextAlignment(.trailing)
@@ -65,7 +78,7 @@ struct PuzzleFormInternal: View {
 
                         Spacer()
 
-                        TextField("Pieces", value: $puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
+                        TextField("Pieces", value: $formVm.puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.trailing)
                     }
@@ -77,7 +90,7 @@ struct PuzzleFormInternal: View {
 
                         Spacer()
 
-                        Picker("Status", selection: $puzzle.status) {
+                        Picker("Status", selection: $formVm.puzzle.status) {
                             ForEach(Puzzle.Status.allCases) { status in
                                 Text(status.rawValue)
                                     .id(status)
@@ -99,7 +112,7 @@ struct PuzzleFormInternal: View {
                     Spacer()
 
                     // TODO: Editable RatingsView
-                    Picker("Rating", selection: $puzzle.rating) {
+                    Picker("Rating", selection: $formVm.puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
                             Text("\(rating.rawValue, specifier: "%.1f")")
                                 .id(rating)
@@ -114,7 +127,7 @@ struct PuzzleFormInternal: View {
 
                     Spacer()
 
-                    Picker("Difficulty", selection: $puzzle.difficulty) {
+                    Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
                             Text("\(difficulty.rawValue)")
                                 .id(difficulty)
@@ -134,7 +147,7 @@ struct PuzzleFormInternal: View {
 
                     Spacer()
 
-                    TextField("Hours Spent", value: $puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
+                    TextField("Hours Spent", value: $formVm.puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
                         .keyboardType(.numberPad)
                         .frame(alignment: .trailing)
                         .multilineTextAlignment(.trailing)
@@ -145,7 +158,7 @@ struct PuzzleFormInternal: View {
 
                     Spacer()
 
-                    TextField("Minutes Spent", value: $puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
+                    TextField("Minutes Spent", value: $formVm.puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.trailing)
                 }
@@ -155,10 +168,10 @@ struct PuzzleFormInternal: View {
 
             // Completion Section
             Section {
-                DatePicker("Completion Date", selection: $puzzle.completionDate)
+                DatePicker("Completion Date", selection: $formVm.puzzle.completionDate)
                     .datePickerStyle(.graphical)
             } header: {
-                Text("When did you finish \(!puzzle.name.isEmpty ? puzzle.name : "the puzzle")?")
+                Text("When did you finish \(!formVm.puzzle.name.isEmpty ? formVm.puzzle.name : "the puzzle")?")
             }
 
             // Image Section
@@ -187,13 +200,13 @@ struct ImageCell: View {
 struct SubmitAddButton: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
-    @Binding var puzzle: Puzzle
+    @ObservedObject var formVm: PuzzleFormViewModel
     @Binding var isPresented: Bool
 
     var body: some View {
         Button {
             do {
-                try ps.add(puzzle: puzzle)
+                try ps.add(puzzle: formVm.puzzle)
 
                 // dismiss view
                 isPresented = false
@@ -210,8 +223,8 @@ struct SubmitAddButton: View {
         .background(Color.blue)
         .cornerRadius(16.0)
         .padding(.horizontal)
-        .disabled($puzzle.wrappedValue.name.isEmpty)
-        .opacity($puzzle.wrappedValue.name.isEmpty ? 0.6 : 1.0)
+        .disabled(formVm.puzzle.name.isEmpty)
+        .opacity(!formVm.puzzle.name.isEmpty ? 1.0 : 0.8)
     }
 }
 
