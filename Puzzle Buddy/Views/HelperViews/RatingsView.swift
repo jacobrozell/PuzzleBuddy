@@ -102,15 +102,15 @@ private struct StarsView: View {
     }
 
     private var fullStar: some View {
-        Image(systemName: "star.fill").foregroundColor(.accentColor)
+        Image(systemName: "star.fill").foregroundColor(.orange)
     }
 
     private var halfFullStar: some View {
-        Image(systemName: "star.lefthalf.fill").foregroundColor(.accentColor)
+        Image(systemName: "star.lefthalf.fill").foregroundColor(.orange)
     }
 
     private var emptyStar: some View {
-        Image(systemName: "star").foregroundColor(.accentColor)
+        Image(systemName: "star").foregroundColor(.orange)
     }
 }
 

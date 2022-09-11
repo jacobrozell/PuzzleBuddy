@@ -41,28 +41,65 @@ struct PuzzleForm: View {
 struct PuzzleFormInternal: View {
     @Binding var puzzle: Puzzle
 
-    init(puzzle: Binding<Puzzle>) {
-        self._puzzle = puzzle
-    }
-
     var body: some View {
         Form {
             Section {
-                TextField("Name", text: $puzzle.name, prompt: Text("Puzzle Name"))
-                    .keyboardType(.namePhonePad)
-                    .disableAutocorrection(true)
+                VStack {
+                    HStack {
+                        Text("Name:")
 
-                TextField("Pieces", value: $puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
-                    .keyboardType(.numberPad)
+                        Spacer()
 
+                        TextField("Name", text: $puzzle.name, prompt: Text("Puzzle Name"))
+                            .keyboardType(.namePhonePad)
+                            .disableAutocorrection(true)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    Divider()
+
+                    HStack {
+                        Text("Pieces:")
+
+                        Spacer()
+
+                        TextField("Pieces", value: $puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    Divider()
+
+                    HStack {
+                        Text("Status:")
+
+                        Spacer()
+
+                        Picker("Status", selection: $puzzle.status) {
+                            ForEach(Puzzle.Status.allCases) { status in
+                                Text(status.rawValue)
+                                    .id(status)
+                                    .tag(status)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                }
+            } header: {
+                Text("Puzzle Info")
+            }
+
+            // Rating Section
+            Section {
                 HStack {
                     Text("Rating:")
 
                     Spacer()
 
+                    // TODO: Editable RatingsView
                     Picker("Rating", selection: $puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
-                            Text("\(rating.rawValue)")
+                            Text("\(rating.rawValue, specifier: "%.1f")")
                                 .id(rating)
                                 .tag(rating)
                         }
@@ -84,45 +121,42 @@ struct PuzzleFormInternal: View {
                     }
                     .pickerStyle(.menu)
                 }
-
             } header: {
-                Text("Puzzle Info")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("How did you like it?")
             }
 
+            // Time Spent Section
             Section {
-                TextField("Hours Spent", value: $puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
-                    .keyboardType(.numberPad)
-
-                TextField("Minutes Spent", value: $puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
-                    .keyboardType(.numberPad)
-
                 HStack {
-                    Text("Status:")
+                    Text("Hours Spent:")
 
                     Spacer()
 
-                    Picker("Status", selection: $puzzle.status) {
-                        ForEach(Puzzle.Status.allCases) { status in
-                            Text(status.rawValue)
-                                .id(status)
-                                .tag(status)
-                        }
-                    }
-                    .pickerStyle(.menu)
+                    TextField("Hours Spent", value: $puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
+                        .keyboardType(.numberPad)
+                        .frame(alignment: .trailing)
+                        .multilineTextAlignment(.trailing)
+                }
+
+                HStack {
+                    Text("Minutes Spent:")
+
+                    Spacer()
+
+                    TextField("Minutes Spent", value: $puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
                 }
             } header: {
-                Text("Stats")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("How long did it take?")
             }
 
+            // Completion Section
             Section {
                 DatePicker("Completion Date", selection: $puzzle.completionDate)
                     .datePickerStyle(.graphical)
             } header: {
-                Text("Date Completed")
+                Text("When did you finish \(!puzzle.name.isEmpty ? puzzle.name : "the puzzle")?")
             }
         }
     }
@@ -155,6 +189,7 @@ struct SubmitAddButton: View {
         .background(Color.blue)
         .cornerRadius(16.0)
         .padding(.horizontal)
+        .disabled(puzzle.name.isEmpty)
     }
 }
 
