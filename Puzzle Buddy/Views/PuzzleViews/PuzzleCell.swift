@@ -74,7 +74,7 @@ private struct PuzzleCellView: View {
             VStack {
                 Text("Completed:")
                     .bold()
-                
+
                 Text(puzzle.completionDate, style: .date)
                     .lineLimit(0)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

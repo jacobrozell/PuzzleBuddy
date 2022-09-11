@@ -20,54 +20,97 @@ struct RatingsView: View {
 }
 
 private struct StarsView: View {
-    private static let MAX_RATING: Float = 5 // Defines upper limit of the rating
-    private static let COLOR = Color.orange // The color of the stars
-
     @Binding var rating: Double
-    @State private var fullCount: Int
-    @State private var emptyCount: Int
-    @State private var halfFullCount: Int = 0
-
-    init(rating: Binding<Double>) {
-        self._rating = rating
-        self.fullCount = Int(rating.wrappedValue)
-        emptyCount = Int(StarsView.MAX_RATING - Float(rating.wrappedValue))
-        halfFullCount = (Float(fullCount + emptyCount) < StarsView.MAX_RATING) ? 1 : 0
-    }
 
     var body: some View {
         HStack {
-            ForEach(0..<fullCount) { _ in
-                self.fullStar
-            }
-            ForEach(0..<halfFullCount) { _ in
-                self.halfFullStar
-            }
-            ForEach(0..<emptyCount) { _ in
-                self.emptyStar
-            }
-        }
-        .task {
-            calc()
-        }
-    }
+            switch rating {
+            case 0:
+                emptyStar
+                emptyStar
+                emptyStar
+                emptyStar
+                emptyStar
 
-    private func calc() {
-        fullCount = Int($rating.wrappedValue)
-        emptyCount = Int(StarsView.MAX_RATING - Float($rating.wrappedValue))
-        halfFullCount = (Float(fullCount + emptyCount) < StarsView.MAX_RATING) ? 1 : 0
+            case 1:
+                fullStar
+                emptyStar
+                emptyStar
+                emptyStar
+                emptyStar
+
+            case 1.5:
+                fullStar
+                halfFullStar
+                emptyStar
+                emptyStar
+                emptyStar
+
+            case 2.0:
+                fullStar
+                fullStar
+                emptyStar
+                emptyStar
+                emptyStar
+
+            case 2.5:
+                fullStar
+                fullStar
+                halfFullStar
+                emptyStar
+                emptyStar
+
+            case 3.0:
+                fullStar
+                fullStar
+                fullStar
+                emptyStar
+                emptyStar
+
+            case 3.5:
+                fullStar
+                fullStar
+                fullStar
+                halfFullStar
+                emptyStar
+
+            case 4.0:
+                fullStar
+                fullStar
+                fullStar
+                fullStar
+                emptyStar
+
+            case 4.5:
+                fullStar
+                fullStar
+                fullStar
+                halfFullStar
+                emptyStar
+
+            case 5.0:
+                fullStar
+                fullStar
+                fullStar
+                fullStar
+                fullStar
+
+            default:
+                Text("N/A")
+            }
+        }
     }
 
     private var fullStar: some View {
-        Image(systemName: "star.fill").foregroundColor(StarsView.COLOR)
+        Image(systemName: "star.fill").foregroundColor(.accentColor)
     }
 
     private var halfFullStar: some View {
-        Image(systemName: "star.lefthalf.fill").foregroundColor(StarsView.COLOR)
+        Image(systemName: "star.lefthalf.fill").foregroundColor(.accentColor)
     }
 
     private var emptyStar: some View {
-        Image(systemName: "star").foregroundColor(StarsView.COLOR)
+        Image(systemName: "star").foregroundColor(.accentColor)
     }
 }
 
