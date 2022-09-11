@@ -47,47 +47,58 @@ private struct PuzzleCellView: View {
             .padding()
             .padding()
 
-            if expanded {
-                VStack {
-                    HStack {
-                        Text("Total Pieces:")
-                            .bold()
+            Group {
+                if expanded {
+                    VStack {
+                        HStack {
+                            Text("Total Pieces:")
+                                .bold()
 
-                        Text("\(puzzle.pieces)")
+                            Spacer()
+
+                            Text("\(puzzle.pieces)")
+                        }
+
+                        HStack {
+                            Text("Time Spent:")
+                                .bold()
+
+                            Spacer()
+
+                            Text(puzzle.estimatedTimeSpent.toName())
+                        }
+
+                        HStack {
+                            Text("Completed:")
+                                .bold()
+
+                            Spacer()
+
+                            Text(puzzle.completionDate, style: .date)
+                                .lineLimit(0)
+                        }
+
+                        HStack {
+                            Text("Difficulty:")
+                                .bold()
+
+                            Spacer()
+
+                            Text(puzzle.difficulty.rawValue)
+                                .lineLimit(0)
+                        }
+
+                        Spacer()
                     }
-
-                    HStack {
-                        Text("Time Spent:")
-                            .bold()
-
-                        Text(puzzle.estimatedTimeSpent.toName())
-                    }
-
-                    HStack {
-                        Text("Completed:")
-                            .bold()
-
-                        Text(puzzle.completionDate, style: .date)
-                            .lineLimit(0)
-                    }
-
-                    HStack {
-                        Text("Difficulty:")
-                            .bold()
-
-                        Text(puzzle.difficulty.rawValue)
-                            .lineLimit(0)
-                    }
-
-                    Spacer()
+                    .padding()
                 }
-                .padding()
             }
+            .animation(.easeInOut, value: expanded)
         }
-        .overlay(alignment: .bottomLeading) {
+        .overlay(alignment: .topTrailing) {
             Text(expanded ? "↑" : "↓")
-                .foregroundColor(.primary)
-                .animation(.linear, value: expanded)
+                .foregroundColor(.white)
+                .animation(.spring(), value: expanded)
                 .onTapGesture {
                     expanded.toggle()
                 }
