@@ -114,9 +114,15 @@ struct PuzzleFormInternal: View {
                     // TODO: Editable RatingsView
                     Picker("Rating", selection: $formVm.puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
-                            Text("\(rating.rawValue, specifier: "%.1f")")
-                                .id(rating)
-                                .tag(rating)
+                            Group {
+                                if rating == .none {
+                                    Text("N/A")
+                                } else {
+                                    Text("\(rating.rawValue, specifier: "%.1f")")
+                                }
+                            }
+                            .id(rating)
+                            .tag(rating)
                         }
                     }
                     .pickerStyle(.menu)
@@ -129,9 +135,15 @@ struct PuzzleFormInternal: View {
 
                     Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
-                            Text("\(difficulty.rawValue)")
-                                .id(difficulty)
-                                .tag(difficulty)
+                            Group {
+                                if difficulty == .none {
+                                    Text("N/A")
+                                } else {
+                                    Text("\(difficulty.rawValue)")
+                                }
+                            }
+                            .id(difficulty)
+                            .tag(difficulty)
                         }
                     }
                     .pickerStyle(.menu)
@@ -147,10 +159,14 @@ struct PuzzleFormInternal: View {
 
                     Spacer()
 
-                    TextField("Hours Spent", value: $formVm.puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
-                        .keyboardType(.numberPad)
-                        .frame(alignment: .trailing)
-                        .multilineTextAlignment(.trailing)
+                    TextField("Hours Spent", value: Binding {
+                        formVm.puzzle.estimatedTimeSpent?.hours ?? 0
+                    } set: { new in
+                        formVm.puzzle.estimatedTimeSpent?.hours = new
+                    }, format: .number, prompt: Text("Estimated Hours Spent"))
+                    .keyboardType(.numberPad)
+                    .frame(alignment: .trailing)
+                    .multilineTextAlignment(.trailing)
                 }
 
                 HStack {
@@ -158,9 +174,13 @@ struct PuzzleFormInternal: View {
 
                     Spacer()
 
-                    TextField("Minutes Spent", value: $formVm.puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
-                        .keyboardType(.numberPad)
-                        .multilineTextAlignment(.trailing)
+                    TextField("Minutes Spent", value: Binding {
+                        formVm.puzzle.estimatedTimeSpent?.minutes ?? 0
+                    } set: { new in
+                        formVm.puzzle.estimatedTimeSpent?.minutes = new
+                    }, format: .number, prompt: Text("Estimated Minutes Spent"))
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing)
                 }
             } header: {
                 Text("How long did it take?")

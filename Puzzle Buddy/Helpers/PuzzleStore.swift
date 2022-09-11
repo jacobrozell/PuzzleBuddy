@@ -100,8 +100,7 @@ class PuzzleStore: ObservableObject {
         }
 
         let puzzlesRef = store.collection(path)
-
-        puzzlesRef.document(puzzle.name).setData(puzzle.getDataFields()) { error in
+        puzzlesRef.document().setData(puzzle.getDataFields()) { error in
             if let error = error {
                 print("Error adding Puzzle: \(error.localizedDescription)")
             } else {
@@ -134,11 +133,23 @@ class PuzzleStore: ObservableObject {
     }
 
     func update(puzzle: Puzzle) {
-        store.collection(path).document(puzzle.name).updateData(puzzle.getDataFields()) { error in
-            if let error = error {
-                print(error.localizedDescription)
+        store.collection(path).getDocuments { result, error in
+            guard let result = result else {
+                return
+            }
+
+            // Find documentID by finding first document with the same name as the puzzle
+            if let doc = result.documents.filter({ $0.data()["name"] as? String == puzzle.name }).first {
+                self.store.collection(self.path).document(doc.documentID).updateData(puzzle.getDataFields()) { error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    } else {
+                        print("Puzzle: \(puzzle.name) updated succesfully!")
+                    }
+                }
             } else {
-                print("Puzzle: \(puzzle.name) updated succesfully!")
+                // Name must have changed
+//                self.add(puzzle: puzzle)
             }
         }
     }

@@ -11,7 +11,11 @@ struct DifficultyView: View {
     let puzzle: Puzzle
     
     var body: some View {
-        Text("Difficulty: \(puzzle.difficulty.rawValue)")
+        if puzzle.difficulty == .none {
+            Text("N/A")
+        } else {
+            Text("Difficulty: \(puzzle.difficulty.rawValue)")
+        }
     }
 }
 

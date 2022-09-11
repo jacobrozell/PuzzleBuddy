@@ -16,6 +16,8 @@ struct PuzzleDetail: View {
     var body: some View {
         VStack {
             if isEditable {
+                // making a new copy of the puzzle here ???
+                // this is why cell is not updating right away
                 PuzzleFormInternal(formVm: .init(puzzle: puzzle))
             } else {
                 ScrollView {
@@ -37,7 +39,7 @@ struct PuzzleDetail: View {
                     // Save Pressed
                     //Attempt to save to database
                     ps.update(puzzle: puzzle)
-                    
+
                     // Then Switch back if successful
                     isEditable.toggle()
 
@@ -67,15 +69,21 @@ struct DetailView: View {
                     .bold()
                     .font(.body)
 
-                Divider()
-
-                GroupBox {
-                    RatingsView(rating: $puzzle.rating)
+                if puzzle.rating != .none {
+                    GroupBox {
+                        RatingsView(rating: Binding(get: {
+                            puzzle.rating
+                        }, set: { new in
+                            puzzle.rating = new
+                        }))
+                    }
+                    .padding()
                 }
-                .padding()
 
-                Text("Difficulty: \(puzzle.difficulty.rawValue)")
-                    .font(.subheadline)
+                if puzzle.difficulty != .none {
+                    Text("Difficulty: \(puzzle.difficulty.rawValue)")
+                        .font(.subheadline)
+                }
             }
             .clipShape(Capsule())
             .padding(.horizontal)
@@ -121,48 +129,52 @@ struct DetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
 
-                    HStack(spacing: 0) {
-                        Text("Pieces: ")
-                            .font(.subheadline)
+                    if let estimatedTimeSpent = puzzle.estimatedTimeSpent {
+                        HStack(spacing: 0) {
+                            Text("Time Spent: ")
+                                .font(.subheadline)
 
-                        Spacer()
+                            Spacer()
 
-                        Text("\(puzzle.pieces)")
-                            .font(.subheadline)
-                            .bold()
+                            Text(estimatedTimeSpent.toName() ?? "")
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
 
-                    HStack(spacing: 0) {
-                        Text("Time Spent: ")
-                            .font(.subheadline)
+                    if let pieces = puzzle.pieces {
+                        HStack(spacing: 0) {
+                            Text("Pieces: ")
+                                .font(.subheadline)
 
-                        Spacer()
+                            Spacer()
 
-                        Text(puzzle.estimatedTimeSpent.toName())
-                            .font(.subheadline)
-                            .bold()
+                            Text("\(pieces)")
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+
+                        HStack(spacing: 0) {
+                            Text("Pieces per min (ppm):")
+                                .font(.subheadline)
+
+                            Spacer()
+
+                            Text("\(pieces / (puzzle.estimatedTimeSpent?.toMin() ?? 1))")
+                                .font(.subheadline)
+                                .bold()
+
+                            Text(" (ppm)")
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-
-                    HStack(spacing: 0) {
-                        Text("Pieces per min (ppm):")
-                            .font(.subheadline)
-
-                        Spacer()
-
-                        Text("\(puzzle.pieces / (puzzle.estimatedTimeSpent.toMin()))")
-                            .font(.subheadline)
-                            .bold()
-
-                        Text(" (ppm)")
-                            .font(.subheadline)
-                            .bold()
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
                 }
             }
             .padding()

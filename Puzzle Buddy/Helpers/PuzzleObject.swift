@@ -14,6 +14,7 @@ public typealias PuzzleUser = FirebaseAuth.User
 // MARK: - Puzzle
 class Puzzle: ObservableObject {
     enum Rating: Double, CaseIterable, Identifiable {
+        case none = 0.0
         case one = 1.0
         case oneHalf = 1.5
         case two = 2.0
@@ -30,6 +31,7 @@ class Puzzle: ObservableObject {
     }
 
     enum Difficulty: String, CaseIterable, Identifiable {
+        case none = "0"
         case one = "1"
         case two = "2"
         case three = "3"
@@ -78,10 +80,10 @@ class Puzzle: ObservableObject {
 
     var id: UUID = UUID()
     @Published var name: String = ""
-    @Published var pieces: Int = 500
-    @Published var rating: Rating
-    @Published var difficulty: Difficulty
-    @Published var estimatedTimeSpent: PuzzleTime
+    @Published var pieces: Int? = nil
+    @Published var rating: Rating = .none
+    @Published var difficulty: Difficulty = .none
+    @Published var estimatedTimeSpent: PuzzleTime? = nil
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
 
@@ -114,11 +116,11 @@ class Puzzle: ObservableObject {
     func getDataFields() -> [String: Any] {
         return [
             "name": name,
-            "pieces": pieces,
+            "pieces": pieces ?? "nil",
             "rating": rating.rawValue,
             "difficulty": difficulty.rawValue,
             "completionDate": completionDate,
-            "estimatedTimeSpent": estimatedTimeSpent.toName(),
+            "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
             "status": status.rawValue,
         ]
         

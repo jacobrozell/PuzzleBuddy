@@ -38,10 +38,15 @@ private struct PuzzleCellView: View {
                     .truncationMode(.tail)
                     .multilineTextAlignment(.leading)
 
-                GroupBox {
-                    RatingsView(rating: $puzzle.rating)
+                if puzzle.rating != .none {
+                    GroupBox {
+                        RatingsView(rating: Binding(get: {
+                            puzzle.rating
+                        }, set: { new in
+                            puzzle.rating = new
+                        }))
+                    }
                 }
-                .clipShape(Capsule())
             }
             .frame(maxWidth: .infinity)
             .padding()
@@ -50,22 +55,26 @@ private struct PuzzleCellView: View {
             Group {
                 if expanded {
                     VStack {
-                        HStack {
-                            Text("Total Pieces:")
-                                .bold()
+                        if let pieces = puzzle.pieces {
+                            HStack {
+                                Text("Total Pieces:")
+                                    .bold()
 
-                            Spacer()
+                                Spacer()
 
-                            Text("\(puzzle.pieces)")
+                                Text("\(pieces)")
+                            }
                         }
 
-                        HStack {
-                            Text("Time Spent:")
-                                .bold()
+                        if let time = puzzle.estimatedTimeSpent {
+                            HStack {
+                                Text("Time Spent:")
+                                    .bold()
 
-                            Spacer()
+                                Spacer()
 
-                            Text(puzzle.estimatedTimeSpent.toName())
+                                Text(time.toName())
+                            }
                         }
 
                         HStack {
@@ -84,7 +93,7 @@ private struct PuzzleCellView: View {
 
                             Spacer()
 
-                            Text(puzzle.difficulty.rawValue)
+                            Text(puzzle.difficulty == .none ? "N/A" : puzzle.difficulty.rawValue)
                                 .lineLimit(0)
                         }
 

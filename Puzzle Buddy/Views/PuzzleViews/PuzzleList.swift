@@ -51,8 +51,8 @@ struct PuzzleList: View {
                 Text("To-Do")
                     .tag(Puzzle.Status.todo)
 
-                Text("In-Progress")
-                    .tag(Puzzle.Status.inProgress)
+//                Text("In-Progress")
+//                    .tag(Puzzle.Status.inProgress)
 
                 Text("Completed")
                     .tag(Puzzle.Status.completed)
@@ -64,7 +64,7 @@ struct PuzzleList: View {
                 ForEach(ps.puzzles.filter({ $0.status == listStatus }), id: \.id) { p in
                     if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
                         PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
-                            .id(index)
+                            .id(ps.puzzles[index].id)
                     }
                 }
                 .onDelete(perform: ps.delete(at:))
