@@ -5,6 +5,8 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
+import Photos
+import PhotosUI
 import SwiftUI
 
 // MARK: - PuzzleForm
@@ -158,7 +160,26 @@ struct PuzzleFormInternal: View {
             } header: {
                 Text("When did you finish \(!puzzle.name.isEmpty ? puzzle.name : "the puzzle")?")
             }
+
+            // Image Section
+            Section {
+                HStack {
+                    // Image Cell
+                    GroupBox {
+                        ImageCell()
+                    }
+                    .padding()
+                }
+            } header: {
+                Text("Add Images")
+            }
         }
+    }
+}
+
+struct ImageCell: View {
+    var body: some View {
+        Text("Add Image")
     }
 }
 
@@ -189,7 +210,8 @@ struct SubmitAddButton: View {
         .background(Color.blue)
         .cornerRadius(16.0)
         .padding(.horizontal)
-        .disabled(puzzle.name.isEmpty)
+        .disabled($puzzle.wrappedValue.name.isEmpty)
+        .opacity($puzzle.wrappedValue.name.isEmpty ? 0.6 : 1.0)
     }
 }
 

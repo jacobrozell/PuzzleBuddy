@@ -27,7 +27,7 @@ class PuzzleStore: ObservableObject {
 
     public init(user: PuzzleUser) {
         self.puzzleUser = user
-        self.path = "/users/\(puzzleUser!.email ?? "")/puzzles"
+        self.path = "/users/\(user.email ?? "")/puzzles"
         self.fetchPuzzles()
     }
 

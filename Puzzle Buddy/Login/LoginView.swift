@@ -11,7 +11,7 @@ import SwiftUI
 // MARK: - LoginView
 struct LoginView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
-    
+
     var body: some View {
         if let user = auth.user {
             PuzzleView(user: user)
@@ -23,11 +23,22 @@ struct LoginView: View {
 
 // MARK: - LoginWrapper
 private struct LoginWrapper: View {
+    @State private var loginStatePicker: Int = 0
     @EnvironmentObject var auth: FirebaseAuthProvider
 
     var body: some View {
         NavigationView {
             VStack {
+                Picker("Login/CreateAccount", selection: $loginStatePicker) {
+                    Text("Login")
+                        .tag(0)
+
+                    Text("Create Account")
+                        .tag(1)
+                }
+                .pickerStyle(.segmented)
+                .padding()
+
                 Image(systemName: "puzzlepiece.fill")
                     .resizable()
                     .aspectRatio(2/1, contentMode: .fit)
@@ -36,12 +47,21 @@ private struct LoginWrapper: View {
 
                 Spacer()
 
-                LoginStack()
+                switch loginStatePicker {
+                case 0:
+                    LoginStack()
+                case 1:
+                    CreateAccount(isActive: .constant(true))
+
+                default:
+                    Text("Loops lmfaoflmfaofofmsdnw :(((")
+                }
             }
+            .animation(.default, value: loginStatePicker)
             .padding()
             .ignoresSafeArea(.all, edges: .horizontal)
             .navigationBarTitleDisplayMode(.automatic)
-            .navigationBarTitle("Sign-Up/Sign-In")
+            .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
             .padding(.vertical)
         }
     }
@@ -88,39 +108,14 @@ private struct LoginStack: View {
                     .buttonBorderShape(.capsule)
                     .disabled(auth.login.isEmpty || auth.password.isEmpty)
 
-                    NavigationLink {
-                        PuzzleView()
-                            .task {
-                                auth.bypassAccount()
-                            }
-                    } label: {
-                        Text("Bypass Account")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .contentShape(Capsule())
-                            .foregroundColor(.red)
-                    }
-
                     Spacer()
 
+                    // Forgot Password Button
                     VStack {
-                        // Forgot Password Button
-//                        Button {
-//                            isActiveForgotPassword = true
-//                        } label: {
-//                            Text("Forgot Password")
-//                                .italic()
-//                                .underline()
-//                                .foregroundColor(.primary)
-//                                .contentShape(Rectangle())
-//                                .padding(2)
-//                        }
-
-                        // Create Account
-                        NavigationLink(isActive: $isActive) {
-                            CreateAccount(isActive: $isActive)
+                        Button {
+                            isActiveForgotPassword = true
                         } label: {
-                            Text("Create Account")
+                            Text("Forgot Password")
                                 .italic()
                                 .underline()
                                 .foregroundColor(.primary)
