@@ -61,7 +61,6 @@ struct PuzzleList: View {
             .padding()
 
             List {
-                // List
                 ForEach(ps.puzzles.filter({ $0.status == listStatus }), id: \.id) { p in
                     if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
                         PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])

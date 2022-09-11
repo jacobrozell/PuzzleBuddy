@@ -17,15 +17,15 @@ struct PuzzleCell: View {
             PuzzleDetail(ps: ps, puzzle: $puzzle)
         } label: {
             PuzzleCellView(puzzle: $puzzle)
-                .padding()
+                .padding(4)
         }
         .frame(maxWidth: .infinity)
-        .padding()
     }
 }
 
 // MARK: PuzzleCellView
 private struct PuzzleCellView: View {
+    @State private var expanded: Bool = false
     @Binding var puzzle: Puzzle
 
     var body: some View {
@@ -33,61 +33,66 @@ private struct PuzzleCellView: View {
             VStack {
                 Text(puzzle.name)
                     .font(.headline)
-                    .aspectRatio(contentMode: .fill)
-                    .lineLimit(0)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+                    .multilineTextAlignment(.leading)
 
-                Divider()
-
-                RatingsView(rating: $puzzle.rating)
-                    .padding(.top)
+                GroupBox {
+                    RatingsView(rating: $puzzle.rating)
+                }
+                .clipShape(Capsule())
             }
             .frame(maxWidth: .infinity)
-            .padding(.top)
-            .padding(.vertical)
+            .padding()
+            .padding()
 
-            HStack(alignment: .top) {
+            if expanded {
                 VStack {
-                    Text("Total Pieces:")
-                        .bold()
+                    HStack {
+                        Text("Total Pieces:")
+                            .bold()
 
-                    Text("\(puzzle.pieces)")
-                        .padding(.vertical)
+                        Text("\(puzzle.pieces)")
+                    }
+
+                    HStack {
+                        Text("Time Spent:")
+                            .bold()
+
+                        Text(puzzle.estimatedTimeSpent.toName())
+                    }
+
+                    HStack {
+                        Text("Completed:")
+                            .bold()
+
+                        Text(puzzle.completionDate, style: .date)
+                            .lineLimit(0)
+                    }
+
+                    HStack {
+                        Text("Difficulty:")
+                            .bold()
+
+                        Text(puzzle.difficulty.rawValue)
+                            .lineLimit(0)
+                    }
+
+                    Spacer()
                 }
-                .padding(.vertical)
-                .aspectRatio(contentMode: .fill)
-
-                Spacer()
-
-                VStack {
-                    Text("Time Spent:")
-                        .bold()
-
-                    Text(puzzle.estimatedTimeSpent.toName())
-                        .padding(.vertical)
-                }
-                .padding(.vertical)
-                .aspectRatio(contentMode: .fill)
+                .padding()
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical)
-
-            VStack {
-                Text("Completed:")
-                    .bold()
-
-                Text(puzzle.completionDate, style: .date)
-                    .lineLimit(0)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .aspectRatio(contentMode: .fit)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
-        .overlay(alignment: .topLeading) {
-            Text(puzzle.difficulty.rawValue)
-                .font(.subheadline)
-                .foregroundColor(.white)
-                .padding(8)
-                .background(Color.red)
+        .overlay(alignment: .bottomLeading) {
+            Text(expanded ? "↑" : "↓")
+                .foregroundColor(.primary)
+                .animation(.linear, value: expanded)
+                .onTapGesture {
+                    expanded.toggle()
+                }
+                .padding(4)
+                .background(Color.accentColor)
                 .clipShape(Circle())
         }
     }
