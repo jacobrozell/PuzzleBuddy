@@ -6,16 +6,16 @@ struct ImagePickerView: View {
     @State private var showSheet2 = false
 
     var body: some View {
-        HStack {
+        VStack {
             Image(uiImage: self.image)
                 .resizable()
                 .cornerRadius(50)
-                .frame(width: 100, height: 100)
-                .background(Color.black.opacity(0.2))
+                .frame(width: 250, height: 250)
+                .background(Color.blue.opacity(0.2))
                 .aspectRatio(contentMode: .fill)
                 .clipShape(Circle())
 
-            VStack {
+            HStack {
                 Text("Choose photo")
                     .font(.headline)
                     .frame(maxWidth: .infinity)

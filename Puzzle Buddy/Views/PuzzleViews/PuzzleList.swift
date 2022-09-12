@@ -17,7 +17,14 @@ struct PuzzleListWrapper: View {
 
     var body: some View {
         VStack {
-            PuzzleList(ps: ps)
+            switch ps.state {
+            case .fetching:
+                ProgressView()
+
+                Spacer()
+            case .idle, .done:
+                PuzzleList(ps: ps)
+            }
 
             Button {
                 present.toggle()
@@ -33,6 +40,9 @@ struct PuzzleListWrapper: View {
         }
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
+        }
+        .task {
+            ps.fetchPuzzles()
         }
     }
 }

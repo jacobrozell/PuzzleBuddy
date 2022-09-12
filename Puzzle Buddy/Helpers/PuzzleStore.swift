@@ -13,7 +13,14 @@ import SwiftUI
 // MARK: - PuzzleStore
 @MainActor
 class PuzzleStore: ObservableObject {
+    enum PuzzleStoreState {
+        case idle
+        case fetching
+        case done
+    }
+
     @Published var puzzles: [Puzzle] = []
+    @Published var state: PuzzleStoreState = .idle
 
     let puzzleUser: PuzzleUser?
 
@@ -28,18 +35,22 @@ class PuzzleStore: ObservableObject {
     public init(user: PuzzleUser) {
         self.puzzleUser = user
         self.path = "/users/\(user.email ?? "")/puzzles"
-        self.fetchPuzzles()
     }
 
     func fetchPuzzles() {
+        self.state = .fetching
+
         store.collection(path).getDocuments { result, error in
             guard let result = result else {
+                self.state = .idle
                 return
             }
 
             self.puzzles = result.documents.compactMap({
                 self.parsePuzzle($0.data())
             })
+
+            self.state = .done
         }
     }
 

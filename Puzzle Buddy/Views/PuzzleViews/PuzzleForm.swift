@@ -63,6 +63,9 @@ struct PuzzleFormInternal: View {
     @ObservedObject var formVm: PuzzleFormViewModel
 
     var body: some View {
+
+        ImagePickerView(image: $formVm.image).padding()
+
         Form {
             Section {
                 VStack {
@@ -198,13 +201,6 @@ struct PuzzleFormInternal: View {
                     .datePickerStyle(.graphical)
             } header: {
                 Text("When did you finish \(!formVm.puzzle.name.isEmpty ? formVm.puzzle.name : "the puzzle")?")
-            }
-
-            // Image Section
-            Section {
-                ImagePickerView(image: $formVm.image)
-            } header: {
-                Text("Add Image")
             }
         }
     }
