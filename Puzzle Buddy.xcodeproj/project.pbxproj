@@ -21,6 +21,7 @@
 		0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
 		0B523F0928BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
 		0B523F0A28BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
+		0B5B345628CEB45200E2CD30 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5B345528CEB45200E2CD30 /* ImagePicker.swift */; };
 		0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E47288C4F1000696180 /* PuzzleObject.swift */; };
 		0B660E4A288C4F2B00696180 /* PuzzleForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E49288C4F2B00696180 /* PuzzleForm.swift */; };
 		0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E4B288C4F6700696180 /* PuzzleList.swift */; };
@@ -79,6 +80,7 @@
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
+		0B5B345528CEB45200E2CD30 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		0B660E47288C4F1000696180 /* PuzzleObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleObject.swift; sourceTree = "<group>"; };
 		0B660E49288C4F2B00696180 /* PuzzleForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleForm.swift; sourceTree = "<group>"; };
 		0B660E4B288C4F6700696180 /* PuzzleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleList.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 		0BA2D55428BE721900132868 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				0B5B345528CEB45200E2CD30 /* ImagePicker.swift */,
 				0BA2D54E28BE71F100132868 /* ErrorHandling.swift */,
 				0BA2D55028BE720500132868 /* SecureInputView.swift */,
 			);
@@ -407,6 +410,7 @@
 				0BA2D55728BE76C500132868 /* PuzzleStore.swift in Sources */,
 				0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */,
 				0B85809828C0086700CE3B91 /* DifficultyView.swift in Sources */,
+				0B5B345628CEB45200E2CD30 /* ImagePicker.swift in Sources */,
 				0BA2D54D28BE718D00132868 /* ForgotPasswordView.swift in Sources */,
 				0BA2D54928BE718D00132868 /* FirbaseAuthProvider.swift in Sources */,
 			);

@@ -94,6 +94,12 @@ class PuzzleStore: ObservableObject {
             print("KeyError: status not found")
         }
 
+        if let imageData = data["imageData"] as? String, let data = Data(base64Encoded: imageData) {
+            p.image = UIImage(data: data)
+        } else {
+            print("KeyError: image not found")
+        }
+
         return p
     }
 

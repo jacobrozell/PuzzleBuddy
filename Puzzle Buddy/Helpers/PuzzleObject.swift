@@ -86,6 +86,7 @@ class Puzzle: ObservableObject {
     @Published var estimatedTimeSpent: PuzzleTime? = nil
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
+    @Published var image: UIImage? = nil
 
     internal init(name: String,
                   pieces: Int?,
@@ -123,6 +124,7 @@ class Puzzle: ObservableObject {
             "completionDate": completionDate,
             "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
             "status": status.rawValue,
+            "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
         ]
     }
 }

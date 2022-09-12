@@ -11,6 +11,11 @@ import SwiftUI
 
 class PuzzleFormViewModel: ObservableObject {
     @Published var puzzle: Puzzle
+    @Published var image: UIImage = UIImage() {
+        didSet {
+            puzzle.image = image
+        }
+    }
 
     init() {
         self.puzzle = .init(name: "", pieces: 0, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 0, minutes: 0), completionDate: Date())
@@ -18,6 +23,7 @@ class PuzzleFormViewModel: ObservableObject {
 
     init(puzzle: Puzzle) {
         self.puzzle = puzzle
+        self.image = puzzle.image ?? UIImage()
     }
 }
 
@@ -196,23 +202,11 @@ struct PuzzleFormInternal: View {
 
             // Image Section
             Section {
-                HStack {
-                    // Image Cell
-                    GroupBox {
-                        ImageCell()
-                    }
-                    .padding()
-                }
+                ImagePickerView(image: $formVm.image)
             } header: {
-                Text("Add Images")
+                Text("Add Image")
             }
         }
-    }
-}
-
-struct ImageCell: View {
-    var body: some View {
-        Text("Add Image")
     }
 }
 

@@ -31,26 +31,39 @@ private struct PuzzleCellView: View {
     var body: some View {
         VStack(alignment: .center) {
             VStack {
-                Text(puzzle.name)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
-                    .multilineTextAlignment(.leading)
+                HStack {
+                    Text(puzzle.name)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .lineLimit(2)
+                        .truncationMode(.tail)
+                        .multilineTextAlignment(.leading)
 
-                if puzzle.rating != .none {
-                    GroupBox {
-                        RatingsView(rating: Binding(get: {
-                            puzzle.rating
-                        }, set: { new in
-                            puzzle.rating = new
-                        }))
+                    Spacer()
+                    
+                    if puzzle.rating != .none {
+                        GroupBox {
+                            RatingsView(rating: Binding(get: {
+                                puzzle.rating
+                            }, set: { new in
+                                puzzle.rating = new
+                            }))
+                        }
                     }
+                }
+
+                Divider()
+
+                if let image = puzzle.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(width: 75, height: 75, alignment: .center)
+                        .aspectRatio(contentMode: .fill)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding()
-            .padding()
+            .padding(.vertical)
+            .padding(.vertical)
 
             Group {
                 if expanded {
@@ -104,7 +117,7 @@ private struct PuzzleCellView: View {
             }
             .animation(.easeInOut, value: expanded)
         }
-        .overlay(alignment: .topTrailing) {
+        .overlay(alignment: .bottomTrailing) {
             Text(expanded ? "↑" : "↓")
                 .foregroundColor(.white)
                 .animation(.spring(), value: expanded)
