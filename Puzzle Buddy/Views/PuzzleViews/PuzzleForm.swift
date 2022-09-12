@@ -65,6 +65,7 @@ struct PuzzleFormInternal: View {
     var body: some View {
         Form {
             ImagePickerView(image: $formVm.image)
+                .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
 
             Section {
                 VStack {
@@ -108,11 +109,11 @@ struct PuzzleFormInternal: View {
                         .pickerStyle(.menu)
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } header: {
                 Text("Puzzle Info")
                     .frame(alignment: .leading)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Rating Section
             Section {
@@ -192,6 +193,7 @@ struct PuzzleFormInternal: View {
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.leading)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } header: {
                 Text("How long did it take?")
             }
