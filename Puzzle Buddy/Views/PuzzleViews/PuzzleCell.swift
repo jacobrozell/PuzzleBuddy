@@ -32,6 +32,14 @@ private struct PuzzleCellView: View {
         VStack(alignment: .center) {
             VStack {
                 HStack {
+                    if let image = puzzle.image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(width: 75, height: 75, alignment: .center)
+                            .aspectRatio(contentMode: .fill)
+                            .clipShape(Circle())
+                    }
+
                     Text(puzzle.name)
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -50,15 +58,6 @@ private struct PuzzleCellView: View {
                             }))
                         }
                     }
-                }
-
-                Divider()
-
-                if let image = puzzle.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .frame(width: 75, height: 75, alignment: .center)
-                        .aspectRatio(contentMode: .fill)
                 }
             }
             .frame(maxWidth: .infinity)
