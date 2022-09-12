@@ -46,6 +46,12 @@ class PuzzleStore: ObservableObject {
     func parsePuzzle(_ data: [String: Any]) -> Puzzle {
         let p: Puzzle = .fixture()
 
+        if let id = data["id"] as? String, let id = UUID(uuidString: id) {
+            p.id = id
+        } else {
+            print("KeyError: id not found")
+        }
+
         if let name = data["name"] as? String {
             p.name = name
         } else {
@@ -100,7 +106,7 @@ class PuzzleStore: ObservableObject {
         }
 
         let puzzlesRef = store.collection(path)
-        puzzlesRef.document().setData(puzzle.getDataFields()) { error in
+        puzzlesRef.document(puzzle.id.uuidString).setData(puzzle.getDataFields()) { error in
             if let error = error {
                 print("Error adding Puzzle: \(error.localizedDescription)")
             } else {
@@ -123,7 +129,7 @@ class PuzzleStore: ObservableObject {
 
         for this in offsets {
             let puzzle = self.puzzles[this]
-            puzzlesRef.document(puzzle.name).delete()
+            puzzlesRef.document(puzzle.id.uuidString).delete()
             deleteLocally(at: offsets)
         }
     }
@@ -133,23 +139,11 @@ class PuzzleStore: ObservableObject {
     }
 
     func update(puzzle: Puzzle) {
-        store.collection(path).getDocuments { result, error in
-            guard let result = result else {
-                return
-            }
-
-            // Find documentID by finding first document with the same name as the puzzle
-            if let doc = result.documents.filter({ $0.data()["name"] as? String == puzzle.name }).first {
-                self.store.collection(self.path).document(doc.documentID).updateData(puzzle.getDataFields()) { error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                    } else {
-                        print("Puzzle: \(puzzle.name) updated succesfully!")
-                    }
-                }
+        store.collection(path).document(puzzle.id.uuidString).updateData(puzzle.getDataFields()) { error in
+            if let error = error {
+                print(error.localizedDescription)
             } else {
-                // Name must have changed
-//                self.add(puzzle: puzzle)
+                print("Puzzle: \(puzzle.name) updated succesfully!")
             }
         }
     }

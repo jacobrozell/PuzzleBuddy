@@ -70,7 +70,7 @@ class Puzzle: ObservableObject {
 
     enum Status: String, CaseIterable, Identifiable {
         case todo = "To-Do"
-        case inProgress = "In-Progress"
+//        case inProgress = "In-Progress"
         case completed = "Completed"
 
         var id: String {
@@ -88,17 +88,17 @@ class Puzzle: ObservableObject {
     @Published var status: Status = .todo
 
     internal init(name: String,
-                  pieces: Int,
-                  rating: Rating,
-                  difficulty: Difficulty,
-                  estimatedTimeSpent: PuzzleTime,
+                  pieces: Int?,
+                  rating: Rating?,
+                  difficulty: Difficulty?,
+                  estimatedTimeSpent: PuzzleTime?,
                   completionDate: Date,
                   status: Status = .todo
     ) {
         self.name = name
         self.pieces = pieces
-        self.rating = rating
-        self.difficulty = difficulty
+        self.rating = rating ?? .none
+        self.difficulty = difficulty ?? .none
         self.estimatedTimeSpent = estimatedTimeSpent
         self.completionDate = completionDate
         self.status = status
@@ -115,6 +115,7 @@ class Puzzle: ObservableObject {
 
     func getDataFields() -> [String: Any] {
         return [
+            "id": id.uuidString,
             "name": name,
             "pieces": pieces ?? "nil",
             "rating": rating.rawValue,
@@ -123,19 +124,17 @@ class Puzzle: ObservableObject {
             "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
             "status": status.rawValue,
         ]
-        
     }
-
 }
 
 // MARK: - PuzzleFixture
 extension Puzzle {
     static func fixture() -> Puzzle {
         .init(name: "Puzzle Buddy Test",
-              pieces: 1000,
-              rating: .three,
-              difficulty: .three,
-              estimatedTimeSpent: .init(hours: 10, minutes: 5),
+              pieces: nil,
+              rating: nil,
+              difficulty: nil,
+              estimatedTimeSpent: nil,
               completionDate: Date(),
               status: .todo
         )

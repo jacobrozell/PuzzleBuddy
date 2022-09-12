@@ -69,6 +69,9 @@ struct PuzzleList: View {
                 }
                 .onDelete(perform: ps.delete(at:))
             }
+            .refreshable {
+                ps.fetchPuzzles()
+            }
         }
         .listStyle(.insetGrouped)
         .animation(.default, value: listStatus)

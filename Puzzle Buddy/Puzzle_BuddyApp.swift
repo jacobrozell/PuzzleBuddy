@@ -23,6 +23,15 @@ struct Puzzle_BuddyApp: App {
                 .environmentObject(authProvider)
                 .task {
                     authProvider.user = Auth.auth().currentUser
+
+                    // Update User
+                    Task {
+                        do {
+                            try await authProvider.updateUser()
+                        } catch {
+                            print(error.localizedDescription)
+                        }
+                    }
                 }
         }
     }

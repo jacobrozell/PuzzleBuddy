@@ -35,9 +35,12 @@ public class FirebaseAuthProvider: ObservableObject {
         self.user = Auth.auth().currentUser
     }
 
-    public func bypassAccount() {
-        Auth.auth().signInAnonymously()
-        shouldBypassAccount = true
+    public func updateUser() async throws {
+        guard let email = user?.email, !email.isEmpty else {
+            return
+        }
+
+        try await Firestore.firestore().collection("users").document(email).updateData(["currentVersion": Puzzle_BuddyApp.version, "lastLoggedIn": Date()])
     }
 
     public func logout() throws {
