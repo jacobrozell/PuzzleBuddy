@@ -14,7 +14,6 @@ struct PuzzleListWrapper: View {
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
 
-
     var body: some View {
         VStack {
             switch ps.state {
@@ -30,6 +29,7 @@ struct PuzzleListWrapper: View {
                 present.toggle()
             } label: {
                 Text("Add Puzzle")
+                    .padding(4)
                     .font(.title)
                     .frame(maxWidth: .infinity)
                     .contentShape(Rectangle())
@@ -40,9 +40,6 @@ struct PuzzleListWrapper: View {
         }
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
-        }
-        .task {
-            ps.fetchPuzzles()
         }
     }
 }

@@ -7,20 +7,23 @@
 
 import SwiftUI
 
+private enum PuzzleBuddyTab: String {
+    case puzzles = "Your Puzzle Buddy"
+    case settings = "Settings"
+}
+
 // MARK: - PuzzleTabbar
 struct PuzzleTabbar: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
-    @State private var showProfileOptions = false
-    @State private var showCreateAccount = false
+
+    @State private var tab: PuzzleBuddyTab = .puzzles
 
     var body: some View {
-        TabView {
-            Group {
+        NavigationView {
+            TabView(selection: $tab) {
                 PuzzleListWrapper(ps: ps)
-                    .navigationTitle("Your Puzzle Buddy")
-                    .navigationBarTitleDisplayMode(.automatic)
                     .tabItem {
                         Label {
                             Text("Puzzles")
@@ -28,12 +31,9 @@ struct PuzzleTabbar: View {
                             Image(systemName: "list.bullet.circle.fill")
                         }
                     }
-            }
+                    .tag(PuzzleBuddyTab.puzzles)
 
-            Group {
                 SettingsView()
-                    .navigationTitle("Settings")
-                    .navigationBarTitleDisplayMode(.automatic)
                     .tabItem {
                         Label {
                             Text("Settings")
@@ -41,33 +41,12 @@ struct PuzzleTabbar: View {
                             Image(systemName: "gearshape")
                         }
                     }
+                    .tag(PuzzleBuddyTab.settings)
             }
-        }
-        .popover(isPresented: $showCreateAccount) {
-            CreateAccount(isActive: $showCreateAccount)
-        }
-        .confirmationDialog("Profile Options", isPresented: $showProfileOptions) {
-            VStack {
-                if let _ = auth.user {
-                    Button {
-                        do {
-                            try auth.logout()
-                        } catch {
-                            eh.handle(title: "Logout failed", message: "Whoops")
-                        }
-                    } label: {
-                        Text("Sign-Out")
-                    }
-                }
-
-                if auth.shouldBypassAccount {
-                    Button {
-                        showCreateAccount = true
-                    } label: {
-                        Text("Create Account")
-                    }
-                }
-            }
+            .tabViewStyle(.automatic)
+            .navigationViewStyle(.stack)
+            .navigationTitle(tab.rawValue)
+            .navigationBarTitleDisplayMode(.automatic)
         }
     }
 }

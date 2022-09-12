@@ -89,7 +89,10 @@ private struct PuzzleCellView: View {
                             }
                         }
 
-                        if let time = puzzle.estimatedTimeSpent {
+                        if let time = puzzle.estimatedTimeSpent,
+                            let h = time.hours,
+                            let m = time.minutes
+                        {
                             HStack {
                                 Text("Time Spent:")
                                     .bold()
@@ -107,24 +110,27 @@ private struct PuzzleCellView: View {
                             Spacer()
 
                             Text(puzzle.completionDate, style: .date)
+                                .font(.footnote)
                                 .lineLimit(0)
                                 .frame(maxHeight: .infinity)
                         }
 
-                        HStack {
-                            Text("Difficulty:")
-                                .bold()
+                        if puzzle.difficulty != .none {
+                            HStack {
+                                Text("Difficulty:")
+                                    .bold()
 
-                            Spacer()
+                                Spacer()
 
-                            Text(puzzle.difficulty == .none ? "N/A" : puzzle.difficulty.rawValue)
-                                .lineLimit(0)
+                                Text(puzzle.difficulty.rawValue + "/5")
+                                    .lineLimit(0)
+                            }
                         }
 
                         Spacer()
                     }
                 }
-                .padding()
+                .padding(.vertical)
                 .animation(.easeInOut, value: expanded)
             }
         }
