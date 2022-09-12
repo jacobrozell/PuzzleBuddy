@@ -10,38 +10,40 @@ struct ImagePickerView: View {
             Image(uiImage: self.image)
                 .resizable()
                 .cornerRadius(50)
-                .frame(width: 250, height: 250)
+                .frame(width: 150, height: 150)
                 .background(Color.blue.opacity(0.2))
                 .aspectRatio(contentMode: .fill)
                 .clipShape(Circle())
 
             HStack {
                 Text("Choose photo")
+                    .padding()
                     .font(.headline)
+                    .lineLimit(1)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 50)
                     .background(Color.accentColor)
                     .cornerRadius(16)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    .padding(2)
                     .onTapGesture {
                         showSheet = true
                     }
                 
                 Text("Take photo")
+                    .padding()
                     .font(.headline)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 50)
+                    .lineLimit(1)
                     .background(Color.accentColor)
                     .cornerRadius(16)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 20)
+                    .padding(2)
                     .onTapGesture {
                         showSheet2 = true
                     }
             }
         }
-        .padding(.horizontal, 20)
+        .padding()
         .sheet(isPresented: $showSheet) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
         }
@@ -89,6 +91,14 @@ struct ImagePicker: UIViewControllerRepresentable {
             }
 
             parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+struct ImagePickerPreivew: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ImagePickerView(image: .constant(UIImage()))
         }
     }
 }

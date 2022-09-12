@@ -63,12 +63,9 @@ struct PuzzleFormInternal: View {
     @ObservedObject var formVm: PuzzleFormViewModel
 
     var body: some View {
-
-        ImagePickerView(image: $formVm.image)
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
-
         Form {
+            ImagePickerView(image: $formVm.image)
+
             Section {
                 VStack {
                     HStack {
@@ -113,7 +110,9 @@ struct PuzzleFormInternal: View {
                 }
             } header: {
                 Text("Puzzle Info")
+                    .frame(alignment: .leading)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Rating Section
             Section {
@@ -166,9 +165,9 @@ struct PuzzleFormInternal: View {
             // Time Spent Section
             Section {
                 HStack {
-//                    Text("Hours Spent:")
-//
-//                    Spacer()
+                    //                    Text("Hours Spent:")
+                    //
+                    //                    Spacer()
 
                     TextField("Hours Spent", value: Binding {
                         formVm.puzzle.estimatedTimeSpent?.hours ?? nil
@@ -181,9 +180,9 @@ struct PuzzleFormInternal: View {
                 }
 
                 HStack {
-//                    Text("Minutes Spent:")
-//
-//                    Spacer()
+                    //                    Text("Minutes Spent:")
+                    //
+                    //                    Spacer()
 
                     TextField("Minutes Spent", value: Binding {
                         formVm.puzzle.estimatedTimeSpent?.minutes ?? nil

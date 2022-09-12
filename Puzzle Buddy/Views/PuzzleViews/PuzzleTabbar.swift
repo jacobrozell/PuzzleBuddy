@@ -20,6 +20,7 @@ struct PuzzleTabbar: View {
             Group {
                 PuzzleListWrapper(ps: ps)
                     .navigationTitle("Your Puzzle Buddy")
+                    .navigationBarTitleDisplayMode(.automatic)
                     .tabItem {
                         Label {
                             Text("Puzzles")
@@ -32,6 +33,7 @@ struct PuzzleTabbar: View {
             Group {
                 SettingsView()
                     .navigationTitle("Settings")
+                    .navigationBarTitleDisplayMode(.automatic)
                     .tabItem {
                         Label {
                             Text("Settings")

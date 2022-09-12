@@ -46,88 +46,87 @@ private struct PuzzleCellView: View {
                         .lineLimit(2)
                         .truncationMode(.tail)
                         .multilineTextAlignment(.leading)
-
-                    Spacer()
-                    
-                    if puzzle.rating != .none {
-                        GroupBox {
-                            RatingsView(rating: Binding(get: {
-                                puzzle.rating
-                            }, set: { new in
-                                puzzle.rating = new
-                            }))
-                        }
-                    }
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical)
             .padding(.vertical)
 
-            Group {
-                if expanded {
-                    GroupBox {
-                        VStack {
-                            if let pieces = puzzle.pieces {
-                                HStack {
-                                    Text("Total Pieces:")
-                                        .bold()
-                                    
-                                    Spacer()
-                                    
-                                    Text("\(pieces)")
-                                }
-                            }
-                            
-                            if let time = puzzle.estimatedTimeSpent {
-                                HStack {
-                                    Text("Time Spent:")
-                                        .bold()
-                                    
-                                    Spacer()
-                                    
-                                    Text(time.toName())
-                                }
-                            }
-                            
-                            HStack {
-                                Text("Completed:")
-                                    .bold()
-                                
-                                Spacer()
-                                
-                                Text(puzzle.completionDate, style: .date)
-                                    .lineLimit(0)
-                            }
-                            
-                            HStack {
-                                Text("Difficulty:")
-                                    .bold()
-                                
-                                Spacer()
-                                
-                                Text(puzzle.difficulty == .none ? "N/A" : puzzle.difficulty.rawValue)
-                                    .lineLimit(0)
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    .padding()
+            if puzzle.rating != .none {
+                GroupBox {
+                    RatingsView(rating: Binding(get: {
+                        puzzle.rating
+                    }, set: { new in
+                        puzzle.rating = new
+                    }))
                 }
+                .padding()
             }
-            .animation(.easeInOut, value: expanded)
-        }
-        .overlay(alignment: .bottomTrailing) {
+
             Text(expanded ? "↑" : "↓")
+                .padding(4)
                 .foregroundColor(.white)
-                .animation(.spring(), value: expanded)
+                .animation(.linear, value: expanded)
                 .onTapGesture {
                     expanded.toggle()
                 }
                 .padding(4)
                 .background(Color.accentColor)
                 .clipShape(Circle())
+                .frame(maxWidth: .infinity, alignment: .trailing)
+
+            if expanded {
+                GroupBox {
+                    VStack {
+                        if let pieces = puzzle.pieces {
+                            HStack {
+                                Text("Total Pieces:")
+                                    .bold()
+
+                                Spacer()
+
+                                Text("\(pieces)")
+                            }
+                        }
+
+                        if let time = puzzle.estimatedTimeSpent {
+                            HStack {
+                                Text("Time Spent:")
+                                    .bold()
+
+                                Spacer()
+
+                                Text(time.toName())
+                            }
+                        }
+
+                        HStack {
+                            Text("Completed:")
+                                .bold()
+
+                            Spacer()
+
+                            Text(puzzle.completionDate, style: .date)
+                                .lineLimit(0)
+                                .frame(maxHeight: .infinity)
+                        }
+
+                        HStack {
+                            Text("Difficulty:")
+                                .bold()
+
+                            Spacer()
+
+                            Text(puzzle.difficulty == .none ? "N/A" : puzzle.difficulty.rawValue)
+                                .lineLimit(0)
+                        }
+
+                        Spacer()
+                    }
+                }
+                .padding()
+                .animation(.easeInOut, value: expanded)
+            }
         }
     }
 }
