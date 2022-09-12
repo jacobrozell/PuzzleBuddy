@@ -145,7 +145,7 @@ struct DetailView: View {
 
                             Spacer()
 
-                            Text(estimatedTimeSpent.toName() ?? "")
+                            Text(estimatedTimeSpent.toName())
                                 .font(.subheadline)
                                 .bold()
                         }

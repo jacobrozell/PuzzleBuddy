@@ -116,7 +116,7 @@ class PuzzleStore: ObservableObject {
 
     func add(puzzle: Puzzle) throws {
         guard
-            let puzzleUser = puzzleUser
+            let _ = puzzleUser
         else {
             self.addLocally(puzzle: puzzle)
             return

@@ -89,10 +89,7 @@ private struct PuzzleCellView: View {
                             }
                         }
 
-                        if let time = puzzle.estimatedTimeSpent,
-                            let h = time.hours,
-                            let m = time.minutes
-                        {
+                        if let time = puzzle.estimatedTimeSpent {
                             HStack {
                                 Text("Time Spent:")
                                     .bold()

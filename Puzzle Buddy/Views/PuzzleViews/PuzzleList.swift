@@ -59,7 +59,9 @@ struct PuzzleList: View {
                         .id(ps.puzzles[index].id)
                 }
             }
-            .onDelete(perform: ps.delete(at:))
+            .onDelete(perform: { indexSet in
+                ps.delete(at: indexSet)
+            })
         }
         .refreshable {
             ps.fetchPuzzles()
