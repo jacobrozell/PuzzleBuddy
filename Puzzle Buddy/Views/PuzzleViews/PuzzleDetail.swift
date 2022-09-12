@@ -58,12 +58,21 @@ struct DetailView: View {
     var body: some View {
         VStack {
             GroupBox {
-                Image(systemName: "puzzlepiece.extension.fill")
-                    .resizable()
-                    .foregroundColor(Color.accentColor)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
-                    .padding()
+                if let image = puzzle.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .foregroundColor(Color.accentColor)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+                        .padding()
+                } else {
+                    Image(systemName: "puzzlepiece.extension.fill")
+                        .resizable()
+                        .foregroundColor(Color.accentColor)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+                        .padding()
+                }
 
                 Text("\(puzzle.name)")
                     .bold()
