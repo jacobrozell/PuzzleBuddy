@@ -11,7 +11,7 @@ import SwiftUI
 
 @main
 struct Puzzle_BuddyApp: App {
-    public static let version = "0.4.0"
+    public static let version = "0.4.1"
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authProvider = FirebaseAuthProvider()

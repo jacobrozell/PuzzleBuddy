@@ -82,8 +82,8 @@ struct PuzzleList: View {
             .refreshable {
                 ps.fetchPuzzles()
             }
+            .listStyle(.plain)
         }
-        .listStyle(.insetGrouped)
         .animation(.default, value: listStatus)
     }
 }
