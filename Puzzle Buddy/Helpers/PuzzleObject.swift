@@ -69,7 +69,7 @@ class Puzzle: ObservableObject {
         /// Returns # of minutes
         func toMin() -> Int {
             guard let hours = hours, let minutes = minutes else {
-                return 0
+                return 1
             }
 
             return max((hours * 60) + minutes, 1)
