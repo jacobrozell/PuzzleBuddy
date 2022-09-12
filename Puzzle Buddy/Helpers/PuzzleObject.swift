@@ -44,27 +44,35 @@ class Puzzle: ObservableObject {
     }
 
     struct PuzzleTime {
-        var hours: Int
-        var minutes: Int
+        var hours: Int?
+        var minutes: Int?
 
         init(hours: Int? = nil, minutes: Int? = nil) {
-            self.hours = hours ?? 1
-            self.minutes = minutes ?? 1
+            self.hours = hours
+            self.minutes = minutes
         }
 
         init(name: String) {
             let intArray = name.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({ Int($0) })
-            self.hours = intArray.first ?? 1
-            self.minutes = intArray.last ?? 1
+            self.hours = intArray.first ?? nil
+            self.minutes = intArray.last ?? nil
         }
 
         func toName() -> String {
-            "\(hours)hr:\(minutes)min"
+            guard let hours = hours, let minutes = minutes else {
+                return "N/A"
+            }
+
+            return "\(hours)hr:\(minutes)min"
         }
 
         /// Returns # of minutes
         func toMin() -> Int {
-            return max((self.hours * 60) + self.minutes, 1)
+            guard let hours = hours, let minutes = minutes else {
+                return 0
+            }
+
+            return max((hours * 60) + minutes, 1)
         }
     }
 
@@ -90,16 +98,16 @@ class Puzzle: ObservableObject {
 
     internal init(name: String,
                   pieces: Int?,
-                  rating: Rating?,
-                  difficulty: Difficulty?,
+                  rating: Rating = .none,
+                  difficulty: Difficulty = .none,
                   estimatedTimeSpent: PuzzleTime?,
                   completionDate: Date,
                   status: Status = .todo
     ) {
         self.name = name
         self.pieces = pieces
-        self.rating = rating ?? .none
-        self.difficulty = difficulty ?? .none
+        self.rating = rating
+        self.difficulty = difficulty
         self.estimatedTimeSpent = estimatedTimeSpent
         self.completionDate = completionDate
         self.status = status
@@ -132,10 +140,10 @@ class Puzzle: ObservableObject {
 // MARK: - PuzzleFixture
 extension Puzzle {
     static func fixture() -> Puzzle {
-        .init(name: "Puzzle Buddy Test",
+        .init(name: "",
               pieces: nil,
-              rating: nil,
-              difficulty: nil,
+              rating: .none,
+              difficulty: .none,
               estimatedTimeSpent: nil,
               completionDate: Date(),
               status: .todo

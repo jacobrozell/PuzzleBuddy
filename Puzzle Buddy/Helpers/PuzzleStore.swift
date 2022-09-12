@@ -144,11 +144,12 @@ class PuzzleStore: ObservableObject {
 
         let puzzlesRef = store.collection(path)
 
-        for this in offsets {
-            let puzzle = self.puzzles[this]
+        for object in offsets {
+            let puzzle = self.puzzles[object]
             puzzlesRef.document(puzzle.id.uuidString).delete()
-            deleteLocally(at: offsets)
         }
+
+        deleteLocally(at: offsets)
     }
 
     private func deleteLocally(at offsets: IndexSet) {

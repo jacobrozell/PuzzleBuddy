@@ -18,7 +18,7 @@ class PuzzleFormViewModel: ObservableObject {
     }
 
     init() {
-        self.puzzle = .init(name: "", pieces: 0, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 0, minutes: 0), completionDate: Date())
+        self.puzzle = .fixture()
     }
 
     init(puzzle: Puzzle) {
@@ -64,7 +64,9 @@ struct PuzzleFormInternal: View {
 
     var body: some View {
 
-        ImagePickerView(image: $formVm.image).padding()
+        ImagePickerView(image: $formVm.image)
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
 
         Form {
             Section {
@@ -164,32 +166,32 @@ struct PuzzleFormInternal: View {
             // Time Spent Section
             Section {
                 HStack {
-                    Text("Hours Spent:")
-
-                    Spacer()
+//                    Text("Hours Spent:")
+//
+//                    Spacer()
 
                     TextField("Hours Spent", value: Binding {
-                        formVm.puzzle.estimatedTimeSpent?.hours ?? 0
+                        formVm.puzzle.estimatedTimeSpent?.hours ?? nil
                     } set: { new in
                         formVm.puzzle.estimatedTimeSpent?.hours = new
                     }, format: .number, prompt: Text("Estimated Hours Spent"))
                     .keyboardType(.numberPad)
                     .frame(alignment: .trailing)
-                    .multilineTextAlignment(.trailing)
+                    .multilineTextAlignment(.leading)
                 }
 
                 HStack {
-                    Text("Minutes Spent:")
-
-                    Spacer()
+//                    Text("Minutes Spent:")
+//
+//                    Spacer()
 
                     TextField("Minutes Spent", value: Binding {
-                        formVm.puzzle.estimatedTimeSpent?.minutes ?? 0
+                        formVm.puzzle.estimatedTimeSpent?.minutes ?? nil
                     } set: { new in
                         formVm.puzzle.estimatedTimeSpent?.minutes = new
                     }, format: .number, prompt: Text("Estimated Minutes Spent"))
                     .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
+                    .multilineTextAlignment(.leading)
                 }
             } header: {
                 Text("How long did it take?")

@@ -67,50 +67,52 @@ private struct PuzzleCellView: View {
 
             Group {
                 if expanded {
-                    VStack {
-                        if let pieces = puzzle.pieces {
-                            HStack {
-                                Text("Total Pieces:")
-                                    .bold()
-
-                                Spacer()
-
-                                Text("\(pieces)")
+                    GroupBox {
+                        VStack {
+                            if let pieces = puzzle.pieces {
+                                HStack {
+                                    Text("Total Pieces:")
+                                        .bold()
+                                    
+                                    Spacer()
+                                    
+                                    Text("\(pieces)")
+                                }
                             }
-                        }
-
-                        if let time = puzzle.estimatedTimeSpent {
-                            HStack {
-                                Text("Time Spent:")
-                                    .bold()
-
-                                Spacer()
-
-                                Text(time.toName())
+                            
+                            if let time = puzzle.estimatedTimeSpent {
+                                HStack {
+                                    Text("Time Spent:")
+                                        .bold()
+                                    
+                                    Spacer()
+                                    
+                                    Text(time.toName())
+                                }
                             }
-                        }
-
-                        HStack {
-                            Text("Completed:")
-                                .bold()
-
+                            
+                            HStack {
+                                Text("Completed:")
+                                    .bold()
+                                
+                                Spacer()
+                                
+                                Text(puzzle.completionDate, style: .date)
+                                    .lineLimit(0)
+                            }
+                            
+                            HStack {
+                                Text("Difficulty:")
+                                    .bold()
+                                
+                                Spacer()
+                                
+                                Text(puzzle.difficulty == .none ? "N/A" : puzzle.difficulty.rawValue)
+                                    .lineLimit(0)
+                            }
+                            
                             Spacer()
-
-                            Text(puzzle.completionDate, style: .date)
-                                .lineLimit(0)
                         }
-
-                        HStack {
-                            Text("Difficulty:")
-                                .bold()
-
-                            Spacer()
-
-                            Text(puzzle.difficulty == .none ? "N/A" : puzzle.difficulty.rawValue)
-                                .lineLimit(0)
-                        }
-
-                        Spacer()
                     }
                     .padding()
                 }
