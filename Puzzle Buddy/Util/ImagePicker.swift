@@ -45,7 +45,7 @@ struct ImagePickerView: View {
         .sheet(isPresented: $showSheet) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
         }
-        .sheet(isPresented: $showSheet2) {
+        .fullScreenCover(isPresented: $showSheet2) {
             ImagePicker(sourceType: .camera, selectedImage: self.$image)
         }
     }

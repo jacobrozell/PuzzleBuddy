@@ -4,7 +4,5 @@
 <dict>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
-	<key>NSCameraUsageDescription</key>
-	<string>Your Puzzle Buddy needs camera access to take a photo of a puzzle</string>
 </dict>
 </plist>
