@@ -52,26 +52,12 @@ struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
-    @State private var listStatus: Puzzle.Status = .todo
     @State private var searchText: String = ""
 
     var body: some View {
         VStack {
-            Picker("Sort by: Status", selection: $listStatus) {
-                Text("To-Do")
-                    .tag(Puzzle.Status.todo)
-
-//                Text("In-Progress")
-//                    .tag(Puzzle.Status.inProgress)
-
-                Text("Completed")
-                    .tag(Puzzle.Status.completed)
-            }
-            .pickerStyle(.segmented)
-            .padding()
-
             List {
-                ForEach(ps.puzzles.filter({ $0.status == listStatus }), id: \.id) { p in
+                ForEach(ps.puzzles, id: \.id) { p in
                     if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
                         PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
                             .id(ps.puzzles[index].id)
@@ -84,7 +70,6 @@ struct PuzzleList: View {
             }
             .listStyle(.plain)
         }
-        .animation(.default, value: listStatus)
     }
 }
 
