@@ -37,81 +37,22 @@ class PuzzleStore: ObservableObject {
         self.path = "/users/\(user.email ?? "")/puzzles"
     }
 
-    func fetchPuzzles() {
+    func fetchPuzzles() async {
         self.state = .fetching
 
-        store.collection(path).getDocuments { result, error in
-            guard let result = result else {
-                self.state = .idle
-                return
-            }
+        do {
+            let documents = try await store.collection(path).getDocuments()
 
-            self.puzzles = result.documents.compactMap({
-                self.parsePuzzle($0.data())
+            self.puzzles = documents.documents.compactMap({
+                Puzzle.fromData($0.data())
             })
 
             self.state = .done
+
+        } catch {
+            self.state = .idle
+            return
         }
-    }
-
-    func parsePuzzle(_ data: [String: Any]) -> Puzzle {
-        let p: Puzzle = .fixture()
-
-        if let id = data["id"] as? String, let id = UUID(uuidString: id) {
-            p.id = id
-        } else {
-            print("KeyError: id not found")
-        }
-
-        if let name = data["name"] as? String {
-            p.name = name
-        } else {
-            print("KeyError: name not found")
-        }
-
-        if let pieces = data["pieces"] as? Int {
-            p.pieces = pieces
-        } else {
-            print("KeyError: pieces not found")
-        }
-
-        if let rating = data["rating"] as? Double {
-            p.rating = Puzzle.Rating(rawValue: rating) ?? .one
-        } else {
-            print("KeyError: rating not found")
-        }
-
-        if let difficulty = data["difficulty"] as? String {
-            p.difficulty = Puzzle.Difficulty(rawValue: difficulty) ?? .one
-        } else {
-            print("KeyError: difficulty not found")
-        }
-
-        if let estimatedTimeSpent = data["estimatedTimeSpent"] as? String {
-            p.estimatedTimeSpent = Puzzle.PuzzleTime(name: estimatedTimeSpent)
-        } else {
-            print("KeyError: estimatedTimeSpent not found")
-        }
-
-        if let completionDate = data["completionDate"] as? Timestamp {
-            p.completionDate = completionDate.dateValue()
-        } else {
-            print("KeyError: completionDate not found")
-        }
-
-        if let status = data["status"] as? String {
-            p.status = Puzzle.Status(rawValue: status) ?? .todo
-        } else {
-            print("KeyError: status not found")
-        }
-
-        if let imageData = data["imageData"] as? String, let data = Data(base64Encoded: imageData) {
-            p.image = UIImage(data: data)
-        } else {
-            print("KeyError: image not found")
-        }
-
-        return p
     }
 
     func add(puzzle: Puzzle) throws {

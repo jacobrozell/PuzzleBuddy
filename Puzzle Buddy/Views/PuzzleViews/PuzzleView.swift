@@ -26,8 +26,10 @@ struct PuzzleView: View {
 
     var body: some View {
         PuzzleTabbar(ps: ps)
-            .onAppear {
-                ps.fetchPuzzles()
+            .task {
+                if ps.puzzles.isEmpty {
+                    await ps.fetchPuzzles()
+                }
             }
     }
 }

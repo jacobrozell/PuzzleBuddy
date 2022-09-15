@@ -12,7 +12,6 @@ struct PuzzleListWrapper: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
-    @State private var present = false
 
     var body: some View {
         VStack {
@@ -22,8 +21,37 @@ struct PuzzleListWrapper: View {
 
                 Spacer()
             case .idle, .done:
-                PuzzleList(ps: ps)
+                PuzzleList(ps: ps).navigationTitle("Your Puzzle Buddy")
             }
+        }
+    }
+}
+
+// MARK: - PuzzleList
+struct PuzzleList: View {
+    @EnvironmentObject var auth: FirebaseAuthProvider
+    @EnvironmentObject var eh: ErrorHandling
+    @ObservedObject var ps: PuzzleStore
+    @State private var present = false
+    @State private var searchText: String = ""
+
+    var body: some View {
+        VStack {
+            List {
+                ForEach(ps.puzzles, id: \.id) { p in
+                    if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
+                        PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                            .id(ps.puzzles[index].id)
+                    }
+                }
+                .onDelete(perform: { indexSet in
+                    ps.delete(at: indexSet)
+                })
+            }
+            .refreshable {
+                await ps.fetchPuzzles()
+            }
+            .listStyle(.insetGrouped)
 
             Button {
                 present.toggle()
@@ -41,32 +69,6 @@ struct PuzzleListWrapper: View {
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
         }
-    }
-}
-
-// MARK: - PuzzleList
-struct PuzzleList: View {
-    @EnvironmentObject var auth: FirebaseAuthProvider
-    @EnvironmentObject var eh: ErrorHandling
-    @ObservedObject var ps: PuzzleStore
-    @State private var searchText: String = ""
-
-    var body: some View {
-        List {
-            ForEach(ps.puzzles, id: \.id) { p in
-                if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
-                    PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
-                        .id(ps.puzzles[index].id)
-                }
-            }
-            .onDelete(perform: { indexSet in
-                ps.delete(at: indexSet)
-            })
-        }
-        .refreshable {
-            ps.fetchPuzzles()
-        }
-        .listStyle(.insetGrouped)
     }
 }
 

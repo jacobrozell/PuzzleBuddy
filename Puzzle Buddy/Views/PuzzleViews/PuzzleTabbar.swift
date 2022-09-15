@@ -21,7 +21,7 @@ struct PuzzleTabbar: View {
     @State private var tab: PuzzleBuddyTab = .puzzles
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             TabView(selection: $tab) {
                 PuzzleListWrapper(ps: ps)
                     .tabItem {
@@ -43,10 +43,7 @@ struct PuzzleTabbar: View {
                     }
                     .tag(PuzzleBuddyTab.settings)
             }
-            .tabViewStyle(.automatic)
-            .navigationViewStyle(.stack)
-            .navigationTitle(tab.rawValue)
-            .navigationBarTitleDisplayMode(.automatic)
+            .navigationTitle($tab.wrappedValue.rawValue)
         }
     }
 }

@@ -27,43 +27,41 @@ private struct LoginWrapper: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Picker("Login/CreateAccount", selection: $loginStatePicker) {
-                    Text("Login")
-                        .tag(0)
+        VStack {
+            Picker("Login/CreateAccount", selection: $loginStatePicker) {
+                Text("Login")
+                    .tag(0)
 
-                    Text("Create Account")
-                        .tag(1)
-                }
-                .pickerStyle(.segmented)
-                .padding()
-
-                Image(systemName: "puzzlepiece.fill")
-                    .resizable()
-                    .aspectRatio(2/1, contentMode: .fit)
-                    .padding()
-                    .foregroundColor(.blue)
-
-                Spacer()
-
-                switch loginStatePicker {
-                case 0:
-                    LoginStack()
-                case 1:
-                    CreateAccount(isActive: .constant(true))
-
-                default:
-                    Text("Loops lmfaoflmfaofofmsdnw :(((")
-                }
+                Text("Create Account")
+                    .tag(1)
             }
-            .animation(.default, value: loginStatePicker)
+            .pickerStyle(.segmented)
             .padding()
-            .ignoresSafeArea(.all, edges: .horizontal)
-            .navigationBarTitleDisplayMode(.automatic)
-            .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
-            .padding(.vertical)
+
+            Image(systemName: "puzzlepiece.fill")
+                .resizable()
+                .aspectRatio(2/1, contentMode: .fit)
+                .padding()
+                .foregroundColor(.blue)
+
+            Spacer()
+
+            switch loginStatePicker {
+            case 0:
+                LoginStack()
+            case 1:
+                CreateAccount(isActive: .constant(true))
+
+            default:
+                Text("Loops lmfaoflmfaofofmsdnw :(((")
+            }
         }
+        .animation(.default, value: loginStatePicker)
+        .padding()
+        .ignoresSafeArea(.all, edges: .horizontal)
+        .navigationBarTitleDisplayMode(.automatic)
+        .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
+        .padding(.vertical)
     }
 }
 
