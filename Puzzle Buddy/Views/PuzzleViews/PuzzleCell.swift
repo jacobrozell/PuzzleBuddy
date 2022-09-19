@@ -17,7 +17,6 @@ struct PuzzleCell: View {
             PuzzleDetail(ps: ps, puzzle: $puzzle)
         } label: {
             PuzzleCellView(puzzle: $puzzle)
-                .padding(4)
         }
         .frame(maxWidth: .infinity)
     }
@@ -29,106 +28,45 @@ private struct PuzzleCellView: View {
     @Binding var puzzle: Puzzle
 
     var body: some View {
-        VStack(alignment: .center) {
-            VStack {
-                HStack {
-                    if let image = puzzle.image {
-                        Image(uiImage: image)
-                            .resizable()
-                            .frame(width: 75, height: 75, alignment: .center)
-                            .aspectRatio(contentMode: .fill)
-                            .clipShape(Circle())
-                    }
+        VStack {
+            HStack {
+                if let image = puzzle.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFit()
+                        .border(.primary, width: 0.5)
+                        .clipShape(Circle())
+                        .frame(maxWidth: 100, maxHeight: 100)
+                        .padding(.vertical)
+                }
 
-                    Text(puzzle.name)
+                Spacer()
+
+                // Card info
+                HStack {
+                    Text(puzzle.name.capitalized)
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .lineLimit(2)
                         .truncationMode(.tail)
                         .multilineTextAlignment(.leading)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical)
-            .padding(.vertical)
 
-            if puzzle.rating != .none {
-                GroupBox {
-                    RatingsView(rating: Binding(get: {
-                        puzzle.rating
-                    }, set: { new in
-                        puzzle.rating = new
-                    }))
-                }
-                .padding()
-            }
-
-            Text(expanded ? "↑" : "↓")
-                .padding(4)
-                .foregroundColor(.white)
-                .animation(.linear, value: expanded)
-                .onTapGesture {
-                    expanded.toggle()
-                }
-                .padding(4)
-                .background(Color.accentColor)
-                .clipShape(Circle())
-                .frame(maxWidth: .infinity, alignment: .trailing)
-
-            if expanded {
-                GroupBox {
                     VStack {
                         if let pieces = puzzle.pieces {
-                            HStack {
-                                Text("Total Pieces:")
-                                    .bold()
-
-                                Spacer()
-
-                                Text("\(pieces)")
-                            }
-                        }
-
-                        if let time = puzzle.estimatedTimeSpent {
-                            HStack {
-                                Text("Time Spent:")
-                                    .bold()
-
-                                Spacer()
-
-                                Text(time.toName())
-                            }
-                        }
-
-                        HStack {
-                            Text("Completed:")
-                                .bold()
-
-                            Spacer()
-
-                            Text(puzzle.completionDate, style: .date)
+                            Text("Pieces: \(pieces)")
+                                .italic()
                                 .font(.footnote)
-                                .lineLimit(0)
-                                .frame(maxHeight: .infinity)
-                        }
-
-                        if puzzle.difficulty != .none {
-                            HStack {
-                                Text("Difficulty:")
-                                    .bold()
-
-                                Spacer()
-
-                                Text(puzzle.difficulty.rawValue + "/5")
-                                    .lineLimit(0)
-                            }
                         }
 
                         Spacer()
+
+                        Text(puzzle.completionDate, style: .date)
+                            .fontWeight(.light)
+                            .italic()
+                            .font(.footnote)
                     }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
-                .animation(.easeInOut, value: expanded)
             }
         }
     }
@@ -138,8 +76,8 @@ private struct PuzzleCellView: View {
 struct PuzzleCellPreview: PreviewProvider {
     static var previews: some View {
         VStack {
-            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
-            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
+            PuzzleCell(ps: .init(), puzzle: .constant(.fixture(name: "Test 1", pieces: 125)))
+            PuzzleCell(ps: .init(), puzzle: .constant(.fixture(name: "Test 2", pieces: 500, rating: .five)))
         }
     }
 }

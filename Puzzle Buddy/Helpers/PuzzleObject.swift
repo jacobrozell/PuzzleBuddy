@@ -150,6 +150,17 @@ extension Puzzle {
               status: .todo
         )
     }
+
+    static func fixture(name: String, pieces: Int, rating: Puzzle.Rating? = Puzzle.Rating.none, difficulty: Puzzle.Difficulty? = Puzzle.Difficulty.none, estimatedTimeSpent: Puzzle.PuzzleTime? = nil) -> Puzzle {
+        .init(name: name,
+              pieces: pieces,
+              rating: .none,
+              difficulty: .none,
+              estimatedTimeSpent: nil,
+              completionDate: Date(),
+              status: .todo
+        )
+    }
 }
 
 extension Puzzle {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 private enum PuzzleBuddyTab: String {
-    case puzzles = "Your Puzzle Buddy"
+    case puzzles = "Puzzle Buddy"
     case settings = "Settings"
 }
 
@@ -23,7 +23,9 @@ struct PuzzleTabbar: View {
     var body: some View {
         NavigationStack {
             TabView(selection: $tab) {
-                PuzzleListWrapper(ps: ps)
+                PuzzleList(ps: ps)
+                    .tag(PuzzleBuddyTab.puzzles)
+                    .navigationTitle(PuzzleBuddyTab.puzzles.rawValue)
                     .tabItem {
                         Label {
                             Text("Puzzles")
@@ -31,9 +33,10 @@ struct PuzzleTabbar: View {
                             Image(systemName: "list.bullet.circle.fill")
                         }
                     }
-                    .tag(PuzzleBuddyTab.puzzles)
 
                 SettingsView()
+                    .tag(PuzzleBuddyTab.settings)
+                    .navigationTitle(PuzzleBuddyTab.settings.rawValue)
                     .tabItem {
                         Label {
                             Text("Settings")
@@ -41,9 +44,9 @@ struct PuzzleTabbar: View {
                             Image(systemName: "gearshape")
                         }
                     }
-                    .tag(PuzzleBuddyTab.settings)
             }
-            .navigationTitle($tab.wrappedValue.rawValue)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(tab.rawValue)
         }
     }
 }
