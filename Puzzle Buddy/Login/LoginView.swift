@@ -6,6 +6,8 @@
 //
 
 import FirebaseAuth
+import AuthenticationServices
+import FirebaseAuth
 import SwiftUI
 
 // MARK: - LoginView
@@ -122,6 +124,16 @@ private struct LoginStack: View {
                         }
                     }
                     .padding(.vertical)
+
+                    SignInWithAppleButton { request in
+                        auth.startSignInWithAppleFlow(request: request)
+                        
+                    } onCompletion: { result in
+                        auth.signInWithAppleCompletion(result: result)
+                    }
+                    .padding()
+                    .frame(maxHeight: 100)
+                    .signInWithAppleButtonStyle(.black)
                 }
             }
         }
