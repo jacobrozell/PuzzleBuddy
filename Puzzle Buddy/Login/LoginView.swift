@@ -30,6 +30,14 @@ private struct LoginWrapper: View {
 
     var body: some View {
         VStack {
+//            Image(systemName: "puzzlepiece.fill")
+            PuzzleAnimation()
+                .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+//                .resizable()
+//                .aspectRatio(2/1, contentMode: .fit)
+//                .padding()
+//                .foregroundColor(.blue)
+
             Picker("Login/CreateAccount", selection: $loginStatePicker) {
                 Text("Login")
                     .tag(0)
@@ -38,13 +46,7 @@ private struct LoginWrapper: View {
                     .tag(1)
             }
             .pickerStyle(.segmented)
-            .padding()
-
-            Image(systemName: "puzzlepiece.fill")
-                .resizable()
-                .aspectRatio(2/1, contentMode: .fit)
-                .padding()
-                .foregroundColor(.blue)
+            .padding(.horizontal)
 
             Spacer()
 
@@ -64,6 +66,7 @@ private struct LoginWrapper: View {
         .navigationBarTitleDisplayMode(.automatic)
         .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
         .padding(.vertical)
+        .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .bottomTrailing, endPoint: .topLeading).opacity(0.4))
     }
 }
 
@@ -92,6 +95,31 @@ private struct LoginStack: View {
                     .textFieldStyle(.roundedBorder)
 
                 VStack {
+                    // Forgot Password Button
+                    Button {
+                        isActiveForgotPassword = true
+                    } label: {
+                        Text("Forgot Password")
+                            .italic()
+                            .underline()
+                            .foregroundColor(.primary)
+                            .contentShape(Rectangle())
+                    }
+                    .padding(2)
+
+                    Spacer()
+
+                    SignInWithAppleButton { request in
+                        auth.startSignInWithAppleFlow(request: request)
+                        
+                    } onCompletion: { result in
+                        auth.signInWithAppleCompletion(result: result)
+                    }
+                    .padding()
+                    .frame(maxHeight: 100)
+                    .signInWithAppleButtonStyle(colorScheme == .dark ? .whiteOutline : .black)
+                    .clipShape(Capsule())
+
                     Button {
                         Task {
                             do {
@@ -106,36 +134,9 @@ private struct LoginStack: View {
                             .padding()
                             .contentShape(Capsule())
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent)
                     .buttonBorderShape(.capsule)
                     .disabled(auth.login.isEmpty || auth.password.isEmpty)
-
-                    Spacer()
-
-                    // Forgot Password Button
-                    VStack {
-                        Button {
-                            isActiveForgotPassword = true
-                        } label: {
-                            Text("Forgot Password")
-                                .italic()
-                                .underline()
-                                .foregroundColor(.primary)
-                                .contentShape(Rectangle())
-                                .padding(2)
-                        }
-                    }
-                    .padding(.vertical)
-
-                    SignInWithAppleButton { request in
-                        auth.startSignInWithAppleFlow(request: request)
-                        
-                    } onCompletion: { result in
-                        auth.signInWithAppleCompletion(result: result)
-                    }
-                    .padding()
-                    .frame(minHeight: 60, maxHeight: 80)
-                    .signInWithAppleButtonStyle(colorScheme == .dark ? .whiteOutline : .black)
                 }
             }
         }

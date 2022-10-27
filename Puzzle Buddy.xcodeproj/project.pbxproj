@@ -46,6 +46,9 @@
 		0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D54E28BE71F100132868 /* ErrorHandling.swift */; };
 		0BA2D55228BE720500132868 /* SecureInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D55028BE720500132868 /* SecureInputView.swift */; };
 		0BA2D55728BE76C500132868 /* PuzzleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D55628BE76C500132868 /* PuzzleStore.swift */; };
+		0BC4AC8F290A557500C56BB7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0BC4AC8E290A557500C56BB7 /* Lottie */; };
+		0BC4AC91290A55C100C56BB7 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC4AC90290A55C100C56BB7 /* LottieView.swift */; };
+		0BC4AC93290A571000C56BB7 /* login.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC92290A571000C56BB7 /* login.json */; };
 		0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */; };
 /* End PBXBuildFile section */
 
@@ -97,6 +100,8 @@
 		0BA2D54E28BE71F100132868 /* ErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
 		0BA2D55028BE720500132868 /* SecureInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureInputView.swift; sourceTree = "<group>"; };
 		0BA2D55628BE76C500132868 /* PuzzleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleStore.swift; sourceTree = "<group>"; };
+		0BC4AC90290A55C100C56BB7 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
+		0BC4AC92290A571000C56BB7 /* login.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = login.json; sourceTree = "<group>"; };
 		0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleDetail.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -105,6 +110,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0BC4AC8F290A557500C56BB7 /* Lottie in Frameworks */,
 				0B5B345F28CFA2E400E2CD30 /* FirebaseMessaging in Frameworks */,
 				0B5B345928CFA2E400E2CD30 /* FirebaseAnalytics in Frameworks */,
 				0B5B345B28CFA2E400E2CD30 /* FirebaseAuth in Frameworks */,
@@ -157,6 +163,7 @@
 				0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */,
 				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BA2D53628BE650000132868 /* AppDelegate.swift */,
+				0BC4AC92290A571000C56BB7 /* login.json */,
 				0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
 				0BA2D54128BE718C00132868 /* Login */,
@@ -223,6 +230,7 @@
 				0B5B345528CEB45200E2CD30 /* ImagePicker.swift */,
 				0BA2D54E28BE71F100132868 /* ErrorHandling.swift */,
 				0BA2D55028BE720500132868 /* SecureInputView.swift */,
+				0BC4AC90290A55C100C56BB7 /* LottieView.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -267,6 +275,7 @@
 				0B5B345A28CFA2E400E2CD30 /* FirebaseAuth */,
 				0B5B345C28CFA2E400E2CD30 /* FirebaseFirestore */,
 				0B5B345E28CFA2E400E2CD30 /* FirebaseMessaging */,
+				0BC4AC8E290A557500C56BB7 /* Lottie */,
 			);
 			productName = "Puzzle Buddy";
 			productReference = 0B0CD5E3287E650200774CDB /* Puzzle Buddy.app */;
@@ -342,6 +351,7 @@
 			mainGroup = 0B0CD5DA287E650200774CDB;
 			packageReferences = (
 				0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				0BC4AC8D290A557500C56BB7 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = 0B0CD5E4287E650200774CDB /* Products */;
 			projectDirPath = "";
@@ -362,6 +372,7 @@
 				0B0CD5EB287E650400774CDB /* Assets.xcassets in Resources */,
 				0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 				0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
+				0BC4AC93290A571000C56BB7 /* login.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,6 +412,7 @@
 				0B0CD5E7287E650200774CDB /* Puzzle_BuddyApp.swift in Sources */,
 				0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */,
 				0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */,
+				0BC4AC91290A55C100C56BB7 /* LottieView.swift in Sources */,
 				0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */,
 				0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */,
 				0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */,
@@ -758,6 +770,14 @@
 				kind = branch;
 			};
 		};
+		0BC4AC8D290A557500C56BB7 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -780,6 +800,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		0BC4AC8E290A557500C56BB7 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0BC4AC8D290A557500C56BB7 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
