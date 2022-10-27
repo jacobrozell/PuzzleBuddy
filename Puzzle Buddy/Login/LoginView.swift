@@ -30,13 +30,8 @@ private struct LoginWrapper: View {
 
     var body: some View {
         VStack {
-//            Image(systemName: "puzzlepiece.fill")
             PuzzleAnimation()
-                .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
-//                .resizable()
-//                .aspectRatio(2/1, contentMode: .fit)
-//                .padding()
-//                .foregroundColor(.blue)
+                .frame(maxWidth: 100, maxHeight: 100, alignment: .center)
 
             Picker("Login/CreateAccount", selection: $loginStatePicker) {
                 Text("Login")
@@ -46,7 +41,6 @@ private struct LoginWrapper: View {
                     .tag(1)
             }
             .pickerStyle(.segmented)
-            .padding(.horizontal)
 
             Spacer()
 
