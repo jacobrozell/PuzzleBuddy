@@ -69,6 +69,8 @@ private struct LoginWrapper: View {
 
 // MARK: - LoginStack
 private struct LoginStack: View {
+    @Environment(\.colorScheme) var colorScheme
+
     @EnvironmentObject var errorHandling: ErrorHandling
     @EnvironmentObject var auth: FirebaseAuthProvider
 
@@ -132,8 +134,8 @@ private struct LoginStack: View {
                         auth.signInWithAppleCompletion(result: result)
                     }
                     .padding()
-                    .frame(maxHeight: 100)
-                    .signInWithAppleButtonStyle(.black)
+                    .frame(minHeight: 60, maxHeight: 80)
+                    .signInWithAppleButtonStyle(colorScheme == .dark ? .whiteOutline : .black)
                 }
             }
         }
