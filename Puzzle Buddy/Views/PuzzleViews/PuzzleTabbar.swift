@@ -25,7 +25,6 @@ struct PuzzleTabbar: View {
             TabView(selection: $tab) {
                 PuzzleList(ps: ps)
                     .tag(PuzzleBuddyTab.puzzles)
-                    .navigationTitle(PuzzleBuddyTab.puzzles.rawValue)
                     .tabItem {
                         Label {
                             Text("Puzzles")
@@ -33,10 +32,13 @@ struct PuzzleTabbar: View {
                             Image(systemName: "list.bullet.circle.fill")
                         }
                     }
+//                    .overlay(alignment: .topLeading) {
+//                        PuzzleAnimation(.puzzle, loopMode: .loop)
+//                            .frame(maxWidth: 50, maxHeight: 50, alignment: .topLeading)
+//                    }
 
                 SettingsView()
                     .tag(PuzzleBuddyTab.settings)
-                    .navigationTitle(PuzzleBuddyTab.settings.rawValue)
                     .tabItem {
                         Label {
                             Text("Settings")
@@ -47,6 +49,7 @@ struct PuzzleTabbar: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(tab.rawValue)
+            .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.9))
         }
     }
 }

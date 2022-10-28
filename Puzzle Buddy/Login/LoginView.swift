@@ -30,8 +30,11 @@ private struct LoginWrapper: View {
 
     var body: some View {
         VStack {
-            PuzzleAnimation()
-                .frame(maxWidth: 100, maxHeight: 100, alignment: .center)
+            HStack {
+                PuzzleAnimation(.login, loopMode: .autoReverse)
+                    .frame(maxWidth: 100, maxHeight: 100, alignment: .center)
+            }
+            .frame(maxWidth: .infinity)
 
             Picker("Login/CreateAccount", selection: $loginStatePicker) {
                 Text("Login")
@@ -40,7 +43,11 @@ private struct LoginWrapper: View {
                 Text("Create Account")
                     .tag(1)
             }
-            .pickerStyle(.segmented)
+            .frame(maxWidth: .infinity)
+            .pickerStyle(.automatic)
+            .padding()
+            .clipShape(Capsule())
+            .buttonStyle(.borderedProminent)
 
             Spacer()
 
@@ -60,7 +67,7 @@ private struct LoginWrapper: View {
         .navigationBarTitleDisplayMode(.automatic)
         .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
         .padding(.vertical)
-        .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .bottomTrailing, endPoint: .topLeading).opacity(0.4))
+        .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.4))
     }
 }
 

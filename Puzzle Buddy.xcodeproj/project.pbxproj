@@ -28,9 +28,6 @@
 		0B85808928C0049300CE3B91 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808828C0049300CE3B91 /* SettingsView.swift */; };
 		0B85808B28C004E800CE3B91 /* PuzzleTabbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */; };
 		0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808C28C005DD00CE3B91 /* CreateAccount.swift */; };
-		0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
-		0B85809128C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
-		0B85809228C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
 		0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
 		0B85809528C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
 		0B85809628C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
@@ -49,6 +46,9 @@
 		0BC4AC8F290A557500C56BB7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0BC4AC8E290A557500C56BB7 /* Lottie */; };
 		0BC4AC91290A55C100C56BB7 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC4AC90290A55C100C56BB7 /* LottieView.swift */; };
 		0BC4AC93290A571000C56BB7 /* login.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC92290A571000C56BB7 /* login.json */; };
+		0BC4AC95290B06C100C56BB7 /* profile.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC94290B06C000C56BB7 /* profile.json */; };
+		0BC4AC97290B0D2000C56BB7 /* photo.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC96290B0D2000C56BB7 /* photo.json */; };
+		0BC4AC99290B0F5100C56BB7 /* puzzle.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC98290B0F5100C56BB7 /* puzzle.json */; };
 		0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */; };
 /* End PBXBuildFile section */
 
@@ -90,7 +90,6 @@
 		0B85808828C0049300CE3B91 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleTabbar.swift; sourceTree = "<group>"; };
 		0B85808C28C005DD00CE3B91 /* CreateAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccount.swift; sourceTree = "<group>"; };
-		0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "88010-puzzle.gif"; sourceTree = "<group>"; };
 		0B85809328C0082300CE3B91 /* RatingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingsView.swift; sourceTree = "<group>"; };
 		0B85809728C0086700CE3B91 /* DifficultyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyView.swift; sourceTree = "<group>"; };
 		0BA2D53628BE650000132868 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -102,6 +101,9 @@
 		0BA2D55628BE76C500132868 /* PuzzleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleStore.swift; sourceTree = "<group>"; };
 		0BC4AC90290A55C100C56BB7 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		0BC4AC92290A571000C56BB7 /* login.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = login.json; sourceTree = "<group>"; };
+		0BC4AC94290B06C000C56BB7 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
+		0BC4AC96290B0D2000C56BB7 /* photo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = photo.json; sourceTree = "<group>"; };
+		0BC4AC98290B0F5100C56BB7 /* puzzle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = puzzle.json; sourceTree = "<group>"; };
 		0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleDetail.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -163,8 +165,7 @@
 				0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */,
 				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BA2D53628BE650000132868 /* AppDelegate.swift */,
-				0BC4AC92290A571000C56BB7 /* login.json */,
-				0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */,
+				0BC4AC9A290B0F5D00C56BB7 /* LottieAnimations */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
 				0BA2D54128BE718C00132868 /* Login */,
 				0BE5C08228BFC2C8001CD479 /* Views */,
@@ -230,9 +231,20 @@
 				0B5B345528CEB45200E2CD30 /* ImagePicker.swift */,
 				0BA2D54E28BE71F100132868 /* ErrorHandling.swift */,
 				0BA2D55028BE720500132868 /* SecureInputView.swift */,
-				0BC4AC90290A55C100C56BB7 /* LottieView.swift */,
 			);
 			path = Util;
+			sourceTree = "<group>";
+		};
+		0BC4AC9A290B0F5D00C56BB7 /* LottieAnimations */ = {
+			isa = PBXGroup;
+			children = (
+				0BC4AC90290A55C100C56BB7 /* LottieView.swift */,
+				0BC4AC92290A571000C56BB7 /* login.json */,
+				0BC4AC98290B0F5100C56BB7 /* puzzle.json */,
+				0BC4AC96290B0D2000C56BB7 /* photo.json */,
+				0BC4AC94290B06C000C56BB7 /* profile.json */,
+			);
+			name = LottieAnimations;
 			sourceTree = "<group>";
 		};
 		0BE5C08228BFC2C8001CD479 /* Views */ = {
@@ -371,8 +383,10 @@
 			files = (
 				0B0CD5EB287E650400774CDB /* Assets.xcassets in Resources */,
 				0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
-				0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
+				0BC4AC97290B0D2000C56BB7 /* photo.json in Resources */,
 				0BC4AC93290A571000C56BB7 /* login.json in Resources */,
+				0BC4AC95290B06C100C56BB7 /* profile.json in Resources */,
+				0BC4AC99290B0F5100C56BB7 /* puzzle.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -380,7 +394,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B85809128C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 				0B523F0928BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -389,7 +402,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B85809228C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 				0B523F0A28BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -8,11 +8,11 @@
 import Lottie
 import SwiftUI
 
-struct LottieView: UIViewRepresentable {
-    var name = "login"
-    var loopMode: LottieLoopMode = .loop
+private struct LottieView: UIViewRepresentable {
+    var name: String
+    var loopMode: LottieLoopMode
 
-    init(name: String = "login", loopMode: LottieLoopMode) {
+    init(name: String, loopMode: LottieLoopMode) {
         self.name = name
         self.loopMode = loopMode
     }
@@ -42,9 +42,24 @@ struct LottieView: UIViewRepresentable {
     func updateUIView(_ uiView: UIViewType, context: Context) {}
 }
 
-struct PuzzleAnimation: View {
-    var body: some View {
-        LottieView(name: "login", loopMode: .autoReverse)
+public enum LottieAnimations: String {
+    case login = "login"
+    case profile = "profile"
+    case photo = "photo"
+    case puzzle = "puzzle"
+}
+
+public struct PuzzleAnimation: View {
+    @State private var name: LottieAnimations
+    @State private var loopMode: LottieLoopMode
+
+    public init(_ name: LottieAnimations = .login, loopMode: LottieLoopMode) {
+        self.name = name
+        self.loopMode = loopMode
+    }
+
+    public var body: some View {
+        LottieView(name: name.rawValue, loopMode: loopMode)
     }
 }
 

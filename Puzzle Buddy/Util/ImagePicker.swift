@@ -14,6 +14,11 @@ struct ImagePickerView: View {
                 .background(Color.blue.opacity(0.2))
                 .aspectRatio(contentMode: .fill)
                 .clipShape(Circle())
+                .overlay {
+                    PuzzleAnimation(.photo, loopMode: .autoReverse)
+                        .padding()
+                        .opacity(0.65)
+                }
 
             HStack {
                 Text("Choose photo")
