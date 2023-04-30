@@ -7,70 +7,49 @@
 
 import SwiftUI
 
-// MARK: - PuzzleListWrapper
-struct PuzzleListWrapper: View {
-    @EnvironmentObject var auth: FirebaseAuthProvider
-    @EnvironmentObject var eh: ErrorHandling
-    @ObservedObject var ps: PuzzleStore
-    @State private var present = false
-
-
-    var body: some View {
-        VStack {
-            PuzzleList(ps: ps)
-
-            Button {
-                present.toggle()
-            } label: {
-                Text("Add Puzzle")
-                    .font(.title)
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.roundedRectangle)
-            .padding()
-        }
-        .sheet(isPresented: $present) {
-            PuzzleForm(isPresented: $present, ps: ps)
-        }
-    }
-}
 
 // MARK: - PuzzleList
 struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
-    @State private var listStatus: String = Puzzle.Status.completed.rawValue
+    @State private var present = false
+    @State private var searchText: String = ""
 
     var body: some View {
-        VStack {
-            Picker("Sort by: Status", selection: $listStatus) {
-                Text("To-Do")
-                    .tag(Puzzle.Status.todo.rawValue)
-
-                Text("Completed")
-                    .tag(Puzzle.Status.completed.rawValue)
-
-                Text("In-Progress")
-                    .tag(Puzzle.Status.inProgress.rawValue)
-            }
-            .pickerStyle(.segmented)
-            .padding()
-
-            List {
-                // List
-                ForEach(ps.puzzles, id: \.id) { p in
-                    if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
-                        PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
-                    }
+        List {
+            ForEach(ps.puzzles, id: \.id) { p in
+                if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
+                    PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                        .id(ps.puzzles[index].id)
                 }
-                .onDelete(perform: ps.delete(at:))
             }
+            .onDelete(perform: { indexSet in
+                ps.delete(at: indexSet)
+            })
         }
-        .listStyle(.automatic)
-        .animation(.linear, value: listStatus)
+        .refreshable {
+            await ps.fetchPuzzles()
+        }
+        .listStyle(.plain)
+        .sheet(isPresented: $present) {
+            PuzzleForm(isPresented: $present, ps: ps)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            Button {
+                present.toggle()
+            } label: {
+                Text("Add")
+                    .padding(4)
+                    .font(.title)
+                    .frame(maxWidth: 80, maxHeight: 80)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .padding()
+            .opacity(0.75)
+        }
     }
 }
 

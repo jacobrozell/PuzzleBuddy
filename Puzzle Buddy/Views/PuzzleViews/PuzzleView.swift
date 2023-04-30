@@ -20,10 +20,12 @@ struct PuzzleView: View {
     }
 
     var body: some View {
-        NavigationView {
-            PuzzleTabbar(ps: ps)
-        }
-        .navigationViewStyle(.stack)
+        PuzzleTabbar(ps: ps)
+            .task {
+                if ps.puzzles.isEmpty {
+                    await ps.fetchPuzzles()
+                }
+            }
     }
 }
 

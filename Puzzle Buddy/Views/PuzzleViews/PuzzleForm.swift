@@ -5,7 +5,27 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
+import Photos
+import PhotosUI
 import SwiftUI
+
+class PuzzleFormViewModel: ObservableObject {
+    @Published var puzzle: Puzzle
+    @Published var image: UIImage = UIImage() {
+        didSet {
+            puzzle.image = image
+        }
+    }
+
+    init() {
+        self.puzzle = .fixture()
+    }
+
+    init(puzzle: Puzzle) {
+        self.puzzle = puzzle
+        self.image = puzzle.image ?? UIImage()
+    }
+}
 
 // MARK: - PuzzleForm
 struct PuzzleForm: View {
@@ -13,57 +33,107 @@ struct PuzzleForm: View {
     @EnvironmentObject var eh: ErrorHandling
     @Binding var isPresented: Bool
 
-    @State private var puzzle: Puzzle
+    @StateObject var formVm: PuzzleFormViewModel
 
     /// Detail Init
     init(puzzle: Puzzle, ps: PuzzleStore) {
         self._ps = ObservedObject(wrappedValue: ps)
         self._isPresented = .constant(false)
-        self.puzzle = puzzle
+        self._formVm = StateObject(wrappedValue: PuzzleFormViewModel(puzzle: puzzle))
     }
 
     /// Normal Path Init
     init(isPresented: Binding<Bool>, ps: PuzzleStore) {
         self._ps = ObservedObject(wrappedValue: ps)
         self._isPresented = isPresented
-        self.puzzle = .init(name: "", pieces: 0, rating: .three, difficulty: .three, estimatedTimeSpent: .init(hours: 0, minutes: 0), completionDate: Date())
+        self._formVm = StateObject(wrappedValue: PuzzleFormViewModel())
     }
 
     var body: some View {
         VStack {
-            PuzzleFormInternal(puzzle: $puzzle)
-            SubmitAddButton(ps: ps, puzzle: $puzzle, isPresented: $isPresented)
+            PuzzleFormInternal(formVm: formVm)
+
+            SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented)
         }
     }
 }
 
 // MARK: - PuzzleFormInternal
 struct PuzzleFormInternal: View {
-    @Binding var puzzle: Puzzle
-
-    init(puzzle: Binding<Puzzle>) {
-        self._puzzle = puzzle
-    }
+    @ObservedObject var formVm: PuzzleFormViewModel
 
     var body: some View {
         Form {
+            ImagePickerView(image: $formVm.image)
+                .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
+
             Section {
-                TextField("Name", text: $puzzle.name, prompt: Text("Puzzle Name"))
-                    .keyboardType(.namePhonePad)
-                    .disableAutocorrection(true)
+                VStack {
+                    HStack {
+                        Text("Name:")
 
-                TextField("Pieces", value: $puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
-                    .keyboardType(.numberPad)
+                        Spacer()
 
+                        TextField("Name", text: $formVm.puzzle.name, prompt: Text("Puzzle Name"))
+                            .keyboardType(.namePhonePad)
+                            .disableAutocorrection(true)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    Divider()
+
+                    HStack {
+                        Text("Pieces:")
+
+                        Spacer()
+
+                        TextField("Pieces", value: $formVm.puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                    }
+
+                    Divider()
+
+                    HStack {
+                        Text("Status:")
+
+                        Spacer()
+
+                        Picker("Status", selection: $formVm.puzzle.status) {
+                            ForEach(Puzzle.Status.allCases) { status in
+                                Text(status.rawValue)
+                                    .id(status)
+                                    .tag(status)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } header: {
+                Text("Puzzle Info")
+                    .frame(alignment: .leading)
+            }
+
+            // Rating Section
+            Section {
                 HStack {
                     Text("Rating:")
 
                     Spacer()
 
-                    Picker("Rating", selection: $puzzle.rating) {
+                    // TODO: Editable RatingsView
+                    Picker("Rating", selection: $formVm.puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
-                            Text("\(rating.rawValue)")
-                                .id(rating)
+                            Group {
+                                if rating == .none {
+                                    Text("N/A")
+                                } else {
+                                    Text("\(rating.rawValue, specifier: "%.1f")")
+                                }
+                            }
+                            .id(rating)
+                            .tag(rating)
                         }
                     }
                     .pickerStyle(.menu)
@@ -74,52 +144,66 @@ struct PuzzleFormInternal: View {
 
                     Spacer()
 
-                    Picker("Difficulty", selection: $puzzle.difficulty) {
+                    Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
-                            Text("\(difficulty.rawValue)")
-                                .id(difficulty)
+                            Group {
+                                if difficulty == .none {
+                                    Text("N/A")
+                                } else {
+                                    Text("\(difficulty.rawValue)")
+                                }
+                            }
+                            .id(difficulty)
+                            .tag(difficulty)
                         }
                     }
                     .pickerStyle(.menu)
                 }
-
             } header: {
-                Text("Puzzle Info")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("How did you like it?")
             }
 
+            // Time Spent Section
             Section {
-                TextField("Hours Spent", value: $puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
-                    .keyboardType(.numberPad)
+                HStack {
+                    //                    Text("Hours Spent:")
+                    //
+                    //                    Spacer()
 
-                TextField("Minutes Spent", value: $puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
+                    TextField("Hours Spent", value: Binding {
+                        formVm.puzzle.estimatedTimeSpent?.hours ?? nil
+                    } set: { new in
+                        formVm.puzzle.estimatedTimeSpent?.hours = new
+                    }, format: .number, prompt: Text("Estimated Hours Spent"))
                     .keyboardType(.numberPad)
+                    .frame(alignment: .trailing)
+                    .multilineTextAlignment(.leading)
+                }
 
                 HStack {
-                    Text("Status:")
+                    //                    Text("Minutes Spent:")
+                    //
+                    //                    Spacer()
 
-                    Spacer()
-
-                    Picker("Status", selection: $puzzle.status) {
-                        ForEach(Puzzle.Status.allCases) { status in
-                            Text(status.rawValue)
-                                .id(status)
-                        }
-                    }
-                    .pickerStyle(.menu)
+                    TextField("Minutes Spent", value: Binding {
+                        formVm.puzzle.estimatedTimeSpent?.minutes ?? nil
+                    } set: { new in
+                        formVm.puzzle.estimatedTimeSpent?.minutes = new
+                    }, format: .number, prompt: Text("Estimated Minutes Spent"))
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.leading)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } header: {
-                Text("Stats")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                Text("How long did it take?")
             }
 
+            // Completion Section
             Section {
-                DatePicker("Completion Date", selection: $puzzle.completionDate)
+                DatePicker("Completion Date", selection: $formVm.puzzle.completionDate)
                     .datePickerStyle(.graphical)
             } header: {
-                Text("Date Completed")
+                Text("When did you finish \(!formVm.puzzle.name.isEmpty ? formVm.puzzle.name : "the puzzle")?")
             }
         }
     }
@@ -129,13 +213,13 @@ struct PuzzleFormInternal: View {
 struct SubmitAddButton: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
-    @Binding var puzzle: Puzzle
+    @ObservedObject var formVm: PuzzleFormViewModel
     @Binding var isPresented: Bool
 
     var body: some View {
         Button {
             do {
-                try ps.add(puzzle: puzzle)
+                try ps.add(puzzle: formVm.puzzle)
 
                 // dismiss view
                 isPresented = false
@@ -152,6 +236,8 @@ struct SubmitAddButton: View {
         .background(Color.blue)
         .cornerRadius(16.0)
         .padding(.horizontal)
+        .disabled(formVm.puzzle.name.isEmpty)
+        .opacity(!formVm.puzzle.name.isEmpty ? 1.0 : 0.8)
     }
 }
 

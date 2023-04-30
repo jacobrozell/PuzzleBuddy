@@ -47,9 +47,15 @@ struct CreateAccount: View {
                 }
             } label: {
                 Text("Submit")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .contentShape(Capsule())
             }
-            .disabled(name.isEmpty)
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .disabled(auth.login.isEmpty || auth.password.isEmpty)
         }
+        .padding()
     }
 }
 

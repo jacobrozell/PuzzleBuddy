@@ -13,14 +13,14 @@
 		0B0CD5F8287E650400774CDB /* Puzzle_BuddyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD5F7287E650400774CDB /* Puzzle_BuddyTests.swift */; };
 		0B0CD602287E650400774CDB /* Puzzle_BuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */; };
 		0B0CD604287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */; };
-		0B523EFE28BFD29800A75BA7 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 0B523EFD28BFD29800A75BA7 /* FirebaseAnalytics */; };
-		0B523F0028BFD29800A75BA7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0B523EFF28BFD29800A75BA7 /* FirebaseAuth */; };
-		0B523F0228BFD29800A75BA7 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 0B523F0128BFD29800A75BA7 /* FirebaseCrashlytics */; };
-		0B523F0428BFD29800A75BA7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B523F0328BFD29800A75BA7 /* FirebaseFirestore */; };
-		0B523F0628BFD29800A75BA7 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0B523F0528BFD29800A75BA7 /* FirebaseMessaging */; };
 		0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
 		0B523F0928BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
 		0B523F0A28BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
+		0B5B345628CEB45200E2CD30 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5B345528CEB45200E2CD30 /* ImagePicker.swift */; };
+		0B5B345928CFA2E400E2CD30 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 0B5B345828CFA2E400E2CD30 /* FirebaseAnalytics */; };
+		0B5B345B28CFA2E400E2CD30 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 0B5B345A28CFA2E400E2CD30 /* FirebaseAuth */; };
+		0B5B345D28CFA2E400E2CD30 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B5B345C28CFA2E400E2CD30 /* FirebaseFirestore */; };
+		0B5B345F28CFA2E400E2CD30 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 0B5B345E28CFA2E400E2CD30 /* FirebaseMessaging */; };
 		0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E47288C4F1000696180 /* PuzzleObject.swift */; };
 		0B660E4A288C4F2B00696180 /* PuzzleForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E49288C4F2B00696180 /* PuzzleForm.swift */; };
 		0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B660E4B288C4F6700696180 /* PuzzleList.swift */; };
@@ -28,9 +28,6 @@
 		0B85808928C0049300CE3B91 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808828C0049300CE3B91 /* SettingsView.swift */; };
 		0B85808B28C004E800CE3B91 /* PuzzleTabbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */; };
 		0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85808C28C005DD00CE3B91 /* CreateAccount.swift */; };
-		0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
-		0B85809128C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
-		0B85809228C0078A00CE3B91 /* 88010-puzzle.gif in Resources */ = {isa = PBXBuildFile; fileRef = 0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */; };
 		0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
 		0B85809528C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
 		0B85809628C0082300CE3B91 /* RatingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B85809328C0082300CE3B91 /* RatingsView.swift */; };
@@ -46,6 +43,12 @@
 		0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D54E28BE71F100132868 /* ErrorHandling.swift */; };
 		0BA2D55228BE720500132868 /* SecureInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D55028BE720500132868 /* SecureInputView.swift */; };
 		0BA2D55728BE76C500132868 /* PuzzleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA2D55628BE76C500132868 /* PuzzleStore.swift */; };
+		0BC4AC8F290A557500C56BB7 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0BC4AC8E290A557500C56BB7 /* Lottie */; };
+		0BC4AC91290A55C100C56BB7 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC4AC90290A55C100C56BB7 /* LottieView.swift */; };
+		0BC4AC93290A571000C56BB7 /* login.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC92290A571000C56BB7 /* login.json */; };
+		0BC4AC95290B06C100C56BB7 /* profile.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC94290B06C000C56BB7 /* profile.json */; };
+		0BC4AC97290B0D2000C56BB7 /* photo.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC96290B0D2000C56BB7 /* photo.json */; };
+		0BC4AC99290B0F5100C56BB7 /* puzzle.json in Resources */ = {isa = PBXBuildFile; fileRef = 0BC4AC98290B0F5100C56BB7 /* puzzle.json */; };
 		0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */; };
 /* End PBXBuildFile section */
 
@@ -79,6 +82,7 @@
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
+		0B5B345528CEB45200E2CD30 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		0B660E47288C4F1000696180 /* PuzzleObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleObject.swift; sourceTree = "<group>"; };
 		0B660E49288C4F2B00696180 /* PuzzleForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleForm.swift; sourceTree = "<group>"; };
 		0B660E4B288C4F6700696180 /* PuzzleList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleList.swift; sourceTree = "<group>"; };
@@ -86,7 +90,6 @@
 		0B85808828C0049300CE3B91 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleTabbar.swift; sourceTree = "<group>"; };
 		0B85808C28C005DD00CE3B91 /* CreateAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateAccount.swift; sourceTree = "<group>"; };
-		0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "88010-puzzle.gif"; sourceTree = "<group>"; };
 		0B85809328C0082300CE3B91 /* RatingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingsView.swift; sourceTree = "<group>"; };
 		0B85809728C0086700CE3B91 /* DifficultyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyView.swift; sourceTree = "<group>"; };
 		0BA2D53628BE650000132868 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -96,6 +99,11 @@
 		0BA2D54E28BE71F100132868 /* ErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
 		0BA2D55028BE720500132868 /* SecureInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureInputView.swift; sourceTree = "<group>"; };
 		0BA2D55628BE76C500132868 /* PuzzleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleStore.swift; sourceTree = "<group>"; };
+		0BC4AC90290A55C100C56BB7 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
+		0BC4AC92290A571000C56BB7 /* login.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = login.json; sourceTree = "<group>"; };
+		0BC4AC94290B06C000C56BB7 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
+		0BC4AC96290B0D2000C56BB7 /* photo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = photo.json; sourceTree = "<group>"; };
+		0BC4AC98290B0F5100C56BB7 /* puzzle.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = puzzle.json; sourceTree = "<group>"; };
 		0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleDetail.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -104,11 +112,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B523F0228BFD29800A75BA7 /* FirebaseCrashlytics in Frameworks */,
-				0B523F0428BFD29800A75BA7 /* FirebaseFirestore in Frameworks */,
-				0B523F0628BFD29800A75BA7 /* FirebaseMessaging in Frameworks */,
-				0B523EFE28BFD29800A75BA7 /* FirebaseAnalytics in Frameworks */,
-				0B523F0028BFD29800A75BA7 /* FirebaseAuth in Frameworks */,
+				0BC4AC8F290A557500C56BB7 /* Lottie in Frameworks */,
+				0B5B345F28CFA2E400E2CD30 /* FirebaseMessaging in Frameworks */,
+				0B5B345928CFA2E400E2CD30 /* FirebaseAnalytics in Frameworks */,
+				0B5B345B28CFA2E400E2CD30 /* FirebaseAuth in Frameworks */,
+				0B5B345D28CFA2E400E2CD30 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,7 +155,7 @@
 				0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */,
 				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BA2D53628BE650000132868 /* AppDelegate.swift */,
-				0B85808F28C0078A00CE3B91 /* 88010-puzzle.gif */,
+				0BC4AC9A290B0F5D00C56BB7 /* LottieAnimations */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
 				0BA2D54128BE718C00132868 /* Login */,
 				0BE5C08228BFC2C8001CD479 /* Views */,
@@ -210,10 +218,23 @@
 		0BA2D55428BE721900132868 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				0B5B345528CEB45200E2CD30 /* ImagePicker.swift */,
 				0BA2D54E28BE71F100132868 /* ErrorHandling.swift */,
 				0BA2D55028BE720500132868 /* SecureInputView.swift */,
 			);
 			path = Util;
+			sourceTree = "<group>";
+		};
+		0BC4AC9A290B0F5D00C56BB7 /* LottieAnimations */ = {
+			isa = PBXGroup;
+			children = (
+				0BC4AC90290A55C100C56BB7 /* LottieView.swift */,
+				0BC4AC92290A571000C56BB7 /* login.json */,
+				0BC4AC98290B0F5100C56BB7 /* puzzle.json */,
+				0BC4AC96290B0D2000C56BB7 /* photo.json */,
+				0BC4AC94290B06C000C56BB7 /* profile.json */,
+			);
+			name = LottieAnimations;
 			sourceTree = "<group>";
 		};
 		0BE5C08228BFC2C8001CD479 /* Views */ = {
@@ -252,11 +273,11 @@
 			);
 			name = "Puzzle Buddy";
 			packageProductDependencies = (
-				0B523EFD28BFD29800A75BA7 /* FirebaseAnalytics */,
-				0B523EFF28BFD29800A75BA7 /* FirebaseAuth */,
-				0B523F0128BFD29800A75BA7 /* FirebaseCrashlytics */,
-				0B523F0328BFD29800A75BA7 /* FirebaseFirestore */,
-				0B523F0528BFD29800A75BA7 /* FirebaseMessaging */,
+				0B5B345828CFA2E400E2CD30 /* FirebaseAnalytics */,
+				0B5B345A28CFA2E400E2CD30 /* FirebaseAuth */,
+				0B5B345C28CFA2E400E2CD30 /* FirebaseFirestore */,
+				0B5B345E28CFA2E400E2CD30 /* FirebaseMessaging */,
+				0BC4AC8E290A557500C56BB7 /* Lottie */,
 			);
 			productName = "Puzzle Buddy";
 			productReference = 0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */;
@@ -331,7 +352,8 @@
 			);
 			mainGroup = 0B0CD5DA287E650200774CDB;
 			packageReferences = (
-				0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				0BC4AC8D290A557500C56BB7 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = 0B0CD5DA287E650200774CDB;
 			projectDirPath = "";
@@ -351,7 +373,10 @@
 			files = (
 				0B0CD5EB287E650400774CDB /* Assets.xcassets in Resources */,
 				0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
-				0B85809028C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
+				0BC4AC97290B0D2000C56BB7 /* photo.json in Resources */,
+				0BC4AC93290A571000C56BB7 /* login.json in Resources */,
+				0BC4AC95290B06C100C56BB7 /* profile.json in Resources */,
+				0BC4AC99290B0F5100C56BB7 /* puzzle.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,7 +384,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B85809128C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 				0B523F0928BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,7 +392,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0B85809228C0078A00CE3B91 /* 88010-puzzle.gif in Resources */,
 				0B523F0A28BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -391,12 +414,14 @@
 				0B0CD5E7287E650200774CDB /* Puzzle_BuddyApp.swift in Sources */,
 				0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */,
 				0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */,
+				0BC4AC91290A55C100C56BB7 /* LottieView.swift in Sources */,
 				0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */,
 				0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */,
 				0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */,
 				0BA2D55728BE76C500132868 /* PuzzleStore.swift in Sources */,
 				0B85808D28C005DD00CE3B91 /* CreateAccount.swift in Sources */,
 				0B85809828C0086700CE3B91 /* DifficultyView.swift in Sources */,
+				0B5B345628CEB45200E2CD30 /* ImagePicker.swift in Sources */,
 				0BA2D54D28BE718D00132868 /* ForgotPasswordView.swift in Sources */,
 				0BA2D54928BE718D00132868 /* FirbaseAuthProvider.swift in Sources */,
 			);
@@ -491,7 +516,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -545,7 +570,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -562,18 +587,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Puzzle Buddy/Puzzle Buddy.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"Puzzle Buddy/Preview Content\"";
 				DEVELOPMENT_TEAM = 7JT2JB89AV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Puzzle-Buddy-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your Puzzle Buddy needs camera access to take a photo of a puzzle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -594,18 +620,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Puzzle Buddy/Puzzle Buddy.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"Puzzle Buddy/Preview Content\"";
 				DEVELOPMENT_TEAM = 7JT2JB89AV;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Puzzle-Buddy-Info.plist";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Your Puzzle Buddy needs camera access to take a photo of a puzzle";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -628,7 +655,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7JT2JB89AV;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jacobrozell.Puzzle-BuddyTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -648,7 +675,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 7JT2JB89AV;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jacobrozell.Puzzle-BuddyTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -737,7 +764,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
@@ -745,33 +772,41 @@
 				kind = branch;
 			};
 		};
+		0BC4AC8D290A557500C56BB7 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0B523EFD28BFD29800A75BA7 /* FirebaseAnalytics */ = {
+		0B5B345828CFA2E400E2CD30 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
 		};
-		0B523EFF28BFD29800A75BA7 /* FirebaseAuth */ = {
+		0B5B345A28CFA2E400E2CD30 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
-		0B523F0128BFD29800A75BA7 /* FirebaseCrashlytics */ = {
+		0B5B345C28CFA2E400E2CD30 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
-		0B523F0328BFD29800A75BA7 /* FirebaseFirestore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
-		0B523F0528BFD29800A75BA7 /* FirebaseMessaging */ = {
+		0B5B345E28CFA2E400E2CD30 /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 0B5B345728CFA2E400E2CD30 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		0BC4AC8E290A557500C56BB7 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0BC4AC8D290A557500C56BB7 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
