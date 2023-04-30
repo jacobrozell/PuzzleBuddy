@@ -88,11 +88,11 @@ private struct PuzzleCellView: View {
 }
 
 // MARK: - Previews
-struct PuzzleCellPreview: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
-            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
-        }
-    }
-}
+//struct PuzzleCellPreview: PreviewProvider {
+//    static var previews: some View {
+//        VStack {
+//            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
+//            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
+//        }
+//    }
+//}

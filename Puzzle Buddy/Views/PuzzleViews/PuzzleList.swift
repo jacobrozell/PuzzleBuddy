@@ -75,15 +75,15 @@ struct PuzzleList: View {
 }
 
 // MARK: - Previews
-struct PuzzleListPreviews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            let ps = PuzzleStore()
-            PuzzleList(ps: ps)
-                .task {
-                    ps.puzzles.append(.fixture())
-                    ps.puzzles.append(.fixture())
-                }
-        }
-    }
-}
+//struct PuzzleListPreviews: PreviewProvider {
+//    static var previews: some View {
+//        Group {
+//            let ps = PuzzleStore()
+//            PuzzleList(ps: ps)
+//                .task {
+//                    ps.puzzles.append(.fixture())
+//                    ps.puzzles.append(.fixture())
+//                }
+//        }
+//    }
+//}

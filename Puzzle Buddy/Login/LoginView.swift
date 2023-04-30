@@ -13,7 +13,7 @@ struct LoginView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     
     var body: some View {
-        if let user = auth.user {
+        if let user = auth.getUser() {
             PuzzleView(user: user)
         } else {
             LoginWrapper()
@@ -89,10 +89,16 @@ private struct LoginStack: View {
                     .disabled(auth.login.isEmpty || auth.password.isEmpty)
 
                     NavigationLink {
-                        PuzzleView()
-                            .task {
-                                auth.bypassAccount()
+                        Group {
+                            if let user = auth.getUser() {
+                                PuzzleView(user: user)
+                            } else {
+                                Text("wtf")
+                                    .task {
+                                        auth.bypassAccount()
+                                    }
                             }
+                        }
                     } label: {
                         Text("Bypass Account")
                             .frame(maxWidth: .infinity)
@@ -105,16 +111,16 @@ private struct LoginStack: View {
 
                     VStack {
                         // Forgot Password Button
-//                        Button {
-//                            isActiveForgotPassword = true
-//                        } label: {
-//                            Text("Forgot Password")
-//                                .italic()
-//                                .underline()
-//                                .foregroundColor(.primary)
-//                                .contentShape(Rectangle())
-//                                .padding(2)
-//                        }
+                        Button {
+                            isActiveForgotPassword = true
+                        } label: {
+                            Text("Forgot Password")
+                                .italic()
+                                .underline()
+                                .foregroundColor(.primary)
+                                .contentShape(Rectangle())
+                                .padding(2)
+                        }
 
                         // Create Account
                         NavigationLink(isActive: $isActive) {

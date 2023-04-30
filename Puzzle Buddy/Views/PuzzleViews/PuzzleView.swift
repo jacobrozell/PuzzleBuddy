@@ -19,11 +19,6 @@ struct PuzzleView: View {
         _ps = StateObject(wrappedValue: PuzzleStore(user: user))
     }
 
-    /// Bypass
-    init() {
-        _ps = StateObject(wrappedValue: PuzzleStore())
-    }
-
     var body: some View {
         NavigationView {
             PuzzleTabbar(ps: ps)
@@ -33,8 +28,8 @@ struct PuzzleView: View {
 }
 
 // MARK: - Previews
-struct PuzzleView_Previews: PreviewProvider {
-    static var previews: some View {
-        PuzzleView()
-    }
-}
+//struct PuzzleView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        PuzzleView()
+//    }
+//}

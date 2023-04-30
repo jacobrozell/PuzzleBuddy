@@ -13,14 +13,19 @@ public typealias PuzzleUser = FirebaseAuth.User
 
 // MARK: - Puzzle
 class Puzzle: ObservableObject {
-    enum Rating: String, CaseIterable, Identifiable {
-        case one = "1"
-        case two = "2"
-        case three = "3"
-        case four = "4"
-        case five = "5"
+    //change to double
+    enum Rating: Double, CaseIterable, Identifiable {
+        case one = 1.0
+        case oneHalf = 1.5
+        case two = 2.0
+        case twoHalf = 2.5
+        case three = 3
+        case threeHalf = 3.5
+        case four = 4
+        case fourHalf = 4.5
+        case five = 5
 
-        var id: String {
+        var id: Double {
             self.rawValue
         }
     }

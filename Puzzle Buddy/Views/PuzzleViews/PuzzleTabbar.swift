@@ -46,7 +46,7 @@ struct PuzzleTabbar: View {
         }
         .confirmationDialog("Profile Options", isPresented: $showProfileOptions) {
             VStack {
-                if let _ = auth.user {
+                if let _ = auth.getUser() {
                     Button {
                         do {
                             try auth.logout()
@@ -84,8 +84,8 @@ struct PuzzleTabbar: View {
     }
 }
 
-struct PuzzleTabbar_Previews: PreviewProvider {
-    static var previews: some View {
-        PuzzleTabbar(ps: .init())
-    }
-}
+//struct PuzzleTabbar_Previews: PreviewProvider {
+//    static var previews: some View {
+//        PuzzleTabbar(ps: .init(user: <#PuzzleUser#>))
+//    }
+//}

@@ -67,15 +67,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0B0CD5E3287E650200774CDB /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Puzzle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyApp.swift; sourceTree = "<group>"; };
 		0B0CD5E8287E650200774CDB /* PuzzleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleView.swift; sourceTree = "<group>"; };
 		0B0CD5EA287E650400774CDB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0B0CD5F3287E650400774CDB /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B0CD5F7287E650400774CDB /* Puzzle_BuddyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyTests.swift; sourceTree = "<group>"; };
-		0B0CD5FD287E650400774CDB /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITests.swift; sourceTree = "<group>"; };
 		0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Puzzle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B1A2CEF29FF052C0008F66F /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyTests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyTests.xctest"; sourceTree = "<absolute>"; };
+		0B1A2CF029FF052C0008F66F /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyUITests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyUITests.xctest"; sourceTree = "<absolute>"; };
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
@@ -133,21 +133,11 @@
 			isa = PBXGroup;
 			children = (
 				0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */,
-				0B0CD5E4287E650200774CDB /* Products */,
 				0B0CD5E5287E650200774CDB /* Puzzle Buddy */,
 				0B0CD5F6287E650400774CDB /* Puzzle BuddyTests */,
 				0B0CD600287E650400774CDB /* Puzzle BuddyUITests */,
+				0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */,
 			);
-			sourceTree = "<group>";
-		};
-		0B0CD5E4287E650200774CDB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				0B0CD5E3287E650200774CDB /* Puzzle Buddy.app */,
-				0B0CD5F3287E650400774CDB /* Puzzle BuddyTests.xctest */,
-				0B0CD5FD287E650400774CDB /* Puzzle BuddyUITests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		0B0CD5E5287E650200774CDB /* Puzzle Buddy */ = {
@@ -269,7 +259,7 @@
 				0B523F0528BFD29800A75BA7 /* FirebaseMessaging */,
 			);
 			productName = "Puzzle Buddy";
-			productReference = 0B0CD5E3287E650200774CDB /* Puzzle Buddy.app */;
+			productReference = 0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */;
 			productType = "com.apple.product-type.application";
 		};
 		0B0CD5F2287E650400774CDB /* Puzzle BuddyTests */ = {
@@ -287,7 +277,7 @@
 			);
 			name = "Puzzle BuddyTests";
 			productName = "Puzzle BuddyTests";
-			productReference = 0B0CD5F3287E650400774CDB /* Puzzle BuddyTests.xctest */;
+			productReference = 0B1A2CEF29FF052C0008F66F /* Puzzle BuddyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		0B0CD5FC287E650400774CDB /* Puzzle BuddyUITests */ = {
@@ -305,7 +295,7 @@
 			);
 			name = "Puzzle BuddyUITests";
 			productName = "Puzzle BuddyUITests";
-			productReference = 0B0CD5FD287E650400774CDB /* Puzzle BuddyUITests.xctest */;
+			productReference = 0B1A2CF029FF052C0008F66F /* Puzzle BuddyUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -343,7 +333,7 @@
 			packageReferences = (
 				0B523EFC28BFD29800A75BA7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
-			productRefGroup = 0B0CD5E4287E650200774CDB /* Products */;
+			productRefGroup = 0B0CD5DA287E650200774CDB;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (

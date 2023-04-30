@@ -20,11 +20,6 @@ class PuzzleStore: ObservableObject {
     private let store = Firestore.firestore()
     private var path = ""
 
-    public init() {
-        self.puzzleUser = nil
-        self.puzzles = []
-    }
-
     public init(user: PuzzleUser) {
         self.puzzleUser = user
         self.path = "/users/\(puzzleUser!.email ?? "")/puzzles"
@@ -41,7 +36,7 @@ class PuzzleStore: ObservableObject {
                 Puzzle(
                     name: $0.data()["name"] as! String,
                     pieces: $0.data()["pieces"] as! Int,
-                    rating: .init(rawValue: $0.data()["rating"] as! String) ?? .three,
+                    rating: .init(rawValue: $0.data()["rating"] as! Double) ?? .three,
                     difficulty: .init(rawValue: $0.data()["difficulty"] as! String) ?? .three,
                     estimatedTimeSpent: .init(name: $0.data()["estimatedTimeSpent"] as! String),
                     completionDate: ($0.data()["completionDate"] as! Timestamp).dateValue(),

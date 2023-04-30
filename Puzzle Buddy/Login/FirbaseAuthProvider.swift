@@ -10,7 +10,6 @@ public class FirebaseAuthProvider: ObservableObject {
 
     @Published var login = ""
     @Published var password = ""
-    @Published var user: FirebaseAuth.User?
     @Published var shouldBypassAccount = false
     @Published var displayName: String = ""
 
@@ -25,14 +24,12 @@ public class FirebaseAuthProvider: ObservableObject {
         }
 
         // Attempt to sign user in
-        let result = try await Auth.auth().signIn(withEmail: login, password: password)
-        self.user = result.user
+        let _ = try await Auth.auth().signIn(withEmail: login, password: password)
     }
 
     public func createAccount(with name: String, email: String, password: String) async throws {
         try await Auth.auth().createUser(withEmail: email, password: password)
         try await Firestore.firestore().collection("users").document("\(email)").setData(["username": name])
-        self.user = Auth.auth().currentUser
     }
 
     public func bypassAccount() {
@@ -42,6 +39,9 @@ public class FirebaseAuthProvider: ObservableObject {
 
     public func logout() throws {
         try Auth.auth().signOut()
-        self.user = nil
+    }
+
+    public func getUser() -> PuzzleUser? {
+        return Auth.auth().currentUser
     }
 }

@@ -156,10 +156,10 @@ struct SubmitAddButton: View {
 }
 
 // MARK: - Preview
-struct PuzzleForm_Preview: PreviewProvider {
-    static var previews: some View {
-        Group {
-            PuzzleForm(isPresented: .constant(false), ps: .init())
-        }
-    }
-}
+//struct PuzzleForm_Preview: PreviewProvider {
+//    static var previews: some View {
+//        Group {
+//            PuzzleForm(isPresented: .constant(false), ps: .init())
+//        }
+//    }
+//}

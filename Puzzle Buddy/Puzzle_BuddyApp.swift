@@ -19,9 +19,6 @@ struct Puzzle_BuddyApp: App {
             LoginView()
                 .withErrorHandling()
                 .environmentObject(authProvider)
-                .task {
-                    authProvider.user = Auth.auth().currentUser
-                }
         }
     }
 }

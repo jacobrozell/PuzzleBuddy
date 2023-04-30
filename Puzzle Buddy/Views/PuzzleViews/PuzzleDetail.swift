@@ -96,10 +96,10 @@ struct DetailView: View {
 }
 
 // MARK: - Previews
-struct PuzzleDetail_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            PuzzleDetail(ps: .init(), puzzle: .fixture())
-        }
-    }
-}
+//struct PuzzleDetail_Previews: PreviewProvider {
+//    static var previews: some View {
+//        NavigationView {
+//            PuzzleDetail(ps: .init(), puzzle: .fixture())
+//        }
+//    }
+//}
