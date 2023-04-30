@@ -80,6 +80,7 @@ class Puzzle: ObservableObject {
     @Published var estimatedTimeSpent: PuzzleTime
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
+    @Published var image: UIImage?
 
     internal init(name: String,
                   pieces: Int,
@@ -104,7 +105,7 @@ class Puzzle: ObservableObject {
 
 //    var price: Double
 //    var notes: String
-//    var image: UIImage // reverse image search to find info
+
     // var urlLink
 
 }

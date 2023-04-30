@@ -18,7 +18,7 @@ struct PuzzleTabbar: View {
     var body: some View {
         TabView {
             Group {
-                PuzzleListWrapper(ps: ps)
+                PuzzleList(ps: ps)
                     .tabItem {
                         Label {
                             Text("Puzzles")

@@ -11,10 +11,10 @@ workflows:
         distribution_type: app_store
         bundle_identifier: io.codemagic.sample.iosnative
       vars:
-        BUNDLE_ID: "io.codemagic.sample.iosnative"
-        XCODE_WORKSPACE: "CodemagicSample.xcworkspace" # <-- Put the name of your Xcode workspace here
-        XCODE_SCHEME: "CodemagicSample" # <-- Put the name of your Xcode scheme here
-        APP_ID: 1555555551
+        BUNDLE_ID: "com.jacobrozell.Puzzle-Buddy"
+        XCODE_WORKSPACE: "PuzzleBuddle.xcworkspace" # <-- Put the name of your Xcode workspace here
+        XCODE_SCHEME: "Puzzle Buddy" # <-- Put the name of your Xcode scheme here
+        APP_ID: 1642548378
       xcode: latest
       cocoapods: default
     scripts:
@@ -41,8 +41,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - user_1@example.com
-          - user_2@example.com
+          - jacob.rozell83@gmail.com
         notify:
           success: true
           failure: false
@@ -54,7 +53,6 @@ workflows:
         submit_to_testflight: true
         beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
           - group name 1
-          - group name 2
 
         # Configuration related to App Store (optional)
         # Note: This action is performed during post-processing.

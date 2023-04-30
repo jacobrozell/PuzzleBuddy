@@ -77,8 +77,8 @@
 		0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITests.swift; sourceTree = "<group>"; };
 		0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Puzzle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0B1A2CEF29FF052C0008F66F /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyTests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyTests.xctest"; sourceTree = "<absolute>"; };
-		0B1A2CF029FF052C0008F66F /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyUITests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyUITests.xctest"; sourceTree = "<absolute>"; };
+		0B1A2CF129FF06950008F66F /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyTests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyTests.xctest"; sourceTree = "<absolute>"; };
+		0B1A2CF229FF06950008F66F /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyUITests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyUITests.xctest"; sourceTree = "<absolute>"; };
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
@@ -298,7 +298,7 @@
 			);
 			name = "Puzzle BuddyTests";
 			productName = "Puzzle BuddyTests";
-			productReference = 0B1A2CEF29FF052C0008F66F /* Puzzle BuddyTests.xctest */;
+			productReference = 0B1A2CF129FF06950008F66F /* Puzzle BuddyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		0B0CD5FC287E650400774CDB /* Puzzle BuddyUITests */ = {
@@ -316,7 +316,7 @@
 			);
 			name = "Puzzle BuddyUITests";
 			productName = "Puzzle BuddyUITests";
-			productReference = 0B1A2CF029FF052C0008F66F /* Puzzle BuddyUITests.xctest */;
+			productReference = 0B1A2CF229FF06950008F66F /* Puzzle BuddyUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */

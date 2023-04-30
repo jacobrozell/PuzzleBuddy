@@ -20,10 +20,10 @@ struct PuzzleDetail: View {
     var body: some View {
         VStack {
             if isEditable {
-                PuzzleFormInternal(puzzle: $puzzle)
+                PuzzleFormInternal(formVm: .init(puzzle: puzzle))
             } else {
                 ScrollView {
-                    DetailView(puzzle: puzzle)
+                    DetailView(puzzle: $puzzle)
                 }
             }
         }
@@ -53,7 +53,7 @@ struct PuzzleDetail: View {
 
 // MARK: - DetailView
 struct DetailView: View {
-    let puzzle: Puzzle
+    @Binding var puzzle: Puzzle
 
     var body: some View {
         VStack {
@@ -69,7 +69,7 @@ struct DetailView: View {
             Text("\(puzzle.pieces) Pieces")
                 .font(.subheadline)
 
-            RatingsView(puzzle: puzzle)
+            RatingsView(rating: $puzzle.rating)
                 .padding(.vertical)
 
             Divider()
