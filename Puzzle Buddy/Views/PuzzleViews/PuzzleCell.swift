@@ -24,50 +24,67 @@ struct PuzzleCell: View {
 
 // MARK: PuzzleCellView
 private struct PuzzleCellView: View {
-    @State private var expanded: Bool = false
     @Binding var puzzle: Puzzle
 
     var body: some View {
-        VStack {
-            HStack {
-                if let image = puzzle.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .border(.primary, width: 0.5)
-                        .clipShape(Circle())
-                        .frame(maxWidth: 100, maxHeight: 100)
-                        .padding(.vertical)
+        VStack(alignment: .center) {
+            VStack {
+                Text(puzzle.name)
+                    .font(.headline)
+                    .aspectRatio(contentMode: .fill)
+                    .lineLimit(0)
+
+                Divider()
+
+                RatingsView(rating: $puzzle.rating)
+                    .padding(.top)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top)
+            .padding(.vertical)
+
+            HStack(alignment: .top) {
+                if let pieces = puzzle.pieces {
+                    VStack {
+                        Text("Total Pieces:")
+                            .bold()
+
+                        Text("\(pieces)")
+                            .padding(.vertical)
+                    }
+                    .padding(.vertical)
+                    .aspectRatio(contentMode: .fill)
                 }
 
                 Spacer()
 
-                // Card info
-                HStack {
-                    Text(puzzle.name.capitalized)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .lineLimit(2)
-                        .truncationMode(.tail)
-                        .multilineTextAlignment(.leading)
-
+                if let time = puzzle.estimatedTimeSpent {
                     VStack {
-                        if let pieces = puzzle.pieces {
-                            Text("Pieces: \(pieces)")
-                                .italic()
-                                .font(.footnote)
-                        }
+                        Text("Time Spent:")
+                            .bold()
 
-                        Spacer()
-
-                        Text(puzzle.completionDate, style: .date)
-                            .fontWeight(.light)
-                            .italic()
-                            .font(.footnote)
+                        Text(time.toName())
+                            .padding(.vertical)
                     }
                     .padding(.vertical)
+                    .aspectRatio(contentMode: .fill)
                 }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical)
+
+            HStack(alignment: .bottom) {
+                Text("Completed:")
+                Text(puzzle.completionDate, style: .offset)
+            }
+        }
+        .overlay(alignment: .topLeading) {
+            Text(puzzle.difficulty.rawValue)
+                .font(.subheadline)
+                .foregroundColor(.white)
+                .padding(8)
+                .background(Color.red)
+                .clipShape(Circle())
         }
     }
 }

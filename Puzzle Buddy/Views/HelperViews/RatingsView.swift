@@ -26,11 +26,7 @@ private struct StarsView: View {
         HStack {
             switch rating {
             case 0:
-                emptyStar
-                emptyStar
-                emptyStar
-                emptyStar
-                emptyStar
+                EmptyView()
 
             case 1:
                 fullStar
