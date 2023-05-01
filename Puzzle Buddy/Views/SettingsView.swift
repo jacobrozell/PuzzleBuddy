@@ -14,12 +14,14 @@ struct SettingsView: View {
     var body: some View {
         List {
             Section {
-                if let user = auth.user {
+                if let _ = auth.user {
                     Button {
-                        do {
-                            try auth.logout()
-                        } catch {
-                            eh.handle(title: "Logout failed", message: "Whoops")
+                        Task {
+                            do {
+                                try await auth.logout()
+                            } catch {
+                                eh.handle(title: "Logout failed", message: "Whoops")
+                            }
                         }
                     } label: {
                         Text("Sign-Out")
@@ -27,6 +29,17 @@ struct SettingsView: View {
                 }
 
                 // Delete Account
+                Section {
+                    Button(role: .destructive) {
+                        // TODO: Show warning before deleting account
+                        auth.deleteAccount()
+                    } label: {
+                        Text("Delete Account")
+                    }
+
+                } header: {
+                    Text("Delete Account")
+                }
 
                 // Export Data
 

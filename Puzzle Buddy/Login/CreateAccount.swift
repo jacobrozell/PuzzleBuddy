@@ -53,7 +53,7 @@ struct CreateAccount: View {
             }
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
-            .disabled(auth.login.isEmpty || auth.password.isEmpty)
+            .disabled(login.isEmpty || password.isEmpty)
         }
         .padding()
     }

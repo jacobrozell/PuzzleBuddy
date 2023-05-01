@@ -198,6 +198,8 @@ struct PuzzleFormInternal: View {
 
 // MARK: - SubmitAddButton
 struct SubmitAddButton: View {
+    @Environment(\.dismiss) var dismiss
+
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var formVm: PuzzleFormViewModel
@@ -210,6 +212,7 @@ struct SubmitAddButton: View {
 
                 // dismiss view
                 isPresented = false
+                dismiss()
             } catch {
                 eh.handle(title: "Error Adding Puzzle!", message: "\(error.localizedDescription)")
             }

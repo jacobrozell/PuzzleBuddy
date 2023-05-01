@@ -32,16 +32,21 @@ public class FirebaseAuthProvider: ObservableObject {
         // Attempt to sign user in
         let result = try await Auth.auth().signIn(withEmail: login, password: password)
         self.user = result.user
+        try await updateUser()
 
         Analytics.logEvent("User logged in", parameters: ["email": login, "uid": result.user.uid])
     }
 
     public func createAccount(with name: String, email: String, password: String) async throws {
         try await Auth.auth().createUser(withEmail: email, password: password)
-        try await Firestore.firestore().collection("users").document("\(email)").setData(["username": name, "currentVersion": Puzzle_BuddyApp.version])
+        try await createUserDetailsDoc(with: name, email: email)
         self.user = Auth.auth().currentUser
 
         Analytics.logEvent("User created account", parameters: ["email": email, "uid": Auth.auth().currentUser?.uid ?? ""])
+    }
+
+    private func createUserDetailsDoc(with name: String, email: String) async throws {
+        try await Firestore.firestore().collection("users").document("\(email)").setData(["username": name, "currentVersion": Puzzle_BuddyApp.version])
     }
 
     public func updateUser() async throws {
@@ -49,16 +54,26 @@ public class FirebaseAuthProvider: ObservableObject {
             return
         }
 
-        try await Firestore.firestore().collection("users").document(email).updateData(["currentVersion": Puzzle_BuddyApp.version, "lastLoggedIn": Date()])
+        do {
+            try await Firestore.firestore().collection("users").document(email).updateData(["currentVersion": Puzzle_BuddyApp.version, "lastLoggedIn": Date()])
+        } catch {
+            // Try to create document
+            try await createUserDetailsDoc(with: self.login, email: email)
+        }
 
         Analytics.logEvent("User Updated", parameters: ["email": email, "uid": Auth.auth().currentUser?.uid ?? ""])
     }
 
-    public func logout() throws {
+    public func logout() async throws {
         Analytics.logEvent("User logout", parameters: ["email": user?.email ?? ""])
 
+        try await updateUser()
         try Auth.auth().signOut()
         self.user = nil
+    }
+
+    public func deleteAccount() {
+//        Auth.auth().deleteAcccccccc
     }
 }
 
