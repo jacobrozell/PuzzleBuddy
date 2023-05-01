@@ -76,7 +76,7 @@
 		0B0CD5F7287E650400774CDB /* Puzzle_BuddyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyTests.swift; sourceTree = "<group>"; };
 		0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITests.swift; sourceTree = "<group>"; };
 		0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Puzzle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Puzzle Buddy.app"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle Buddy.app"; sourceTree = "<absolute>"; };
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
@@ -97,8 +97,8 @@
 		0BA2D54E28BE71F100132868 /* ErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
 		0BA2D55028BE720500132868 /* SecureInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureInputView.swift; sourceTree = "<group>"; };
 		0BA2D55628BE76C500132868 /* PuzzleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleStore.swift; sourceTree = "<group>"; };
-		0BBC9B1C2A000FC200B44F70 /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		0BBC9B1D2A000FC200B44F70 /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0BBC9B1C2A000FC200B44F70 /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyTests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyTests.xctest"; sourceTree = "<absolute>"; };
+		0BBC9B1D2A000FC200B44F70 /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyUITests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyUITests.xctest"; sourceTree = "<absolute>"; };
 		0BC4AC90290A55C100C56BB7 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		0BC4AC92290A571000C56BB7 /* login.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = login.json; sourceTree = "<group>"; };
 		0BC4AC94290B06C000C56BB7 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
@@ -144,9 +144,6 @@
 				0B0CD5E5287E650200774CDB /* Puzzle Buddy */,
 				0B0CD5F6287E650400774CDB /* Puzzle BuddyTests */,
 				0B0CD600287E650400774CDB /* Puzzle BuddyUITests */,
-				0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */,
-				0BBC9B1C2A000FC200B44F70 /* Puzzle BuddyTests.xctest */,
-				0BBC9B1D2A000FC200B44F70 /* Puzzle BuddyUITests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
