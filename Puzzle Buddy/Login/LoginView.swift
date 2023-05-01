@@ -72,8 +72,9 @@ private struct LoginWrapper: View {
 }
 
 // MARK: - LoginStack
-private struct LoginStack: View {
+struct LoginStack: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
 
     @EnvironmentObject var errorHandling: ErrorHandling
     @EnvironmentObject var auth: FirebaseAuthProvider
@@ -125,6 +126,7 @@ private struct LoginStack: View {
                         Task {
                             do {
                                 try await auth.login()
+                                dismiss()
                             } catch {
                                 errorHandling.handle(title: "Login Failed", message: "\(error.localizedDescription)")
                             }

@@ -110,11 +110,6 @@ struct PuzzleFormInternal: View {
             // Rating Section
             Section {
                 HStack {
-                    Text("Rating:")
-
-                    Spacer()
-
-                    // TODO: Editable RatingsView
                     Picker("Rating", selection: $formVm.puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
                             Group {
@@ -132,10 +127,6 @@ struct PuzzleFormInternal: View {
                 }
 
                 HStack {
-                    Text("Difficulty:")
-
-                    Spacer()
-
                     Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
                             Group {
@@ -165,16 +156,17 @@ struct PuzzleFormInternal: View {
 
                         TextField("Hours Spent", value: $formVm.puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
                             .keyboardType(.numberPad)
-                            .frame(alignment: .trailing)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                             .multilineTextAlignment(.leading)
                     }
 
                     HStack {
-                        Text("Estimated Minutes Spent")
+                        Text("Estimated Minutes Spent:")
 
                         Spacer()
 
                         TextField("Minutes Spent", value: $formVm.puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
+                            .frame(maxWidth: .infinity, alignment: .trailing)
                             .keyboardType(.numberPad)
                             .multilineTextAlignment(.leading)
                     }

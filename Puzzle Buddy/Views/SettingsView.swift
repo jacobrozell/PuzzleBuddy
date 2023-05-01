@@ -11,6 +11,9 @@ struct SettingsView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
 
+    @State private var deleteConfirmation = false
+    @State private var deleteScreen = false
+
     var body: some View {
         List {
             Section {
@@ -28,19 +31,6 @@ struct SettingsView: View {
                     }
                 }
 
-                // Delete Account
-                Section {
-                    Button(role: .destructive) {
-                        // TODO: Show warning before deleting account
-                        auth.deleteAccount()
-                    } label: {
-                        Text("Delete Account")
-                    }
-
-                } header: {
-                    Text("Delete Account")
-                }
-
                 // Export Data
 
                 // Reset Password
@@ -50,6 +40,34 @@ struct SettingsView: View {
             }
 
             // Notification Settings
+
+
+            // Delete Account
+            Button(role: .destructive) {
+                deleteConfirmation.toggle()
+            } label: {
+                Text("Delete Account")
+            }
+            .confirmationDialog("", isPresented: $deleteConfirmation, actions: {
+                Button(role: .destructive) {
+                    auth.deleteAccount()
+                } label: {
+                    Text("I am sure.")
+                }
+            }, message: {
+                Text("Are you sure you want to delete your account?")
+            })
+            .sheet(isPresented: $auth.shouldReauth) {
+                Text("You need to re-authenticate before you can delete your account.")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .underline()
+
+                GroupBox {
+                    LoginStack()
+                        .environmentObject(auth)
+                }
+            }
         }
     }
 }

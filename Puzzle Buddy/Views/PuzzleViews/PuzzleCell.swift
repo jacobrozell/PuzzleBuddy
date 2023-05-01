@@ -36,15 +36,25 @@ private struct PuzzleCellView: View {
                     Text(puzzle.name)
                         .font(.headline)
                         .lineLimit(0)
+
+                    Spacer()
+
+                    if puzzle.difficulty != .none {
+                        Text(puzzle.difficulty.rawValue)
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.red)
+                            .clipShape(Circle())
+                    }
                 }
 
-                Divider()
-
                 RatingsView(rating: $puzzle.rating)
-                    .padding(.top)
+                    .padding(.vertical)
+
+                Divider()
             }
             .frame(maxWidth: .infinity)
-            .padding(.top)
             .padding(.vertical)
 
             HStack(alignment: .top) {
@@ -55,9 +65,7 @@ private struct PuzzleCellView: View {
                                 .bold()
 
                             Text("\(pieces)")
-                                .padding(.vertical)
                         }
-                        .padding(.vertical)
                     }
                 }
 
@@ -68,32 +76,19 @@ private struct PuzzleCellView: View {
                                 .bold()
 
                             Text(timeSpent)
-                                .padding(.vertical)
                         }
-                        .padding(.vertical)
                     }
                 }
             }
             .frame(maxWidth: .infinity)
 
             if let completionDate = puzzle.completionDate {
-                if puzzle.difficulty != .none {
-                    Text(puzzle.difficulty.rawValue)
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.red)
-                        .clipShape(Circle())
-                }
-
                 HStack(alignment: .bottom) {
                     Text("Completed:")
-                    VStack {
-                        Text(completionDate, style: .date)
-                        Text(completionDate, style: .time)
-                    }
+                    Text(completionDate, style: .date)
+                    Text(completionDate, style: .time)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

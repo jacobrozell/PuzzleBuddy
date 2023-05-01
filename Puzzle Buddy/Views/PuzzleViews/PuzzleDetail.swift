@@ -63,14 +63,14 @@ struct DetailView: View {
                         .resizable()
                         .foregroundColor(Color.accentColor)
                         .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+                        .frame(maxWidth: .infinity, maxHeight: 130, alignment: .center)
                         .padding()
                 } else {
                     Image(systemName: "puzzlepiece.extension.fill")
                         .resizable()
                         .foregroundColor(Color.accentColor)
                         .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+                        .frame(maxWidth: .infinity, maxHeight: 130, alignment: .center)
                         .padding()
                 }
 
@@ -98,7 +98,7 @@ struct DetailView: View {
             .padding(.horizontal)
 
             GroupBox {
-                VStack(spacing: 30) {
+                VStack {
                     HStack(spacing: 0) {
                         Text("Status: ")
                             .font(.subheadline)

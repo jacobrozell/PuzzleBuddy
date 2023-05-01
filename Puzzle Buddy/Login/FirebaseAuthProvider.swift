@@ -15,6 +15,7 @@ public class FirebaseAuthProvider: ObservableObject {
     @Published var password = ""
     @Published var user: PuzzleUser?
     @Published var shouldBypassAccount = false
+    @Published var shouldReauth = false
     @Published var displayName: String = ""
 
     var currentNonce: String?
@@ -65,15 +66,39 @@ public class FirebaseAuthProvider: ObservableObject {
     }
 
     public func logout() async throws {
-        Analytics.logEvent("User logout", parameters: ["email": user?.email ?? ""])
-
         try await updateUser()
         try Auth.auth().signOut()
         self.user = nil
+        Analytics.logEvent("User logout", parameters: ["email": user?.email ?? ""])
     }
 
-    public func deleteAccount() {
-//        Auth.auth().deleteAcccccccc
+    public func deleteAccount(){
+        Auth.auth().currentUser?.delete { error in
+            if let error = error {
+                // An error happened.
+                print(error.localizedDescription)
+                self.shouldReauth = true
+
+            } else {
+                // Account deleted.
+                self.user = nil
+            }
+        }
+    }
+
+    public func reauthUser() {
+        let user = Auth.auth().currentUser
+        let credential = EmailAuthProvider.credential(withEmail: login, password: password)
+
+        user?.reauthenticate(with: credential) { arg, error in
+          if let error = error {
+            // An error happened.
+              print(error.localizedDescription)
+          } else {
+            // User re-authenticated.
+              print("Success.")
+          }
+        }
     }
 }
 
