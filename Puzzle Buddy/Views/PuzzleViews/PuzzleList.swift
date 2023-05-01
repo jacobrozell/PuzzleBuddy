@@ -17,35 +17,48 @@ struct PuzzleList: View {
     @State private var searchText: String = ""
 
     var body: some View {
-        List {
-            ForEach($ps.puzzles, id: \.id) { p in
-                PuzzleCell(ps: ps, puzzle: p)
+        if !ps.puzzles.isEmpty {
+            List {
+                ForEach($ps.puzzles, id: \.id) { p in
+                    PuzzleCell(ps: ps, puzzle: p)
+                }
+                .onDelete(perform: { indexSet in
+                    ps.delete(at: indexSet)
+                })
             }
-            .onDelete(perform: { indexSet in
-                ps.delete(at: indexSet)
-            })
-        }
-        .refreshable {
-            await ps.fetchPuzzles()
-        }
-        .listStyle(.plain)
-        .sheet(isPresented: $present) {
-            PuzzleForm(puzzle: .init(), ps: ps)
-        }
-        .overlay(alignment: .bottomTrailing) {
-            Button {
-                present.toggle()
-            } label: {
-                Text("Add")
-                    .padding(4)
-                    .font(.title)
-                    .frame(maxWidth: 80, maxHeight: 80)
-                    .contentShape(Circle())
+            .refreshable {
+                await ps.fetchPuzzles()
             }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-            .padding()
-            .opacity(0.75)
+            .listStyle(.plain)
+            .sheet(isPresented: $present) {
+                PuzzleForm(puzzle: .init(), ps: ps)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                Button {
+                    present.toggle()
+                } label: {
+                    Text("Add")
+                        .padding(4)
+                        .font(.title)
+                        .frame(maxWidth: 80, maxHeight: 80)
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
+                .padding()
+                .opacity(0.75)
+            }
+        } else {
+            switch ps.state {
+            case .fetching:
+                ProgressView()
+
+            case .done:
+                Text("Add a puzzle to get started.")
+
+            case .idle:
+                EmptyView()
+            }
         }
     }
 }

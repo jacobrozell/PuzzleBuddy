@@ -141,7 +141,7 @@ class Puzzle: ObservableObject {
                 "completionDate": completionDate.timeIntervalSince1970,
                 "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
                 "status": status.rawValue,
-                "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
+                "imageData": image?.jpegData(compressionQuality: 0.10)?.base64EncodedString() ?? "nil"
             ]
         }
 

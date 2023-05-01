@@ -18,6 +18,7 @@ struct PuzzleCell: View {
         } label: {
             GroupBox {
                 PuzzleCellView(puzzle: $puzzle)
+                    .padding()
             }
         }
         .frame(maxWidth: .infinity)
@@ -31,9 +32,11 @@ private struct PuzzleCellView: View {
     var body: some View {
         VStack(alignment: .center) {
             VStack {
-                Text(puzzle.name)
-                    .font(.headline)
-                    .lineLimit(0)
+                HStack {
+                    Text(puzzle.name)
+                        .font(.headline)
+                        .lineLimit(0)
+                }
 
                 Divider()
 
@@ -46,47 +49,52 @@ private struct PuzzleCellView: View {
 
             HStack(alignment: .top) {
                 if let pieces = puzzle.pieces {
-                    VStack {
-                        Text("Total Pieces:")
-                            .bold()
+                    GroupBox {
+                        VStack {
+                            Text("Total Pieces:")
+                                .bold()
 
-                        Text("\(pieces)")
-                            .padding(.vertical)
+                            Text("\(pieces)")
+                                .padding(.vertical)
+                        }
+                        .padding(.vertical)
                     }
-                    .padding(.vertical)
-                    .frame(maxWidth: .infinity, alignment: .center)
                 }
 
-                Spacer()
-
                 if let timeSpent = puzzle.estimatedTimeSpent.toName() {
-                    VStack {
-                        Text("Time Spent:")
-                            .bold()
+                    GroupBox {
+                        VStack {
+                            Text("Time Spent:")
+                                .bold()
 
-                        Text(timeSpent)
-                            .padding(.vertical)
+                            Text(timeSpent)
+                                .padding(.vertical)
+                        }
+                        .padding(.vertical)
                     }
-                    .padding(.vertical)
                 }
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical)
 
             if let completionDate = puzzle.completionDate {
+                if puzzle.difficulty != .none {
+                    Text(puzzle.difficulty.rawValue)
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.red)
+                        .clipShape(Circle())
+                }
+
                 HStack(alignment: .bottom) {
                     Text("Completed:")
-                    Text(completionDate, style: .time)
+                    VStack {
+                        Text(completionDate, style: .date)
+                        Text(completionDate, style: .time)
+                    }
                 }
+                .frame(maxWidth: .infinity)
             }
-        }
-        .overlay(alignment: .topLeading) {
-            Text(puzzle.difficulty.rawValue)
-                .font(.subheadline)
-                .foregroundColor(.white)
-                .padding(8)
-                .background(Color.red)
-                .clipShape(Circle())
         }
     }
 }

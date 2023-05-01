@@ -5,6 +5,7 @@
 //  Created by Jacob Rozell on 8/2/22.
 //
 
+import FirebaseAuth
 import SwiftUI
 
 @MainActor
@@ -36,15 +37,20 @@ class ForgotPasswordViewModel: ObservableObject {
             print("Oops")
             return
         }
+
+        try await Auth.auth().sendPasswordReset(withEmail: username)
+        state = .verify
     }
 
-    public func resendCode(for username: String) async {}
-
-    func confirmsResetPassword(completion: @escaping (Bool) -> Void) async throws {}
+    func confirmsResetPassword(completion: @escaping (Bool) -> Void) async throws {
+        try await Auth.auth().verifyPasswordResetCode(verificationCode)
+        self.state = .success
+    }
 }
 
 
 struct ForgotPasswordView: View {
+    @Environment(\.dismiss) var dismiss
     @StateObject var vm = ForgotPasswordViewModel()
     @EnvironmentObject var eh: ErrorHandling
 
@@ -94,60 +100,17 @@ struct ForgotPasswordView: View {
 
     private var verify: some View {
         GroupBox {
-            Text("Verification code sent to \(vm.username)")
-
-            TextField("Verification Code", text: $vm.verificationCode, prompt: Text("Verification Code"))
-                .textFieldStyle(.roundedBorder)
-                .padding()
-
-            Section {
-                SecureInputView("Password", text: $vm.password)
-                    .textContentType(.newPassword)
-                VStack {
-                    SecureInputView("Re-Enter Password", text: $vm.passwordConfirm)
-                        .textContentType(.newPassword)
-
-                    if !vm.password.isEmpty && vm.password != vm.passwordConfirm {
-                        Text("Passwords must match")
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
-                }
-            } header: {
-                Text("Account Info")
-            } footer: {
-                Text("Password must have at least eight characters and must contain a lower-case letter, upper-case letter, a number, and a symbol. Make your password strong and secure.")
-            }
+            Text("A password reset has been sent to \(vm.username)")
 
             Spacer()
 
             Button {
-                Task {
-                    do {
-                        try await vm.confirmsResetPassword { success in
-                            if success {
-                                print("VERIFCATIONCODE: SUCCESS")
-                            } else {
-                                eh.handle(title: "Invalid Verification Code", message: "Please resend and try again.")
-                            }
-                        }
-                    } catch {
-                        eh.handle(title: "Invalid Verification Code", message: "Please resend and try again.")
-                    }
-                }
+                dismiss()
             } label: {
-                Text("Submit")
+                Text("Close")
             }
             .disabled(!vm.isValid)
             .padding(.vertical)
-
-
-//            IAFCStandardButton(labelText: "Resend Verification Code") {
-//                Task {
-//                    await vm.resendCode(for: vm.username)
-//                }
-//            }
-//            .padding(.vertical)
         }
     }
 }
