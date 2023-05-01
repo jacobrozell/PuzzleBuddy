@@ -33,12 +33,11 @@ private struct PuzzleCellView: View {
             VStack {
                 Text(puzzle.name)
                     .font(.headline)
-                    .aspectRatio(contentMode: .fill)
                     .lineLimit(0)
 
                 Divider()
 
-                RatingsView(puzzle: puzzle)
+                RatingsView(rating: $puzzle.rating)
                     .padding(.top)
             }
             .frame(maxWidth: .infinity)
@@ -46,27 +45,29 @@ private struct PuzzleCellView: View {
             .padding(.vertical)
 
             HStack(alignment: .top) {
-                VStack {
-                    Text("Total Pieces:")
-                        .bold()
+                if let pieces = puzzle.pieces {
+                    VStack {
+                        Text("Total Pieces:")
+                            .bold()
 
-                    Text("\(puzzle.pieces)")
-                        .padding(.vertical)
+                        Text("\(pieces)")
+                            .padding(.vertical)
+                    }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
-                .aspectRatio(contentMode: .fill)
 
                 Spacer()
 
-                VStack {
-                    Text("Time Spent:")
-                        .bold()
+                if let time = puzzle.estimatedTimeSpent {
+                    VStack {
+                        Text("Time Spent:")
+                            .bold()
 
-                    Text(puzzle.estimatedTimeSpent.toName())
-                        .padding(.vertical)
+                        Text(time.toName())
+                            .padding(.vertical)
+                    }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
-                .aspectRatio(contentMode: .fill)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical)

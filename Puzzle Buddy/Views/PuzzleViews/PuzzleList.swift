@@ -31,7 +31,7 @@ struct PuzzleList: View {
         .refreshable {
             await ps.fetchPuzzles()
         }
-        .listStyle(.plain)
+//        .listStyle(.plain)
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
         }
