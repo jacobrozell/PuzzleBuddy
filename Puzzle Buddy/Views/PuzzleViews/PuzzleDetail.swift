@@ -74,7 +74,9 @@ struct DetailView: View {
 
             Divider()
 
-            Text("Difficulty: \(puzzle.difficulty.rawValue)")
+            if puzzle.difficulty != .none {
+                Text("Difficulty: \(puzzle.difficulty.rawValue)")
+            }
 
             // Completion Date
             VStack {
@@ -83,10 +85,12 @@ struct DetailView: View {
                     Text(puzzle.completionDate, style: .date)
                 }
 
-                HStack {
-                    Text("Estimated Time Spent:")
-
-                    Text(puzzle.estimatedTimeSpent.toName())
+                if let ets = puzzle.estimatedTimeSpent {
+                    HStack {
+                        Text("Estimated Time Spent:")
+                        
+                        Text(ets.toName())
+                    }
                 }
             }
 

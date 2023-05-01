@@ -16,9 +16,11 @@ struct Puzzle_BuddyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            LoginView()
-                .withErrorHandling()
-                .environmentObject(authProvider)
+            NavigationView {
+                LoginView()
+                    .withErrorHandling()
+                    .environmentObject(authProvider)
+            }
         }
     }
 }

@@ -62,7 +62,7 @@ class PuzzleStore: ObservableObject {
             "rating": puzzle.rating.rawValue,
             "difficulty": puzzle.difficulty.rawValue,
             "completionDate": puzzle.completionDate,
-            "estimatedTimeSpent": puzzle.estimatedTimeSpent.toName(),
+            "estimatedTimeSpent": puzzle.estimatedTimeSpent?.toName() ?? "",
             "status": puzzle.status.rawValue,
             "owner": puzzleUser.email!
         ]) { error in

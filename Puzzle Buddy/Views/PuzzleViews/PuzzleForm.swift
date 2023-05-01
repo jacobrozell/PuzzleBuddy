@@ -35,18 +35,10 @@ struct PuzzleForm: View {
 
     @StateObject var formVm: PuzzleFormViewModel
 
-    /// Detail Init
     init(puzzle: Puzzle, ps: PuzzleStore) {
         self._ps = ObservedObject(wrappedValue: ps)
         self._isPresented = .constant(false)
         self._formVm = StateObject(wrappedValue: PuzzleFormViewModel(puzzle: puzzle))
-    }
-
-    /// Normal Path Init
-    init(isPresented: Binding<Bool>, ps: PuzzleStore) {
-        self._ps = ObservedObject(wrappedValue: ps)
-        self._isPresented = isPresented
-        self._formVm = StateObject(wrappedValue: PuzzleFormViewModel())
     }
 
     var body: some View {
@@ -165,35 +157,29 @@ struct PuzzleFormInternal: View {
 
             // Time Spent Section
             Section {
-                HStack {
-                    //                    Text("Hours Spent:")
-                    //
-                    //                    Spacer()
+                if let ets = formVm.puzzle.estimatedTimeSpent {
+                    HStack {
+                        TextField("Hours Spent", value: Binding {
+                            ets.hours
+                        } set: { new in
+                            formVm.puzzle.estimatedTimeSpent?.hours = new
+                        }, format: .number, prompt: Text("Estimated Hours Spent"))
+                        .keyboardType(.numberPad)
+                        .frame(alignment: .trailing)
+                        .multilineTextAlignment(.leading)
+                    }
 
-                    TextField("Hours Spent", value: Binding {
-                        formVm.puzzle.estimatedTimeSpent?.hours ?? nil
-                    } set: { new in
-                        formVm.puzzle.estimatedTimeSpent?.hours = new
-                    }, format: .number, prompt: Text("Estimated Hours Spent"))
-                    .keyboardType(.numberPad)
-                    .frame(alignment: .trailing)
-                    .multilineTextAlignment(.leading)
+                    HStack {
+                        TextField("Minutes Spent", value: Binding {
+                            ets.minutes
+                        } set: { new in
+                            formVm.puzzle.estimatedTimeSpent?.minutes = new
+                        }, format: .number, prompt: Text("Estimated Minutes Spent"))
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
-
-                HStack {
-                    //                    Text("Minutes Spent:")
-                    //
-                    //                    Spacer()
-
-                    TextField("Minutes Spent", value: Binding {
-                        formVm.puzzle.estimatedTimeSpent?.minutes ?? nil
-                    } set: { new in
-                        formVm.puzzle.estimatedTimeSpent?.minutes = new
-                    }, format: .number, prompt: Text("Estimated Minutes Spent"))
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.leading)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } header: {
                 Text("How long did it take?")
             }

@@ -15,6 +15,7 @@ public typealias PuzzleUser = FirebaseAuth.User
 class Puzzle: ObservableObject {
     //change to double
     enum Rating: Double, CaseIterable, Identifiable {
+        case none = 0.0
         case one = 1.0
         case oneHalf = 1.5
         case two = 2.0
@@ -31,6 +32,7 @@ class Puzzle: ObservableObject {
     }
 
     enum Difficulty: String, CaseIterable, Identifiable {
+        case none = "0"
         case one = "1"
         case two = "2"
         case three = "3"
@@ -75,12 +77,17 @@ class Puzzle: ObservableObject {
     var id: UUID = UUID()
     @Published var name: String = ""
     @Published var pieces: Int = 500
-    @Published var rating: Rating
-    @Published var difficulty: Difficulty
-    @Published var estimatedTimeSpent: PuzzleTime
+    @Published var rating: Rating = .none
+    @Published var difficulty: Difficulty = .none
+    @Published var estimatedTimeSpent: PuzzleTime?
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
     @Published var image: UIImage?
+
+    internal init() {
+        self.name = ""
+        self.pieces = 500
+    }
 
     internal init(name: String,
                   pieces: Int,

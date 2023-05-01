@@ -26,24 +26,22 @@ private struct LoginWrapper: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Image(systemName: "puzzlepiece.fill")
-                    .resizable()
-                    .aspectRatio(2/1, contentMode: .fit)
-                    .padding()
-                    .foregroundColor(.blue)
+        VStack {
+            Image(systemName: "puzzlepiece.fill")
+                .resizable()
+                .aspectRatio(2/1, contentMode: .fit)
+                .padding()
+                .foregroundColor(.blue)
 
-                Spacer()
+            Spacer()
 
-                LoginStack()
-            }
-            .padding()
-            .ignoresSafeArea(.all, edges: .horizontal)
-            .navigationBarTitleDisplayMode(.automatic)
-            .navigationBarTitle("Sign-Up/Sign-In")
-            .padding(.vertical)
+            LoginStack()
         }
+        .padding()
+        .ignoresSafeArea(.all, edges: .horizontal)
+        .navigationBarTitleDisplayMode(.automatic)
+        .navigationBarTitle("Sign-Up/Sign-In")
+        .padding(.vertical)
     }
 }
 
