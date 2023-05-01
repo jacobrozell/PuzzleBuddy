@@ -73,9 +73,11 @@ private struct PuzzleCellView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical)
 
-            HStack(alignment: .bottom) {
-                Text("Completed:")
-                Text(puzzle.completionDate, style: .relative)
+            if let completionDate = puzzle.completionDate {
+                HStack(alignment: .bottom) {
+                    Text("Completed:")
+                    Text(completionDate, style: .time)
+                }
             }
         }
         .overlay(alignment: .topLeading) {

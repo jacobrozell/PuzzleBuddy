@@ -125,18 +125,20 @@ struct DetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
 
-                    HStack(spacing: 0) {
-                        Text("Completed: ")
-                            .font(.subheadline)
+                    if let date = puzzle.completionDate {
+                        HStack(spacing: 0) {
+                            Text("Completed: ")
+                                .font(.subheadline)
 
-                        Spacer()
+                            Spacer()
 
-                        Text(puzzle.completionDate, style: .date)
-                            .font(.subheadline)
-                            .bold()
+                            Text(date, style: .date)
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
 
                     if let ets = puzzle.estimatedTimeSpent, let name = ets.toName() {
                         HStack(spacing: 0) {

@@ -186,7 +186,11 @@ struct PuzzleFormInternal: View {
 
             // Completion Section
             Section {
-                DatePicker("Completion Date", selection: $formVm.puzzle.completionDate)
+                DatePicker("Completion Date", selection: Binding(get: {
+                    formVm.puzzle.completionDate ?? Date()
+                }, set: { new in
+                    formVm.puzzle.completionDate = new
+                }))
                     .datePickerStyle(.graphical)
             } header: {
                 Text("When did you finish \(!formVm.puzzle.name.isEmpty ? formVm.puzzle.name : "the puzzle")?")

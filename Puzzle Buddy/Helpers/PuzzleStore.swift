@@ -13,59 +13,58 @@ import SwiftUI
 // MARK: - PuzzleStore
 @MainActor
 class PuzzleStore: ObservableObject {
+    enum PuzzleStoreState {
+        case idle
+        case fetching
+        case done
+    }
+
     @Published var puzzles: [Puzzle] = []
+    @Published var state: PuzzleStoreState = .idle
 
     let puzzleUser: PuzzleUser?
 
     private let store = Firestore.firestore()
     private var path = ""
 
-    public init(user: PuzzleUser) {
-        self.puzzleUser = user
-        self.path = "/users/\(puzzleUser!.email ?? "")/puzzles"
-        self.fetchPuzzles()
+    public init() {
+        self.puzzleUser = nil
+        self.puzzles = []
     }
 
-    func fetchPuzzles() {
-        store.collection(path).getDocuments { result, error in
-            guard let result = result else {
-                return
-            }
+    public init(user: PuzzleUser) {
+        self.puzzleUser = user
+        self.path = "/users/\(user.email ?? "")/puzzles"
+    }
 
-            self.puzzles = result.documents.compactMap({
-                Puzzle(
-                    name: $0.data()["name"] as! String,
-                    pieces: $0.data()["pieces"] as! Int,
-                    rating: .init(rawValue: $0.data()["rating"] as! Double) ?? .three,
-                    difficulty: .init(rawValue: $0.data()["difficulty"] as! String) ?? .three,
-                    estimatedTimeSpent: .init(name: $0.data()["estimatedTimeSpent"] as! String),
-                    completionDate: ($0.data()["completionDate"] as! Timestamp).dateValue(),
-                    status: Puzzle.Status(rawValue: $0.data()["status"] as! String) ?? .todo
-                )
+    func fetchPuzzles() async {
+        self.state = .fetching
+
+        do {
+            let documents = try await store.collection(path).getDocuments()
+
+            self.puzzles = documents.documents.compactMap({
+                Puzzle.fromData($0.data())
             })
+
+            self.state = .done
+
+        } catch {
+            self.state = .idle
+            return
         }
     }
 
     func add(puzzle: Puzzle) throws {
         guard
-            let puzzleUser = puzzleUser
+            let _ = puzzleUser
         else {
             self.addLocally(puzzle: puzzle)
             return
         }
 
         let puzzlesRef = store.collection(path)
-
-        puzzlesRef.document(puzzle.name).setData([
-            "name": puzzle.name,
-            "pieces": puzzle.pieces,
-            "rating": puzzle.rating.rawValue,
-            "difficulty": puzzle.difficulty.rawValue,
-            "completionDate": puzzle.completionDate,
-            "estimatedTimeSpent": puzzle.estimatedTimeSpent?.toName() ?? "",
-            "status": puzzle.status.rawValue,
-            "owner": puzzleUser.email!
-        ]) { error in
+        puzzlesRef.document(puzzle.id.uuidString).setData(puzzle.getDataFields()) { error in
             if let error = error {
                 print("Error adding Puzzle: \(error.localizedDescription)")
             } else {
@@ -86,11 +85,12 @@ class PuzzleStore: ObservableObject {
 
         let puzzlesRef = store.collection(path)
 
-        for this in offsets {
-            let puzzle = self.puzzles[this]
-            puzzlesRef.document(puzzle.name).delete()
-            deleteLocally(at: offsets)
+        for object in offsets {
+            let puzzle = self.puzzles[object]
+            puzzlesRef.document(puzzle.id.uuidString).delete()
         }
+
+        deleteLocally(at: offsets)
     }
 
     private func deleteLocally(at offsets: IndexSet) {
@@ -98,6 +98,18 @@ class PuzzleStore: ObservableObject {
     }
 
     func update(puzzle: Puzzle) {
-        print("TODO")
+        store.collection(path).document(puzzle.id.uuidString).updateData(puzzle.getDataFields()) { error in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                // Update locally
+                if let index = self.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
+                    self.puzzles[index] = puzzle
+                    print("Puzzle: \(puzzle.name) updated succesfully!")
+                } else {
+                    preconditionFailure("Couldn't find index for puzzle")
+                }
+            }
+        }
     }
 }

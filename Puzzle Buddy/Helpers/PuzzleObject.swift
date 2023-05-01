@@ -79,7 +79,6 @@ class Puzzle: ObservableObject {
 
     enum Status: String, CaseIterable, Identifiable {
         case todo = "To-Do"
-        case inProgress = "In-Progress"
         case completed = "Completed"
 
         var id: String {
@@ -106,7 +105,7 @@ class Puzzle: ObservableObject {
                   rating: Rating = .none,
                   difficulty: Difficulty = .none,
                   estimatedTimeSpent: PuzzleTime?,
-                  completionDate: Date = Date(),
+                  completionDate: Date?,
                   status: Status = .todo
     ) {
         self.name = name
@@ -114,7 +113,7 @@ class Puzzle: ObservableObject {
         self.rating = rating
         self.difficulty = difficulty
         self.estimatedTimeSpent = estimatedTimeSpent
-        self.completionDate = completionDate
+        self.completionDate = completionDate ?? Date()
         self.status = status
     }
 
