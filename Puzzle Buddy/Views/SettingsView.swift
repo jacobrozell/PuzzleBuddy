@@ -14,7 +14,7 @@ struct SettingsView: View {
     var body: some View {
         List {
             Section {
-                if let _ = auth.getUser() {
+                if let user = auth.user {
                     Button {
                         do {
                             try auth.logout()

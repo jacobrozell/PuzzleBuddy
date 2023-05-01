@@ -5,21 +5,19 @@
 //  Created by Jacob Rozell on 8/31/22.
 //
 
+import FirebaseFirestore
 import SwiftUI
 
 struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
     @State private var isEditable = false
-    @State private var puzzle: Puzzle
-
-    init(ps: PuzzleStore, puzzle: Puzzle) {
-        _ps = ObservedObject(wrappedValue: ps)
-        self.puzzle = puzzle
-    }
+    @Binding var puzzle: Puzzle
 
     var body: some View {
         VStack {
             if isEditable {
+                // making a new copy of the puzzle here ???
+                // this is why cell is not updating right away
                 PuzzleFormInternal(formVm: .init(puzzle: puzzle))
             } else {
                 ScrollView {
@@ -40,6 +38,8 @@ struct PuzzleDetail: View {
 
                     // Save Pressed
                     //Attempt to save to database
+                    ps.update(puzzle: puzzle)
+
                     // Then Switch back if successful
                     isEditable.toggle()
 
@@ -57,53 +57,145 @@ struct DetailView: View {
 
     var body: some View {
         VStack {
-            Image(systemName: "puzzlepiece.extension.fill")
-                .resizable()
-                .aspectRatio(2.5/2, contentMode: .fill)
-                .foregroundColor(Color.accentColor)
-                .padding(.horizontal)
-
-            Text(puzzle.name)
-                .font(.title)
-
-            Text("\(puzzle.pieces) Pieces")
-                .font(.subheadline)
-
-            RatingsView(rating: $puzzle.rating)
-                .padding(.vertical)
-
-            Divider()
-
-            if puzzle.difficulty != .none {
-                Text("Difficulty: \(puzzle.difficulty.rawValue)")
-            }
-
-            // Completion Date
-            VStack {
-                HStack {
-                    Text("Date Completed: ")
-                    Text(puzzle.completionDate, style: .date)
+            GroupBox {
+                if let image = puzzle.image {
+                    Image(uiImage: image)
+                        .resizable()
+                        .foregroundColor(Color.accentColor)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+                        .padding()
+                } else {
+                    Image(systemName: "puzzlepiece.extension.fill")
+                        .resizable()
+                        .foregroundColor(Color.accentColor)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity, maxHeight: 150, alignment: .center)
+                        .padding()
                 }
 
-                if let ets = puzzle.estimatedTimeSpent {
-                    HStack {
-                        Text("Estimated Time Spent:")
-                        
-                        Text(ets.toName())
+                Text("\(puzzle.name)")
+                    .bold()
+                    .font(.body)
+
+                if puzzle.rating != .none {
+                    GroupBox {
+                        RatingsView(rating: Binding(get: {
+                            puzzle.rating
+                        }, set: { new in
+                            puzzle.rating = new
+                        }))
+                    }
+                    .padding()
+                }
+
+                if puzzle.difficulty != .none {
+                    Text("Difficulty: \(puzzle.difficulty.rawValue)")
+                        .font(.subheadline)
+                }
+            }
+            .clipShape(Capsule())
+            .padding(.horizontal)
+
+            GroupBox {
+                VStack(spacing: 30) {
+                    HStack(spacing: 0) {
+                        Text("Status: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text("\(puzzle.status.rawValue)")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Brand: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text("IamABrand.inc")
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 0) {
+                        Text("Completed: ")
+                            .font(.subheadline)
+
+                        Spacer()
+
+                        Text(puzzle.completionDate, style: .date)
+                            .font(.subheadline)
+                            .bold()
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+
+                    if let ets = puzzle.estimatedTimeSpent, let name = ets.toName() {
+                        HStack(spacing: 0) {
+                            Text("Time Spent: ")
+                                .font(.subheadline)
+
+                            Spacer()
+
+                            Text(name)
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                    }
+
+                    if let pieces = puzzle.pieces {
+                        HStack(spacing: 0) {
+                            Text("Pieces: ")
+                                .font(.subheadline)
+
+                            Spacer()
+
+                            Text("\(pieces)")
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+
+                        HStack(spacing: 0) {
+                            Text("Pieces per min (ppm):")
+                                .font(.subheadline)
+
+                            Spacer()
+
+                            Text("\(pieces / (puzzle.estimatedTimeSpent?.toMin() ?? 1))")
+                                .font(.subheadline)
+                                .bold()
+
+                            Text(" (ppm)")
+                                .font(.subheadline)
+                                .bold()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
                     }
                 }
             }
-
-            Spacer()
+            .padding()
         }
     }
 }
 
-// MARK: - Previews
+//// MARK: - Previews
 //struct PuzzleDetail_Previews: PreviewProvider {
 //    static var previews: some View {
 //        NavigationView {
-//            PuzzleDetail(ps: .init(), puzzle: .fixture())
+//            PuzzleDetail(ps: .init(), puzzle: .constant(.fixture()))
 //        }
 //    }
 //}

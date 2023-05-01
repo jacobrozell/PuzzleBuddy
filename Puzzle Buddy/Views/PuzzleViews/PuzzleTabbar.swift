@@ -7,18 +7,24 @@
 
 import SwiftUI
 
+private enum PuzzleBuddyTab: String {
+    case puzzles = "Puzzle Buddy"
+    case settings = "Settings"
+}
+
 // MARK: - PuzzleTabbar
 struct PuzzleTabbar: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
-    @State private var showProfileOptions = false
-    @State private var showCreateAccount = false
+
+    @State private var tab: PuzzleBuddyTab = .puzzles
 
     var body: some View {
-        TabView {
-            Group {
+        NavigationStack {
+            TabView(selection: $tab) {
                 PuzzleList(ps: ps)
+                    .tag(PuzzleBuddyTab.puzzles)
                     .tabItem {
                         Label {
                             Text("Puzzles")
@@ -26,11 +32,9 @@ struct PuzzleTabbar: View {
                             Image(systemName: "list.bullet.circle.fill")
                         }
                     }
-                    .navigationTitle("Your Puzzle Buddy")
-            }
 
-            Group {
                 SettingsView()
+                    .tag(PuzzleBuddyTab.settings)
                     .tabItem {
                         Label {
                             Text("Settings")
@@ -38,52 +42,14 @@ struct PuzzleTabbar: View {
                             Image(systemName: "gearshape")
                         }
                     }
-                    .navigationTitle("Settings")
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(tab.rawValue)
+            .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.9))
         }
-        .popover(isPresented: $showCreateAccount) {
-            CreateAccount(isActive: $showCreateAccount)
-        }
-        .confirmationDialog("Profile Options", isPresented: $showProfileOptions) {
-            VStack {
-                if let _ = auth.getUser() {
-                    Button {
-                        do {
-                            try auth.logout()
-                        } catch {
-                            eh.handle(title: "Logout failed", message: "Whoops")
-                        }
-                    } label: {
-                        Text("Sign-Out")
-                    }
-                }
-
-                if auth.shouldBypassAccount {
-                    Button {
-                        showCreateAccount = true
-                    } label: {
-                        Text("Create Account")
-                    }
-                }
-            }
-        }
-//        .toolbar {
-//            ToolbarItem(placement: .navigationBarTrailing) {
-//                Button {
-//                    showProfileOptions = true
-//                } label: {
-//                    VStack {
-//                        Image(systemName: "person.circle.fill")
-//
-//                        Text(auth.user?.email ?? "")
-//                            .font(.footnote)
-//                    }
-//                }
-//            }
-//        }
     }
 }
-
+//
 //struct PuzzleTabbar_Previews: PreviewProvider {
 //    static var previews: some View {
 //        PuzzleTabbar(ps: .init(user: <#PuzzleUser#>))

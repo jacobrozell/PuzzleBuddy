@@ -14,7 +14,6 @@ struct PuzzleView: View {
     @EnvironmentObject var eh: ErrorHandling
     @StateObject var ps: PuzzleStore
 
-    /// User init
     init(user: PuzzleUser) {
         _ps = StateObject(wrappedValue: PuzzleStore(user: user))
     }

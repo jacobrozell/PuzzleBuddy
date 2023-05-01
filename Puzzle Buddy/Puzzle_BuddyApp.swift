@@ -11,6 +11,8 @@ import SwiftUI
 
 @main
 struct Puzzle_BuddyApp: App {
+    public static let version = "0.4.1"
+
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authProvider = FirebaseAuthProvider()
 
@@ -20,6 +22,18 @@ struct Puzzle_BuddyApp: App {
                 LoginView()
                     .withErrorHandling()
                     .environmentObject(authProvider)
+                    .task {
+                        authProvider.user = Auth.auth().currentUser
+
+                        // Update User
+                        Task {
+                            do {
+                                try await authProvider.updateUser()
+                            } catch {
+                                print(error.localizedDescription)
+                            }
+                        }
+                    }
             }
         }
     }

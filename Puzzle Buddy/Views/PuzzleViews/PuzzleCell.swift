@@ -14,13 +14,13 @@ struct PuzzleCell: View {
 
     var body: some View {
         NavigationLink {
-            PuzzleDetail(ps: ps, puzzle: puzzle)
+            PuzzleDetail(ps: ps, puzzle: $puzzle)
         } label: {
-            PuzzleCellView(puzzle: $puzzle)
-                .padding(.horizontal)
+            GroupBox {
+                PuzzleCellView(puzzle: $puzzle)
+            }
         }
         .frame(maxWidth: .infinity)
-        .padding()
     }
 }
 
@@ -54,16 +54,17 @@ private struct PuzzleCellView: View {
                             .padding(.vertical)
                     }
                     .padding(.vertical)
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
 
                 Spacer()
 
-                if let time = puzzle.estimatedTimeSpent {
+                if let timeSpent = puzzle.estimatedTimeSpent?.toName() {
                     VStack {
                         Text("Time Spent:")
                             .bold()
 
-                        Text(time.toName())
+                        Text(timeSpent)
                             .padding(.vertical)
                     }
                     .padding(.vertical)
@@ -74,7 +75,7 @@ private struct PuzzleCellView: View {
 
             HStack(alignment: .bottom) {
                 Text("Completed:")
-                Text(puzzle.completionDate, style: .offset)
+                Text(puzzle.completionDate, style: .relative)
             }
         }
         .overlay(alignment: .topLeading) {
