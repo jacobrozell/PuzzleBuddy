@@ -158,7 +158,7 @@ struct PuzzleFormInternal: View {
             // Time Spent Section
             Section {
                 if let ets = formVm.puzzle.estimatedTimeSpent {
-                    HStack {
+                    VStack {
                         TextField("Hours Spent", value: Binding {
                             ets.hours
                         } set: { new in
@@ -167,9 +167,7 @@ struct PuzzleFormInternal: View {
                         .keyboardType(.numberPad)
                         .frame(alignment: .trailing)
                         .multilineTextAlignment(.leading)
-                    }
 
-                    HStack {
                         TextField("Minutes Spent", value: Binding {
                             ets.minutes
                         } set: { new in
@@ -178,7 +176,6 @@ struct PuzzleFormInternal: View {
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.leading)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
             } header: {
                 Text("How long did it take?")

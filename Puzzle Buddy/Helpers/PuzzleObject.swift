@@ -64,7 +64,7 @@ class Puzzle: ObservableObject {
                 return nil
             }
 
-            return "\(hours)hr:\(minutes)min"
+            return "\(hours)hr:\(mins)min"
         }
 
         /// Returns # of minutes
@@ -133,7 +133,7 @@ class Puzzle: ObservableObject {
                 "pieces": pieces ?? "nil",
                 "rating": rating.rawValue,
                 "difficulty": difficulty.rawValue,
-                "completionDate": completionDate,
+                "completionDate": completionDate.timeIntervalSince1970,
                 "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
                 "status": status.rawValue,
                 "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
@@ -207,8 +207,8 @@ extension Puzzle {
             print("KeyError: estimatedTimeSpent not found")
         }
 
-        if let completionDate = data["completionDate"] as? Date {
-            p.completionDate = completionDate
+        if let completionDate = data["completionDate"] as? Double {
+            p.completionDate = Date(timeIntervalSince1970: TimeInterval(completionDate))
         } else {
             print("KeyError: completionDate not found")
         }
