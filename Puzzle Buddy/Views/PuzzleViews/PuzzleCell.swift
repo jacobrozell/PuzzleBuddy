@@ -59,7 +59,7 @@ private struct PuzzleCellView: View {
 
                 Spacer()
 
-                if let timeSpent = puzzle.estimatedTimeSpent?.toName() {
+                if let timeSpent = puzzle.estimatedTimeSpent.toName() {
                     VStack {
                         Text("Time Spent:")
                             .bold()

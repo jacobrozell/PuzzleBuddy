@@ -140,7 +140,7 @@ struct DetailView: View {
                         .padding(.horizontal)
                     }
 
-                    if let ets = puzzle.estimatedTimeSpent, let name = ets.toName() {
+                    if let name =  puzzle.estimatedTimeSpent.toName() {
                         HStack(spacing: 0) {
                             Text("Time Spent: ")
                                 .font(.subheadline)
@@ -169,22 +169,24 @@ struct DetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
 
-                        HStack(spacing: 0) {
-                            Text("Pieces per min (ppm):")
-                                .font(.subheadline)
+                        if let minutes = puzzle.estimatedTimeSpent.toMin(), let ppm = (pieces / minutes) {
+                            HStack(spacing: 0) {
+                                Text("Pieces per min (ppm):")
+                                    .font(.subheadline)
 
-                            Spacer()
+                                Spacer()
 
-                            Text("\(pieces / (puzzle.estimatedTimeSpent?.toMin() ?? 1))")
-                                .font(.subheadline)
-                                .bold()
+                                Text("\(ppm)")
+                                    .font(.subheadline)
+                                    .bold()
 
-                            Text(" (ppm)")
-                                .font(.subheadline)
-                                .bold()
+                                Text(" (ppm)")
+                                    .font(.subheadline)
+                                    .bold()
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
                     }
                 }
             }

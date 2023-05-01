@@ -45,31 +45,36 @@ class Puzzle: ObservableObject {
     }
 
     struct PuzzleTime {
-        var hours: Int?
-        var minutes: Int?
+        var hours: Int
+        var minutes: Int
 
-        init(hours: Int? = nil, minutes: Int? = nil) {
+        init() {
+            self.hours = 0
+            self.minutes = 0
+        }
+
+        init(hours: Int = 0, minutes: Int = 0) {
             self.hours = hours
             self.minutes = minutes
         }
 
         init(name: String) {
             let intArray = name.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({ Int($0) })
-            self.hours = intArray.first
-            self.minutes = intArray.last
+            self.hours = intArray.first ?? 0
+            self.minutes = intArray.last ?? 0
         }
 
         func toName() -> String? {
-            guard let hours = hours, let mins = minutes else {
+            guard (hours != 0) && (minutes != 0) else {
                 return nil
             }
 
-            return "\(hours)hr:\(mins)min"
+            return "\(hours)hr:\(minutes)min"
         }
 
         /// Returns # of minutes
-        func toMin() -> Int {
-            guard let hours = hours, let minutes = minutes else {
+        func toMin() -> Int? {
+            guard (hours != 0) && (minutes != 0) else {
                 return 1
             }
 
@@ -91,7 +96,7 @@ class Puzzle: ObservableObject {
     @Published var pieces: Int?
     @Published var rating: Rating = .none
     @Published var difficulty: Difficulty = .none
-    @Published var estimatedTimeSpent: PuzzleTime?
+    @Published var estimatedTimeSpent: PuzzleTime = .init()
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
     @Published var image: UIImage?
@@ -104,7 +109,7 @@ class Puzzle: ObservableObject {
                   pieces: Int?,
                   rating: Rating = .none,
                   difficulty: Difficulty = .none,
-                  estimatedTimeSpent: PuzzleTime?,
+                  estimatedTimeSpent: PuzzleTime,
                   completionDate: Date?,
                   status: Status = .todo
     ) {
@@ -134,7 +139,7 @@ class Puzzle: ObservableObject {
                 "rating": rating.rawValue,
                 "difficulty": difficulty.rawValue,
                 "completionDate": completionDate.timeIntervalSince1970,
-                "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
+                "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
                 "status": status.rawValue,
                 "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
             ]
@@ -149,18 +154,18 @@ extension Puzzle {
               pieces: nil,
               rating: .none,
               difficulty: .none,
-              estimatedTimeSpent: nil,
+              estimatedTimeSpent: .init(),
               completionDate: Date(),
               status: .todo
         )
     }
 
-    static func fixture(name: String, pieces: Int, rating: Puzzle.Rating? = Puzzle.Rating.none, difficulty: Puzzle.Difficulty? = Puzzle.Difficulty.none, estimatedTimeSpent: Puzzle.PuzzleTime? = nil) -> Puzzle {
+    static func fixture(name: String, pieces: Int, rating: Puzzle.Rating? = Puzzle.Rating.none, difficulty: Puzzle.Difficulty? = Puzzle.Difficulty.none, estimatedTimeSpent: Puzzle.PuzzleTime) -> Puzzle {
         .init(name: name,
               pieces: pieces,
               rating: .none,
               difficulty: .none,
-              estimatedTimeSpent: nil,
+              estimatedTimeSpent: estimatedTimeSpent,
               completionDate: Date(),
               status: .todo
         )

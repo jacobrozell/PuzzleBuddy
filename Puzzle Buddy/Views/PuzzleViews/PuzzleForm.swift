@@ -157,24 +157,26 @@ struct PuzzleFormInternal: View {
 
             // Time Spent Section
             Section {
-                if let ets = formVm.puzzle.estimatedTimeSpent {
-                    VStack {
-                        TextField("Hours Spent", value: Binding {
-                            ets.hours
-                        } set: { new in
-                            formVm.puzzle.estimatedTimeSpent?.hours = new
-                        }, format: .number, prompt: Text("Estimated Hours Spent"))
-                        .keyboardType(.numberPad)
-                        .frame(alignment: .trailing)
-                        .multilineTextAlignment(.leading)
+                VStack {
+                    HStack {
+                        Text("Estimated Hours Spent:")
 
-                        TextField("Minutes Spent", value: Binding {
-                            ets.minutes
-                        } set: { new in
-                            formVm.puzzle.estimatedTimeSpent?.minutes = new
-                        }, format: .number, prompt: Text("Estimated Minutes Spent"))
-                        .keyboardType(.numberPad)
-                        .multilineTextAlignment(.leading)
+                        Spacer()
+
+                        TextField("Hours Spent", value: $formVm.puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
+                            .keyboardType(.numberPad)
+                            .frame(alignment: .trailing)
+                            .multilineTextAlignment(.leading)
+                    }
+
+                    HStack {
+                        Text("Estimated Minutes Spent")
+
+                        Spacer()
+
+                        TextField("Minutes Spent", value: $formVm.puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.leading)
                     }
                 }
             } header: {
