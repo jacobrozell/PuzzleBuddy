@@ -57,6 +57,15 @@ private struct PuzzleCellView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical)
 
+            if let image = puzzle.image {
+                Image(uiImage: image)
+                    .resizable()
+                    .foregroundColor(Color.accentColor)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: 130, alignment: .center)
+                    .padding()
+            }
+
             HStack(alignment: .top) {
                 if let pieces = puzzle.pieces {
                     GroupBox {
@@ -81,14 +90,16 @@ private struct PuzzleCellView: View {
                 }
             }
             .frame(maxWidth: .infinity)
+            .padding(.vertical)
 
             if let completionDate = puzzle.completionDate {
-                HStack(alignment: .bottom) {
+                HStack {
                     Text("Completed:")
                     Text(completionDate, style: .date)
                     Text(completionDate, style: .time)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top)
             }
         }
     }
