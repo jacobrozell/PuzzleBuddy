@@ -66,10 +66,10 @@ public class FirebaseAuthProvider: ObservableObject {
     }
 
     public func logout() async throws {
-        try await updateUser()
-        try Auth.auth().signOut()
-        self.user = nil
         Analytics.logEvent("User logout", parameters: ["email": user?.email ?? ""])
+        try await updateUser()
+        self.user = nil
+        try Auth.auth().signOut()
     }
 
     public func deleteAccount(){
