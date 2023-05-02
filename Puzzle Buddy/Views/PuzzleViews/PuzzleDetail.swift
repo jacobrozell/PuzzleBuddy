@@ -125,20 +125,18 @@ struct DetailView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
 
-                    if let date = puzzle.completionDate {
-                        HStack(spacing: 0) {
-                            Text("Completed: ")
-                                .font(.subheadline)
+                    HStack(spacing: 0) {
+                        Text("Completed: ")
+                            .font(.subheadline)
 
-                            Spacer()
+                        Spacer()
 
-                            Text(date, style: .date)
-                                .font(.subheadline)
-                                .bold()
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
+                        Text(puzzle.completionDate, style: .date)
+                            .font(.subheadline)
+                            .bold()
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
 
                     if let name =  puzzle.estimatedTimeSpent.toName() {
                         HStack(spacing: 0) {
@@ -169,14 +167,14 @@ struct DetailView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
 
-                        if let minutes = puzzle.estimatedTimeSpent.toMin(), let ppm = (pieces / minutes) {
+                        if let minutes = puzzle.estimatedTimeSpent.toMin() {
                             HStack(spacing: 0) {
                                 Text("Pieces per min (ppm):")
                                     .font(.subheadline)
 
                                 Spacer()
 
-                                Text("\(ppm)")
+                                Text("\(pieces / minutes)")
                                     .font(.subheadline)
                                     .bold()
 

@@ -92,15 +92,13 @@ private struct PuzzleCellView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical)
 
-            if let completionDate = puzzle.completionDate {
-                HStack {
-                    Text("Completed:")
-                    Text(completionDate, style: .date)
-                    Text(completionDate, style: .time)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top)
+            HStack {
+                Text("Completed:")
+                Text(puzzle.completionDate, style: .date)
+                Text(puzzle.completionDate, style: .time)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top)
         }
     }
 }
