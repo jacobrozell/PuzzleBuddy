@@ -21,32 +21,30 @@ struct PuzzleTabbar: View {
     @State private var tab: PuzzleBuddyTab = .puzzles
 
     var body: some View {
-        NavigationStack {
-            TabView(selection: $tab) {
-                PuzzleList(ps: ps)
-                    .tag(PuzzleBuddyTab.puzzles)
-                    .tabItem {
-                        Label {
-                            Text("Puzzles")
-                        } icon: {
-                            Image(systemName: "list.bullet.circle.fill")
-                        }
+        TabView(selection: $tab) {
+            PuzzleList(ps: ps)
+                .tag(PuzzleBuddyTab.puzzles)
+                .tabItem {
+                    Label {
+                        Text("Puzzles")
+                    } icon: {
+                        Image(systemName: "list.bullet.circle.fill")
                     }
+                }
 
-                SettingsView()
-                    .tag(PuzzleBuddyTab.settings)
-                    .tabItem {
-                        Label {
-                            Text("Settings")
-                        } icon: {
-                            Image(systemName: "gearshape")
-                        }
+            SettingsView()
+                .tag(PuzzleBuddyTab.settings)
+                .tabItem {
+                    Label {
+                        Text("Settings")
+                    } icon: {
+                        Image(systemName: "gearshape")
                     }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(tab.rawValue)
-            .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.9))
+                }
         }
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(tab.rawValue)
+        .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.9))
     }
 }
 //

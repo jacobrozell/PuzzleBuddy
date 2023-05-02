@@ -9,7 +9,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: io.codemagic.sample.iosnative
+        bundle_identifier: com.jacobrozell.Puzzle-Buddy
       vars:
         BUNDLE_ID: "com.jacobrozell.Puzzle-Buddy"
         XCODE_WORKSPACE: "PuzzleBuddle.xcworkspace" # <-- Put the name of your Xcode workspace here
