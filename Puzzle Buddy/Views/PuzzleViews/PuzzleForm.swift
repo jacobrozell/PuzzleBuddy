@@ -13,7 +13,11 @@ class PuzzleFormViewModel: ObservableObject {
     @Published var puzzle: Puzzle
     @Published var image: UIImage = UIImage() {
         didSet {
-            puzzle.image = image
+            if image != UIImage() {
+                puzzle.image = image
+            } else {
+                puzzle.image = nil
+            }
         }
     }
 

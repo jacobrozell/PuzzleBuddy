@@ -42,6 +42,28 @@ class Puzzle: ObservableObject {
         var id: String {
             self.rawValue
         }
+
+        var color: Color {
+            switch self {
+            case .five:
+                return Color(uiColor: .init(red: 0.80, green: 0.0, blue: 0.0, alpha: 1.0))
+
+            case .four:
+                return Color.red
+
+            case .three:
+                return Color(uiColor: .init(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0))
+
+            case .two:
+                return Color.yellow
+
+            case .one:
+                return Color.green
+
+            default:
+                return Color.blue
+            }
+        }
     }
 
     struct PuzzleTime {
@@ -69,7 +91,7 @@ class Puzzle: ObservableObject {
                 return nil
             }
 
-            return "\(hours)hr:\(minutes)min"
+            return "\(hours)hr \(minutes)min"
         }
 
         /// Returns # of minutes

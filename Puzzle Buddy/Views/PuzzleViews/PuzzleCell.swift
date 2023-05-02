@@ -32,30 +32,32 @@ private struct PuzzleCellView: View {
     var body: some View {
         VStack(alignment: .center) {
             VStack {
-                HStack {
-                    Text(puzzle.name)
-                        .font(.headline)
-                        .lineLimit(0)
+                GroupBox {
+                    HStack {
+                        Text(puzzle.name)
+                            .underline()
+                            .font(.headline)
+                            .lineLimit(0)
 
-                    Spacer()
+                        Spacer()
 
-                    if puzzle.difficulty != .none {
-                        Text(puzzle.difficulty.rawValue)
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.red)
-                            .clipShape(Circle())
+                        if puzzle.difficulty != .none {
+                            Text(puzzle.difficulty.rawValue)
+                                .font(.subheadline)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(puzzle.difficulty.color)
+                                .clipShape(Circle())
+                        }
                     }
-                }
 
-                RatingsView(rating: $puzzle.rating)
-                    .padding(.vertical)
+                    RatingsView(rating: $puzzle.rating)
+                        .padding(.top)
+                }
 
                 Divider()
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical)
 
             if let image = puzzle.image {
                 Image(uiImage: image)
@@ -95,9 +97,8 @@ private struct PuzzleCellView: View {
             HStack {
                 Text("Completed:")
                 Text(puzzle.completionDate, style: .date)
-                Text(puzzle.completionDate, style: .time)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.top)
         }
     }
