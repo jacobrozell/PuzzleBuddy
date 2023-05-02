@@ -11,8 +11,10 @@ struct SettingsView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
 
+    @ObservedObject var ps: PuzzleStore
     @State private var deleteConfirmation = false
     @State private var deleteScreen = false
+    @State private var resetPassword = false
 
     var body: some View {
         List {
@@ -31,15 +33,36 @@ struct SettingsView: View {
                     }
                 }
 
-                // Export Data
-
                 // Reset Password
-
+                Button {
+                    Task {
+                        do {
+                            try await ps.sendResetPassword()
+                            resetPassword.toggle()
+                        } catch {
+                            print("Oops")
+                        }
+                    }
+                } label: {
+                    Text("Reset password")
+                }
             } header: {
                 Text("Account Settings")
             }
+            .alert(isPresented: $resetPassword) {
+                Alert(title: Text("Password Reset Emailed"), dismissButton: .cancel())
+            }
 
             // Notification Settings
+            Button {
+                Task {
+                    if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                        await UIApplication.shared.open(url)
+                    }
+                }
+            } label: {
+                Text("Notification Settings")
+            }
 
 
             // Delete Account
@@ -68,12 +91,17 @@ struct SettingsView: View {
                         .environmentObject(auth)
                 }
             }
+
+            // Export Data
+            ShareLink(item: ps.retrieveAllData()) {
+                Label("Export my data", systemImage: "square.and.arrow.up")
+            }
         }
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView()
+        SettingsView(ps: .init())
     }
 }

@@ -122,28 +122,41 @@ class Puzzle: ObservableObject {
         self.status = status
     }
 
-//    var category
-//    var barcode // scan barcode on certain brands
-//    var timer // ability to start timer in app ?
+    //    var category
+    //    var barcode // scan barcode on certain brands
+    //    var timer // ability to start timer in app ?
 
-//    var price: Double
-//    var notes: String
+    //    var price: Double
+    //    var notes: String
 
     // var urlLink
 
     func getDataFields() -> [String: Any] {
-            return [
-                "id": id.uuidString,
-                "name": name,
-                "pieces": pieces ?? "nil",
-                "rating": rating.rawValue,
-                "difficulty": difficulty.rawValue,
-                "completionDate": completionDate.timeIntervalSince1970,
-                "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
-                "status": status.rawValue,
-                "imageData": image?.jpegData(compressionQuality: 0.10)?.base64EncodedString() ?? "nil"
-            ]
-        }
+        return [
+            "id": id.uuidString,
+            "name": name,
+            "pieces": pieces ?? "nil",
+            "rating": rating.rawValue,
+            "difficulty": difficulty.rawValue,
+            "completionDate": completionDate.timeIntervalSince1970,
+            "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
+            "status": status.rawValue,
+            "imageData": image?.jpegData(compressionQuality: 0.10)?.base64EncodedString() ?? "nil"
+        ]
+    }
+
+    func getDataFieldsNoImage() -> [String: Any] {
+        return [
+            "id": id.uuidString,
+            "name": name,
+            "pieces": pieces ?? "nil",
+            "rating": rating.rawValue,
+            "difficulty": difficulty.rawValue,
+            "completionDate": completionDate.timeIntervalSince1970,
+            "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
+            "status": status.rawValue
+        ]
+    }
 
 }
 

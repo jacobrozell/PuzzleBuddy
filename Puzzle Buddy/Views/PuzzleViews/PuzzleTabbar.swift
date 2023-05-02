@@ -32,7 +32,7 @@ struct PuzzleTabbar: View {
                     }
                 }
 
-            SettingsView()
+            SettingsView(ps: ps)
                 .tag(PuzzleBuddyTab.settings)
                 .tabItem {
                     Label {

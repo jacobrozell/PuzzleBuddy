@@ -14,16 +14,17 @@ struct CreateAccount: View {
     @State private var name: String = ""
     @State private var login: String = ""
     @State private var password: String = ""
+    @State private var confirmPassword: String = ""
 
     @Binding var isActive: Bool
 
     var body: some View {
         VStack {
-            TextField("Name", text: $name)
+            TextField("Username", text: $name)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal, 16)
 
-            TextField("Email / Login ID", text: $login)
+            TextField("Email", text: $login)
                 .disableAutocorrection(true)
                 .autocapitalization(.none)
                 .keyboardType(.emailAddress)
@@ -33,6 +34,17 @@ struct CreateAccount: View {
             SecureInputView("Password", text: $password)
                 .padding(.horizontal, 16)
                 .textFieldStyle(.roundedBorder)
+
+            SecureInputView("Confirm Password", text: $confirmPassword)
+                .padding(.horizontal, 16)
+                .textFieldStyle(.roundedBorder)
+
+            if password != confirmPassword {
+                Text("Passwords do not match!")
+                    .font(.footnote)
+                    .fontWeight(.medium)
+                    .foregroundColor(.red)
+            }
 
             Spacer()
 
@@ -53,7 +65,9 @@ struct CreateAccount: View {
             }
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
-            .disabled(login.isEmpty || password.isEmpty)
+            .disabled((login.isEmpty || password.isEmpty) || (password != confirmPassword)
+            )
+            .buttonStyle(.plain)
         }
         .padding()
     }

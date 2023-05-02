@@ -112,4 +112,23 @@ class PuzzleStore: ObservableObject {
             }
         }
     }
+
+    func retrieveAllData() -> String {
+        var str: String = "name,peices,difficulty,rating\n"
+
+        puzzles.forEach { p in
+            str += "\(p.name), \(p.pieces ?? 0), \(p.difficulty.rawValue), \(p.rating.rawValue)"
+            str += "\n"
+        }
+
+        return str
+    }
+
+    func sendResetPassword() async throws {
+        guard let email = puzzleUser?.email else {
+            return
+        }
+
+        try await Auth.auth().sendPasswordReset(withEmail: email)
+    }
 }
