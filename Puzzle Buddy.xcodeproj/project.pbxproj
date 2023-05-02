@@ -13,6 +13,8 @@
 		0B0CD5F8287E650400774CDB /* Puzzle_BuddyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD5F7287E650400774CDB /* Puzzle_BuddyTests.swift */; };
 		0B0CD602287E650400774CDB /* Puzzle_BuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */; };
 		0B0CD604287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */; };
+		0B4A99DC2A01B58200AA2EE3 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B4A99DB2A01B58100AA2EE3 /* ProfileView.swift */; };
+		0B4A99DE2A01B8D400AA2EE3 /* ChangeUsernameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B4A99DD2A01B8D400AA2EE3 /* ChangeUsernameView.swift */; };
 		0B523F0828BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
 		0B523F0928BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
 		0B523F0A28BFD2D000A75BA7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */; };
@@ -94,6 +96,8 @@
 		0B4A99BF2A00BB2600AA2EE3 /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0B4A99C62A01886500AA2EE3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		0B4A99C82A01886500AA2EE3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		0B4A99DB2A01B58100AA2EE3 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		0B4A99DD2A01B8D400AA2EE3 /* ChangeUsernameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeUsernameView.swift; sourceTree = "<group>"; };
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
@@ -215,7 +219,6 @@
 				0B660E49288C4F2B00696180 /* PuzzleForm.swift */,
 				0B0CD5E8287E650200774CDB /* PuzzleView.swift */,
 				0B660E4B288C4F6700696180 /* PuzzleList.swift */,
-				0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */,
 				0B85808628C0032D00CE3B91 /* PuzzleCell.swift */,
 				0BE5C08028BFC145001CD479 /* PuzzleDetail.swift */,
 			);
@@ -238,6 +241,7 @@
 				0B85808C28C005DD00CE3B91 /* CreateAccount.swift */,
 				0BA2D54328BE718C00132868 /* FirebaseAuthProvider.swift */,
 				0BA2D54728BE718C00132868 /* ForgotPasswordView.swift */,
+				0B4A99DD2A01B8D400AA2EE3 /* ChangeUsernameView.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -267,7 +271,9 @@
 		0BE5C08228BFC2C8001CD479 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				0B85808A28C004E800CE3B91 /* PuzzleTabbar.swift */,
 				0B85808828C0049300CE3B91 /* SettingsView.swift */,
+				0B4A99DB2A01B58100AA2EE3 /* ProfileView.swift */,
 				0B85809B28C0099600CE3B91 /* HelperViews */,
 				0B85808E28C0065A00CE3B91 /* PuzzleViews */,
 			);
@@ -451,6 +457,8 @@
 				0B85809828C0086700CE3B91 /* DifficultyView.swift in Sources */,
 				0B5B345628CEB45200E2CD30 /* ImagePicker.swift in Sources */,
 				0BA2D54D28BE718D00132868 /* ForgotPasswordView.swift in Sources */,
+				0B4A99DE2A01B8D400AA2EE3 /* ChangeUsernameView.swift in Sources */,
+				0B4A99DC2A01B58200AA2EE3 /* ProfileView.swift in Sources */,
 				0BA2D54928BE718D00132868 /* FirebaseAuthProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -45,15 +45,6 @@ struct PuzzleTabbar: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationTitle(tab.rawValue)
         .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.9))
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                NavigationLink {
-                    Text("Profile View")
-                } label: {
-                    Image(systemName: "person.crop.circle")
-                }
-            }
-        }
     }
 }
 //

@@ -45,13 +45,15 @@ struct ImagePickerView: View {
                     }
             }
 
-            Button(role: .destructive) {
-                image = UIImage()
-            } label: {
-                Text("Clear photo")
-                    .underline()
+            if image != UIImage() {
+                Button(role: .destructive) {
+                    image = UIImage()
+                } label: {
+                    Text("Clear photo")
+                        .underline()
+                }
+                .padding()
             }
-            .padding(.horizontal)
         }
         .sheet(isPresented: $choosePhotoPresent) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)

@@ -46,6 +46,33 @@ struct SettingsView: View {
                 } label: {
                     Text("Reset password")
                 }
+
+                // Delete Account
+                Button(role: .destructive) {
+                    deleteConfirmation.toggle()
+                } label: {
+                    Text("Delete Account")
+                }
+                .confirmationDialog("", isPresented: $deleteConfirmation, actions: {
+                    Button(role: .destructive) {
+                        auth.deleteAccount()
+                    } label: {
+                        Text("I am sure.")
+                    }
+                }, message: {
+                    Text("Are you sure you want to delete your account?")
+                })
+                .sheet(isPresented: $auth.shouldReauth) {
+                    Text("You need to re-authenticate before you can delete your account.")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .underline()
+
+                    GroupBox {
+                        LoginStack()
+                            .environmentObject(auth)
+                    }
+                }
             } header: {
                 Text("Account Settings")
             }
@@ -53,48 +80,24 @@ struct SettingsView: View {
                 Alert(title: Text("Password Reset Emailed"), dismissButton: .cancel())
             }
 
-            // Notification Settings
-            Button {
-                Task {
-                    if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-                        await UIApplication.shared.open(url)
+            Section {
+                // Notification Settings
+                Button {
+                    Task {
+                        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+                            await UIApplication.shared.open(url)
+                        }
                     }
-                }
-            } label: {
-                Text("Notification Settings")
-            }
-
-
-            // Delete Account
-            Button(role: .destructive) {
-                deleteConfirmation.toggle()
-            } label: {
-                Text("Delete Account")
-            }
-            .confirmationDialog("", isPresented: $deleteConfirmation, actions: {
-                Button(role: .destructive) {
-                    auth.deleteAccount()
                 } label: {
-                    Text("I am sure.")
-                }
-            }, message: {
-                Text("Are you sure you want to delete your account?")
-            })
-            .sheet(isPresented: $auth.shouldReauth) {
-                Text("You need to re-authenticate before you can delete your account.")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .underline()
-
-                GroupBox {
-                    LoginStack()
-                        .environmentObject(auth)
+                    Text("Notification Settings")
                 }
             }
 
-            // Export Data
-            ShareLink(item: ps.retrieveAllData()) {
-                Label("Export my data", systemImage: "square.and.arrow.up")
+            Section {
+                // Export Data
+                ShareLink(item: ps.retrieveAllData()) {
+                    Label("Export my data", systemImage: "square.and.arrow.up")
+                }
             }
         }
     }

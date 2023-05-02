@@ -147,23 +147,21 @@ struct PuzzleFormInternal: View {
 
             // Time Spent Section
             Section {
-                VStack {
-                    // do a picker instead with values 1-100
-                    Picker("Hours Spent:", selection: $formVm.puzzle.estimatedTimeSpent.hours) {
-                        ForEach(0..<100, id: \.self) { int in
-                            Text("\(int)")
-                        }
+                // do a picker instead with values 1-100
+                Picker("Hours Spent:", selection: $formVm.puzzle.estimatedTimeSpent.hours) {
+                    ForEach(0..<100, id: \.self) { int in
+                        Text("\(int)")
                     }
-                    .pickerStyle(.menu)
-
-                    // do a picker instead with values 1-100
-                    Picker("Minutes Spent:", selection: $formVm.puzzle.estimatedTimeSpent.minutes) {
-                        ForEach(0..<60, id: \.self) { int in
-                            Text("\(int)")
-                        }
-                    }
-                    .pickerStyle(.menu)
                 }
+                .pickerStyle(.menu)
+
+                // do a picker instead with values 1-100
+                Picker("Minutes Spent:", selection: $formVm.puzzle.estimatedTimeSpent.minutes) {
+                    ForEach(0..<60, id: \.self) { int in
+                        Text("\(int)")
+                    }
+                }
+                .pickerStyle(.menu)
             } header: {
                 Text("How long did it take?")
             }

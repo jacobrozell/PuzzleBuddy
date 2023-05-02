@@ -15,6 +15,7 @@ struct PuzzleList: View {
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
     @State private var searchText: String = ""
+    @State private var showProfile = false
 
     var body: some View {
         VStack {
@@ -62,6 +63,18 @@ struct PuzzleList: View {
         }
         .sheet(isPresented: $present) {
             PuzzleForm(puzzle: .init(), ps: ps)
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    showProfile.toggle()
+                } label: {
+                    Image(systemName: "person.crop.circle")
+                }
+                .fullScreenCover(isPresented: $showProfile) {
+                    ProfileView(ps: ps, showProfile: $showProfile)
+                }
+            }
         }
     }
 }
