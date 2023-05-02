@@ -69,6 +69,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		0B4A99D72A01886700AA2EE3 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyApp.swift; sourceTree = "<group>"; };
 		0B0CD5E8287E650200774CDB /* PuzzleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleView.swift; sourceTree = "<group>"; };
@@ -76,7 +89,11 @@
 		0B0CD5F7287E650400774CDB /* Puzzle_BuddyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyTests.swift; sourceTree = "<group>"; };
 		0B0CD601287E650400774CDB /* Puzzle_BuddyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITests.swift; sourceTree = "<group>"; };
 		0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = "Puzzle Buddy.app"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle Buddy.app"; sourceTree = "<absolute>"; };
+		0B4A99BD2A00BB2600AA2EE3 /* Puzzle Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Puzzle Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B4A99BE2A00BB2600AA2EE3 /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B4A99BF2A00BB2600AA2EE3 /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Puzzle BuddyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B4A99C62A01886500AA2EE3 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		0B4A99C82A01886500AA2EE3 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		0B523F0728BFD2D000A75BA7 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Puzzle-Buddy-Info.plist"; sourceTree = SOURCE_ROOT; };
 		0B523F0C28BFD52400A75BA7 /* Puzzle Buddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Puzzle Buddy.entitlements"; sourceTree = "<group>"; };
@@ -97,8 +114,6 @@
 		0BA2D54E28BE71F100132868 /* ErrorHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorHandling.swift; sourceTree = "<group>"; };
 		0BA2D55028BE720500132868 /* SecureInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SecureInputView.swift; sourceTree = "<group>"; };
 		0BA2D55628BE76C500132868 /* PuzzleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleStore.swift; sourceTree = "<group>"; };
-		0BBC9B1C2A000FC200B44F70 /* Puzzle BuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyTests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyTests.xctest"; sourceTree = "<absolute>"; };
-		0BBC9B1D2A000FC200B44F70 /* Puzzle BuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = "Puzzle BuddyUITests.xctest"; path = "/Users/jrozell/Desktop/__project/Puzzle Buddy/build/Debug-iphoneos/Puzzle BuddyUITests.xctest"; sourceTree = "<absolute>"; };
 		0BC4AC90290A55C100C56BB7 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		0BC4AC92290A571000C56BB7 /* login.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = login.json; sourceTree = "<group>"; };
 		0BC4AC94290B06C000C56BB7 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
@@ -144,6 +159,10 @@
 				0B0CD5E5287E650200774CDB /* Puzzle Buddy */,
 				0B0CD5F6287E650400774CDB /* Puzzle BuddyTests */,
 				0B0CD600287E650400774CDB /* Puzzle BuddyUITests */,
+				0B4A99BD2A00BB2600AA2EE3 /* Puzzle Buddy.app */,
+				0B4A99BE2A00BB2600AA2EE3 /* Puzzle BuddyTests.xctest */,
+				0B4A99BF2A00BB2600AA2EE3 /* Puzzle BuddyUITests.xctest */,
+				0B4A99C52A01886500AA2EE3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -179,6 +198,15 @@
 				0B0CD603287E650400774CDB /* Puzzle_BuddyUITestsLaunchTests.swift */,
 			);
 			path = "Puzzle BuddyUITests";
+			sourceTree = "<group>";
+		};
+		0B4A99C52A01886500AA2EE3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0B4A99C62A01886500AA2EE3 /* WidgetKit.framework */,
+				0B4A99C82A01886500AA2EE3 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		0B85808E28C0065A00CE3B91 /* PuzzleViews */ = {
@@ -265,6 +293,7 @@
 				0B0CD5DF287E650200774CDB /* Sources */,
 				0B0CD5E0287E650200774CDB /* Frameworks */,
 				0B0CD5E1287E650200774CDB /* Resources */,
+				0B4A99D72A01886700AA2EE3 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -279,7 +308,7 @@
 				0BC4AC8E290A557500C56BB7 /* Lottie */,
 			);
 			productName = "Puzzle Buddy";
-			productReference = 0B1A2CEE29FF052C0008F66F /* Puzzle Buddy.app */;
+			productReference = 0B4A99BD2A00BB2600AA2EE3 /* Puzzle Buddy.app */;
 			productType = "com.apple.product-type.application";
 		};
 		0B0CD5F2287E650400774CDB /* Puzzle BuddyTests */ = {
@@ -297,7 +326,7 @@
 			);
 			name = "Puzzle BuddyTests";
 			productName = "Puzzle BuddyTests";
-			productReference = 0BBC9B1C2A000FC200B44F70 /* Puzzle BuddyTests.xctest */;
+			productReference = 0B4A99BE2A00BB2600AA2EE3 /* Puzzle BuddyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		0B0CD5FC287E650400774CDB /* Puzzle BuddyUITests */ = {
@@ -315,7 +344,7 @@
 			);
 			name = "Puzzle BuddyUITests";
 			productName = "Puzzle BuddyUITests";
-			productReference = 0BBC9B1D2A000FC200B44F70 /* Puzzle BuddyUITests.xctest */;
+			productReference = 0B4A99BF2A00BB2600AA2EE3 /* Puzzle BuddyUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -325,7 +354,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1340;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1340;
 				TargetAttributes = {
 					0B0CD5E2287E650200774CDB = {
@@ -582,6 +611,7 @@
 		0B0CD608287E650400774CDB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Puzzle Buddy/Puzzle Buddy.entitlements";
@@ -617,6 +647,7 @@
 		0B0CD609287E650400774CDB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Puzzle Buddy/Puzzle Buddy.entitlements";

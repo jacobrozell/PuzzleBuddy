@@ -18,11 +18,9 @@ class ForgotPasswordViewModel: ObservableObject {
 
     @Published var state: State = .idle
     @Published var username: String = ""
-    @Published var password: String = ""
 
     var isValid: Bool {
         !username.isEmpty
-        && !password.isEmpty
     }
 
     func forgotPassword() async throws {
@@ -66,8 +64,14 @@ struct ForgotPasswordView: View {
                     }
                 } label: {
                     Text("Submit")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .contentShape(Capsule())
                 }
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
                 .padding(.vertical)
+                .disabled(vm.username.isEmpty)
                 
             case .verify:
                 Text("A password reset has been sent to \(vm.username)")
@@ -78,16 +82,22 @@ struct ForgotPasswordView: View {
                     dismiss()
                 } label: {
                     Text("Close")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .contentShape(Capsule())
                 }
                 .disabled(!vm.isValid)
+                .buttonStyle(.bordered)
+                .buttonBorderShape(.capsule)
                 .padding(.vertical)
-                
+
             case .error(let error):
                 Text("Error")
                     .overlay(Text("\(error.localizedDescription)"))
             }
         }
-        .edgesIgnoringSafeArea(.all)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .ignoresSafeArea()
     }
 }
 

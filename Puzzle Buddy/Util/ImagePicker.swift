@@ -2,57 +2,61 @@ import SwiftUI
 
 struct ImagePickerView: View {
     @Binding var image: UIImage
-    @State private var showSheet = false
-    @State private var showSheet2 = false
+    @State private var choosePhotoPresent = false
+    @State private var takePhotoPresent = false
 
     var body: some View {
         VStack {
             Image(uiImage: self.image)
                 .resizable()
-                .cornerRadius(50)
                 .frame(width: 150, height: 150)
-                .background(Color.blue.opacity(0.2))
                 .aspectRatio(contentMode: .fill)
-                .clipShape(Circle())
-                .overlay {
+                .background {
                     PuzzleAnimation(.photo, loopMode: .autoReverse)
-                        .padding()
+                        .padding(.horizontal)
                         .opacity(0.65)
                 }
+                .clipShape(Circle())
 
             HStack {
                 Text("Choose photo")
                     .padding()
-                    .font(.headline)
+                    .font(.subheadline)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity)
                     .background(Color.accentColor)
                     .cornerRadius(16)
                     .foregroundColor(.white)
-                    .padding(2)
+                    .aspectRatio(contentMode: .fill)
                     .onTapGesture {
-                        showSheet = true
+                        choosePhotoPresent = true
                     }
                 
                 Text("Take photo")
                     .padding()
-                    .font(.headline)
+                    .font(.subheadline)
                     .frame(maxWidth: .infinity)
                     .lineLimit(1)
                     .background(Color.accentColor)
                     .cornerRadius(16)
                     .foregroundColor(.white)
-                    .padding(2)
                     .onTapGesture {
-                        showSheet2 = true
+                        takePhotoPresent = true
                     }
             }
+
+            Button(role: .destructive) {
+                image = UIImage()
+            } label: {
+                Text("Clear photo")
+                    .underline()
+            }
+            .padding(.horizontal)
         }
-        .padding()
-        .sheet(isPresented: $showSheet) {
+        .sheet(isPresented: $choosePhotoPresent) {
             ImagePicker(sourceType: .photoLibrary, selectedImage: self.$image)
         }
-        .fullScreenCover(isPresented: $showSheet2) {
+        .fullScreenCover(isPresented: $takePhotoPresent) {
             ImagePicker(sourceType: .camera, selectedImage: self.$image)
         }
     }

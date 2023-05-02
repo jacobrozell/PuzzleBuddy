@@ -146,6 +146,7 @@ struct LoginStack: View {
         .sheet(isPresented: $isActiveForgotPassword) {
             NavigationView {
                 ForgotPasswordView()
+                    .withErrorHandling()
             }
         }
         .padding(16)

@@ -86,20 +86,15 @@ struct PuzzleFormInternal: View {
 
                     Divider()
 
-                    HStack {
-                        Text("Status:")
-
-                        Spacer()
-
-                        Picker("Status", selection: $formVm.puzzle.status) {
-                            ForEach(Puzzle.Status.allCases) { status in
-                                Text(status.rawValue)
-                                    .id(status)
-                                    .tag(status)
-                            }
+                    Picker("Status:", selection: $formVm.puzzle.status) {
+                        ForEach(Puzzle.Status.allCases) { status in
+                            Text(status.rawValue)
+                                .id(status)
+                                .tag(status)
                         }
-                        .pickerStyle(.menu)
                     }
+                    .pickerStyle(.menu)
+
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } header: {
@@ -110,7 +105,7 @@ struct PuzzleFormInternal: View {
             // Rating Section
             Section {
                 HStack {
-                    Picker("Rating", selection: $formVm.puzzle.rating) {
+                    Picker("Rating:", selection: $formVm.puzzle.rating) {
                         ForEach(Puzzle.Rating.allCases) { rating in
                             Group {
                                 if rating == .none {
@@ -127,7 +122,7 @@ struct PuzzleFormInternal: View {
                 }
 
                 HStack {
-                    Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
+                    Picker("Difficulty:", selection: $formVm.puzzle.difficulty) {
                         ForEach(Puzzle.Difficulty.allCases) { difficulty in
                             Group {
                                 if difficulty == .none {
@@ -149,27 +144,21 @@ struct PuzzleFormInternal: View {
             // Time Spent Section
             Section {
                 VStack {
-                    HStack {
-                        Text("Estimated Hours Spent:")
-
-                        Spacer()
-
-                        TextField("Hours Spent", value: $formVm.puzzle.estimatedTimeSpent.hours, format: .number, prompt: Text("Estimated Hours Spent"))
-                            .keyboardType(.numberPad)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .multilineTextAlignment(.leading)
+                    // do a picker instead with values 1-100
+                    Picker("Hours Spent:", selection: $formVm.puzzle.estimatedTimeSpent.hours) {
+                        ForEach(0..<100, id: \.self) { int in
+                            Text("\(int)")
+                        }
                     }
+                    .pickerStyle(.menu)
 
-                    HStack {
-                        Text("Estimated Minutes Spent:")
-
-                        Spacer()
-
-                        TextField("Minutes Spent", value: $formVm.puzzle.estimatedTimeSpent.minutes, format: .number, prompt: Text("Estimated Minutes Spent"))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.leading)
+                    // do a picker instead with values 1-100
+                    Picker("Minutes Spent:", selection: $formVm.puzzle.estimatedTimeSpent.minutes) {
+                        ForEach(0..<60, id: \.self) { int in
+                            Text("\(int)")
+                        }
                     }
+                    .pickerStyle(.menu)
                 }
             } header: {
                 Text("How long did it take?")
@@ -182,7 +171,7 @@ struct PuzzleFormInternal: View {
                 }, set: { new in
                     formVm.puzzle.completionDate = new
                 }))
-                    .datePickerStyle(.graphical)
+                .datePickerStyle(.graphical)
             } header: {
                 Text("When did you finish \(!formVm.puzzle.name.isEmpty ? formVm.puzzle.name : "the puzzle")?")
             }
