@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B02D4B82A0DABCC0052F98A /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B02D4B72A0DABCC0052F98A /* OnboardingView.swift */; };
+		0B02D4BA2A0DAC7D0052F98A /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B02D4B92A0DAC7D0052F98A /* Config.swift */; };
 		0B0CD5E7287E650200774CDB /* Puzzle_BuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */; };
 		0B0CD5E9287E650200774CDB /* PuzzleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0CD5E8287E650200774CDB /* PuzzleView.swift */; };
 		0B0CD5EB287E650400774CDB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B0CD5EA287E650400774CDB /* Assets.xcassets */; };
@@ -85,6 +87,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0B02D4B72A0DABCC0052F98A /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		0B02D4B92A0DAC7D0052F98A /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle_BuddyApp.swift; sourceTree = "<group>"; };
 		0B0CD5E8287E650200774CDB /* PuzzleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleView.swift; sourceTree = "<group>"; };
 		0B0CD5EA287E650400774CDB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -177,6 +181,7 @@
 				0B523F0B28BFD36400A75BA7 /* Puzzle-Buddy-Info.plist */,
 				0B0CD5E6287E650200774CDB /* Puzzle_BuddyApp.swift */,
 				0BA2D53628BE650000132868 /* AppDelegate.swift */,
+				0B02D4B92A0DAC7D0052F98A /* Config.swift */,
 				0BC4AC9A290B0F5D00C56BB7 /* LottieAnimations */,
 				0B0CD5EA287E650400774CDB /* Assets.xcassets */,
 				0BA2D54128BE718C00132868 /* Login */,
@@ -239,6 +244,7 @@
 			children = (
 				0BA2D54228BE718C00132868 /* LoginView.swift */,
 				0B85808C28C005DD00CE3B91 /* CreateAccount.swift */,
+				0B02D4B72A0DABCC0052F98A /* OnboardingView.swift */,
 				0BA2D54328BE718C00132868 /* FirebaseAuthProvider.swift */,
 				0BA2D54728BE718C00132868 /* ForgotPasswordView.swift */,
 				0B4A99DD2A01B8D400AA2EE3 /* ChangeUsernameView.swift */,
@@ -449,6 +455,7 @@
 				0B660E4C288C4F6700696180 /* PuzzleList.swift in Sources */,
 				0B660E48288C4F1000696180 /* PuzzleObject.swift in Sources */,
 				0BC4AC91290A55C100C56BB7 /* LottieView.swift in Sources */,
+				0B02D4BA2A0DAC7D0052F98A /* Config.swift in Sources */,
 				0BA2D54F28BE71F100132868 /* ErrorHandling.swift in Sources */,
 				0BE5C08128BFC145001CD479 /* PuzzleDetail.swift in Sources */,
 				0B85809428C0082300CE3B91 /* RatingsView.swift in Sources */,
@@ -458,6 +465,7 @@
 				0B5B345628CEB45200E2CD30 /* ImagePicker.swift in Sources */,
 				0BA2D54D28BE718D00132868 /* ForgotPasswordView.swift in Sources */,
 				0B4A99DE2A01B8D400AA2EE3 /* ChangeUsernameView.swift in Sources */,
+				0B02D4B82A0DABCC0052F98A /* OnboardingView.swift in Sources */,
 				0B4A99DC2A01B58200AA2EE3 /* ProfileView.swift in Sources */,
 				0BA2D54928BE718D00132868 /* FirebaseAuthProvider.swift in Sources */,
 			);

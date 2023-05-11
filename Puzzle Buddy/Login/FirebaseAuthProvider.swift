@@ -157,7 +157,7 @@ extension FirebaseAuthProvider {
         request.nonce = sha256(nonce)
     }
 
-    func signInWithAppleCompletion(result: Result<ASAuthorization, Error>) {
+    func signInWithAppleCompletion(result: Result<ASAuthorization, Error>) throws {
         switch result {
         case .success(let authResults):
             switch authResults.credential {
@@ -174,7 +174,11 @@ extension FirebaseAuthProvider {
                     return
                 }
 
-                let credential = OAuthProvider.credential(withProviderID: "apple.com",idToken: idTokenString,rawNonce: nonce)
+                let credential = OAuthProvider.credential(
+                    withProviderID: "apple.com",
+                    idToken: idTokenString,
+                    rawNonce: nonce
+                )
 
                 Auth.auth().signIn(with: credential) { (authResult, error) in
                     guard let authResult = authResult else {
@@ -185,10 +189,10 @@ extension FirebaseAuthProvider {
                 }
             default:
                 break
-
             }
-        default:
-            break
+        case .failure(let error):
+            print(error.localizedDescription)
+            throw error
         }
     }
 }

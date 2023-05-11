@@ -13,12 +13,21 @@ import SwiftUI
 // MARK: - LoginView
 struct LoginView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
+    @State private var showOnboarding = false
 
     var body: some View {
         if let user = auth.user {
             PuzzleView(user: user)
         } else {
             LoginWrapper()
+                .sheet(isPresented: $showOnboarding) {
+                    OnboardingView(isPresented: $showOnboarding)
+                }
+                .task {
+                    if !UserDefaults.standard.bool(forKey: "PuzzlePal_Onboarding_Complete") {
+                        showOnboarding.toggle()
+                    }
+                }
         }
     }
 }
@@ -115,7 +124,11 @@ struct LoginStack: View {
                         auth.startSignInWithAppleFlow(request: request)
 
                     } onCompletion: { result in
-                        auth.signInWithAppleCompletion(result: result)
+                        do {
+                            try auth.signInWithAppleCompletion(result: result)
+                        } catch {
+                            errorHandling.handle(error: error, title: "Sign in with Apple Failed!")
+                        }
                     }
                     .padding()
                     .frame(maxHeight: 100)

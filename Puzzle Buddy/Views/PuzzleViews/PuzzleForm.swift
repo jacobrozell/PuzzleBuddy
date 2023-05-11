@@ -147,17 +147,15 @@ struct PuzzleFormInternal: View {
 
             // Time Spent Section
             Section {
-                // do a picker instead with values 1-100
                 Picker("Hours Spent:", selection: $formVm.puzzle.estimatedTimeSpent.hours) {
-                    ForEach(0..<100, id: \.self) { int in
+                    ForEach(0..<60, id: \.self) { int in
                         Text("\(int)")
                     }
                 }
                 .pickerStyle(.menu)
 
-                // do a picker instead with values 1-100
                 Picker("Minutes Spent:", selection: $formVm.puzzle.estimatedTimeSpent.minutes) {
-                    ForEach(0..<60, id: \.self) { int in
+                    ForEach(Array(stride(from: 0, to: 60, by: 5)), id: \.self) { int in
                         Text("\(int)")
                     }
                 }
@@ -169,7 +167,7 @@ struct PuzzleFormInternal: View {
             // Completion Section
             Section {
                 DatePicker("Completion Date", selection: Binding(get: {
-                    formVm.puzzle.completionDate ?? Date()
+                    formVm.puzzle.completionDate
                 }, set: { new in
                     formVm.puzzle.completionDate = new
                 }))

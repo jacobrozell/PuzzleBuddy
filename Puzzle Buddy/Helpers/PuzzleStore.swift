@@ -21,8 +21,7 @@ class PuzzleStore: ObservableObject {
 
     @Published var puzzles: [Puzzle] = []
     @Published var state: PuzzleStoreState = .idle
-
-    let puzzleUser: PuzzleUser?
+    @Published var puzzleUser: PuzzleUser?
 
     private let store = Firestore.firestore()
     private var path = ""
