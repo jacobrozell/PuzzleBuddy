@@ -2,8 +2,6 @@
 //  SettingsView.swift
 //  Puzzle Buddy
 //
-//  Created by Jacob Rozell on 8/31/22.
-//
 
 import SwiftUI
 
@@ -11,100 +9,49 @@ struct SettingsView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
 
-    @ObservedObject var ps: PuzzleStore
-    @State private var deleteConfirmation = false
-    @State private var deleteScreen = false
-    @State private var resetPassword = false
-
     var body: some View {
         List {
-            Section {
-                if let _ = auth.user {
-                    Button {
-                        Task {
+            if ProductService.isLoginEnabled {
+                Section {
+                    if auth.user != nil {
+                        Button {
                             do {
-                                try await auth.logout()
+                                try auth.logout()
                             } catch {
-                                eh.handle(title: "Logout failed", message: "Whoops")
+                                eh.handle(title: "Logout failed", message: error.localizedDescription)
                             }
+                        } label: {
+                            Text("Sign Out")
+                                .foregroundStyle(Brand.accentWarm)
                         }
-                    } label: {
-                        Text("Sign-Out")
+                        .optionalAccessibilityIdentifier(A11yID.settingsSignOutButton)
+                        .accessibilityLabel("Sign out")
                     }
+                } header: {
+                    Text("Account")
                 }
+            }
 
-                // Reset Password
-                Button {
-                    Task {
-                        do {
-                            try await ps.sendResetPassword()
-                            resetPassword.toggle()
-                        } catch {
-                            print("Oops")
-                        }
-                    }
-                } label: {
-                    Text("Reset password")
-                }
-
-                // Delete Account
-                Button(role: .destructive) {
-                    deleteConfirmation.toggle()
-                } label: {
-                    Text("Delete Account")
-                }
-                .confirmationDialog("", isPresented: $deleteConfirmation, actions: {
-                    Button(role: .destructive) {
-                        auth.deleteAccount()
-                    } label: {
-                        Text("I am sure.")
-                    }
-                }, message: {
-                    Text("Are you sure you want to delete your account?")
-                })
-                .sheet(isPresented: $auth.shouldReauth) {
-                    Text("You need to re-authenticate before you can delete your account.")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .underline()
-
-                    GroupBox {
-                        LoginStack()
-                            .environmentObject(auth)
-                    }
-                }
+            Section {
+                Link("Privacy Policy", destination: URL(string: "https://jacobrozell.github.io/PuzzleBuddy/privacy.html")!)
+                Link("Support", destination: URL(string: "https://jacobrozell.github.io/PuzzleBuddy/support.html")!)
+                Link("Accessibility", destination: URL(string: "https://jacobrozell.github.io/PuzzleBuddy/accessibility.html")!)
             } header: {
-                Text("Account Settings")
-            }
-            .alert(isPresented: $resetPassword) {
-                Alert(title: Text("Password Reset Emailed"), dismissButton: .cancel())
+                Text("Help & Legal")
             }
 
             Section {
-                // Notification Settings
-                Button {
-                    Task {
-                        if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
-                            await UIApplication.shared.open(url)
-                        }
-                    }
-                } label: {
-                    Text("Notification Settings")
-                }
-            }
-
-            Section {
-                // Export Data
-                ShareLink(item: ps.retrieveAllData()) {
-                    Label("Export my data", systemImage: "square.and.arrow.up")
-                }
+                LabeledContent("Version", value: Puzzle_BuddyApp.version)
+            } header: {
+                Text("About")
             }
         }
+        .brandScreenChrome()
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView(ps: .init())
+        SettingsView()
     }
 }

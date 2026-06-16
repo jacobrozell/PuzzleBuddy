@@ -12,83 +12,72 @@ import SwiftUI
 struct PuzzleList: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
     @State private var searchText: String = ""
-    @State private var showProfile = false
 
     var body: some View {
-        VStack {
-            if !ps.puzzles.isEmpty {
-                List {
-                    ForEach($ps.puzzles, id: \.id) { p in
-                        PuzzleCell(ps: ps, puzzle: p)
-                    }
-                    .onDelete(perform: { indexSet in
-                        ps.delete(at: indexSet)
-                    })
-                }
-                .refreshable {
-                    await ps.fetchPuzzles()
-                }
-                .listStyle(.plain)
-            } else {
-                switch ps.state {
-                case .fetching:
-                    ProgressView()
-
-                case .done:
-                    Text("Add a puzzle to get started.")
-
-                case .idle:
-                    EmptyView()
+        List {
+            ForEach(ps.puzzles, id: \.id) { p in
+                if let index = ps.puzzles.firstIndex(where: { $0.id == p.id }) {
+                    PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                        .id(ps.puzzles[index].id)
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(
+                            top: DS.Spacing.s2,
+                            leading: DS.Spacing.s4,
+                            bottom: DS.Spacing.s2,
+                            trailing: DS.Spacing.s4
+                        ))
                 }
             }
+            .onDelete(perform: { indexSet in
+                ps.delete(at: indexSet)
+            })
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityIdentifier(A11yID.puzzleList)
+        .refreshable {
+            await ps.fetchPuzzles()
+        }
+        .listStyle(.plain)
+        .brandScreenChrome()
+        .readableContentWidth()
+        .sheet(isPresented: $present) {
+            PuzzleForm(isPresented: $present, ps: ps)
+        }
         .overlay(alignment: .bottomTrailing) {
             Button {
                 present.toggle()
             } label: {
-                Text("Add")
-                    .padding(4)
-                    .font(.title)
-                    .frame(maxWidth: 80, maxHeight: 80)
-                    .contentShape(Circle())
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 52))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Brand.textOnAccent, Brand.accent)
             }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.capsule)
-            .padding()
-            .opacity(0.75)
+            .accessibilityIdentifier(A11yID.addPuzzleButton)
+            .accessibilityLabel("Add puzzle")
+            .padding(DS.Spacing.s4)
+            .padding(.bottom, max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2))
         }
-        .sheet(isPresented: $present) {
-            PuzzleForm(puzzle: .init(), ps: ps)
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    showProfile.toggle()
-                } label: {
-                    Image(systemName: "person.crop.circle")
-                }
-                .fullScreenCover(isPresented: $showProfile) {
-                    ProfileView(ps: ps, showProfile: $showProfile)
-                }
-            }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Color.clear.frame(height: verticalSizeClass == .compact ? DS.Spacing.s2 : 0)
         }
     }
 }
 
 // MARK: - Previews
-//struct PuzzleListPreviews: PreviewProvider {
-//    static var previews: some View {
-//        Group {
-//            let ps = PuzzleStore()
-//            PuzzleList(ps: ps)
-//                .task {
-//                    ps.puzzles.append(.fixture())
-//                    ps.puzzles.append(.fixture())
-//                }
-//        }
-//    }
-//}
+struct PuzzleListPreviews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            let ps = PreviewSupport.puzzleStore
+            PuzzleList(ps: ps)
+                .task {
+                    ps.puzzles.append(.fixture())
+                    ps.puzzles.append(.fixture())
+                }
+        }
+    }
+}

@@ -50,6 +50,7 @@ public enum LottieAnimations: String {
 }
 
 public struct PuzzleAnimation: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var name: LottieAnimations
     @State private var loopMode: LottieLoopMode
 
@@ -59,7 +60,16 @@ public struct PuzzleAnimation: View {
     }
 
     public var body: some View {
-        LottieView(name: name.rawValue, loopMode: loopMode)
+        if reduceMotion {
+            Image(systemName: "puzzlepiece.extension.fill")
+                .font(.largeTitle)
+                .foregroundStyle(Brand.accent)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityHidden(true)
+        } else {
+            LottieView(name: name.rawValue, loopMode: loopMode)
+                .accessibilityHidden(true)
+        }
     }
 }
 

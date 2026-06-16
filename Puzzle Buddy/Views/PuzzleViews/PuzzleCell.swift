@@ -16,100 +16,114 @@ struct PuzzleCell: View {
         NavigationLink {
             PuzzleDetail(ps: ps, puzzle: $puzzle)
         } label: {
-            GroupBox {
-                PuzzleCellView(puzzle: $puzzle)
-                    .padding()
-            }
+            PuzzleCellView(puzzle: $puzzle)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id))
+        .accessibilityLabel(cellAccessibilityLabel)
+        .accessibilityHint("Opens puzzle details")
+        .accessibilityAddTraits(.isButton)
         .frame(maxWidth: .infinity)
+    }
+
+    private var cellAccessibilityLabel: String {
+        var parts = [puzzle.name]
+        if let pieces = puzzle.pieces {
+            parts.append("\(pieces) pieces")
+        }
+        parts.append(puzzle.status.rawValue)
+        parts.append(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))
+        return parts.joined(separator: ", ")
     }
 }
 
 // MARK: PuzzleCellView
 private struct PuzzleCellView: View {
     @Binding var puzzle: Puzzle
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private var usesStackedLayout: Bool {
+        AdaptiveLayout.usesStackedRowLayout(
+            dynamicType: dynamicTypeSize,
+            verticalSizeClass: verticalSizeClass
+        )
+    }
 
     var body: some View {
-        VStack(alignment: .center) {
-            VStack {
-                GroupBox {
-                    HStack {
-                        Text(puzzle.name)
-                            .underline()
-                            .font(.headline)
-                            .lineLimit(0)
-
-                        Spacer()
-
-                        if puzzle.difficulty != .none {
-                            Text(puzzle.difficulty.rawValue)
-                                .font(.subheadline)
-                                .foregroundColor(.white)
-                                .padding(8)
-                                .background(puzzle.difficulty.color)
-                                .clipShape(Circle())
-                        }
-                    }
-
-                    RatingsView(rating: $puzzle.rating)
-                        .padding(.top)
+        Group {
+            if usesStackedLayout {
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    puzzleThumbnail
+                    puzzleTextBlock
                 }
-
-                Divider()
+            } else {
+                HStack(alignment: .center, spacing: DS.Spacing.s3) {
+                    puzzleThumbnail
+                    puzzleTextBlock
+                }
             }
-            .frame(maxWidth: .infinity)
+        }
+        .padding(.vertical, DS.Spacing.s2)
+        .padding(.horizontal, DS.Spacing.s3)
+        .brandCardSurface()
+    }
 
+    private var puzzleThumbnail: some View {
+        Group {
             if let image = puzzle.image {
                 Image(uiImage: image)
                     .resizable()
-                    .foregroundColor(Color.accentColor)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: 130, alignment: .center)
-                    .padding()
+                    .scaledToFill()
+                    .frame(width: 72, height: 72)
+                    .clipShape(Circle())
+                    .overlay(Circle().strokeBorder(Brand.textSecondary.opacity(0.25), lineWidth: 0.5))
+            } else {
+                Image(systemName: "puzzlepiece.extension.fill")
+                    .font(.title)
+                    .foregroundStyle(Brand.accent)
+                    .frame(width: 72, height: 72)
+                    .background(Brand.cardElevated)
+                    .clipShape(Circle())
             }
+        }
+        .accessibilityHidden(true)
+    }
 
-            HStack(alignment: .top) {
-                if let pieces = puzzle.pieces {
-                    GroupBox {
-                        VStack {
-                            Text("Total Pieces:")
-                                .bold()
-
-                            Text("\(pieces)")
-                        }
-                    }
-                }
-
-                if let timeSpent = puzzle.estimatedTimeSpent.toName() {
-                    GroupBox {
-                        VStack {
-                            Text("Time Spent:")
-                                .bold()
-
-                            Text(timeSpent)
-                        }
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical)
+    private var puzzleTextBlock: some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+            Text(puzzle.name.capitalized)
+                .font(.headline)
+                .foregroundStyle(Brand.textPrimary)
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
 
             HStack {
-                Text("Completed:")
+                if let pieces = puzzle.pieces {
+                    Text("\(pieces) pieces")
+                        .font(.footnote)
+                        .foregroundStyle(Brand.textSecondary)
+                }
+
+                Spacer(minLength: DS.Spacing.s2)
+
                 Text(puzzle.completionDate, style: .date)
+                    .font(.footnote)
+                    .foregroundStyle(Brand.textSecondary)
             }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .padding(.top)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
 // MARK: - Previews
-//struct PuzzleCellPreview: PreviewProvider {
-//    static var previews: some View {
-//        VStack {
-//            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
-//            PuzzleCell(ps: .init(), puzzle: .constant(.fixture()))
-//        }
-//    }
-//}
+struct PuzzleCellPreview: PreviewProvider {
+    static var previews: some View {
+        VStack {
+            PuzzleCell(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture(name: "Test 1", pieces: 125)))
+            PuzzleCell(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture(name: "Test 2", pieces: 500, rating: .five)))
+        }
+        .padding()
+        .brandBackground()
+    }
+}

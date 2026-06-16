@@ -16,6 +16,15 @@ struct RatingsView: View {
         }, set: { newValue in
             rating = Puzzle.Rating(rawValue: newValue) ?? .one
         }))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(ratingAccessibilityLabel)
+    }
+
+    private var ratingAccessibilityLabel: String {
+        if rating == .none {
+            return "No rating"
+        }
+        return String(format: "Rating %.1f out of 5", rating.rawValue)
     }
 }
 
@@ -98,15 +107,15 @@ private struct StarsView: View {
     }
 
     private var fullStar: some View {
-        Image(systemName: "star.fill").foregroundColor(.orange)
+        Image(systemName: "star.fill").foregroundStyle(Brand.accentWarm)
     }
 
     private var halfFullStar: some View {
-        Image(systemName: "star.lefthalf.fill").foregroundColor(.orange)
+        Image(systemName: "star.lefthalf.fill").foregroundStyle(Brand.accentWarm)
     }
 
     private var emptyStar: some View {
-        Image(systemName: "star").foregroundColor(.orange)
+        Image(systemName: "star").foregroundStyle(Brand.accentWarm.opacity(0.45))
     }
 }
 

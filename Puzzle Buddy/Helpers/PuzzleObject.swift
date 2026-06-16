@@ -5,6 +5,7 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
+import FirebaseFirestore
 import FirebaseAuth
 import SwiftUI
 
@@ -13,18 +14,17 @@ public typealias PuzzleUser = FirebaseAuth.User
 
 // MARK: - Puzzle
 class Puzzle: ObservableObject {
-    //change to double
     enum Rating: Double, CaseIterable, Identifiable {
         case none = 0.0
         case one = 1.0
         case oneHalf = 1.5
         case two = 2.0
         case twoHalf = 2.5
-        case three = 3
+        case three = 3.0
         case threeHalf = 3.5
-        case four = 4
+        case four = 4.0
         case fourHalf = 4.5
-        case five = 5
+        case five = 5.0
 
         var id: Double {
             self.rawValue
@@ -42,61 +42,34 @@ class Puzzle: ObservableObject {
         var id: String {
             self.rawValue
         }
-
-        var color: Color {
-            switch self {
-            case .five:
-                return Color(uiColor: .init(red: 0.80, green: 0.0, blue: 0.0, alpha: 1.0))
-
-            case .four:
-                return Color.red
-
-            case .three:
-                return Color(uiColor: .init(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0))
-
-            case .two:
-                return Color.yellow
-
-            case .one:
-                return Color.green
-
-            default:
-                return Color.blue
-            }
-        }
     }
 
     struct PuzzleTime {
-        var hours: Int
-        var minutes: Int
+        var hours: Int?
+        var minutes: Int?
 
-        init() {
-            self.hours = 0
-            self.minutes = 0
-        }
-
-        init(hours: Int = 0, minutes: Int = 0) {
+        init(hours: Int? = nil, minutes: Int? = nil) {
             self.hours = hours
             self.minutes = minutes
         }
 
         init(name: String) {
             let intArray = name.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({ Int($0) })
-            self.hours = intArray.first ?? 0
-            self.minutes = intArray.last ?? 0
+            self.hours = intArray.first ?? nil
+            self.minutes = intArray.last ?? nil
         }
 
-        func toName() -> String? {
-            guard (hours != 0) && (minutes != 0) else {
-                return nil
+        func toName() -> String {
+            guard let hours = hours, let minutes = minutes else {
+                return "N/A"
             }
 
-            return "\(hours)hr \(minutes)min"
+            return "\(hours)hr:\(minutes)min"
         }
 
         /// Returns # of minutes
-        func toMin() -> Int? {
-            guard (hours != 0) && (minutes != 0) else {
+        func toMin() -> Int {
+            guard let hours = hours, let minutes = minutes else {
                 return 1
             }
 
@@ -106,6 +79,7 @@ class Puzzle: ObservableObject {
 
     enum Status: String, CaseIterable, Identifiable {
         case todo = "To-Do"
+//        case inProgress = "In-Progress"
         case completed = "Completed"
 
         var id: String {
@@ -115,24 +89,20 @@ class Puzzle: ObservableObject {
 
     var id: UUID = UUID()
     @Published var name: String = ""
-    @Published var pieces: Int?
+    @Published var pieces: Int? = nil
     @Published var rating: Rating = .none
     @Published var difficulty: Difficulty = .none
-    @Published var estimatedTimeSpent: PuzzleTime = .init()
+    @Published var estimatedTimeSpent: PuzzleTime? = nil
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
-    @Published var image: UIImage?
-
-    internal init() {
-        self.name = ""
-    }
+    @Published var image: UIImage? = nil
 
     internal init(name: String,
                   pieces: Int?,
                   rating: Rating = .none,
                   difficulty: Difficulty = .none,
-                  estimatedTimeSpent: PuzzleTime,
-                  completionDate: Date?,
+                  estimatedTimeSpent: PuzzleTime?,
+                  completionDate: Date,
                   status: Status = .todo
     ) {
         self.name = name
@@ -140,17 +110,17 @@ class Puzzle: ObservableObject {
         self.rating = rating
         self.difficulty = difficulty
         self.estimatedTimeSpent = estimatedTimeSpent
-        self.completionDate = completionDate ?? Date()
+        self.completionDate = completionDate
         self.status = status
     }
 
-    //    var category
-    //    var barcode // scan barcode on certain brands
-    //    var timer // ability to start timer in app ?
+//    var category
+//    var barcode // scan barcode on certain brands
+//    var timer // ability to start timer in app ?
 
-    //    var price: Double
-    //    var notes: String
-
+//    var price: Double
+//    var notes: String
+//    var image: UIImage // reverse image search to find info
     // var urlLink
 
     func getDataFields() -> [String: Any] {
@@ -160,26 +130,12 @@ class Puzzle: ObservableObject {
             "pieces": pieces ?? "nil",
             "rating": rating.rawValue,
             "difficulty": difficulty.rawValue,
-            "completionDate": completionDate.timeIntervalSince1970,
-            "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
+            "completionDate": completionDate,
+            "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
             "status": status.rawValue,
-            "imageData": image?.jpegData(compressionQuality: 0.10)?.base64EncodedString() ?? "nil"
+            "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
         ]
     }
-
-    func getDataFieldsNoImage() -> [String: Any] {
-        return [
-            "id": id.uuidString,
-            "name": name,
-            "pieces": pieces ?? "nil",
-            "rating": rating.rawValue,
-            "difficulty": difficulty.rawValue,
-            "completionDate": completionDate.timeIntervalSince1970,
-            "estimatedTimeSpent": estimatedTimeSpent.toName() ?? "nil",
-            "status": status.rawValue
-        ]
-    }
-
 }
 
 // MARK: - PuzzleFixture
@@ -189,17 +145,17 @@ extension Puzzle {
               pieces: nil,
               rating: .none,
               difficulty: .none,
-              estimatedTimeSpent: .init(),
+              estimatedTimeSpent: nil,
               completionDate: Date(),
               status: .todo
         )
     }
 
-    static func fixture(name: String, pieces: Int, rating: Puzzle.Rating? = Puzzle.Rating.none, difficulty: Puzzle.Difficulty? = Puzzle.Difficulty.none, estimatedTimeSpent: Puzzle.PuzzleTime) -> Puzzle {
+    static func fixture(name: String, pieces: Int, rating: Puzzle.Rating = .none, difficulty: Puzzle.Difficulty = .none, estimatedTimeSpent: Puzzle.PuzzleTime? = nil) -> Puzzle {
         .init(name: name,
               pieces: pieces,
-              rating: .none,
-              difficulty: .none,
+              rating: rating,
+              difficulty: difficulty,
               estimatedTimeSpent: estimatedTimeSpent,
               completionDate: Date(),
               status: .todo
@@ -247,8 +203,10 @@ extension Puzzle {
             print("KeyError: estimatedTimeSpent not found")
         }
 
-        if let completionDate = data["completionDate"] as? Double {
-            p.completionDate = Date(timeIntervalSince1970: TimeInterval(completionDate))
+        if let completionDate = data["completionDate"] as? Timestamp {
+            p.completionDate = completionDate.dateValue()
+        } else if let completionDate = data["completionDate"] as? Date {
+            p.completionDate = completionDate
         } else {
             print("KeyError: completionDate not found")
         }

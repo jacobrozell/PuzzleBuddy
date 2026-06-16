@@ -1,0 +1,83 @@
+name: UI Tests
+
+on:
+  pull_request:
+  push:
+    branches: [master, main, dev]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  CI_XCODE_PROJECT: Puzzle Buddy.xcodeproj
+  CI_XCODE_SCHEME: Puzzle Buddy
+  CI_PARALLEL_TESTING: NO
+
+jobs:
+  accessibility:
+    name: Accessibility & Landscape
+    runs-on: macos-15
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        include:
+          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testLoginScreenAccessibilityAudit
+          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testLoginScreenDynamicTypeAudit
+          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testLoginScreenLandscapeLayout
+          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testPuzzleListAccessibilityAudit
+          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testPuzzleListLandscapeLayout
+          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testSettingsAccessibilityAudit
+          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testAddPuzzleFormAccessibilityAudit
+          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.3.1
+            test_class: PuzzleAccessibilityUITests/testAddPuzzleFormLandscapeLayout
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Prepare Firebase config
+        run: cp GoogleService-Info.plist.example GoogleService-Info.plist
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project "${{ env.CI_XCODE_PROJECT }}" \
+            -scheme "${{ env.CI_XCODE_SCHEME }}"
+
+      - name: Build for Testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project "${{ env.CI_XCODE_PROJECT }}" \
+            -scheme "${{ env.CI_XCODE_SCHEME }}" \
+            -destination "${{ matrix.destination }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run UI Test
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project "${{ env.CI_XCODE_PROJECT }}" \
+            -scheme "${{ env.CI_XCODE_SCHEME }}" \
+            -destination "${{ matrix.destination }}" \
+            -only-testing:"Puzzle BuddyUITests/${{ matrix.test_class }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO

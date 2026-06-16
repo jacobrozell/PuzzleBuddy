@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+tracked=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'GoogleService-Info\.plist$' | grep -v '\.example$' || true)
+if [ -n "$tracked" ]; then
+  echo "error: Do not commit GoogleService-Info.plist. Use GoogleService-Info.plist.example for CI."
+  exit 1
+fi

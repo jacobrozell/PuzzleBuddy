@@ -2,35 +2,37 @@
 //  Puzzle_BuddyTests.swift
 //  Puzzle BuddyTests
 //
-//  Created by Jacob Rozell on 7/12/22.
-//
 
 import XCTest
 @testable import Puzzle_Buddy
 
-class Puzzle_BuddyTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+final class Puzzle_BuddyTests: XCTestCase {
+    func testAppVersionIsNonEmpty() {
+        XCTAssertFalse(Puzzle_BuddyApp.version.isEmpty)
     }
 
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    func testAnalyticsAllowlistIncludesBootstrap() {
+        let mapped = PuzzleAnalyticsEventMapping.map(
+            eventName: "app_bootstrap_ready",
+            category: .app,
+            metadata: [:],
+            appVersion: "test"
+        )
+        XCTAssertEqual(mapped?.name, "app_open")
+        XCTAssertEqual(mapped?.parameters["app_version"] as? String, "test")
     }
 
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
+    func testAnalyticsAllowlistRejectsUnknownEvents() {
+        let mapped = PuzzleAnalyticsEventMapping.map(
+            eventName: "secret_user_data",
+            category: .app,
+            metadata: ["email": "test@example.com"],
+            appVersion: "test"
+        )
+        XCTAssertNil(mapped)
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
+    func testLoginDisabledByDefaultForOnePointZero() {
+        XCTAssertFalse(ProductService.isLoginEnabled)
     }
-
 }

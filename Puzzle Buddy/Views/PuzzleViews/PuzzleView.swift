@@ -5,22 +5,21 @@
 //  Created by Jacob Rozell on 7/12/22.
 //
 
-import FirebaseAuth
+import SwiftData
 import SwiftUI
 
 // MARK: - ContentView
 struct PuzzleView: View {
-    @EnvironmentObject var auth: FirebaseAuthProvider
-    @EnvironmentObject var eh: ErrorHandling
     @StateObject var ps: PuzzleStore
 
-    init(user: PuzzleUser) {
-        _ps = StateObject(wrappedValue: PuzzleStore(user: user))
+    init(modelContext: ModelContext, user: PuzzleUser? = nil) {
+        _ps = StateObject(wrappedValue: PuzzleStore(modelContext: modelContext, user: user))
     }
 
     var body: some View {
         PuzzleTabbar(ps: ps)
             .task {
+                UITestSupport.seedPuzzlesIfNeeded(into: ps)
                 if ps.puzzles.isEmpty {
                     await ps.fetchPuzzles()
                 }
@@ -29,8 +28,8 @@ struct PuzzleView: View {
 }
 
 // MARK: - Previews
-//struct PuzzleView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PuzzleView()
-//    }
-//}
+struct PuzzleView_Previews: PreviewProvider {
+    static var previews: some View {
+        PuzzleView(modelContext: PreviewSupport.modelContext)
+    }
+}

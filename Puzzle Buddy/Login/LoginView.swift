@@ -5,29 +5,25 @@
 //  Created by Justin Sprouse on 4/28/22.
 //
 
-import FirebaseAuth
 import AuthenticationServices
 import FirebaseAuth
+import SwiftData
 import SwiftUI
 
 // MARK: - LoginView
 struct LoginView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
-    @State private var showOnboarding = false
+    let modelContext: ModelContext
 
     var body: some View {
-        if let user = auth.user {
-            PuzzleView(user: user)
+        if auth.shouldBypassAccount || UITestSupport.isBypassAuthEnabled {
+            PuzzleView(modelContext: modelContext)
+        } else if let user = auth.user {
+            PuzzleView(modelContext: modelContext, user: user)
         } else {
-            LoginWrapper()
-                .sheet(isPresented: $showOnboarding) {
-                    OnboardingView(isPresented: $showOnboarding)
-                }
-                .task {
-                    if !UserDefaults.standard.bool(forKey: "PuzzlePal_Onboarding_Complete") {
-                        showOnboarding.toggle()
-                    }
-                }
+            NavigationStack {
+                LoginWrapper()
+            }
         }
     }
 }
@@ -36,54 +32,72 @@ struct LoginView: View {
 private struct LoginWrapper: View {
     @State private var loginStatePicker: Int = 0
     @EnvironmentObject var auth: FirebaseAuthProvider
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     var body: some View {
+        Group {
+            if AdaptiveLayout.usesWideAuthLayout(
+                horizontalSizeClass: horizontalSizeClass,
+                verticalSizeClass: verticalSizeClass
+            ) {
+                HStack(alignment: .center, spacing: DS.Spacing.s6) {
+                    loginHero
+                        .frame(maxWidth: 280)
+                    loginContent
+                }
+                .frame(maxWidth: 720)
+                .frame(maxWidth: .infinity)
+            } else {
+                VStack {
+                    loginHero
+                    loginContent
+                }
+            }
+        }
+        .padding()
+        .adaptiveScrollChrome()
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
+        .padding(.vertical, DS.Spacing.s3)
+        .brandBackground()
+    }
+
+    private var loginHero: some View {
+        HStack {
+            PuzzleAnimation(.login, loopMode: .autoReverse)
+                .frame(maxWidth: 100, maxHeight: 100, alignment: .center)
+                .accessibilityHidden(true)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var loginContent: some View {
         VStack {
-            HStack {
-                PuzzleAnimation(.login, loopMode: .autoReverse)
-                    .frame(maxWidth: 100, maxHeight: 100, alignment: .center)
+            Picker("Login or create account", selection: $loginStatePicker) {
+                Text("Login").tag(0)
+                Text("Create Account").tag(1)
             }
-            .frame(maxWidth: .infinity)
-
-            Picker("Login/CreateAccount", selection: $loginStatePicker) {
-                Text("Login")
-                    .tag(0)
-
-                Text("Create Account")
-                    .tag(1)
-            }
-            .frame(maxWidth: .infinity)
-            .pickerStyle(.automatic)
-            .padding()
-            .clipShape(Capsule())
-            .buttonStyle(.borderedProminent)
-
-            Spacer()
+            .pickerStyle(.segmented)
+            .accessibilityLabel("Account mode")
+            .padding(.bottom, DS.Spacing.s3)
 
             switch loginStatePicker {
             case 0:
                 LoginStack()
             case 1:
                 CreateAccount(isActive: .constant(true))
-
             default:
-                Text("Loops lmfaoflmfaofofmsdnw :(((")
+                LoginStack()
             }
         }
         .animation(.default, value: loginStatePicker)
-        .padding()
-        .ignoresSafeArea(.all, edges: .horizontal)
-        .navigationBarTitleDisplayMode(.automatic)
-        .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
-        .padding(.vertical)
-        .background(LinearGradient(colors: [.blue, .cyan, .teal], startPoint: .topLeading, endPoint: .bottomTrailing).opacity(0.4))
     }
 }
 
 // MARK: - LoginStack
-struct LoginStack: View {
+private struct LoginStack: View {
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.dismiss) var dismiss
 
     @EnvironmentObject var errorHandling: ErrorHandling
     @EnvironmentObject var auth: FirebaseAuthProvider
@@ -100,13 +114,14 @@ struct LoginStack: View {
                     .keyboardType(.emailAddress)
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal, 16)
+                    .optionalAccessibilityIdentifier(A11yID.loginEmailField)
+                    .accessibilityLabel("Email")
 
-                SecureInputView("Password", text: $auth.password)
+                SecureInputView("Password", text: $auth.password, accessibilityIdentifier: A11yID.loginPasswordField)
                     .padding(.horizontal, 16)
                     .textFieldStyle(.roundedBorder)
 
-                VStack {
-                    // Forgot Password Button
+                VStack(spacing: DS.Spacing.s3) {
                     Button {
                         isActiveForgotPassword = true
                     } label: {
@@ -116,22 +131,18 @@ struct LoginStack: View {
                             .foregroundColor(.primary)
                             .contentShape(Rectangle())
                     }
-                    .padding(2)
-
-                    Spacer()
+                    .optionalAccessibilityIdentifier(A11yID.forgotPasswordButton)
+                    .accessibilityLabel("Forgot password")
+                    .padding(.top, DS.Spacing.s2)
 
                     SignInWithAppleButton { request in
                         auth.startSignInWithAppleFlow(request: request)
 
                     } onCompletion: { result in
-                        do {
-                            try auth.signInWithAppleCompletion(result: result)
-                        } catch {
-                            errorHandling.handle(error: error, title: "Sign in with Apple Failed!")
-                        }
+                        auth.signInWithAppleCompletion(result: result)
                     }
-                    .padding()
-                    .frame(maxHeight: 100)
+                    .padding(.top, DS.Spacing.s3)
+                    .frame(maxHeight: 50)
                     .signInWithAppleButtonStyle(colorScheme == .dark ? .whiteOutline : .black)
                     .clipShape(Capsule())
 
@@ -139,7 +150,6 @@ struct LoginStack: View {
                         Task {
                             do {
                                 try await auth.login()
-                                dismiss()
                             } catch {
                                 errorHandling.handle(title: "Login Failed", message: "\(error.localizedDescription)")
                             }
@@ -150,17 +160,15 @@ struct LoginStack: View {
                             .padding()
                             .contentShape(Capsule())
                     }
-                    .buttonStyle(.borderedProminent)
-                    .buttonBorderShape(.capsule)
+                    .buttonStyle(BrandPrimaryButtonStyle())
+                    .optionalAccessibilityIdentifier(A11yID.loginSubmitButton)
+                    .accessibilityLabel("Log in")
                     .disabled(auth.login.isEmpty || auth.password.isEmpty)
                 }
             }
         }
         .sheet(isPresented: $isActiveForgotPassword) {
-            NavigationView {
-                ForgotPasswordView()
-                    .withErrorHandling()
-            }
+            ForgotPasswordView()
         }
         .padding(16)
     }
@@ -169,6 +177,6 @@ struct LoginStack: View {
 // MARK: - Previews
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
-        LoginView()
+        LoginView(modelContext: PreviewSupport.modelContext)
     }
 }

@@ -5,39 +5,42 @@ struct SecureInputView: View {
     @Binding private var text: String
     @State private var isSecured: Bool = true
     private var title: String
+    private var accessibilityIdentifier: String?
 
-    init(_ title: String, text: Binding<String>) {
+    init(_ title: String, text: Binding<String>, accessibilityIdentifier: String? = nil) {
         self.title = title
         self._text = text
+        self.accessibilityIdentifier = accessibilityIdentifier
     }
 
     var body: some View {
-        ZStack(alignment: .trailing) {
+        HStack(spacing: DS.Spacing.s2) {
             Group {
                 if isSecured {
                     SecureField(title, text: $text)
                         .textContentType(.password)
                         .keyboardType(.default)
-//                        .textFieldStyle(.roundedBorder)
                         .autocapitalization(.none)
+                        .optionalAccessibilityIdentifier(accessibilityIdentifier)
                 } else {
                     TextField(title, text: $text)
                         .textContentType(.password)
                         .keyboardType(.default)
-//                        .textFieldStyle(.roundedBorder)
                         .autocapitalization(.none)
+                        .optionalAccessibilityIdentifier(accessibilityIdentifier)
                 }
             }
-            .contentShape(Rectangle())
+            .accessibilityLabel("Password")
 
-            Button(action: {
+            Button {
                 isSecured.toggle()
-            }) {
-                Image(systemName: self.isSecured ? "eye.slash" : "eye")
-                    .accentColor(.gray)
-                    .padding(4)
+            } label: {
+                Image(systemName: isSecured ? "eye.slash" : "eye")
+                    .foregroundStyle(Brand.textSecondary)
+                    .frame(width: 44, height: 44)
             }
-            .frame(width: 50, height: 50, alignment: .center)
+            .accessibilityLabel(isSecured ? "Show password" : "Hide password")
+            .accessibilityIdentifier(A11yID.passwordVisibilityToggle)
         }
     }
 }

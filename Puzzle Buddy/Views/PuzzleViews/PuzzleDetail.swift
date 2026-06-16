@@ -5,7 +5,6 @@
 //  Created by Jacob Rozell on 8/31/22.
 //
 
-import FirebaseFirestore
 import SwiftUI
 
 struct PuzzleDetail: View {
@@ -16,9 +15,8 @@ struct PuzzleDetail: View {
     var body: some View {
         VStack {
             if isEditable {
-                // making a new copy of the puzzle here ???
-                // this is why cell is not updating right away
                 PuzzleFormInternal(formVm: .init(puzzle: puzzle))
+                    .adaptiveScrollChrome()
             } else {
                 ScrollView {
                     DetailView(puzzle: $puzzle)
@@ -36,168 +34,187 @@ struct PuzzleDetail: View {
                         return
                     }
 
-                    // Save Pressed
-                    //Attempt to save to database
                     ps.update(puzzle: puzzle)
-
-                    // Then Switch back if successful
                     isEditable.toggle()
-
                 } label: {
                     Text("\(isEditable ? "Save" : "Edit")")
                 }
+                .optionalAccessibilityIdentifier(A11yID.puzzleDetailEditButton)
+                .accessibilityLabel(isEditable ? "Save puzzle changes" : "Edit puzzle")
             }
         }
+        .brandScreenChrome()
+        .readableContentWidth()
     }
 }
 
 // MARK: - DetailView
 struct DetailView: View {
     @Binding var puzzle: Puzzle
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private var usesWideLayout: Bool {
+        AdaptiveLayout.usesWideDetailLayout(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: verticalSizeClass
+        )
+    }
 
     var body: some View {
-        VStack {
-            GroupBox {
-                if let image = puzzle.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .foregroundColor(Color.accentColor)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: 130, alignment: .center)
-                        .padding()
-                } else {
-                    Image(systemName: "puzzlepiece.extension.fill")
-                        .resizable()
-                        .foregroundColor(Color.accentColor)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: 130, alignment: .center)
-                        .padding()
+        Group {
+            if usesWideLayout {
+                HStack(alignment: .top, spacing: DS.Spacing.s4) {
+                    summaryPanel
+                        .frame(maxWidth: .infinity)
+                    statsPanel
+                        .frame(maxWidth: .infinity)
                 }
-
-                Text("\(puzzle.name)")
-                    .bold()
-                    .font(.body)
-
-                if puzzle.rating != .none {
-                    GroupBox {
-                        RatingsView(rating: Binding(get: {
-                            puzzle.rating
-                        }, set: { new in
-                            puzzle.rating = new
-                        }))
-                    }
-                    .padding()
-                }
-
-                if puzzle.difficulty != .none {
-                    Text("Difficulty: \(puzzle.difficulty.rawValue)")
-                        .font(.subheadline)
+            } else {
+                VStack(spacing: DS.Spacing.s4) {
+                    summaryPanel
+                    statsPanel
                 }
             }
-            .clipShape(Capsule())
-            .padding(.horizontal)
+        }
+        .padding(.horizontal)
+        .padding(.vertical)
+        .accessibilityElement(children: .contain)
+    }
 
-            GroupBox {
-                VStack {
-                    HStack(spacing: 0) {
-                        Text("Status: ")
-                            .font(.subheadline)
+    private var summaryPanel: some View {
+        GroupBox {
+            puzzleImage
+            Text(puzzle.name)
+                .bold()
+                .font(.title3)
+                .foregroundStyle(Brand.textPrimary)
+                .accessibilityAddTraits(.isHeader)
 
-                        Spacer()
+            if puzzle.rating != .none {
+                RatingsView(rating: Binding(get: {
+                    puzzle.rating
+                }, set: { new in
+                    puzzle.rating = new
+                }))
+                .padding(.horizontal)
+            }
 
-                        Text("\(puzzle.status.rawValue)")
-                            .font(.subheadline)
-                            .bold()
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
+            if puzzle.difficulty != .none {
+                Text("Difficulty: \(puzzle.difficulty.rawValue)")
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.textSecondary)
+                    .accessibilityLabel("Difficulty \(puzzle.difficulty.rawValue) out of 5")
+            }
+        }
+        .groupBoxStyle(BrandGroupBoxStyle())
+        .accessibilityIdentifier(A11yID.puzzleDetailSummary)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Puzzle summary")
+    }
 
-                    HStack(spacing: 0) {
-                        Text("Brand: ")
-                            .font(.subheadline)
+    private var statsPanel: some View {
+        GroupBox {
+            VStack(spacing: DS.Spacing.s4) {
+                detailRow(label: "Status", value: puzzle.status.rawValue)
+                detailRow(
+                    label: "Completed",
+                    value: puzzle.completionDate.formatted(date: .abbreviated, time: .omitted)
+                )
 
-                        Spacer()
+                if let estimatedTimeSpent = puzzle.estimatedTimeSpent {
+                    detailRow(label: "Time spent", value: estimatedTimeSpent.toName())
+                }
 
-                        Text("IamABrand.inc")
-                            .font(.subheadline)
-                            .bold()
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
+                if let pieces = puzzle.pieces {
+                    detailRow(label: "Pieces", value: "\(pieces)")
 
-                    HStack(spacing: 0) {
-                        Text("Completed: ")
-                            .font(.subheadline)
-
-                        Spacer()
-
-                        Text(puzzle.completionDate, style: .date)
-                            .font(.subheadline)
-                            .bold()
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-
-                    if let name =  puzzle.estimatedTimeSpent.toName() {
-                        HStack(spacing: 0) {
-                            Text("Time Spent: ")
-                                .font(.subheadline)
-
-                            Spacer()
-
-                            Text(name)
-                                .font(.subheadline)
-                                .bold()
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                    }
-
-                    if let pieces = puzzle.pieces {
-                        HStack(spacing: 0) {
-                            Text("Pieces: ")
-                                .font(.subheadline)
-
-                            Spacer()
-
-                            Text("\(pieces)")
-                                .font(.subheadline)
-                                .bold()
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-
-                        if let minutes = puzzle.estimatedTimeSpent.toMin() {
-                            HStack(spacing: 0) {
-                                Text("Pieces per min (ppm):")
-                                    .font(.subheadline)
-
-                                Spacer()
-
-                                Text("\(pieces / minutes)")
-                                    .font(.subheadline)
-                                    .bold()
-
-                                Text(" (ppm)")
-                                    .font(.subheadline)
-                                    .bold()
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                        }
+                    if let estimatedTimeSpent = puzzle.estimatedTimeSpent {
+                        let ppm = pieces / max(estimatedTimeSpent.toMin(), 1)
+                        detailRow(label: "Pieces per minute", value: "\(ppm) pieces per minute")
                     }
                 }
             }
-            .padding()
+        }
+        .groupBoxStyle(BrandGroupBoxStyle())
+        .accessibilityIdentifier(A11yID.puzzleDetailStats)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Puzzle details")
+    }
+
+    @ViewBuilder
+    private var puzzleImage: some View {
+        if let image = puzzle.image {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 220 : 150, alignment: .center)
+                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+                .padding()
+                .accessibilityLabel("Puzzle photo for \(puzzle.name)")
+        } else {
+            Image(systemName: "puzzlepiece.extension.fill")
+                .resizable()
+                .foregroundStyle(Brand.accent)
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 220 : 150, alignment: .center)
+                .padding()
+                .accessibilityLabel("No puzzle photo")
+        }
+    }
+
+    @ViewBuilder
+    private func detailRow(label: String, value: String) -> some View {
+        if AdaptiveLayout.usesStackedRowLayout(
+            dynamicType: dynamicTypeSize,
+            verticalSizeClass: verticalSizeClass
+        ) {
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                Text("\(label):")
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.textSecondary)
+                Text(value)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Brand.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(label), \(value)")
+        } else {
+            HStack {
+                Text("\(label):")
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.textSecondary)
+                Spacer()
+                Text(value)
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Brand.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(label), \(value)")
         }
     }
 }
 
-//// MARK: - Previews
-//struct PuzzleDetail_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NavigationView {
-//            PuzzleDetail(ps: .init(), puzzle: .constant(.fixture()))
-//        }
-//    }
-//}
+private struct BrandGroupBoxStyle: GroupBoxStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s3) {
+            configuration.label
+            configuration.content
+        }
+        .padding(DS.Spacing.s4)
+        .background(Brand.card)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+    }
+}
+
+// MARK: - Previews
+struct PuzzleDetail_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            PuzzleDetail(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture()))
+        }
+    }
+}

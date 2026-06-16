@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Accessibility — Puzzle Buddy</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Accessibility</h1>
+      <p class="subtitle">Puzzle Buddy for iOS</p>
+    </header>
+
+    <p>Puzzle Buddy is committed to making the app usable for everyone. We follow <a href="https://www.w3.org/WAI/standards-guidelines/wcag/">WCAG 2.1</a> Level AA as a target for the iOS app and work toward full conformance over time.</p>
+
+    <h2>Conformance status</h2>
+    <p><strong>Partial conformance</strong> with WCAG 2.1 Level AA. Core flows (puzzle list, add puzzle, settings) include VoiceOver support and respect system accessibility settings. Account sign-in is planned for a future release; login screens remain tested behind a feature flag. Some screens — including custom rating controls — are still being improved.</p>
+
+    <h2>Supported features</h2>
+    <ul>
+      <li><strong>VoiceOver</strong> — Labels on puzzle list, add puzzle, settings, and tab navigation; login fields when sign-in is enabled</li>
+      <li><strong>Dynamic Type</strong> — System text sizes via standard iOS fonts</li>
+      <li><strong>Dark Mode</strong> — Adaptive colors for light and dark appearance</li>
+      <li><strong>Reduce Motion</strong> — Static background instead of decorative gradient when Reduce Motion is enabled</li>
+      <li><strong>Sign in with Apple</strong> — Available when account sign-in ships; uses system accessibility affordances</li>
+    </ul>
+
+    <h2>Known limitations</h2>
+    <ul>
+      <li>Star rating and difficulty pickers may not fully describe their values to VoiceOver</li>
+      <li>Decorative Lottie animations may still play when Reduce Motion is on (fix planned)</li>
+      <li>Layout at the largest accessibility text sizes is not yet fully verified on all screens</li>
+      <li>The app is currently available in English only</li>
+    </ul>
+
+    <h2>WCAG 2.1 principles we apply</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Principle</th>
+          <th>What it means in Puzzle Buddy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Perceivable</td>
+          <td>Text alternatives and labels for controls; sufficient color contrast on primary actions; support for larger text</td>
+        </tr>
+        <tr>
+          <td>Operable</td>
+          <td>Touch and VoiceOver navigation; no time limits; reduced motion option for decorative animation</td>
+        </tr>
+        <tr>
+          <td>Understandable</td>
+          <td>Clear field labels, consistent tab navigation, error messages in plain language</td>
+        </tr>
+        <tr>
+          <td>Robust</td>
+          <td>Standard iOS controls and accessibility APIs so assistive technology can interpret the interface</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Testing with assistive technology</h2>
+    <p>On your iPhone or iPad, open <strong>Settings → Accessibility</strong> to enable:</p>
+    <ul>
+      <li><strong>VoiceOver</strong> — Spoken descriptions of on-screen elements</li>
+      <li><strong>Larger Text</strong> — Increase text size under Display &amp; Text Size</li>
+      <li><strong>Reduce Motion</strong> — Limits non-essential animation</li>
+      <li><strong>Voice Control</strong> — Navigate and activate controls by voice</li>
+    </ul>
+
+    <h2>Feedback</h2>
+    <p>If you encounter a barrier when using Puzzle Buddy, please contact us via <a href="support.html">Support</a>. Helpful details include:</p>
+    <ul>
+      <li>Your iOS version</li>
+      <li>Which assistive feature you use (e.g. VoiceOver, Larger Text)</li>
+      <li>What you were trying to do and what happened instead</li>
+    </ul>
+    <p>We review accessibility feedback regularly and prioritize fixes that block core tasks (adding puzzles, viewing your collection, settings).</p>
+
+    <h2>Formal assessment</h2>
+    <p>Last updated: June 2026. This statement will be revised as accessibility improvements ship. Developers: see the <a href="https://github.com/jacobrozell/PuzzleBuddy/blob/main/docs/wcag.md">WCAG conformance guide</a> in the project repository.</p>
+
+    <p class="meta"><a href="index.html">← Puzzle Buddy</a></p>
+  </main>
+</body>
+</html>

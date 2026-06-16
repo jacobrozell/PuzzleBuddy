@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main, dev]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  CI_XCODE_PROJECT: Puzzle Buddy.xcodeproj
+  CI_XCODE_SCHEME: Puzzle Buddy
+  CI_PARALLEL_TESTING: NO
+  SIM_DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: ghcr.io/realm/swiftlint:0.57.1
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: swiftlint lint --reporter github-actions-logging
+      - name: Block Firebase plist secrets
+        run: |
+          tracked=$(git ls-files '**/GoogleService-Info.plist' | grep -v '\.example$' || true)
+          if [ -n "$tracked" ]; then
+            echo "::error::Tracked GoogleService-Info.plist must stay gitignored: $tracked"
+            exit 1
+          fi
+
+  build-and-test:
+    name: Build & Test
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Prepare Firebase config
+        run: cp GoogleService-Info.plist.example GoogleService-Info.plist
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project "${{ env.CI_XCODE_PROJECT }}" \
+            -scheme "${{ env.CI_XCODE_SCHEME }}"
+
+      - name: Build for Testing
+        run: |
+          set -o pipefail
+          xcodebuild build-for-testing \
+            -project "${{ env.CI_XCODE_PROJECT }}" \
+            -scheme "${{ env.CI_XCODE_SCHEME }}" \
+            -destination "${{ env.SIM_DESTINATION }}" \
+            -derivedDataPath DerivedData \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Run Tests
+        run: Scripts/ci/run-tests.sh "${{ env.SIM_DESTINATION }}"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+        if: always()
+        with:
+          name: test-results
+          path: |
+            TestResults.xcresult
+            xcodebuild-test.log
+          if-no-files-found: ignore

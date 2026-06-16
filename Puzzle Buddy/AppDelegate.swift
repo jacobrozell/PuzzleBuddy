@@ -6,14 +6,19 @@
 //
 
 import FirebaseCore
+import FirebaseCrashlytics
 import FirebaseMessaging
 import UIKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool
     {
-        // Setup Firebase
+        guard FirebaseBootstrap.shouldConfigure, !UITestSupport.isRunningUnderTest else {
+            return true
+        }
+
         FirebaseApp.configure()
+        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
 
         // Setup Push
         Messaging.messaging().delegate = self
@@ -44,7 +49,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print(error.localizedDescription)
+        AppLog.shared.warning(.app, eventName: "push_registration_failed", message: error.localizedDescription)
     }
 }
 

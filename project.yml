@@ -1,0 +1,124 @@
+name: Puzzle Buddy
+attributes:
+  ORGANIZATIONNAME: Jacob Rozell
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 11.0.0
+  Lottie:
+    url: https://github.com/airbnb/lottie-ios.git
+    from: 3.0.0
+options:
+  minimumXcodeGenVersion: 2.44.0
+  developmentLanguage: en
+  bundleIdPrefix: com.jacobrozell
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: 7JT2JB89AV
+    CODE_SIGN_STYLE: Automatic
+targets:
+  Puzzle Buddy:
+    type: application
+    platform: iOS
+    sources:
+      - path: Puzzle Buddy
+        excludes:
+          - "**/README.md"
+      - path: GoogleService-Info.plist
+        type: file
+        buildPhase: resources
+    dependencies:
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseMessaging
+      - package: Lottie
+        product: Lottie
+    postBuildScripts:
+      - name: Firebase Crashlytics
+        script: |
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
+        inputFiles:
+          - $(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)/Contents/Resources/DWARF/$(TARGET_NAME)
+          - $(DWARF_DSYM_FOLDER_PATH)/$(DWARF_DSYM_FILE_NAME)/Contents/Info.plist
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist
+          - $(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)
+    settings:
+      base:
+        DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-Buddy
+        PRODUCT_NAME: "$(TARGET_NAME)"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: Puzzle-Buddy-Info.plist
+        INFOPLIST_KEY_NSCameraUsageDescription: Your Puzzle Buddy needs camera access to take a photo of a puzzle
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        CODE_SIGN_ENTITLEMENTS: Puzzle Buddy/Puzzle Buddy.entitlements
+        DEVELOPMENT_ASSET_PATHS: '"Puzzle Buddy/Preview Content"'
+        ENABLE_PREVIEWS: YES
+        CURRENT_PROJECT_VERSION: 4
+        MARKETING_VERSION: 1.0
+    info:
+      path: Puzzle-Buddy-Info.plist
+      properties:
+        FirebaseAppDelegateProxyEnabled: false
+        UILaunchScreen: {}
+    scheme:
+      testTargets:
+        - Puzzle BuddyTests
+        - Puzzle BuddyUITests
+  Puzzle BuddyTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Puzzle BuddyTests
+    dependencies:
+      - target: Puzzle Buddy
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-BuddyTests
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Puzzle Buddy.app/Puzzle Buddy"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0
+  Puzzle BuddyUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Puzzle BuddyUITests
+    dependencies:
+      - target: Puzzle Buddy
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-BuddyUITests
+        TEST_TARGET_NAME: Puzzle Buddy
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0
