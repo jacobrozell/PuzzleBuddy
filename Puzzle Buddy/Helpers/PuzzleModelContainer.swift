@@ -7,8 +7,22 @@ import Foundation
 import SwiftData
 
 enum PuzzleModelContainer {
+    private static func makeInMemory(schema: Schema) -> ModelContainer {
+        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        do {
+            return try ModelContainer(for: schema, configurations: [configuration])
+        } catch {
+            fatalError("Could not create in-memory ModelContainer: \(error)")
+        }
+    }
+
     static func makePersistent() -> ModelContainer {
         let schema = Schema([PuzzleRecord.self])
+
+        if UITestSupport.isRunningUnderTest {
+            return makeInMemory(schema: schema)
+        }
+
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
@@ -19,20 +33,23 @@ enum PuzzleModelContainer {
                 eventName: "model_container_load_failed",
                 message: error.localizedDescription
             )
-
-            if UITestSupport.isRunningUnderTest {
-                return recreatePersistentContainer(schema: schema, configuration: configuration, after: error)
+            do {
+                return try recreatePersistentContainer(schema: schema, configuration: configuration)
+            } catch {
+                AppLog.shared.warning(
+                    .puzzles,
+                    eventName: "model_container_reset_failed",
+                    message: error.localizedDescription
+                )
+                return makeInMemory(schema: schema)
             }
-
-            fatalError("Could not create ModelContainer: \(error)")
         }
     }
 
     private static func recreatePersistentContainer(
         schema: Schema,
-        configuration: ModelConfiguration,
-        after error: Error
-    ) -> ModelContainer {
+        configuration: ModelConfiguration
+    ) throws -> ModelContainer {
         let storeURL = configuration.url
         let relatedURLs = [
             storeURL,
@@ -44,10 +61,6 @@ enum PuzzleModelContainer {
             try? FileManager.default.removeItem(at: url)
         }
 
-        do {
-            return try ModelContainer(for: schema, configurations: [configuration])
-        } catch let recreationError {
-            fatalError("Could not recreate ModelContainer after reset: \(recreationError). Original: \(error)")
-        }
+        return try ModelContainer(for: schema, configurations: [configuration])
     }
 }

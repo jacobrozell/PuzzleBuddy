@@ -47,7 +47,7 @@ class PuzzleStore: ObservableObject {
         self.puzzles = []
 
         if UITestSupport.shouldSeedPuzzles {
-            loadLocalPuzzles()
+            clearAllLocalRecords()
             UITestSupport.seedPuzzlesIfNeeded(into: self)
         }
     }
@@ -210,6 +210,17 @@ class PuzzleStore: ObservableObject {
             )
         } catch {
             state = .idle
+            AppLog.shared.warning(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
+        }
+    }
+
+    private func clearAllLocalRecords() {
+        do {
+            let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
+            records.forEach { modelContext.delete($0) }
+            try modelContext.save()
+            puzzles = []
+        } catch {
             AppLog.shared.warning(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
         }
     }
