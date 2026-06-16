@@ -24,28 +24,48 @@ class PuzzleStore: ObservableObject {
 
     let puzzleUser: PuzzleUser?
     private let modelContext: ModelContext
+    private let injectedRemoteStore: PuzzleRemoteStore?
+    private let forceCloudSync: Bool
     private var path = ""
 
-    init(modelContext: ModelContext, user: PuzzleUser? = nil) {
+    init(
+        modelContext: ModelContext,
+        user: PuzzleUser? = nil,
+        syncPath: String? = nil,
+        remoteStore: PuzzleRemoteStore? = nil,
+        forceCloudSync: Bool = false
+    ) {
         self.modelContext = modelContext
         self.puzzleUser = user
+        self.injectedRemoteStore = remoteStore
+        self.forceCloudSync = forceCloudSync
         if let user {
             self.path = "/users/\(user.email ?? "")/puzzles"
+        } else if let syncPath {
+            self.path = syncPath
         }
         self.puzzles = []
+
+        if UITestSupport.shouldSeedPuzzles {
+            loadLocalPuzzles()
+            UITestSupport.seedPuzzlesIfNeeded(into: self)
+        }
     }
 
     private var usesCloudSync: Bool {
-        puzzleUser != nil && ProductService.isCloudSyncEnabled
+        guard !path.isEmpty, resolveRemoteStore() != nil else { return false }
+        if forceCloudSync { return true }
+        return puzzleUser != nil && ProductService.isCloudSyncEnabled
     }
 
-    private var firestore: Firestore? {
+    private func resolveRemoteStore() -> PuzzleRemoteStore? {
+        if let injectedRemoteStore { return injectedRemoteStore }
         guard FirebaseBootstrap.shouldConfigure else { return nil }
-        return Firestore.firestore()
+        return FirestorePuzzleRemoteStore()
     }
 
     func fetchPuzzles() async {
-        guard usesCloudSync, let firestore else {
+        guard usesCloudSync, let remoteStore = resolveRemoteStore() else {
             loadLocalPuzzles()
             return
         }
@@ -53,10 +73,10 @@ class PuzzleStore: ObservableObject {
         self.state = .fetching
 
         do {
-            let documents = try await firestore.collection(path).getDocuments()
+            let documents = try await remoteStore.fetchDocuments(at: path)
 
-            self.puzzles = documents.documents.compactMap({
-                Puzzle.fromData($0.data())
+            self.puzzles = documents.compactMap({
+                Puzzle.fromData($0)
             })
 
             self.state = .done
@@ -75,27 +95,27 @@ class PuzzleStore: ObservableObject {
     }
 
     func add(puzzle: Puzzle) throws {
-        guard usesCloudSync, let firestore else {
+        guard usesCloudSync, let remoteStore = resolveRemoteStore() else {
             try addLocally(puzzle: puzzle)
             return
         }
 
-        let puzzlesRef = firestore.collection(path)
-        puzzlesRef.document(puzzle.id.uuidString).setData(puzzle.getDataFields()) { error in
-            if let error = error {
-                AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
-            } else {
-                do {
-                    try self.addLocally(puzzle: puzzle)
-                } catch {
-                    AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
-                }
+        Task {
+            do {
+                try await remoteStore.setDocument(
+                    at: path,
+                    id: puzzle.id.uuidString,
+                    data: puzzle.getDataFields()
+                )
+                try self.addLocally(puzzle: puzzle)
                 AppLog.shared.info(
                     .puzzles,
                     eventName: "puzzle_added",
                     message: "Puzzle saved.",
                     metadata: ["puzzle_status": puzzle.status.rawValue]
                 )
+            } catch {
+                AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
             }
         }
     }
@@ -114,12 +134,17 @@ class PuzzleStore: ObservableObject {
     }
 
     func delete(at offsets: IndexSet) {
-        if usesCloudSync, let firestore {
-            let puzzlesRef = firestore.collection(path)
+        let puzzlesToDelete = offsets.map { puzzles[$0] }
 
-            for object in offsets {
-                let puzzle = self.puzzles[object]
-                puzzlesRef.document(puzzle.id.uuidString).delete()
+        if usesCloudSync, let remoteStore = resolveRemoteStore() {
+            Task {
+                for puzzle in puzzlesToDelete {
+                    do {
+                        try await remoteStore.deleteDocument(at: path, id: puzzle.id.uuidString)
+                    } catch {
+                        AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
+                    }
+                }
             }
         }
 
@@ -139,11 +164,14 @@ class PuzzleStore: ObservableObject {
     }
 
     func update(puzzle: Puzzle) {
-        if usesCloudSync, let firestore {
-            firestore.collection(path).document(puzzle.id.uuidString).updateData(puzzle.getDataFields()) { error in
-                if let error = error {
-                    AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
-                } else {
+        if usesCloudSync, let remoteStore = resolveRemoteStore() {
+            Task {
+                do {
+                    try await remoteStore.updateDocument(
+                        at: path,
+                        id: puzzle.id.uuidString,
+                        data: puzzle.getDataFields()
+                    )
                     self.updateLocally(puzzle: puzzle)
                     AppLog.shared.info(
                         .puzzles,
@@ -151,6 +179,8 @@ class PuzzleStore: ObservableObject {
                         message: "Puzzle updated.",
                         metadata: ["puzzle_status": puzzle.status.rawValue]
                     )
+                } catch {
+                    AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
                 }
             }
             return

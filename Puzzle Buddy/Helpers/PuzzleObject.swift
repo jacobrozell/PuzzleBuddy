@@ -79,7 +79,7 @@ class Puzzle: ObservableObject {
 
     enum Status: String, CaseIterable, Identifiable {
         case todo = "To-Do"
-//        case inProgress = "In-Progress"
+        case inProgress = "In-Progress"
         case completed = "Completed"
 
         var id: String {
@@ -95,6 +95,8 @@ class Puzzle: ObservableObject {
     @Published var estimatedTimeSpent: PuzzleTime? = nil
     @Published var completionDate: Date = Date()
     @Published var status: Status = .todo
+    @Published var hasMissingPieces: Bool = false
+    @Published var notes: String? = nil
     @Published var image: UIImage? = nil
 
     internal init(name: String,
@@ -103,7 +105,9 @@ class Puzzle: ObservableObject {
                   difficulty: Difficulty = .none,
                   estimatedTimeSpent: PuzzleTime?,
                   completionDate: Date,
-                  status: Status = .todo
+                  status: Status = .todo,
+                  hasMissingPieces: Bool = false,
+                  notes: String? = nil
     ) {
         self.name = name
         self.pieces = pieces
@@ -112,6 +116,8 @@ class Puzzle: ObservableObject {
         self.estimatedTimeSpent = estimatedTimeSpent
         self.completionDate = completionDate
         self.status = status
+        self.hasMissingPieces = hasMissingPieces
+        self.notes = notes
     }
 
 //    var category
@@ -133,6 +139,8 @@ class Puzzle: ObservableObject {
             "completionDate": completionDate,
             "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
             "status": status.rawValue,
+            "hasMissingPieces": hasMissingPieces,
+            "notes": notes ?? "nil",
             "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
         ]
     }
@@ -217,6 +225,14 @@ extension Puzzle {
             print("KeyError: status not found")
         }
 
+        if let hasMissingPieces = data["hasMissingPieces"] as? Bool {
+            p.hasMissingPieces = hasMissingPieces
+        }
+
+        if let notes = data["notes"] as? String, notes != "nil" {
+            p.notes = notes
+        }
+
         if let imageData = data["imageData"] as? String, let data = Data(base64Encoded: imageData) {
             p.image = UIImage(data: data)
         } else {
@@ -224,5 +240,29 @@ extension Puzzle {
         }
 
         return p
+    }
+}
+
+// MARK: - Accessibility
+
+extension Puzzle.Status {
+    var accessibilityDescription: String {
+        switch self {
+        case .todo:
+            return "To-Do, not started"
+        case .inProgress:
+            return "In progress"
+        case .completed:
+            return "Completed"
+        }
+    }
+}
+
+extension Puzzle.Difficulty {
+    var accessibilityDescription: String {
+        if self == .none {
+            return "No difficulty"
+        }
+        return "Difficulty \(rawValue) out of 5"
     }
 }
