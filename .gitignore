@@ -95,6 +95,9 @@ Puzzle Buddy.xcodeproj/
 # MCP screenshot / scratch output
 tmp/
 
+# Cursor IDE local config
+.cursor/
+
 # Firebase secrets (use GoogleService-Info.plist.example for CI)
 GoogleService-Info.plist
 
