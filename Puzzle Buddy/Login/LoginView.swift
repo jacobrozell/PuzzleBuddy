@@ -46,8 +46,7 @@ private struct LoginWrapper: View {
                         .frame(maxWidth: 280)
                     loginContent
                 }
-                .frame(maxWidth: 720)
-                .frame(maxWidth: .infinity)
+                .readableContentWidth()
             } else {
                 VStack {
                     loginHero
@@ -60,14 +59,14 @@ private struct LoginWrapper: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarTitle(loginStatePicker == 0 ? "Login" : "Create Account")
         .padding(.vertical, DS.Spacing.s3)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .brandBackground()
     }
 
     private var loginHero: some View {
         HStack {
-            PuzzleAnimation(.login, loopMode: .autoReverse)
+            PuzzleHeroView(size: 88)
                 .frame(maxWidth: 100, maxHeight: 100, alignment: .center)
-                .accessibilityHidden(true)
         }
         .frame(maxWidth: .infinity)
     }
@@ -80,6 +79,7 @@ private struct LoginWrapper: View {
             }
             .pickerStyle(.segmented)
             .accessibilityLabel("Account mode")
+            .accessibilityValue(loginStatePicker == 0 ? "Log in" : "Create account")
             .padding(.bottom, DS.Spacing.s3)
 
             switch loginStatePicker {
@@ -145,6 +145,7 @@ private struct LoginStack: View {
                     .frame(maxHeight: 50)
                     .signInWithAppleButtonStyle(colorScheme == .dark ? .whiteOutline : .black)
                     .clipShape(Capsule())
+                    .accessibilityLabel("Sign in with Apple")
 
                     Button {
                         Task {
@@ -163,6 +164,7 @@ private struct LoginStack: View {
                     .buttonStyle(BrandPrimaryButtonStyle())
                     .optionalAccessibilityIdentifier(A11yID.loginSubmitButton)
                     .accessibilityLabel("Log in")
+                    .accessibilityHint(auth.login.isEmpty || auth.password.isEmpty ? "Enter email and password to enable" : "Signs in to your account")
                     .disabled(auth.login.isEmpty || auth.password.isEmpty)
                 }
             }

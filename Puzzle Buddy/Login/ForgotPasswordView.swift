@@ -51,6 +51,7 @@ struct ForgotPasswordView: View {
                     .textContentType(.emailAddress)
                     .disableAutocorrection(true)
                     .padding()
+                    .accessibilityLabel("Email for password reset")
                 
                 Spacer()
                 
@@ -72,9 +73,12 @@ struct ForgotPasswordView: View {
                 .buttonBorderShape(.capsule)
                 .padding(.vertical)
                 .disabled(vm.username.isEmpty)
+                .accessibilityLabel("Send password reset email")
+                .accessibilityHint(vm.username.isEmpty ? "Enter your email to enable" : "Sends a reset link to your email")
                 
             case .verify:
                 Text("A password reset has been sent to \(vm.username)")
+                    .accessibilityLabel("A password reset has been sent to \(vm.username)")
                 
                 Spacer()
                 
@@ -90,10 +94,13 @@ struct ForgotPasswordView: View {
                 .buttonStyle(.bordered)
                 .buttonBorderShape(.capsule)
                 .padding(.vertical)
+                .accessibilityLabel("Close password reset")
 
             case .error(let error):
                 Text("Error")
                     .overlay(Text("\(error.localizedDescription)"))
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Error, \(error.localizedDescription)")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)

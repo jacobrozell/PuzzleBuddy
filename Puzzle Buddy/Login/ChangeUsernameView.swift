@@ -37,6 +37,7 @@ struct ChangeUsernameView: View {
                 .textContentType(.emailAddress)
                 .disableAutocorrection(true)
                 .padding()
+                .accessibilityLabel("New display name")
 
             Spacer()
 
@@ -59,6 +60,8 @@ struct ChangeUsernameView: View {
             .buttonBorderShape(.capsule)
             .padding(.vertical)
             .disabled(vm.username.isEmpty)
+            .accessibilityLabel("Save display name")
+            .accessibilityHint(vm.username.isEmpty ? "Enter a name to enable" : "Updates your display name")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .ignoresSafeArea()

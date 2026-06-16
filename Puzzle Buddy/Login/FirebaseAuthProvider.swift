@@ -7,6 +7,13 @@ public class FirebaseAuthProvider: ObservableObject {
     enum FirebaseAuthError: LocalizedError {
         case invalid(String)
         case failure(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .invalid(let message), .failure(let message):
+                return message
+            }
+        }
     }
 
     @Published var login = ""
@@ -66,6 +73,15 @@ public class FirebaseAuthProvider: ObservableObject {
 
         try Auth.auth().signOut()
         self.user = nil
+    }
+
+    public func sendResetPassword() async throws {
+        guard let email = user?.email, !email.isEmpty else {
+            throw FirebaseAuthError.invalid("No email on file")
+        }
+
+        try await Auth.auth().sendPasswordReset(withEmail: email)
+        AppLog.shared.info(.auth, eventName: "password_reset_sent", message: "Password reset email sent.")
     }
 
     // Adapted from https://auth0.com/docs/api-auth/tutorials/nonce#generate-a-cryptographically-random-nonce

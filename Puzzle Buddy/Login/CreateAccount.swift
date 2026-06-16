@@ -22,6 +22,7 @@ struct CreateAccount: View {
             TextField("Name", text: $name)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal, 16)
+                .accessibilityLabel("Display name")
 
             TextField("Email / Login ID", text: $login)
                 .disableAutocorrection(true)
@@ -29,6 +30,7 @@ struct CreateAccount: View {
                 .keyboardType(.emailAddress)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal, 16)
+                .accessibilityLabel("Email")
 
             SecureInputView("Password", text: $password)
                 .padding(.horizontal, 16)
@@ -54,6 +56,8 @@ struct CreateAccount: View {
             .buttonStyle(.bordered)
             .buttonBorderShape(.capsule)
             .disabled(login.isEmpty || password.isEmpty)
+            .accessibilityLabel("Create account")
+            .accessibilityHint(login.isEmpty || password.isEmpty ? "Enter email and password to enable" : "Creates your Puzzle Buddy account")
         }
         .padding()
     }

@@ -7,147 +7,170 @@
 
 import SwiftUI
 
+enum OnboardingStorage {
+    private static let key = "PuzzleBuddy.OnboardingComplete"
+    private static let legacyKey = "PuzzlePal_Onboarding_Complete"
+
+    static var isComplete: Bool {
+        if UITestSupport.isRunningUnderTest { return true }
+        return UserDefaults.standard.bool(forKey: key)
+            || UserDefaults.standard.bool(forKey: legacyKey)
+    }
+
+    static func markComplete() {
+        UserDefaults.standard.set(true, forKey: key)
+    }
+}
+
 struct OnboardingView: View {
-    enum Tab {
-        case first
-        case second
-        case finish
-
-        mutating func increment() {
-            switch self {
-            case .first:
-                self = .second
-
-            case .second:
-                self = .finish
-
-            case .finish:
-                self = .finish
-            }
-        }
-
-        mutating func decrement() {
-            switch self {
-            case .first:
-                self = .first
-
-            case .second:
-                self = .first
-
-            case .finish:
-                self = .second
-            }
-        }
-    }
-
     @Binding var isPresented: Bool
-    @State private var page: Tab = .first
+    @State private var pageIndex = 0
+
+    private let pages: [OnboardingPage] = [
+        OnboardingPage(
+            title: "Welcome to \(Config.appName)",
+            message: "Your personal jigsaw puzzle catalog — track every box on your shelf.",
+            hero: .brandMark
+        ),
+        OnboardingPage(
+            title: "Build Your Collection",
+            message: "Log piece counts, star ratings, difficulty, and to-do or completed status.",
+            hero: .systemImage("list.bullet.rectangle.fill")
+        ),
+        OnboardingPage(
+            title: "Capture the Moment",
+            message: "Attach photos from your camera or library to remember each finished puzzle.",
+            hero: .systemImage("photo.on.rectangle.angled")
+        ),
+        OnboardingPage(
+            title: "Ready to Puzzle?",
+            message: "Everything stays on your device — no account needed. Add your first puzzle when you're ready.",
+            hero: .systemImage("puzzlepiece.extension.fill")
+        ),
+    ]
 
     var body: some View {
-        VStack {
-            TabView(selection: $page) {
-                switch page {
-                case .first:
-                    VStack {
-                        Text("Welcome to \(Config.appName)!")
-
-                        Spacer()
-
-                        NavigationButtonStack(page: $page, isPresented: .constant(true))
-                    }
-
-                case .second:
-                    VStack {
-                        Text("Track your puzzles!")
-
-                        Spacer()
-
-                        NavigationButtonStack(page: $page, isPresented: .constant(true))
-                    }
-
-                case .finish:
-                    VStack {
-                        Text("Thank you!")
-
-                        Spacer()
-
-                        NavigationButtonStack(page: $page, isPresented: $isPresented)
-                    }
-                    .task {
-                        UserDefaults.standard.setValue(true, forKey: "PuzzlePal_Onboarding_Complete")
-                    }
+        VStack(spacing: 0) {
+            TabView(selection: $pageIndex) {
+                ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
+                    OnboardingPageView(page: page)
+                        .tag(index)
                 }
             }
+            .tabViewStyle(.page(indexDisplayMode: .always))
+            .accessibilityLabel("Onboarding")
+            .accessibilityValue("Page \(pageIndex + 1) of \(pages.count)")
+
+            onboardingFooter
         }
-        .frame(maxHeight: .infinity)
+        .readableBrandBackground()
+    }
+
+    private var onboardingFooter: some View {
+        HStack {
+            if pageIndex > 0 {
+                Button("Back") {
+                    withAnimation { pageIndex -= 1 }
+                }
+                .buttonStyle(BrandSecondaryButtonStyle())
+                .accessibilityIdentifier(A11yID.onboardingBackButton)
+                .accessibilityLabel("Previous onboarding page")
+            } else {
+                Button("Skip") {
+                    completeOnboarding()
+                }
+                .buttonStyle(BrandSecondaryButtonStyle())
+                .accessibilityIdentifier(A11yID.onboardingSkipButton)
+                .accessibilityLabel("Skip onboarding")
+            }
+
+            Spacer()
+
+            Button(pageIndex == pages.count - 1 ? "Get Started" : "Next") {
+                if pageIndex == pages.count - 1 {
+                    completeOnboarding()
+                } else {
+                    withAnimation { pageIndex += 1 }
+                }
+            }
+            .buttonStyle(BrandPrimaryButtonStyle())
+            .accessibilityIdentifier(
+                pageIndex == pages.count - 1 ? A11yID.onboardingFinishButton : A11yID.onboardingNextButton
+            )
+            .accessibilityLabel(pageIndex == pages.count - 1 ? "Get started with Puzzle Buddy" : "Next onboarding page")
+        }
+        .padding(.horizontal, DS.Spacing.s5)
+        .padding(.vertical, DS.Spacing.s4)
+    }
+
+    private func completeOnboarding() {
+        OnboardingStorage.markComplete()
+        isPresented = false
+        AppLog.shared.info(.app, eventName: "onboarding_completed", message: "Onboarding finished.")
     }
 }
 
-fileprivate struct NavigationButtonStack: View {
-    @Binding var page: OnboardingView.Tab
-    @Binding var isPresented: Bool
+private enum OnboardingHeroStyle {
+    case brandMark
+    case systemImage(String)
+}
+
+private struct OnboardingPage: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let hero: OnboardingHeroStyle
+}
+
+private struct OnboardingPageView: View {
+    let page: OnboardingPage
 
     var body: some View {
-        switch page {
-        case .first:
-            HStack {
-                Button {
-                    page = .finish
-                } label: {
-                    Text("Skip")
-                }
+        VStack(spacing: DS.Spacing.s5) {
+            Spacer()
 
-                Spacer()
+            hero
+                .frame(maxWidth: 180, maxHeight: 180)
+                .accessibilityHidden(true)
 
-                Button {
-                    page.increment()
-                } label: {
-                    Text("Next")
-                }
+            VStack(spacing: DS.Spacing.s3) {
+                Text(page.title)
+                    .font(.title2.bold())
+                    .foregroundStyle(Brand.textPrimary)
+                    .multilineTextAlignment(.center)
+
+                Text(page.message)
+                    .font(.body)
+                    .foregroundStyle(Brand.textSecondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .padding(.horizontal)
+            .padding(.horizontal, DS.Spacing.s6)
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isHeader)
 
-        case .second:
-            HStack {
-                Button {
-                    page.decrement()
-                } label: {
-                    Text("Back")
-                }
+            Spacer()
+            Spacer()
+        }
+        .padding(.top, DS.Spacing.s6)
+    }
 
-                Spacer()
-
-                Button {
-                    page.increment()
-                } label: {
-                    Text("Next")
-                }
-            }
-            .padding(.horizontal)
-
-        case .finish:
-            HStack {
-                Button {
-                    page.decrement()
-                } label: {
-                    Text("Back")
-                }
-
-                Spacer()
-
-                Button {
-                    isPresented.toggle()
-                } label: {
-                    Text("Finish")
-                }
-            }
-            .padding(.horizontal)
+    @ViewBuilder
+    private var hero: some View {
+        switch page.hero {
+        case .brandMark:
+            PuzzleHeroView(size: 120)
+        case .systemImage(let name):
+            Image(systemName: name)
+                .font(.system(size: 72))
+                .foregroundStyle(Brand.accent)
+                .symbolRenderingMode(.hierarchical)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Brand.card.opacity(0.6), in: Circle())
         }
     }
 }
 
-struct OnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingView(isPresented: .constant(true))
-    }
+#Preview {
+    OnboardingView(isPresented: .constant(true))
 }
