@@ -234,6 +234,7 @@ Before requesting review:
 - [ ] New UI controls have accessibility labels/identifiers where practical
 - [ ] No secrets or real `GoogleService-Info.plist` in the diff
 - [ ] Documentation updated if you changed setup, architecture, or public behavior
+- [ ] [roadmap.md](docs/roadmap.md) updated if you shipped or reprioritized planned product features (stats, model fields, competitive items)
 
 ### PR description template
 

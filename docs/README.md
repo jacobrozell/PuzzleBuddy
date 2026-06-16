@@ -54,6 +54,11 @@ These Markdown files are for developers (linked from the root [README.md](../REA
 
 | Document | Description |
 |----------|-------------|
+| [agent-build-checklist.md](agent-build-checklist.md) | **Agent build checklist** — phased 0→Ship status, progress log, agent query template |
+| [feature-inventory.md](feature-inventory.md) | **What ships today** — shipped / partial / planned / stub register |
+| [features.md](features.md) | Core features — user flows, fields, persistence, stats (1.0), and observability |
+| [roadmap.md](roadmap.md) | Future releases, cloud sync, **find & organize** (tags, search, filters), **stats & collection insights**, **competitive positioning**, accessibility phases, model extensions |
+| [implementation-playbook.md](implementation-playbook.md) | **Build-all-then-cut** workflow, feature backlog IDs, copy-paste agent queries for implementation sessions |
 | [architecture.md](architecture.md) | App structure, data model, navigation, dependencies |
 | [development.md](development.md) | Local setup, XcodeGen, debugging, troubleshooting |
 | [firebase-setup.md](firebase-setup.md) | Firebase Console, Analytics, Crashlytics; Auth/Firestore for login release |

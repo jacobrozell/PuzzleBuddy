@@ -138,7 +138,7 @@ Sign in with Apple uses `AuthenticationServices` with Firebase `OAuthProvider.cr
 |------|--------|---------|
 | `Rating` | 0, 1, 1.5, … 5 (half stars) | `Double` |
 | `Difficulty` | 0–5 as string enum | `String` |
-| `Status` | `To-Do`, `Completed` | `String` |
+| `Status` | `To-Do`, `In-Progress`, `Completed` | `String` |
 | `PuzzleTime` | hours + minutes | Serialized as `"2hr:30min"` |
 
 Images are JPEG-compressed (0.30 quality).
@@ -162,8 +162,10 @@ Serialization:
 | `difficulty` | `String` | `Difficulty.rawValue` |
 | `estimatedTimeHours` / `estimatedTimeMinutes` | `Int?` | Time spent |
 | `completionDate` | `Date` | |
-| `status` | `String` | `To-Do` or `Completed` |
+| `status` | `String` | `To-Do`, `In-Progress`, or `Completed` |
 | `imageData` | `Data?` | JPEG bytes (`@Attribute(.externalStorage)`) |
+
+**Planned extensions** (not in schema yet): tags, brand, start date, disposition, missing-pieces flag, material, purchase location, progress photos, and additional status values (`Wishlist`, `Abandoned`). See [roadmap.md — Puzzle model extensions](roadmap.md#puzzle-model-extensions).
 
 ### `PuzzleStore`
 
@@ -207,7 +209,7 @@ Operations:
 | `difficulty` | string | `Difficulty.rawValue` |
 | `estimatedTimeSpent` | string | e.g. `"2hr:30min"` or `"nil"` |
 | `completionDate` | timestamp | |
-| `status` | string | `To-Do` or `Completed` |
+| `status` | string | `To-Do`, `In-Progress`, or `Completed` |
 | `imageData` | string | Base64 JPEG or `"nil"` |
 
 Security rules (`firestore.rules`) require `request.auth.token.email == userId` for all access.
@@ -219,6 +221,7 @@ Security rules (`firestore.rules`) require `request.auth.token.email == userId` 
 `PuzzleView` owns a `PuzzleStore` (injected with `ModelContext`) and embeds `PuzzleTabbar`:
 
 - **Puzzles tab** — `PuzzleList` with navigation to `PuzzleDetail` / `PuzzleForm`
+- **Stats tab** — `CollectionStatsView` (collection aggregates from `CollectionStats.compute`)
 - **Settings tab** — `SettingsView` (sign out when login enabled, app info, legal links)
 
 `PuzzleView` calls `fetchPuzzles()` in `.task` when the local array is empty.
@@ -228,12 +231,13 @@ Security rules (`firestore.rules`) require `request.auth.token.email == userId` 
 | View | Responsibility |
 |------|----------------|
 | `RootView` | Routes between local app and login based on `ProductService` |
-| `PuzzleList` | List of `PuzzleCell` rows, add button, swipe delete |
-| `PuzzleCell` | Row summary (name, pieces, rating, thumbnail) |
+| `PuzzleList` | List of `PuzzleCell` rows, status filter, search, sort menu, add button, swipe delete |
+| `CollectionStatsView` | Collection-wide stats hero cards and summary grid |
+| `PuzzleCell` | Row summary (name, pieces, rating stars, thumbnail) |
 | `PuzzleForm` | Create/edit puzzle fields |
-| `PuzzleDetail` | Read-only detail with edit entry point |
+| `PuzzleDetail` | Read-only detail with edit entry point; derived pace metrics via `PuzzleDetailMetrics` |
 | `DifficultyView` | 1–5 difficulty picker |
-| `RatingsView` | Half-star rating control |
+| `RatingsView` | Editable half-star rating control (form); read-only on detail and list rows |
 | `SettingsView` | Account (when login enabled) and legal links |
 | `ImagePicker` | Camera / photo library wrapper |
 
@@ -290,6 +294,8 @@ Declared in `project.yml`; resolved via Swift Package Manager in Xcode.
 - **Crashlytics:** dSYM upload run script in `project.yml` post-build phase
 
 ## Future considerations
+
+See [roadmap.md](roadmap.md) for the full release plan, accessibility phases, and model extensions. Highlights:
 
 - Enable login by flipping `ProductService.isLoginEnabled` (or Remote Config)
 - Migrate local SwiftData puzzles to Firestore on first sign-in (not yet implemented)

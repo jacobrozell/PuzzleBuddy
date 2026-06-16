@@ -53,6 +53,13 @@ Launch with `-enable_login` to test the login flow locally.
 - VoiceOver labels and `A11yID` identifiers for UI testing on key screens
 - GitHub Pages site for App Store legal URLs (privacy, support, accessibility)
 
+### Planned (see [docs/roadmap.md](docs/roadmap.md))
+
+- **Collection stats** — totals for completed puzzles, pieces, hours, backlog, and period summaries (data already captured; UI not built)
+- **Catalog polish** — status tabs, search/filter, ratings on list rows
+- **Richer tracking** — In-Progress status, timer, barcode scan, tags, notes (phased; see roadmap)
+- **Competitive positioning** — feature comparison and build priority vs. [Puzzle Tracker](https://apps.apple.com/us/app/puzzle-tracker/id1561473799)
+
 ## Requirements
 
 | Tool | Version |
@@ -164,6 +171,10 @@ Full details: [docs/architecture.md](docs/architecture.md).
 
 | Document | Description |
 |----------|-------------|
+| [docs/agent-build-checklist.md](docs/agent-build-checklist.md) | Phased build checklist (0→Ship), progress log, agent session template |
+| [docs/feature-inventory.md](docs/feature-inventory.md) | Shipped vs partial vs planned — product reality register |
+| [docs/features.md](docs/features.md) | Core features — user flows, data model, and behavior (verbose) |
+| [docs/roadmap.md](docs/roadmap.md) | Future releases, stats plan, competitive analysis, accessibility phases, model extensions |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist, conventions |
 | [docs/development.md](docs/development.md) | Local setup, XcodeGen, debugging, common issues |
 | [docs/architecture.md](docs/architecture.md) | App layers, data model, navigation, dependencies |
