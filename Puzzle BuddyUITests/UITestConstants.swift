@@ -26,6 +26,7 @@ enum UITestA11yID {
     static let puzzleFormRatingControl = "puzzle_form_rating_control"
     static let puzzleFormSubmitButton = "puzzle_form_submit_button"
     static let collectionStatsScreen = "collection_stats_screen"
+    static let splashScreen = "splash_screen"
     static let collectionStatsCompletedCard = "collection_stats_completed_card"
 
     static let seededPuzzleRowLabelPrefix = "Mountain Sunset"

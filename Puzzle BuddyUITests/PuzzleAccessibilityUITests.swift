@@ -12,8 +12,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     private func waitForMainApp(
         in app: XCUIApplication,
-        timeout: TimeInterval = 15,
-        expectsSeededPuzzles: Bool = false
+        timeout: TimeInterval = 15
     ) -> XCUIElement {
         let indicators: [XCUIElement] = [
             app.buttons[UITestA11yID.addPuzzleButton],
@@ -32,22 +31,23 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
             for element in indicators where element.exists {
-                if expectsSeededPuzzles {
-                    let seededRow = app.buttons.matching(
-                        NSPredicate(format: "label BEGINSWITH %@", UITestA11yID.seededPuzzleRowLabelPrefix)
-                    ).firstMatch
-                    if seededRow.waitForExistence(timeout: 2) {
-                        return seededRow
-                    }
-                } else {
-                    return element
-                }
+                return element
             }
             RunLoop.current.run(until: Date().addingTimeInterval(0.25))
         }
 
         XCTFail("Main puzzle screen not found")
         return app.buttons[UITestA11yID.addPuzzleButton]
+    }
+
+    private func waitForSeededPuzzles(in app: XCUIApplication, timeout: TimeInterval = 30) {
+        XCTAssertTrue(puzzleRow(named: UITestA11yID.seededPuzzleRowLabelPrefix, in: app).waitForExistence(timeout: timeout))
+    }
+
+    private func puzzleRow(named name: String, in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_' AND label BEGINSWITH %@", name)
+        ).firstMatch
     }
 
     private func tapAddPuzzle(in app: XCUIApplication) {
@@ -87,17 +87,9 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     private func tapFirstSeededPuzzle(in app: XCUIApplication) {
-        let rowButton = app.buttons.matching(
-            NSPredicate(format: "label BEGINSWITH %@", UITestA11yID.seededPuzzleRowLabelPrefix)
-        ).firstMatch
+        let rowButton = puzzleRow(named: UITestA11yID.seededPuzzleRowLabelPrefix, in: app)
         if rowButton.waitForExistence(timeout: 5) {
             rowButton.tap()
-            return
-        }
-
-        let rowLink = app.staticTexts[UITestA11yID.seededPuzzleRowLabelPrefix]
-        if rowLink.waitForExistence(timeout: 3) {
-            rowLink.tap()
             return
         }
 
@@ -118,17 +110,20 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testPuzzleListLandscapeLayout() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         app.rotateToLandscape()
-        _ = waitForMainApp(in: app, timeout: 8, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app, timeout: 8)
+        waitForSeededPuzzles(in: app)
 
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.nameRoleValue)
     }
 
     func testPuzzleListAccessibilityAudit() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.nameRoleValue)
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.touchTargets)
@@ -136,7 +131,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testPuzzleListStatusFilter() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         let filter = app.descendants(matching: .any)[UITestA11yID.puzzleListStatusFilter]
         let segmented = app.segmentedControls.firstMatch
@@ -145,30 +141,31 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         let completedButton = segmented.buttons["Completed"]
         XCTAssertTrue(completedButton.waitForExistence(timeout: 3))
 
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Mountain Sunset")).firstMatch.exists)
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Harbor Lights")).firstMatch.exists)
+        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "Harbor Lights", in: app).exists)
 
         completedButton.tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Harbor Lights")).firstMatch.waitForExistence(timeout: 3))
-        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Mountain Sunset")).firstMatch.exists)
+        XCTAssertTrue(puzzleRow(named: "Harbor Lights", in: app).waitForExistence(timeout: 3))
+        XCTAssertFalse(puzzleRow(named: "Mountain Sunset", in: app).exists)
 
         segmented.buttons["To-Do"].tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Mountain Sunset")).firstMatch.waitForExistence(timeout: 3))
-        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Harbor Lights")).firstMatch.exists)
+        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 3))
+        XCTAssertFalse(puzzleRow(named: "Harbor Lights", in: app).exists)
 
         segmented.buttons["In-Progress"].tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Tabletop Sky")).firstMatch.waitForExistence(timeout: 3))
-        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Mountain Sunset")).firstMatch.exists)
+        XCTAssertTrue(puzzleRow(named: "Tabletop Sky", in: app).waitForExistence(timeout: 3))
+        XCTAssertFalse(puzzleRow(named: "Mountain Sunset", in: app).exists)
 
         segmented.buttons["All"].tap()
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Mountain Sunset")).firstMatch.waitForExistence(timeout: 3))
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Harbor Lights")).firstMatch.exists)
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Tabletop Sky")).firstMatch.exists)
+        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 3))
+        XCTAssertTrue(puzzleRow(named: "Harbor Lights", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "Tabletop Sky", in: app).exists)
     }
 
     func testPuzzleListSearch() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         let searchField = app.descendants(matching: .any)[UITestA11yID.puzzleListSearchField]
         if !searchField.waitForExistence(timeout: 3) {
@@ -178,29 +175,29 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         field.tap()
         field.typeText("mountain")
 
-        XCTAssertTrue(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Mountain Sunset")).firstMatch.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Ocean Breeze")).firstMatch.exists)
-        XCTAssertFalse(app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Harbor Lights")).firstMatch.exists)
+        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 5))
+        XCTAssertFalse(puzzleRow(named: "Ocean Breeze", in: app).exists)
+        XCTAssertFalse(puzzleRow(named: "Harbor Lights", in: app).exists)
     }
 
     func testPuzzleListShowsRatingsOnRows() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
-        let fourStarRow = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Mountain Sunset", "Rating 4.0")
-        ).firstMatch
+        let fourStarRow = puzzleRow(named: "Mountain Sunset", in: app)
         XCTAssertTrue(fourStarRow.waitForExistence(timeout: 5))
+        XCTAssertTrue(fourStarRow.label.contains("Rating 4.0"))
 
-        let fiveStarRow = app.buttons.matching(
-            NSPredicate(format: "label CONTAINS %@ AND label CONTAINS %@", "Ocean Breeze", "Rating 5.0")
-        ).firstMatch
+        let fiveStarRow = puzzleRow(named: "Ocean Breeze", in: app)
         XCTAssertTrue(fiveStarRow.exists)
+        XCTAssertTrue(fiveStarRow.label.contains("Rating 5.0"))
     }
 
     func testSettingsAccessibilityAudit() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         app.tabBars.buttons["Settings"].tap()
         XCTAssertTrue(app.staticTexts["Help & Legal"].waitForExistence(timeout: 3))
@@ -210,7 +207,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testCollectionStatsAccessibilityAudit() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         let statsTab = app.tabBars.buttons["Stats"]
         XCTAssertTrue(statsTab.waitForExistence(timeout: 5))
@@ -231,7 +229,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testAddPuzzleFormAccessibilityAudit() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         tapAddPuzzle(in: app)
         waitForPuzzleForm(in: app)
@@ -242,7 +241,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testAddPuzzleFormLandscapeLayout() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         tapAddPuzzle(in: app)
         waitForPuzzleForm(in: app)
@@ -250,18 +250,19 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         app.rotateToLandscape()
         waitForPuzzleForm(in: app, timeout: 8)
 
-        let nameField = app.textFields[UITestA11yID.puzzleFormNameField]
-        let nameByLabel = app.textFields["Puzzle name"]
-        XCTAssertTrue(nameField.exists || nameByLabel.exists)
+        let nameField = app.descendants(matching: .any)[UITestA11yID.puzzleFormNameField]
+        let nameByLabel = app.descendants(matching: .any)["Puzzle name"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 3) || nameByLabel.waitForExistence(timeout: 3))
 
-        let submitButton = app.buttons[UITestA11yID.puzzleFormSubmitButton]
-        let submitByLabel = app.buttons["Save"]
-        XCTAssertTrue(submitButton.exists || submitByLabel.exists)
+        let submitButton = app.descendants(matching: .any)[UITestA11yID.puzzleFormSubmitButton]
+        let submitByLabel = app.buttons["Save puzzle"]
+        XCTAssertTrue(submitButton.waitForExistence(timeout: 3) || submitByLabel.waitForExistence(timeout: 3))
     }
 
     func testPuzzleDetailAccessibilityAudit() throws {
         let app = launchForBypassAuth()
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         tapFirstSeededPuzzle(in: app)
         XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
@@ -274,7 +275,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testPuzzleDetailDynamicTypeAudit() throws {
         let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         tapFirstSeededPuzzle(in: app)
         XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
@@ -284,7 +286,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testSettingsDynamicTypeAudit() throws {
         let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         app.tabBars.buttons["Settings"].tap()
         XCTAssertTrue(app.staticTexts["Help & Legal"].waitForExistence(timeout: 3))
@@ -294,7 +297,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testAddPuzzleFormDynamicTypeAudit() throws {
         let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         tapAddPuzzle(in: app)
         waitForPuzzleForm(in: app, timeout: 15)
@@ -304,7 +308,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
     func testPuzzleListDynamicTypeAudit() throws {
         let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
-        _ = waitForMainApp(in: app, expectsSeededPuzzles: true)
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
 
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
     }

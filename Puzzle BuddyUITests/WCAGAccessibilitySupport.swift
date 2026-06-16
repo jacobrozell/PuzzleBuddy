@@ -43,14 +43,47 @@ extension XCTestCase {
         contentSizeCategory: String? = nil
     ) -> XCUIApplication {
         let app = XCUIApplication()
+        if app.state == .runningForeground {
+            app.terminate()
+        }
         app.launchArguments = UITestLaunch.bypassArguments + extraArguments
-        app.launchEnvironment["UI_TESTING_BYPASS_AUTH"] = "1"
-        app.launchEnvironment["UI_TESTING_SEED_PUZZLES"] = "1"
+        app.launchEnvironment = [
+            "UI_TESTING_BYPASS_AUTH": "1",
+            "UI_TESTING_SEED_PUZZLES": "1"
+        ]
         if let contentSizeCategory {
             app.launchEnvironment["UIPreferredContentSizeCategoryName"] = contentSizeCategory
         }
         app.launch()
         dismissSystemAlertsIfNeeded()
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15))
+        app.activate()
+
+        let addButton = app.descendants(matching: .any)[UITestA11yID.addPuzzleButton]
+        let addByLabel = app.buttons["Add puzzle"]
+        let seededRow = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")
+        ).firstMatch
+
+        let deadline = Date().addingTimeInterval(30)
+        while Date() < deadline {
+            if addButton.exists || addByLabel.exists || seededRow.exists { break }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.25))
+        }
+
+        XCTAssertTrue(
+            addButton.exists || addByLabel.exists || seededRow.exists,
+            "Puzzle list did not load. \(app.debugDescription.prefix(1_000))"
+        )
+
+        let puzzleRows = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")
+        ).firstMatch
+        XCTAssertTrue(
+            puzzleRows.waitForExistence(timeout: 30),
+            "Seeded puzzles did not appear."
+        )
+
         return app
     }
 
