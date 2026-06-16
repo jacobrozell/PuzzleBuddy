@@ -3,7 +3,7 @@
 **Version:** 1.0 (implementation spec)  
 **Persona:** Alex — ~1,000 puzzles in a garage; mixed statuses; some missing pieces  
 **Research:** [user-research-garage-collector.md](user-research-garage-collector.md)  
-**Status:** Phase 1 in progress
+**Status:** Phase 1 implemented (pending device QA sign-off)
 
 ---
 
