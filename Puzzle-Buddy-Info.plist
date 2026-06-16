@@ -20,7 +20,7 @@
 	<string>1</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
-	<key>UILaunchScreen</key>
-	<dict/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 </dict>
 </plist>

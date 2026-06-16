@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LaunchViewController">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="LaunchScene">
+            <objects>
+                <viewController id="LaunchViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="LaunchRootView">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="28" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchBrandingStack">
+                                <rect key="frame" x="32" y="286.5" width="329" height="279"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchCrestHero" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchCrestImage">
+                                        <rect key="frame" x="98.5" y="0.0" width="132" height="132"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="132" id="LaunchCrestWidth"/>
+                                            <constraint firstAttribute="height" constant="132" id="LaunchCrestHeight"/>
+                                        </constraints>
+                                    </imageView>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTextStack">
+                                        <rect key="frame" x="0.0" y="160" width="329" height="119"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Puzzle Buddy" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTitleLabel">
+                                                <rect key="frame" x="77.5" y="0.0" width="174" height="41"/>
+                                                <fontDescription key="fontDescription" type="system" weight="bold" pointSize="34"/>
+                                                <color key="textColor" name="BrandInk"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Log · Track · Complete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTaglineLabel">
+                                                <rect key="frame" x="74.5" y="51" width="180" height="20.5"/>
+                                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
+                                                <color key="textColor" name="BrandAccentLaunch"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your puzzle collection companion" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchSubtitleLabel">
+                                                <rect key="frame" x="57" y="81.5" width="215" height="18"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                <color key="textColor" name="BrandInkSecondary"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="LaunchSafeArea"/>
+                        <color key="backgroundColor" name="LaunchBackground"/>
+                        <constraints>
+                            <constraint firstItem="LaunchBrandingStack" firstAttribute="centerX" secondItem="LaunchSafeArea" secondAttribute="centerX" id="LaunchStackCenterX"/>
+                            <constraint firstItem="LaunchBrandingStack" firstAttribute="centerY" secondItem="LaunchSafeArea" secondAttribute="centerY" constant="-24" id="LaunchStackCenterY"/>
+                            <constraint firstItem="LaunchBrandingStack" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="LaunchSafeArea" secondAttribute="leading" constant="32" id="LaunchStackLeading"/>
+                            <constraint firstItem="LaunchSafeArea" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="LaunchBrandingStack" secondAttribute="trailing" constant="32" id="LaunchStackTrailing"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="LaunchFirstResponder" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchCrestHero" width="132" height="132"/>
+        <namedColor name="BrandAccentLaunch">
+            <color red="0.050" green="0.550" blue="0.620" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="BrandInk">
+            <color red="0.080" green="0.090" blue="0.110" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="BrandInkSecondary">
+            <color red="0.350" green="0.380" blue="0.420" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="LaunchBackground">
+            <color red="0.949" green="0.969" blue="0.980" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>
