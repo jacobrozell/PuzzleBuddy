@@ -58,6 +58,15 @@ struct PuzzleForm: View {
             .brandScreenChrome()
             .navigationTitle("Add Puzzle")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        isPresented = false
+                    }
+                    .accessibilityLabel("Cancel")
+                    .accessibilityHint("Closes the add puzzle form without saving")
+                }
+            }
         }
     }
 }
@@ -165,9 +174,9 @@ struct PuzzleFormInternal: View {
             // Time Spent Section
             Section {
                 HStack {
-                    //                    Text("Hours Spent:")
-                    //
-                    //                    Spacer()
+                    Text("Hours:")
+
+                    Spacer()
 
                     TextField(
                         "Hours Spent",
@@ -181,18 +190,17 @@ struct PuzzleFormInternal: View {
                             }
                         ),
                         format: .number,
-                        prompt: Text("Estimated Hours Spent")
+                        prompt: Text("0")
                     )
                     .keyboardType(.numberPad)
-                    .frame(alignment: .trailing)
-                    .multilineTextAlignment(.leading)
+                    .multilineTextAlignment(.trailing)
                     .accessibilityLabel("Estimated hours spent")
                 }
 
                 HStack {
-                    //                    Text("Minutes Spent:")
-                    //
-                    //                    Spacer()
+                    Text("Minutes:")
+
+                    Spacer()
 
                     TextField(
                         "Minutes Spent",
@@ -206,13 +214,12 @@ struct PuzzleFormInternal: View {
                             }
                         ),
                         format: .number,
-                        prompt: Text("Estimated Minutes Spent")
+                        prompt: Text("0")
                     )
                     .keyboardType(.numberPad)
-                    .multilineTextAlignment(.leading)
+                    .multilineTextAlignment(.trailing)
                     .accessibilityLabel("Estimated minutes spent")
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } header: {
                 Text("How long did it take?")
             }

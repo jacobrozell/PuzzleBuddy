@@ -10,12 +10,17 @@ import SwiftUI
 struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
     @State private var isEditable = false
+    @State private var editFormVm: PuzzleFormViewModel?
     @Binding var puzzle: Puzzle
+
+    private var trimmedNameIsEmpty: Bool {
+        puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     var body: some View {
         VStack {
-            if isEditable {
-                PuzzleFormInternal(formVm: .init(puzzle: puzzle))
+            if isEditable, let editFormVm {
+                PuzzleFormInternal(formVm: editFormVm)
                     .adaptiveScrollChrome()
             } else {
                 ScrollView {
@@ -32,18 +37,28 @@ struct PuzzleDetail: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     guard isEditable else {
-                        isEditable.toggle()
+                        editFormVm = PuzzleFormViewModel(puzzle: puzzle)
+                        isEditable = true
                         return
                     }
 
+                    guard !trimmedNameIsEmpty else { return }
+
                     ps.update(puzzle: puzzle)
-                    isEditable.toggle()
+                    editFormVm = nil
+                    isEditable = false
                 } label: {
                     Text("\(isEditable ? "Save" : "Edit")")
                 }
+                .disabled(isEditable && trimmedNameIsEmpty)
+                .opacity(isEditable && trimmedNameIsEmpty ? 0.6 : 1.0)
                 .optionalAccessibilityIdentifier(A11yID.puzzleDetailEditButton)
                 .accessibilityLabel(isEditable ? "Save puzzle changes" : "Edit puzzle")
-                .accessibilityHint(isEditable ? "Saves your edits and returns to details" : "Opens the puzzle form for editing")
+                .accessibilityHint(
+                    isEditable
+                        ? (trimmedNameIsEmpty ? "Enter a puzzle name to enable saving" : "Saves your edits and returns to details")
+                        : "Opens the puzzle form for editing"
+                )
             }
         }
         .readableBrandScreenChrome()
@@ -144,7 +159,7 @@ struct DetailView: View {
 
                 if let paceLabel = detailMetrics.timeBucketLabel {
                     detailRow(
-                        label: "Puzzle pace",
+                        label: "Finish style",
                         value: paceLabel,
                         accessibilityIdentifier: A11yID.puzzleDetailPaceRow
                     )
@@ -156,7 +171,7 @@ struct DetailView: View {
 
                 if let paceValue = detailMetrics.formattedHoursPer1000Pieces {
                     detailRow(
-                        label: "Pace",
+                        label: "Speed",
                         value: paceValue,
                         accessibilityIdentifier: A11yID.puzzleDetailHoursPer1000Row
                     )

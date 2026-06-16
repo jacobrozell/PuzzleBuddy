@@ -10,6 +10,10 @@ struct ImagePickerView: View {
     @State private var showSheet = false
     @State private var showSheet2 = false
 
+    private var isCameraAvailable: Bool {
+        UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
+
     var body: some View {
         VStack(spacing: DS.Spacing.s3) {
             Group {
@@ -41,15 +45,17 @@ struct ImagePickerView: View {
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormChoosePhotoButton)
                 .accessibilityLabel("Choose photo from library")
 
-                Button {
-                    showSheet2 = true
-                } label: {
-                    Text("Take photo")
-                        .frame(maxWidth: .infinity)
+                if isCameraAvailable {
+                    Button {
+                        showSheet2 = true
+                    } label: {
+                        Text("Take photo")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(BrandPrimaryButtonStyle())
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormTakePhotoButton)
+                    .accessibilityLabel("Take photo with camera")
                 }
-                .buttonStyle(BrandPrimaryButtonStyle())
-                .optionalAccessibilityIdentifier(A11yID.puzzleFormTakePhotoButton)
-                .accessibilityLabel("Take photo with camera")
             }
         }
         .padding()

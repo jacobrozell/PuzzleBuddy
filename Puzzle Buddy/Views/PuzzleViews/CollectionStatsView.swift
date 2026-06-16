@@ -17,10 +17,11 @@ struct CollectionStatsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DS.Spacing.s5) {
-                heroSection
                 if ps.puzzles.isEmpty {
+                    welcomeHeader
                     emptyState
                 } else {
+                    heroSection
                     collectionSection
                     periodSection
                     if stats.biggestCompletedPieces != nil || stats.smallestCompletedPieces != nil {
@@ -156,17 +157,34 @@ struct CollectionStatsView: View {
         }
     }
 
+    private var welcomeHeader: some View {
+        Text("Your collection at a glance")
+            .font(.title2.weight(.semibold))
+            .foregroundStyle(Brand.textPrimary)
+            .accessibilityAddTraits(.isHeader)
+    }
+
     private var emptyState: some View {
-        VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-            Text("Add puzzles to see your collection grow.")
+        VStack(spacing: DS.Spacing.s3) {
+            Image(systemName: "puzzlepiece.extension.fill")
+                .font(.system(size: 44))
+                .foregroundStyle(Brand.accent)
+                .accessibilityHidden(true)
+
+            Text("No puzzles yet")
+                .font(.headline)
+                .foregroundStyle(Brand.textPrimary)
+
+            Text("Add puzzles on the Puzzles tab to see stats here.")
                 .font(.body)
                 .foregroundStyle(Brand.textSecondary)
+                .multilineTextAlignment(.center)
         }
-        .padding(DS.Spacing.s4)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(DS.Spacing.s5)
+        .frame(maxWidth: .infinity)
         .brandCardSurface()
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("No puzzles yet. Add puzzles to see your collection grow.")
+        .accessibilityLabel("No puzzles yet. Add puzzles on the Puzzles tab to see stats here.")
     }
 
     // MARK: - Card builders

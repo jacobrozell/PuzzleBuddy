@@ -11,6 +11,7 @@ import SwiftUI
 struct PuzzleCell: View {
     @ObservedObject var ps: PuzzleStore
     @Binding var puzzle: Puzzle
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
         NavigationLink {
@@ -24,7 +25,19 @@ struct PuzzleCell: View {
         .accessibilityHint("Opens puzzle details. Use the actions rotor to delete.")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction(named: "Delete puzzle") {
-            deletePuzzle()
+            showDeleteConfirmation = true
+        }
+        .confirmationDialog(
+            "Delete \(puzzle.name)?",
+            isPresented: $showDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                deletePuzzle()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This puzzle will be removed from your collection. This cannot be undone.")
         }
         .frame(maxWidth: .infinity)
     }
@@ -113,7 +126,7 @@ private struct PuzzleCellView: View {
 
     private var puzzleTextBlock: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-            Text(puzzle.name.capitalized)
+            Text(puzzle.name)
                 .font(.headline)
                 .foregroundStyle(Brand.textPrimary)
                 .lineLimit(3)

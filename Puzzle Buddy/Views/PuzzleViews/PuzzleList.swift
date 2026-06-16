@@ -20,6 +20,7 @@ struct PuzzleList: View {
     @State private var statusFilter: PuzzleListStatusFilter = .all
     @State private var sortOption: PuzzleListSortOption = .completionDate
     @State private var missingPiecesOnly: Bool = false
+    @State private var pendingDeleteOffsets: IndexSet?
 
     private var displayedPuzzles: [Puzzle] {
         PuzzleListQuery.apply(
@@ -82,6 +83,26 @@ struct PuzzleList: View {
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
         }
+        .confirmationDialog(
+            "Delete puzzle?",
+            isPresented: Binding(
+                get: { pendingDeleteOffsets != nil },
+                set: { if !$0 { pendingDeleteOffsets = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let offsets = pendingDeleteOffsets {
+                    performDelete(at: offsets)
+                }
+                pendingDeleteOffsets = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingDeleteOffsets = nil
+            }
+        } message: {
+            Text("This puzzle will be removed from your collection. This cannot be undone.")
+        }
         .overlay(alignment: .bottomTrailing) {
             Button {
                 present.toggle()
@@ -125,6 +146,18 @@ struct PuzzleList: View {
                     .accessibilityIdentifier(A11yID.puzzleListSearchField)
                     .accessibilityLabel("Search by name")
                     .accessibilityHint("Filters the puzzle list as you type")
+
+                if hasActiveSearch {
+                    Button {
+                        searchText = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Brand.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear search")
+                    .accessibilityHint("Clears the search field")
+                }
             }
             .padding(.horizontal, DS.Spacing.s3)
             .padding(.vertical, DS.Spacing.s2)
@@ -192,16 +225,43 @@ struct PuzzleList: View {
     }
 
     private var emptyStateRow: some View {
-        Text(emptyStateMessage)
-            .font(.subheadline)
-            .foregroundStyle(Brand.textSecondary)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, DS.Spacing.s6)
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
-            .accessibilityIdentifier(A11yID.puzzleListEmptyState)
-            .accessibilityLabel(emptyStateMessage)
+        VStack(spacing: DS.Spacing.s3) {
+            Image(systemName: "puzzlepiece.extension")
+                .font(.system(size: 40))
+                .foregroundStyle(Brand.accent)
+                .accessibilityHidden(true)
+
+            Text(emptyStateMessage)
+                .font(.subheadline)
+                .foregroundStyle(Brand.textSecondary)
+                .multilineTextAlignment(.center)
+
+            if showsAddPuzzleAction {
+                Button("Add puzzle") {
+                    present = true
+                }
+                .buttonStyle(BrandPrimaryButtonStyle())
+                .accessibilityHint("Opens the form to add a new puzzle")
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, DS.Spacing.s6)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .accessibilityIdentifier(A11yID.puzzleListEmptyState)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(emptyStateAccessibilityLabel)
+    }
+
+    private var showsAddPuzzleAction: Bool {
+        ps.puzzles.isEmpty && !hasActiveFilters
+    }
+
+    private var emptyStateAccessibilityLabel: String {
+        if showsAddPuzzleAction {
+            return "\(emptyStateMessage) Add puzzle button available."
+        }
+        return emptyStateMessage
     }
 
     private var emptyStateMessage: String {
@@ -214,6 +274,10 @@ struct PuzzleList: View {
     }
 
     private func deleteDisplayedPuzzles(at offsets: IndexSet) {
+        pendingDeleteOffsets = offsets
+    }
+
+    private func performDelete(at offsets: IndexSet) {
         let storeIndices = offsets.compactMap { offset -> Int? in
             let puzzleID = displayedPuzzles[offset].id
             return ps.puzzles.firstIndex(where: { $0.id == puzzleID })

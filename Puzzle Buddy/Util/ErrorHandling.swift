@@ -30,7 +30,7 @@ class ErrorHandling: ObservableObject {
     private func printError(title: String, message: String, error: Error) {
         #if DEBUG
         print("""
-              AmplifyError:
+              AppError:
                 title: \(title)
                 message: \(message)
                 🥊 DEVELOPER INFO: \(error)
