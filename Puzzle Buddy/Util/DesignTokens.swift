@@ -76,17 +76,20 @@ struct BrandBackground: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background {
-                if reduceMotion {
-                    Brand.background
-                } else {
-                    LinearGradient(
-                        colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .opacity(0.35)
-                    .background(Brand.background)
+                Group {
+                    if reduceMotion {
+                        Brand.background
+                    } else {
+                        LinearGradient(
+                            colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .opacity(0.35)
+                        .background(Brand.background)
+                    }
                 }
+                .ignoresSafeArea(edges: [.horizontal, .bottom])
             }
     }
 }
@@ -123,7 +126,10 @@ struct BrandScreenChrome: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scrollContentBackground(.hidden)
-            .background(Brand.background)
+            .background {
+                Brand.background
+                    .ignoresSafeArea(edges: [.horizontal, .bottom])
+            }
     }
 }
 
@@ -156,26 +162,61 @@ struct OptionalAccessibilityIdentifier: ViewModifier {
 // MARK: - Accessibility identifiers
 
 enum A11yID {
+    static let splashScreen = "splash_screen"
+    static let splashLoading = "splash_loading"
     static let loginEmailField = "login_email_field"
     static let loginPasswordField = "login_password_field"
     static let passwordVisibilityToggle = "password_visibility_toggle"
     static let loginSubmitButton = "login_submit_button"
     static let forgotPasswordButton = "forgot_password_button"
     static let puzzleList = "puzzle_list"
+    static let puzzleListStatusFilter = "puzzle_list_status_filter"
+    static let puzzleListEmptyState = "puzzle_list_empty_state"
+    static let puzzleListSearchField = "puzzle_list_search_field"
+    static let puzzleListSortMenu = "puzzle_list_sort_menu"
+    static let puzzleListResultCount = "puzzle_list_result_count"
+    static let puzzleListMissingPiecesFilter = "puzzle_list_missing_pieces_filter"
     static let addPuzzleButton = "add_puzzle_button"
     static let puzzleDetailSummary = "puzzle_detail_summary"
     static let puzzleDetailStats = "puzzle_detail_stats"
+    static let puzzleDetailPaceRow = "puzzle_detail_pace_row"
+    static let puzzleDetailHoursPer1000Row = "puzzle_detail_hours_per_1000_row"
     static let settingsSignOutButton = "settings_sign_out_button"
     static let settingsTab = "settings_tab"
     static let puzzlesTab = "puzzles_tab"
+    static let statsTab = "stats_tab"
+    static let collectionStatsScreen = "collection_stats_screen"
+    static let collectionStatsCompletedCard = "collection_stats_completed_card"
+    static let collectionStatsPiecesCard = "collection_stats_pieces_card"
+    static let collectionStatsBacklogCard = "collection_stats_backlog_card"
+    static let collectionStatsTotalCard = "collection_stats_total_card"
+    static let collectionStatsInProgressCard = "collection_stats_in_progress_card"
+    static let collectionStatsMissingPiecesCard = "collection_stats_missing_pieces_card"
+    static let collectionStatsRatingCard = "collection_stats_rating_card"
+    static let collectionStatsFavoritePiecesCard = "collection_stats_favorite_pieces_card"
+    static let collectionStatsHoursCard = "collection_stats_hours_card"
+    static let collectionStatsMonthCard = "collection_stats_month_card"
+    static let collectionStatsYearCard = "collection_stats_year_card"
+    static let collectionStatsBiggestCard = "collection_stats_biggest_card"
+    static let collectionStatsSmallestCard = "collection_stats_smallest_card"
     static let puzzleFormNameField = "puzzle_form_name_field"
     static let puzzleFormPiecesField = "puzzle_form_pieces_field"
+    static let puzzleFormRatingControl = "puzzle_form_rating_control"
     static let puzzleFormSubmitButton = "puzzle_form_submit_button"
     static let puzzleFormChoosePhotoButton = "puzzle_form_choose_photo_button"
     static let puzzleFormTakePhotoButton = "puzzle_form_take_photo_button"
+    static let puzzleFormMissingPiecesToggle = "puzzle_form_missing_pieces_toggle"
+    static let puzzleFormNotesField = "puzzle_form_notes_field"
     static let puzzleDetailEditButton = "puzzle_detail_edit_button"
+    static let onboardingSkipButton = "onboarding_skip_button"
+    static let onboardingNextButton = "onboarding_next_button"
+    static let onboardingBackButton = "onboarding_back_button"
+    static let onboardingFinishButton = "onboarding_finish_button"
 
     static func puzzleRow(id: UUID) -> String {
         "puzzle_row_\(id.uuidString)"
     }
+
+    static let puzzleCellRating = "puzzle_cell_rating"
+    static let puzzleCellMissingPieces = "puzzle_cell_missing_pieces"
 }

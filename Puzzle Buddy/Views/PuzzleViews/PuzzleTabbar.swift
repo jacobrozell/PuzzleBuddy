@@ -10,6 +10,7 @@ import SwiftUI
 
 private enum PuzzleBuddyTab: String {
     case puzzles = "Puzzle Buddy"
+    case stats = "Collection Stats"
     case settings = "Settings"
 }
 
@@ -33,6 +34,18 @@ struct PuzzleTabbar: View {
                             Image(systemName: "list.bullet.circle.fill")
                         }
                     }
+                    .accessibilityIdentifier(A11yID.puzzlesTab)
+
+                CollectionStatsView(ps: ps)
+                    .tag(PuzzleBuddyTab.stats)
+                    .tabItem {
+                        Label {
+                            Text("Stats")
+                        } icon: {
+                            Image(systemName: "chart.bar.fill")
+                        }
+                    }
+                    .accessibilityIdentifier(A11yID.statsTab)
 
                 SettingsView()
                     .tag(PuzzleBuddyTab.settings)
@@ -43,12 +56,13 @@ struct PuzzleTabbar: View {
                             Image(systemName: "gearshape")
                         }
                     }
+                    .accessibilityIdentifier(A11yID.settingsTab)
             }
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(tab.rawValue)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .brandBackground()
             .tint(Brand.accent)
-            .readableContentWidth()
         }
     }
 }

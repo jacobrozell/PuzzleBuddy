@@ -4,16 +4,20 @@
 //
 
 import FirebaseAuth
+import FirebaseCore
 import SwiftData
 import SwiftUI
 
 struct RootView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     let modelContext: ModelContext
+    @State private var showOnboarding = !OnboardingStorage.isComplete
 
     var body: some View {
         Group {
-            if ProductService.isLoginEnabled {
+            if showOnboarding {
+                OnboardingView(isPresented: $showOnboarding)
+            } else if ProductService.isLoginEnabled {
                 LoginView(modelContext: modelContext)
             } else {
                 PuzzleView(modelContext: modelContext)
@@ -22,7 +26,9 @@ struct RootView: View {
         .task {
             if UITestSupport.isBypassAuthEnabled {
                 auth.shouldBypassAccount = true
-            } else if ProductService.isLoginEnabled, FirebaseBootstrap.shouldConfigure {
+            } else if ProductService.isLoginEnabled,
+                      FirebaseBootstrap.shouldConfigure,
+                      FirebaseApp.app() != nil {
                 auth.user = Auth.auth().currentUser
             }
             AppLog.shared.info(.app, eventName: "app_bootstrap_ready", message: "Puzzle Buddy launched.")
@@ -30,6 +36,7 @@ struct RootView: View {
             guard ProductService.isLoginEnabled,
                   !auth.shouldBypassAccount,
                   FirebaseBootstrap.shouldConfigure,
+                  FirebaseApp.app() != nil,
                   auth.user != nil
             else { return }
 

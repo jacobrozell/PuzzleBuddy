@@ -36,9 +36,22 @@ enum AdaptiveLayout {
         horizontalSizeClass == .regular
     }
 
-    /// Max content width on iPad / regular width (MiniMuster-style readable column).
+    /// Max content width on iPad / regular width. Uses most of the available width with sensible caps.
+    static func contentMaxWidth(
+        containerWidth: CGFloat,
+        verticalSizeClass: UserInterfaceSizeClass? = nil
+    ) -> CGFloat {
+        let minReadable: CGFloat = 680
+        let maxReadable: CGFloat = verticalSizeClass == .compact ? 1_180 : 1_020
+        let fraction: CGFloat = verticalSizeClass == .compact ? 0.94 : 0.96
+        let target = containerWidth * fraction
+
+        return min(max(target, minReadable), maxReadable, containerWidth)
+    }
+
+    /// Legacy helper for callers without geometry (previews, tests).
     static func contentMaxWidth(horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat? {
-        horizontalSizeClass == .regular ? 720 : nil
+        horizontalSizeClass == .regular ? 1_020 : nil
     }
 
     /// Extra bottom inset so FAB and tab bar stay clear at large Dynamic Type.
@@ -88,6 +101,20 @@ extension View {
         modifier(ReadableContentWidth())
     }
 
+    /// Readable column with full-bleed screen background (apply background after width constraint).
+    func readableBrandScreenChrome() -> some View {
+        readableContentWidth()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .brandScreenChrome()
+    }
+
+    /// Readable column with full-bleed brand background (apply background after width constraint).
+    func readableBrandBackground() -> some View {
+        readableContentWidth()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .brandBackground()
+    }
+
     /// Card surface used across list rows and detail panels.
     func brandCardSurface() -> some View {
         background(Brand.card)
@@ -97,11 +124,17 @@ extension View {
 
 private struct ReadableContentWidth: ViewModifier {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     func body(content: Content) -> some View {
-        if let maxWidth = AdaptiveLayout.contentMaxWidth(horizontalSizeClass: horizontalSizeClass) {
+        if horizontalSizeClass == .regular {
             content
-                .frame(maxWidth: maxWidth)
+                .containerRelativeFrame(.horizontal) { length, _ in
+                    AdaptiveLayout.contentMaxWidth(
+                        containerWidth: length,
+                        verticalSizeClass: verticalSizeClass
+                    )
+                }
                 .frame(maxWidth: .infinity)
         } else {
             content

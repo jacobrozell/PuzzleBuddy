@@ -17,7 +17,7 @@ struct Puzzle_BuddyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(modelContext: sharedModelContainer.mainContext)
+            AppShell(modelContext: sharedModelContainer.mainContext)
                 .withErrorHandling()
                 .environmentObject(authProvider)
         }
@@ -25,12 +25,6 @@ struct Puzzle_BuddyApp: App {
     }
 
     private var sharedModelContainer: ModelContainer = {
-        let schema = Schema([PuzzleRecord.self])
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        do {
-            return try ModelContainer(for: schema, configurations: [configuration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
+        PuzzleModelContainer.makePersistent()
     }()
 }
