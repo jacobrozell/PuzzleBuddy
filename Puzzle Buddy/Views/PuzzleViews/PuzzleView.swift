@@ -18,6 +18,9 @@ struct PuzzleView: View {
 
     var body: some View {
         PuzzleTabbar(ps: ps)
+            .onAppear {
+                UITestSupport.seedPuzzlesIfNeeded(into: ps)
+            }
             .task {
                 UITestSupport.seedPuzzlesIfNeeded(into: ps)
                 if ps.puzzles.isEmpty {

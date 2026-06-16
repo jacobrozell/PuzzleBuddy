@@ -15,24 +15,30 @@ struct AppShell: View {
     let modelContext: ModelContext
 
     var body: some View {
-        ZStack {
-            RootView(modelContext: modelContext)
-
-            if showSplash {
-                SplashView()
-                    .transition(.opacity)
-                    .zIndex(1)
-            }
-        }
-        .task(id: showSplash) {
-            guard showSplash else { return }
-            // Brief branded moment so the loader reads as intentional, not a flash.
-            try? await Task.sleep(for: .milliseconds(AppInfo.isUITesting ? 0 : 1_400))
-            if reduceMotion {
-                showSplash = false
+        Group {
+            if UITestSupport.isRunningUnderTest || UITestSupport.isBypassAuthEnabled {
+                RootView(modelContext: modelContext)
             } else {
-                withAnimation(.easeOut(duration: 0.4)) {
-                    showSplash = false
+                ZStack {
+                    RootView(modelContext: modelContext)
+
+                    if showSplash {
+                        SplashView()
+                            .transition(.opacity)
+                            .zIndex(1)
+                    }
+                }
+                .task(id: showSplash) {
+                    guard showSplash else { return }
+                    // Brief branded moment so the loader reads as intentional, not a flash.
+                    try? await Task.sleep(for: .milliseconds(1_400))
+                    if reduceMotion {
+                        showSplash = false
+                    } else {
+                        withAnimation(.easeOut(duration: 0.4)) {
+                            showSplash = false
+                        }
+                    }
                 }
             }
         }

@@ -18,12 +18,16 @@ enum UITestSupport {
     }
 
     static var isRunningUnderTest: Bool {
-        isBypassAuthEnabled || ProcessInfo.processInfo.arguments.contains(disableFirebaseAnalytics)
+        isBypassAuthEnabled
+            || ProcessInfo.processInfo.arguments.contains(disableFirebaseAnalytics)
+            || ProcessInfo.processInfo.arguments.contains(seedPuzzles)
+            || ProcessInfo.processInfo.environment["UI_TESTING_SEED_PUZZLES"] == "1"
     }
 
     static var shouldSeedPuzzles: Bool {
         ProcessInfo.processInfo.arguments.contains(seedPuzzles)
             || ProcessInfo.processInfo.environment["UI_TESTING_SEED_PUZZLES"] == "1"
+            || ProcessInfo.processInfo.arguments.contains(disableFirebaseAnalytics)
     }
 
     @MainActor
