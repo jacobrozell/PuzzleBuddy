@@ -35,4 +35,12 @@ final class Puzzle_BuddyTests: XCTestCase {
     func testLoginDisabledByDefaultForOnePointZero() {
         XCTAssertFalse(ProductService.isLoginEnabled)
     }
+
+    func testCloudSyncDisabledWhenLoginDisabled() {
+        XCTAssertFalse(ProductService.isCloudSyncEnabled)
+    }
+
+    func testAppInfoDisplayName() {
+        XCTAssertEqual(AppInfo.displayName, "Puzzle Buddy")
+    }
 }

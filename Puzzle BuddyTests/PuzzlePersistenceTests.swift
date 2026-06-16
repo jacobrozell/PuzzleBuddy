@@ -4,6 +4,7 @@
 //
 
 import SwiftData
+import UIKit
 import XCTest
 @testable import Puzzle_Buddy
 
@@ -39,6 +40,33 @@ final class PuzzlePersistenceTests: XCTestCase {
         XCTAssertEqual(restored.estimatedTimeSpent?.toName(), "3hr:15min")
     }
 
+    func testPuzzleRecordPersistsMissingPiecesAndNotes() throws {
+        let puzzle = Puzzle.fixture(name: "Thrift", pieces: 500)
+        puzzle.hasMissingPieces = true
+        puzzle.notes = "Missing corner piece"
+
+        let record = PuzzleRecord(from: puzzle)
+        context.insert(record)
+        try context.save()
+
+        let restored = record.toPuzzle()
+        XCTAssertTrue(restored.hasMissingPieces)
+        XCTAssertEqual(restored.notes, "Missing corner piece")
+    }
+
+    func testPuzzleRecordPersistsInProgressStatus() throws {
+        let puzzle = Puzzle.fixture(name: "Tabletop", pieces: 300)
+        puzzle.status = .inProgress
+
+        let record = PuzzleRecord(from: puzzle)
+        context.insert(record)
+        try context.save()
+
+        let restored = record.toPuzzle()
+        XCTAssertEqual(restored.status, .inProgress)
+        XCTAssertEqual(record.status, Puzzle.Status.inProgress.rawValue)
+    }
+
     func testPuzzleStorePersistsLocally() async throws {
         let store = PuzzleStore(modelContext: context)
         let puzzle = Puzzle.fixture(name: "Sunset", pieces: 500)
@@ -49,5 +77,40 @@ final class PuzzlePersistenceTests: XCTestCase {
 
         XCTAssertEqual(reloaded.puzzles.count, 1)
         XCTAssertEqual(reloaded.puzzles.first?.name, "Sunset")
+    }
+
+    func testPuzzleRecordApplyUpdatesExistingRecord() {
+        let record = PuzzleRecord(from: Puzzle.fixture(name: "Before", pieces: 100))
+        let updated = Puzzle.fixture(name: "After", pieces: 500, rating: .four, difficulty: .two)
+        updated.status = .completed
+
+        record.apply(from: updated)
+
+        XCTAssertEqual(record.name, "After")
+        XCTAssertEqual(record.pieces, 500)
+        XCTAssertEqual(record.rating, Puzzle.Rating.four.rawValue)
+        XCTAssertEqual(record.difficulty, Puzzle.Difficulty.two.rawValue)
+        XCTAssertEqual(record.status, Puzzle.Status.completed.rawValue)
+    }
+
+    func testPuzzleRecordImageRoundTrip() {
+        let puzzle = Puzzle.fixture(name: "Photo", pieces: 250)
+        puzzle.image = makeTestImage()
+
+        let record = PuzzleRecord(from: puzzle)
+        let restored = record.toPuzzle()
+
+        XCTAssertNotNil(record.imageData)
+        XCTAssertNotNil(restored.image)
+        XCTAssertGreaterThan(restored.image?.size.width ?? 0, 0)
+        XCTAssertGreaterThan(restored.image?.size.height ?? 0, 0)
+    }
+
+    private func makeTestImage() -> UIImage {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4))
+        return renderer.image { context in
+            UIColor.systemTeal.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 4, height: 4))
+        }
     }
 }

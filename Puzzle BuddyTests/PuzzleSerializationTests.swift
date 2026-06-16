@@ -39,7 +39,18 @@ final class PuzzleSerializationTests: XCTestCase {
 
     func testStatusLabels() {
         XCTAssertEqual(Puzzle.Status.todo.rawValue, "To-Do")
+        XCTAssertEqual(Puzzle.Status.inProgress.rawValue, "In-Progress")
         XCTAssertEqual(Puzzle.Status.completed.rawValue, "Completed")
+        XCTAssertEqual(Puzzle.Status.allCases.count, 3)
+    }
+
+    func testFromDataInProgressStatus() {
+        let puzzle = Puzzle.fixture(name: "Active", pieces: 500)
+        puzzle.status = .inProgress
+
+        let restored = Puzzle.fromData(puzzle.getDataFields())
+        XCTAssertEqual(restored.status, .inProgress)
+        XCTAssertEqual(restored.getDataFields()["status"] as? String, "In-Progress")
     }
 
     func testFromDataRoundTrip() {
@@ -56,5 +67,59 @@ final class PuzzleSerializationTests: XCTestCase {
         XCTAssertEqual(restored.difficulty, .three)
         XCTAssertEqual(restored.status, .completed)
         XCTAssertEqual(restored.estimatedTimeSpent?.toName(), "3hr:15min")
+    }
+
+    func testPuzzleTimeMissingValuesUseDefaults() {
+        let empty = Puzzle.PuzzleTime()
+        XCTAssertEqual(empty.toName(), "N/A")
+        XCTAssertEqual(empty.toMin(), 1)
+
+        let zeroed = Puzzle.PuzzleTime(hours: 0, minutes: 0)
+        XCTAssertEqual(zeroed.toMin(), 1)
+    }
+
+    func testDifficultyRoundTripInDataFields() {
+        let puzzle = Puzzle.fixture(name: "Hard", pieces: 1000, difficulty: .five)
+        let fields = puzzle.getDataFields()
+        let restored = Puzzle.fromData(fields)
+        XCTAssertEqual(restored.difficulty, .five)
+    }
+
+    func testFromDataPreservesUUID() {
+        let id = UUID()
+        let puzzle = Puzzle.fixture(name: "ID Test", pieces: 100)
+        puzzle.id = id
+
+        let restored = Puzzle.fromData(puzzle.getDataFields())
+        XCTAssertEqual(restored.id, id)
+    }
+
+    func testFromDataFallsBackWhenFieldsMissing() {
+        let restored = Puzzle.fromData([:])
+        XCTAssertEqual(restored.name, "")
+        XCTAssertNil(restored.pieces)
+        XCTAssertEqual(restored.rating, .none)
+        XCTAssertEqual(restored.difficulty, .none)
+        XCTAssertEqual(restored.status, .todo)
+    }
+
+    func testGetDataFieldsIncludesMissingPiecesAndNotes() {
+        let puzzle = Puzzle.fixture(name: "Thrift", pieces: 500)
+        puzzle.hasMissingPieces = true
+        puzzle.notes = "Missing 3 edge pieces"
+
+        let fields = puzzle.getDataFields()
+        XCTAssertEqual(fields["hasMissingPieces"] as? Bool, true)
+        XCTAssertEqual(fields["notes"] as? String, "Missing 3 edge pieces")
+    }
+
+    func testFromDataRestoresMissingPiecesAndNotes() {
+        var fields = Puzzle.fixture(name: "Thrift", pieces: 500).getDataFields()
+        fields["hasMissingPieces"] = true
+        fields["notes"] = "Box damaged"
+
+        let restored = Puzzle.fromData(fields)
+        XCTAssertTrue(restored.hasMissingPieces)
+        XCTAssertEqual(restored.notes, "Box damaged")
     }
 }
