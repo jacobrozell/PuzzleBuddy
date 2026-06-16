@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
+    @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
 
     @State private var updateUsernamePresent = false
@@ -19,20 +20,28 @@ struct ProfileView: View {
             Section {
                 Form {
                     Text("\(user.email!)")
+                        .accessibilityLabel("Account email, \(user.email!)")
 
                     Button {
                         Task {
-                            try await ps.sendResetPassword()
+                            do {
+                                try await auth.sendResetPassword()
+                                eh.handle(title: "Password Reset", message: "A password reset email has been sent.")
+                            } catch {
+                                eh.handle(title: "Password Reset Failed", message: error.localizedDescription)
+                            }
                         }
                     } label: {
                         Text("Change Password")
                     }
+                    .accessibilityLabel("Send password reset email")
 
                     Button {
                         updateUsernamePresent.toggle()
                     } label: {
                         Text("Change Username")
                     }
+                    .accessibilityLabel("Change display name")
                     .sheet(isPresented: $updateUsernamePresent) {
                         NavigationView {
                             ChangeUsernameView()
@@ -42,6 +51,7 @@ struct ProfileView: View {
                 }
             } header: {
                 Text("Welcome \(user.displayName ?? "")!")
+                    .accessibilityAddTraits(.isHeader)
             } footer: {
                 Button {
                     showProfile.toggle()
@@ -50,8 +60,10 @@ struct ProfileView: View {
                         .underline()
                         .padding(.vertical)
                 }
+                .accessibilityLabel("Close profile")
             }
         }
+        // TODO else
     }
 }
 

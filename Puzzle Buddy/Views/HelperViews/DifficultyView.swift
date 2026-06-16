@@ -13,8 +13,10 @@ struct DifficultyView: View {
     var body: some View {
         if puzzle.difficulty == .none {
             Text("N/A")
+                .accessibilityLabel("No difficulty")
         } else {
             Text("Difficulty: \(puzzle.difficulty.rawValue)")
+                .accessibilityLabel(puzzle.difficulty.accessibilityDescription)
         }
     }
 }

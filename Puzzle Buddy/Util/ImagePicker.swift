@@ -27,7 +27,8 @@ struct ImagePickerView: View {
                 }
             }
             .frame(maxWidth: .infinity)
-            .accessibilityHidden(true)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(image.cgImage == nil ? "No puzzle photo selected" : "Puzzle photo selected")
 
             HStack(spacing: DS.Spacing.s2) {
                 Button {

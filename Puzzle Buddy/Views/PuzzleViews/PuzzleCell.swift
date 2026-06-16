@@ -21,9 +21,17 @@ struct PuzzleCell: View {
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id))
         .accessibilityLabel(cellAccessibilityLabel)
-        .accessibilityHint("Opens puzzle details")
+        .accessibilityHint("Opens puzzle details. Use the actions rotor to delete.")
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction(named: "Delete puzzle") {
+            deletePuzzle()
+        }
         .frame(maxWidth: .infinity)
+    }
+
+    private func deletePuzzle() {
+        guard let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) else { return }
+        ps.delete(at: IndexSet(integer: index))
     }
 
     private var cellAccessibilityLabel: String {
@@ -31,8 +39,21 @@ struct PuzzleCell: View {
         if let pieces = puzzle.pieces {
             parts.append("\(pieces) pieces")
         }
-        parts.append(puzzle.status.rawValue)
-        parts.append(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))
+        if puzzle.rating != .none {
+            parts.append(puzzle.rating.accessibilityDescription)
+        }
+        if puzzle.difficulty != .none {
+            parts.append(puzzle.difficulty.accessibilityDescription)
+        }
+        parts.append(puzzle.status.accessibilityDescription)
+        if puzzle.hasMissingPieces {
+            parts.append("Missing pieces")
+        }
+        if puzzle.status == .completed {
+            parts.append("Completed \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
+        } else if puzzle.status == .inProgress {
+            parts.append("Started \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
+        }
         return parts.joined(separator: ", ")
     }
 }
@@ -98,6 +119,26 @@ private struct PuzzleCellView: View {
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
 
+            if puzzle.rating != .none {
+                RatingsView(rating: .constant(puzzle.rating))
+                    .scaleEffect(0.9, anchor: .leading)
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+                    .accessibilityIdentifier(A11yID.puzzleCellRating)
+            }
+
+            HStack(spacing: DS.Spacing.s2) {
+                PuzzleStatusPill(status: puzzle.status)
+
+                if puzzle.hasMissingPieces {
+                    Label("Missing pieces", systemImage: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                        .foregroundStyle(Brand.accentWarm)
+                        .labelStyle(.titleAndIcon)
+                        .accessibilityIdentifier(A11yID.puzzleCellMissingPieces)
+                }
+            }
+
             HStack {
                 if let pieces = puzzle.pieces {
                     Text("\(pieces) pieces")
@@ -107,9 +148,11 @@ private struct PuzzleCellView: View {
 
                 Spacer(minLength: DS.Spacing.s2)
 
-                Text(puzzle.completionDate, style: .date)
-                    .font(.footnote)
-                    .foregroundStyle(Brand.textSecondary)
+                if let trailingDate = PuzzleDateSemantics.listTrailingDate(for: puzzle) {
+                    Text(trailingDate, style: .date)
+                        .font(.footnote)
+                        .foregroundStyle(Brand.textSecondary)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

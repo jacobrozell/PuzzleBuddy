@@ -20,9 +20,11 @@ struct PuzzleDetail: View {
             } else {
                 ScrollView {
                     DetailView(puzzle: $puzzle)
+                        .frame(maxWidth: .infinity)
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .animation(.easeInOut, value: isEditable)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
@@ -41,10 +43,10 @@ struct PuzzleDetail: View {
                 }
                 .optionalAccessibilityIdentifier(A11yID.puzzleDetailEditButton)
                 .accessibilityLabel(isEditable ? "Save puzzle changes" : "Edit puzzle")
+                .accessibilityHint(isEditable ? "Saves your edits and returns to details" : "Opens the puzzle form for editing")
             }
         }
-        .brandScreenChrome()
-        .readableContentWidth()
+        .readableBrandScreenChrome()
     }
 }
 
@@ -65,7 +67,7 @@ struct DetailView: View {
     var body: some View {
         Group {
             if usesWideLayout {
-                HStack(alignment: .top, spacing: DS.Spacing.s4) {
+                HStack(alignment: .top, spacing: DS.Spacing.s5) {
                     summaryPanel
                         .frame(maxWidth: .infinity)
                     statsPanel
@@ -97,7 +99,8 @@ struct DetailView: View {
                     puzzle.rating
                 }, set: { new in
                     puzzle.rating = new
-                }))
+                }), isInteractive: false)
+                .allowsHitTesting(false)
                 .padding(.horizontal)
             }
 
@@ -105,7 +108,7 @@ struct DetailView: View {
                 Text("Difficulty: \(puzzle.difficulty.rawValue)")
                     .font(.subheadline)
                     .foregroundStyle(Brand.textSecondary)
-                    .accessibilityLabel("Difficulty \(puzzle.difficulty.rawValue) out of 5")
+                    .accessibilityLabel(puzzle.difficulty.accessibilityDescription)
             }
         }
         .groupBoxStyle(BrandGroupBoxStyle())
@@ -114,26 +117,49 @@ struct DetailView: View {
         .accessibilityLabel("Puzzle summary")
     }
 
+    private var detailMetrics: PuzzleDetailMetrics {
+        PuzzleDetailMetrics.compute(pieces: puzzle.pieces, time: puzzle.estimatedTimeSpent)
+    }
+
     private var statsPanel: some View {
         GroupBox {
             VStack(spacing: DS.Spacing.s4) {
-                detailRow(label: "Status", value: puzzle.status.rawValue)
+                detailRow(label: "Status", value: puzzle.status.accessibilityDescription)
                 detailRow(
-                    label: "Completed",
+                    label: PuzzleDateSemantics.detailDateLabel(for: puzzle.status),
                     value: puzzle.completionDate.formatted(date: .abbreviated, time: .omitted)
                 )
+                detailRow(
+                    label: "Missing pieces",
+                    value: puzzle.hasMissingPieces ? "Yes" : "No"
+                )
+
+                if let notes = puzzle.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !notes.isEmpty {
+                    detailRow(label: "Notes", value: notes)
+                }
 
                 if let estimatedTimeSpent = puzzle.estimatedTimeSpent {
                     detailRow(label: "Time spent", value: estimatedTimeSpent.toName())
                 }
 
+                if let paceLabel = detailMetrics.timeBucketLabel {
+                    detailRow(
+                        label: "Puzzle pace",
+                        value: paceLabel,
+                        accessibilityIdentifier: A11yID.puzzleDetailPaceRow
+                    )
+                }
+
                 if let pieces = puzzle.pieces {
                     detailRow(label: "Pieces", value: "\(pieces)")
+                }
 
-                    if let estimatedTimeSpent = puzzle.estimatedTimeSpent {
-                        let ppm = pieces / max(estimatedTimeSpent.toMin(), 1)
-                        detailRow(label: "Pieces per minute", value: "\(ppm) pieces per minute")
-                    }
+                if let paceValue = detailMetrics.formattedHoursPer1000Pieces {
+                    detailRow(
+                        label: "Pace",
+                        value: paceValue,
+                        accessibilityIdentifier: A11yID.puzzleDetailHoursPer1000Row
+                    )
                 }
             }
         }
@@ -149,7 +175,7 @@ struct DetailView: View {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 220 : 150, alignment: .center)
+                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 280 : 150, alignment: .center)
                 .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
                 .padding()
                 .accessibilityLabel("Puzzle photo for \(puzzle.name)")
@@ -158,14 +184,18 @@ struct DetailView: View {
                 .resizable()
                 .foregroundStyle(Brand.accent)
                 .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 220 : 150, alignment: .center)
+                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 280 : 150, alignment: .center)
                 .padding()
                 .accessibilityLabel("No puzzle photo")
         }
     }
 
     @ViewBuilder
-    private func detailRow(label: String, value: String) -> some View {
+    private func detailRow(
+        label: String,
+        value: String,
+        accessibilityIdentifier: String? = nil
+    ) -> some View {
         if AdaptiveLayout.usesStackedRowLayout(
             dynamicType: dynamicTypeSize,
             verticalSizeClass: verticalSizeClass
@@ -181,6 +211,7 @@ struct DetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(label), \(value)")
+            .optionalAccessibilityIdentifier(accessibilityIdentifier)
         } else {
             HStack {
                 Text("\(label):")
@@ -194,6 +225,7 @@ struct DetailView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(label), \(value)")
+            .optionalAccessibilityIdentifier(accessibilityIdentifier)
         }
     }
 }

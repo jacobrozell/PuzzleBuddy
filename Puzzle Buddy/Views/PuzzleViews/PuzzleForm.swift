@@ -116,6 +116,7 @@ struct PuzzleFormInternal: View {
                         }
                         .pickerStyle(.menu)
                         .accessibilityLabel("Puzzle status")
+                        .accessibilityValue(formVm.puzzle.status.accessibilityDescription)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -126,28 +127,13 @@ struct PuzzleFormInternal: View {
 
             // Rating Section
             Section {
-                HStack {
+                HStack(alignment: .center) {
                     Text("Rating:")
 
                     Spacer()
 
-                    // TODO: Editable RatingsView
-                    Picker("Rating", selection: $formVm.puzzle.rating) {
-                        ForEach(Puzzle.Rating.allCases) { rating in
-                            Group {
-                                if rating == .none {
-                                    Text("N/A")
-                                } else {
-                                    Text("\(rating.rawValue, specifier: "%.1f")")
-                                }
-                            }
-                            .id(rating)
-                            .tag(rating)
-                        }
-                    }
-                    .pickerStyle(.menu)
-                    .accessibilityLabel("Puzzle rating")
-                    .accessibilityValue(formVm.puzzle.rating == .none ? "No rating" : "\(formVm.puzzle.rating.rawValue, specifier: "%.1f") out of 5")
+                    RatingsView(rating: $formVm.puzzle.rating)
+                        .optionalAccessibilityIdentifier(A11yID.puzzleFormRatingControl)
                 }
 
                 HStack {
@@ -170,7 +156,7 @@ struct PuzzleFormInternal: View {
                     }
                     .pickerStyle(.menu)
                     .accessibilityLabel("Puzzle difficulty")
-                    .accessibilityValue(formVm.puzzle.difficulty == .none ? "No difficulty" : "Difficulty \(formVm.puzzle.difficulty.rawValue) out of 5")
+                    .accessibilityValue(formVm.puzzle.difficulty.accessibilityDescription)
                 }
             } header: {
                 Text("How did you like it?")
@@ -233,13 +219,51 @@ struct PuzzleFormInternal: View {
 
             // Completion Section
             Section {
-                DatePicker("Completion Date", selection: $formVm.puzzle.completionDate)
+                DatePicker(
+                    PuzzleDateSemantics.detailDateLabel(for: formVm.puzzle.status),
+                    selection: $formVm.puzzle.completionDate
+                )
                     .datePickerStyle(.graphical)
-                    .accessibilityLabel("Completion date")
+                    .accessibilityLabel(PuzzleDateSemantics.detailDateLabel(for: formVm.puzzle.status))
             } header: {
-                Text("When did you finish \(!formVm.puzzle.name.isEmpty ? formVm.puzzle.name : "the puzzle")?")
+                Text(PuzzleDateSemantics.formDateSectionTitle(
+                    for: formVm.puzzle.status,
+                    puzzleName: formVm.puzzle.name
+                ))
+            }
+
+            // Condition Section
+            Section {
+                Toggle("Missing pieces", isOn: $formVm.puzzle.hasMissingPieces)
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormMissingPiecesToggle)
+                    .accessibilityLabel("Missing pieces")
+                    .accessibilityValue(formVm.puzzle.hasMissingPieces ? "On" : "Off")
+
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    Text("Notes")
+                        .font(.subheadline)
+                        .foregroundStyle(Brand.textSecondary)
+
+                    TextEditor(text: notesBinding)
+                        .frame(minHeight: 88, maxHeight: 160)
+                        .optionalAccessibilityIdentifier(A11yID.puzzleFormNotesField)
+                        .accessibilityLabel("Notes")
+                        .accessibilityHint("Optional notes about condition, missing pieces, or storage")
+                }
+            } header: {
+                Text("Condition")
             }
         }
+    }
+
+    private var notesBinding: Binding<String> {
+        Binding(
+            get: { formVm.puzzle.notes ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                formVm.puzzle.notes = trimmed.isEmpty ? nil : String(newValue.prefix(2_000))
+            }
+        )
     }
 }
 
@@ -266,6 +290,7 @@ struct SubmitAddButton: View {
         .buttonStyle(BrandPrimaryButtonStyle())
         .optionalAccessibilityIdentifier(A11yID.puzzleFormSubmitButton)
         .accessibilityLabel("Save puzzle")
+        .accessibilityHint(formVm.puzzle.name.isEmpty ? "Enter a puzzle name to enable saving" : "Saves this puzzle to your collection")
         .padding()
         .disabled(formVm.puzzle.name.isEmpty)
         .opacity(formVm.puzzle.name.isEmpty ? 0.6 : 1.0)

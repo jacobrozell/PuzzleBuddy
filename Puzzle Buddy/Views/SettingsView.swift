@@ -26,6 +26,7 @@ struct SettingsView: View {
                         }
                         .optionalAccessibilityIdentifier(A11yID.settingsSignOutButton)
                         .accessibilityLabel("Sign out")
+                        .accessibilityHint("Signs out of your Puzzle Buddy account")
                     }
                 } header: {
                     Text("Account")
@@ -46,7 +47,7 @@ struct SettingsView: View {
                 Text("About")
             }
         }
-        .brandScreenChrome()
+        .readableBrandScreenChrome()
     }
 }
 
