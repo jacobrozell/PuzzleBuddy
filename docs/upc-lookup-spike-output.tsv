@@ -1,0 +1,13 @@
+brand	upc	expected_title	expected_pieces	http_status	api_title	api_brand	parsed_pieces	api_hit	brand_match	pieces_match	title_usable	error
+Ravensburger	4005555005049	Super Mario Bros Challenge	1000	200	Ravensburger Super Mario Challenge Jigsaw Puzzle 1000pc	Ravensburger	1000	1	1	1	1	
+Ravensburger	4005555001256	Forth Bridge at Sunset	1000	200				0	0	0	0	
+Galison	9780735367524	Cherry Blossoms	1000	200	Michael Storrings Cherry Blossoms 1000 Piece Puzzle, by Galison		1000	1	1	1	1	
+Galison	9780735365315	Classic Rewind	1000	200	Galison Classic Rewind 1000 Piece Foil Puzzle, Multicolor (0735365318)		1000	1	1	1	1	
+Galison	9780735364806	Bouquet of Birds	750	200	Chronicle Books Bouquet of Birds 750 Piece Shaped Puzzle		750	1	0	1	1	
+Galison	9780735369542	National Parks of America	1000	200	Galison National Parks of America Puzzle, 1000 Pieces, 27” x 20” – Difficult Jigsaw Puzzle Featuring Stunning and Colorful Artwork by Anne Bentley – Thick, Sturdy Pieces, Challenging Family Activity by Bentley, Anne (0735369542)		1000	1	1	1	1	
+Galison	9780735374911	Apple Pickin'	1000	429				0	0	0	0	"{""code"":""TOO_FAST"",""message"":""Please slow down!""}"
+Buffalo Games	079346123223	Sunday Evening	1000	429				0	0	0	0	"{""code"":""TOO_FAST"",""message"":""Please slow down!""}"
+Buffalo Games	079346143054	Fall Memories	1000	429				0	0	0	0	"{""code"":""TOO_FAST"",""message"":""Please slow down!""}"
+Buffalo Games	079346128389	St. Thomas	1000	429				0	0	0	0	"{""code"":""TOO_FAST"",""message"":""Please slow down!""}"
+Buffalo Games	079346014507	Paradise in the Country	1000	429				0	0	0	0	"{""code"":""TOO_FAST"",""message"":""Please slow down!""}"
+Buffalo Games	079346145058	Galapagos	1000	429				0	0	0	0	"{""code"":""TOO_FAST"",""message"":""Please slow down!""}"
