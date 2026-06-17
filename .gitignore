@@ -104,5 +104,6 @@ GoogleService-Info.plist
 # CI artifacts
 DerivedData/
 TestResults.xcresult
+TestResults-unit.xcresult
 xcodebuild-*.log
 .packages/

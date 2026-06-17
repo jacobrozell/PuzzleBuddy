@@ -10,7 +10,7 @@ import SwiftUI
 
 @main
 struct Puzzle_BuddyApp: App {
-    public static let version = "1.0.0"
+    public static let version = "1.0.0" // Keep in sync with MARKETING_VERSION in project.yml
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authProvider = FirebaseAuthProvider()

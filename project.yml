@@ -79,6 +79,8 @@ targets:
     info:
       path: Puzzle-Buddy-Info.plist
       properties:
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
         FirebaseAppDelegateProxyEnabled: false
         UILaunchStoryboardName: LaunchScreen
     scheme:
@@ -90,6 +92,8 @@ targets:
     platform: iOS
     sources:
       - path: Puzzle BuddyTests
+    resources:
+      - path: Puzzle BuddyTests/Fixtures
     dependencies:
       - target: Puzzle Buddy
     settings:
