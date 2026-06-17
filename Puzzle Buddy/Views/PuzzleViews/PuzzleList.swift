@@ -17,6 +17,8 @@ struct PuzzleList: View {
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
     @State private var showScanner = false
+    @State private var showShoppingMode = false
+    @State private var openPuzzleRequest: OpenPuzzleRequest?
     @State private var quickAddContext: QuickAddContext?
     @State private var isLookingUpBarcode = false
     @State private var searchText: String = ""
@@ -81,6 +83,17 @@ struct PuzzleList: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: DS.Spacing.s3) {
+                    if ProductService.isShoppingModeEnabled {
+                        Button {
+                            showShoppingMode = true
+                        } label: {
+                            Image(systemName: "barcode.viewfinder")
+                        }
+                        .accessibilityLabel("Check duplicate")
+                        .accessibilityHint("Scan a barcode to see if you already own this puzzle")
+                        .optionalAccessibilityIdentifier(A11yID.checkDuplicateButton)
+                        .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
+                    }
                     PuzzleShareMenu(
                         entireCollection: ps.puzzles,
                         visibleList: displayedPuzzles
@@ -103,6 +116,22 @@ struct PuzzleList: View {
                 barcode: context.barcode,
                 metadata: context.metadata
             )
+        }
+        .sheet(isPresented: $showShoppingMode) {
+            ShoppingModeView(
+                ps: ps,
+                onAddPuzzle: { barcode in
+                    beginQuickAdd(barcode: barcode, skipLookup: true)
+                },
+                onOpenPuzzle: { puzzle in
+                    openPuzzleRequest = OpenPuzzleRequest(id: puzzle.id)
+                }
+            )
+        }
+        .navigationDestination(item: $openPuzzleRequest) { request in
+            if let index = ps.puzzles.firstIndex(where: { $0.id == request.id }) {
+                PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
+            }
         }
         .overlay {
             if isLookingUpBarcode {
@@ -340,6 +369,10 @@ struct PuzzleList: View {
             return
         }
 
+        beginQuickAdd(barcode: raw, skipLookup: false)
+    }
+
+    private func beginQuickAdd(barcode raw: String, skipLookup: Bool) {
         guard let normalized = BarcodeNormalizer.normalize(raw) ?? optionalDigits(from: raw) else {
             eh.handle(
                 title: "Invalid barcode",
@@ -348,7 +381,12 @@ struct PuzzleList: View {
             return
         }
 
-        guard ProductService.isBarcodeLookupEnabled else {
+        if let local = BarcodeMetadataCache.metadata(for: normalized) {
+            quickAddContext = QuickAddContext(barcode: normalized, metadata: local)
+            return
+        }
+
+        guard !skipLookup, ProductService.isBarcodeLookupEnabled else {
             quickAddContext = QuickAddContext(barcode: normalized, metadata: nil)
             return
         }
@@ -373,6 +411,10 @@ private struct QuickAddContext: Identifiable {
     let id = UUID()
     let barcode: String
     let metadata: BarcodeProductMetadata?
+}
+
+private struct OpenPuzzleRequest: Identifiable, Hashable {
+    let id: UUID
 }
 
 // MARK: - Previews

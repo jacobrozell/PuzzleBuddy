@@ -11,7 +11,7 @@ struct SettingsView: View {
     @EnvironmentObject var eh: ErrorHandling
 
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
-    @AppStorage(UserPreferences.barcodeLookupStorageKey) private var barcodeLookupEnabled = true
+    @AppStorage(UserPreferences.barcodeLookupStorageKey) private var barcodeLookupEnabled = false
     @State private var showClearCollectionAlert = false
     @State private var showLoadDemoAlert = false
     @State private var showRemoveDemoAlert = false
@@ -113,7 +113,7 @@ struct SettingsView: View {
             .accessibilityHint("Choose light, dark, or match your device setting")
 
             Toggle("Look up product from barcode", isOn: $barcodeLookupEnabled)
-                .accessibilityHint("When on, scans try to fetch puzzle title and brand from a product database. Requires internet.")
+                .accessibilityHint("When on, scans try to fetch puzzle title and brand online. Off by default — uses your saved puzzles first, then optional UPC lookup.")
         } header: {
             Text("Display")
         }

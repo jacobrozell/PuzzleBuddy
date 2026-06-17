@@ -9,14 +9,26 @@ enum BarcodeLookupService {
     private static let endpoint = "https://api.upcitemdb.com/prod/trial/lookup"
     private static var cache: [String: BarcodeProductMetadata] = [:]
 
-    /// Looks up product metadata for a UPC/EAN. Requires network; uses UPCitemdb trial API (100 req/day).
+    /// Looks up product metadata: local on-device cache first, then optional UPCitemdb trial API.
     static func lookup(barcode: String) async -> BarcodeProductMetadata? {
-        guard ProductService.isBarcodeLookupEnabled else { return nil }
         guard let normalized = BarcodeNormalizer.normalize(barcode) else { return nil }
 
         if let cached = cache[normalized] {
             return cached
         }
+
+        if let local = BarcodeMetadataCache.metadata(for: normalized) {
+            cache[normalized] = local
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "barcode_lookup_succeeded",
+                message: "Barcode metadata found in local cache.",
+                metadata: ["has_title": local.title == nil ? "0" : "1"]
+            )
+            return local
+        }
+
+        guard ProductService.isBarcodeLookupEnabled else { return nil }
 
         guard let url = URL(string: "\(endpoint)?upc=\(normalized)") else { return nil }
 

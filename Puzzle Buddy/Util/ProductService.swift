@@ -32,6 +32,11 @@ enum ProductService {
         BarcodeScannerSupport.isAvailable
     }
 
+    /// Shopping duplicate-check mode (offline, no product lookup).
+    static var isShoppingModeEnabled: Bool {
+        true
+    }
+
     /// Online UPC metadata lookup via UPCitemdb trial API (100 requests/day).
     static var isBarcodeLookupEnabled: Bool {
         if ProcessInfo.processInfo.arguments.contains(disableBarcodeLookupArgument) {

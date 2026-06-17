@@ -134,6 +134,7 @@ class PuzzleStore: ObservableObject {
         modelContext.insert(record)
         try modelContext.save()
         puzzles.append(puzzle)
+        BarcodeMetadataCache.store(from: puzzle)
         AppLog.shared.info(
             .puzzles,
             eventName: "puzzle_added",
@@ -211,6 +212,7 @@ class PuzzleStore: ObservableObject {
                 sortBy: [SortDescriptor(\.completionDate, order: .reverse)]
             )
             puzzles = try modelContext.fetch(descriptor).map { $0.toPuzzle() }
+            BarcodeMetadataCache.warmCache(from: puzzles)
             state = .done
             AppLog.shared.info(
                 .puzzles,
@@ -278,6 +280,7 @@ class PuzzleStore: ObservableObject {
         if let index = puzzles.firstIndex(where: { $0.id == puzzle.id }) {
             puzzles[index] = puzzle
         }
+        BarcodeMetadataCache.store(from: puzzle)
         try modelContext.save()
     }
 

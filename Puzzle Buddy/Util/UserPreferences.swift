@@ -50,7 +50,7 @@ enum UserPreferences {
     static var isBarcodeLookupEnabled: Bool {
         get {
             if UserDefaults.standard.object(forKey: barcodeLookupStorageKey) == nil {
-                return true
+                return false
             }
             return UserDefaults.standard.bool(forKey: barcodeLookupStorageKey)
         }

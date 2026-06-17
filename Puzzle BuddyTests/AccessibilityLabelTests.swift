@@ -24,6 +24,8 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleDetailProgress.isEmpty)
         XCTAssertFalse(A11yID.scanBarcodeButton.isEmpty)
         XCTAssertFalse(A11yID.barcodeScannerSheet.isEmpty)
+        XCTAssertFalse(A11yID.checkDuplicateButton.isEmpty)
+        XCTAssertFalse(A11yID.shoppingModeMatchCard.isEmpty)
         XCTAssertFalse(A11yID.puzzleListStatusFilter.isEmpty)
         XCTAssertFalse(A11yID.puzzleListEmptyState.isEmpty)
         XCTAssertFalse(A11yID.puzzleListSortMenu.isEmpty)

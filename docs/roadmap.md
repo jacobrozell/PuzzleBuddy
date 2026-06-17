@@ -129,7 +129,7 @@ Commented fields in `PuzzleObject.swift` indicate planned metadata. None are imp
 | Field | Description | Complexity |
 |-------|-------------|------------|
 | `category` | Puzzle type (landscape, mystery, etc.) | Low — new enum + picker |
-| `barcode` | Scan UPC on puzzle box | Medium — AVFoundation barcode scanner | See [spec-barcode-scanner.md](spec-barcode-scanner.md) |
+| `barcode` | Scan UPC on puzzle box | Medium — VisionKit scanner | See [spec-barcode-scanner.md](spec-barcode-scanner.md); metadata strategy in [barcode-metadata-strategy.md](barcode-metadata-strategy.md) |
 | `timer` | In-app puzzle timer | Medium — background timer, Live Activity |
 | `price` | Purchase price tracking | Low — currency field |
 | `notes` | Free-text notes | Low — text area |
