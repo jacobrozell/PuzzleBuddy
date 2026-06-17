@@ -56,6 +56,21 @@ enum BarcodeMetadataCache {
         )
     }
 
+    /// Persists a successful online lookup so repeat scans avoid network calls.
+    static func storeLookup(_ metadata: BarcodeProductMetadata, for barcode: String) {
+        guard metadata.source == "upcitemdb" else { return }
+        guard metadata.suggestedName != nil || metadata.brand != nil else { return }
+        guard let normalized = BarcodeNormalizer.normalize(barcode) else { return }
+
+        var cache = loadCache()
+        cache[normalized] = CachedBarcodeEntry(
+            title: metadata.title,
+            brand: metadata.brand,
+            pieces: metadata.suggestedPieces
+        )
+        saveCache(cache)
+    }
+
     #if DEBUG
     static func resetForTesting() {
         UserDefaults.standard.removeObject(forKey: storageKey)

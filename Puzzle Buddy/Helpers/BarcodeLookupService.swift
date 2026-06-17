@@ -10,11 +10,13 @@ enum BarcodeLookupService {
     private static var cache: [String: BarcodeProductMetadata] = [:]
 
     /// Looks up product metadata: local on-device cache first, then optional UPCitemdb trial API.
-    static func lookup(barcode: String) async -> BarcodeProductMetadata? {
-        guard let normalized = BarcodeNormalizer.normalize(barcode) else { return nil }
+    static func lookup(barcode: String) async -> BarcodeLookupResult {
+        guard let normalized = BarcodeNormalizer.normalize(barcode) else {
+            return .failure(.notFound)
+        }
 
         if let cached = cache[normalized] {
-            return cached
+            return .success(cached)
         }
 
         if let local = BarcodeMetadataCache.metadata(for: normalized) {
@@ -25,12 +27,20 @@ enum BarcodeLookupService {
                 message: "Barcode metadata found in local cache.",
                 metadata: ["has_title": local.title == nil ? "0" : "1"]
             )
-            return local
+            return .success(local)
         }
 
-        guard ProductService.isBarcodeLookupEnabled else { return nil }
+        guard ProductService.isBarcodeLookupEnabled else {
+            return .empty()
+        }
 
-        guard let url = URL(string: "\(endpoint)?upc=\(normalized)") else { return nil }
+        return await performOnlineLookup(normalized: normalized)
+    }
+
+    private static func performOnlineLookup(normalized: String) async -> BarcodeLookupResult {
+        guard let url = URL(string: "\(endpoint)?upc=\(normalized)") else {
+            return .failure(.unavailable)
+        }
 
         do {
             var request = URLRequest(url: url)
@@ -38,39 +48,37 @@ enum BarcodeLookupService {
             request.setValue("application/json", forHTTPHeaderField: "Accept")
 
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-                AppLog.shared.info(
-                    .puzzles,
-                    eventName: "barcode_lookup_failed",
-                    message: "Barcode lookup returned non-success status."
+            guard let http = response as? HTTPURLResponse else {
+                logLookupFailed(message: "Barcode lookup returned a non-HTTP response.")
+                return .failure(.unavailable)
+            }
+
+            if let notice = BarcodeLookupResult.notice(forHTTPStatusCode: http.statusCode) {
+                logLookupFailed(
+                    message: "Barcode lookup returned status \(http.statusCode).",
+                    metadata: ["status_code": "\(http.statusCode)"]
                 )
-                return nil
+                return .failure(notice)
             }
 
             let metadata = try parseResponse(data)
             if let metadata {
                 cache[normalized] = metadata
+                BarcodeMetadataCache.storeLookup(metadata, for: normalized)
                 AppLog.shared.info(
                     .puzzles,
                     eventName: "barcode_lookup_succeeded",
                     message: "Barcode metadata found.",
                     metadata: ["has_title": metadata.title == nil ? "0" : "1"]
                 )
-            } else {
-                AppLog.shared.info(
-                    .puzzles,
-                    eventName: "barcode_lookup_failed",
-                    message: "No items in barcode lookup response."
-                )
+                return .success(metadata)
             }
-            return metadata
+
+            logLookupFailed(message: "No items in barcode lookup response.")
+            return .failure(.notFound)
         } catch {
-            AppLog.shared.info(
-                .puzzles,
-                eventName: "barcode_lookup_failed",
-                message: error.localizedDescription
-            )
-            return nil
+            logLookupFailed(message: error.localizedDescription)
+            return .failure(.unavailable)
         }
     }
 
@@ -86,6 +94,15 @@ enum BarcodeLookupService {
         let imageURL = images?.first.flatMap(URL.init(string:))
 
         return BarcodeProductMetadata.fromLookup(title: title, brand: brand, imageURL: imageURL)
+    }
+
+    private static func logLookupFailed(message: String, metadata: [String: String] = [:]) {
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "barcode_lookup_failed",
+            message: message,
+            metadata: metadata
+        )
     }
 
     #if DEBUG

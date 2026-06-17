@@ -11,7 +11,7 @@ enum ProductService {
     private static let enableLoginArgument = "-enable_login"
     private static let disableBarcodeLookupArgument = "-disable_barcode_lookup"
 
-    /// Account sign-in and Firestore sync. Off for 1.0 local-only release.
+    /// Account sign-in and Firestore sync. Off for 1.0.0 local-only release.
     static var isLoginEnabled: Bool {
         if ProcessInfo.processInfo.arguments.contains(enableLoginArgument) {
             return true
@@ -34,6 +34,11 @@ enum ProductService {
 
     /// Shopping duplicate-check mode (offline, no product lookup).
     static var isShoppingModeEnabled: Bool {
+        true
+    }
+
+    /// Import puzzles from an IPDb CSV export (Settings → Collection).
+    static var isIPDbImportEnabled: Bool {
         true
     }
 

@@ -34,4 +34,33 @@ final class BarcodeMetadataCacheTests: XCTestCase {
 
         XCTAssertNotNil(BarcodeMetadataCache.metadata(for: "123456789012"))
     }
+
+    func testStoreLookupPersistsOnlineResults() {
+        let metadata = BarcodeProductMetadata.fromLookup(
+            title: "Ravensburger Paris 1000 Piece Puzzle",
+            brand: "Ravensburger",
+            imageURL: nil
+        )
+
+        BarcodeMetadataCache.storeLookup(metadata, for: "4005556162980")
+
+        let cached = BarcodeMetadataCache.metadata(for: "4005556162980")
+        XCTAssertEqual(cached?.suggestedName, "Ravensburger Paris 1000 Piece Puzzle")
+        XCTAssertEqual(cached?.brand, "Ravensburger")
+        XCTAssertEqual(cached?.source, "local_cache")
+    }
+
+    func testStoreLookupIgnoresEmptyMetadata() {
+        let metadata = BarcodeProductMetadata(
+            title: nil,
+            brand: nil,
+            pieces: nil,
+            imageURL: nil,
+            source: "upcitemdb"
+        )
+
+        BarcodeMetadataCache.storeLookup(metadata, for: "4005556162980")
+
+        XCTAssertNil(BarcodeMetadataCache.metadata(for: "4005556162980"))
+    }
 }
