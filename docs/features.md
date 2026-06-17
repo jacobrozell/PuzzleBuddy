@@ -1,6 +1,6 @@
 # Core Features
 
-This document describes every major feature in Puzzle Buddy as shipped in version **1.0**, including user-facing behavior, data semantics, and how each feature is implemented. For architecture and file layout, see [architecture.md](architecture.md).
+This document describes every major feature in Puzzle Buddy as shipped in version **1.0.0**, including user-facing behavior, data semantics, and how each feature is implemented. For architecture and file layout, see [architecture.md](architecture.md).
 
 ## Product overview
 
@@ -12,7 +12,7 @@ Puzzle Buddy is a native iOS app for jigsaw puzzle enthusiasts who want a person
 
 Planned product work — **find & organize** (search, status tabs, custom tags, pick-next), collection stats polish, richer metadata, and competitive positioning vs. [Puzzle Tracker](https://apps.apple.com/us/app/puzzle-tracker/id1561473799) — is documented in [roadmap.md](roadmap.md#find--organize--user-driven-product-strategy).
 
-Version 1.0 is **local-first**: all puzzle data lives on device via SwiftData. No account is required to use the app. Firebase provides Analytics and Crashlytics only; authentication and cloud sync are implemented but disabled behind a feature flag (see [roadmap.md](roadmap.md)).
+Version 1.0.0 is **local-first**: all puzzle data lives on device via SwiftData. No account is required to use the app. Firebase provides Analytics and Crashlytics only; authentication and cloud sync are implemented but disabled behind a feature flag (see [roadmap.md](roadmap.md)).
 
 ---
 
@@ -40,7 +40,7 @@ First-time users see a four-page onboarding carousel (`OnboardingView`) stored i
 | 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — track every box on your shelf |
 | 2 | Build Your Collection | Log piece counts, ratings, difficulty, and status |
 | 3 | Capture the Moment | Attach photos from camera or library |
-| 4 | Ready to Puzzle? | Everything stays on device — no account needed |
+| 4 | Ready to Puzzle? | Barcode scan, shopping duplicate-check, IPDb CSV import — everything stays on device |
 
 Navigation:
 
@@ -72,10 +72,12 @@ The catalog is the heart of the app. Users browse, add, edit, and delete puzzles
 
 | Capability | Details |
 |------------|---------|
-| Display | One row per puzzle via `PuzzleCell`; sorted by completion date (newest first) |
+| Display | One row per puzzle via `PuzzleCell`; brand (`source`) under name when set |
 | Status filter | Segmented control: **To-Do**, **In-Progress**, **Completed**, **All** (default All) |
-| Search | Text field below status filter; matches puzzle name (case-insensitive) |
-| Sort | Toolbar menu: date (newest first), rating, difficulty, piece count (descending) |
+| Search | Matches puzzle name, brand (`source`), and barcode (case-insensitive; barcode digit-normalized) |
+| Filters | Piece count (≤500, 1000, 1500+), **Needs photo**, missing pieces |
+| Sort | Toolbar menu: date, name, rating, difficulty, piece count; default **Name** on To-Do / In-Progress tabs |
+| Barcode | Toolbar scan button opens scanner; optional **Shopping mode** for offline duplicate check |
 | Add | Floating `+` button opens `PuzzleForm` as a sheet |
 | Delete | Swipe-to-delete removes puzzles from SwiftData (and Firestore when cloud sync is on) |
 | Refresh | Pull-to-refresh re-fetches from SwiftData or Firestore |
@@ -268,8 +270,14 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 | Section | 1.0 content | When login enabled |
 |---------|-------------|-------------------|
 | Account | Hidden | Sign Out button |
+| Barcode & cataloging | Online lookup toggle (optional UPC enrichment) | Same |
+| Collection | **Import from IPDb CSV**, **Export collection** (JSON or IPDb-compatible CSV), demo data, delete all | Same |
 | Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) | Same |
 | About | App version from `Puzzle_BuddyApp.version` | Same |
+
+**IPDb import:** Settings → Import from IPDb CSV opens the system file picker. Parsed rows merge into SwiftData with duplicate detection. Summary sheet reminds users to re-add box photos (CSV has no images). See [ipdb-csv-import.md](ipdb-csv-import.md).
+
+**Collection export:** Settings → Export collection shares a JSON backup or IPDb-compatible CSV via the system share sheet. See [collection-export.md](collection-export.md).
 
 Legal URLs point to `https://jacobrozell.github.io/PuzzleBuddy/`.
 
@@ -347,17 +355,19 @@ Defined in `DesignTokens.swift`:
 
 ### Animations
 
-- **Lottie** — onboarding and login hero animations (`LottieView.swift`)
+- **Brand background** — animated gradient on splash and screens; flat color when Reduce Motion is on
 - **Reduce Motion** — brand background and splash pulse respect `@Environment(\.accessibilityReduceMotion)`
 
 ### Adaptive layout
 
 `AdaptiveLayout.swift` provides helpers for:
 
-- Wide auth layout (iPad / landscape)
-- Wide detail layout (side-by-side panels)
-- Stacked row layout (large Dynamic Type)
+- Wide auth layout (iPad / iPhone landscape)
+- Wide detail layout (side-by-side panels on iPad and iPhone landscape)
+- Readable content width on iPad and iPhone landscape
+- Stacked row layout (large Dynamic Type only — not landscape)
 - Tab bar clearance for floating add button
+- Filter controls wrap in landscape via `ViewThatFits`
 
 ---
 
@@ -369,18 +379,16 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Area | Coverage |
 |------|----------|
-| VoiceOver labels | Login fields, puzzle form fields, list rows, detail rows, settings |
-| Accessibility identifiers | `A11yID` on login, list, form, settings, onboarding, splash |
-| Reduce Motion | Brand background, splash pulse |
-| Dynamic Type | Adaptive row layouts in `PuzzleCell` and detail rows |
-| Automated audits | `XCUIAccessibilityAudit` on login, list, settings, form |
+| VoiceOver labels | Login fields, puzzle form, list rows, detail rows, settings, shopping mode, quick-add, import summary |
+| Accessibility identifiers | `A11yID` on login, list, form, settings, onboarding, splash, barcode, shopping, import/export |
+| Reduce Motion | Brand background, splash pulse, shopping flash |
+| Dynamic Type | Adaptive row layouts in `PuzzleCell` and detail rows; scroll chrome at accessibility sizes and in landscape |
+| Automated audits | `XCUIAccessibilityAudit` on list, settings, stats, form, detail; landscape layout tests |
 
 ### Known gaps (planned)
 
-- Star rating and difficulty controls need richer VoiceOver value announcements on the form
-- Image picker needs explicit accessibility labels (partially done)
+- Image picker needs explicit accessibility labels for chosen photos (partially done)
 - Localization not yet implemented
-- Lottie animations need Reduce Motion static fallbacks
 
 ---
 

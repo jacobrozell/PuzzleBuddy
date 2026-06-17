@@ -2,7 +2,7 @@
 
 Track your jigsaw puzzle collection — piece counts, ratings, difficulty, photos, and completion dates. Built with SwiftUI and SwiftData, with Firebase Analytics and Crashlytics.
 
-Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.0** stores data locally on device; account sign-in and cloud sync ship in a later release behind a feature flag. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
+Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.0.0** is the inaugural release — local-first on device; account sign-in and cloud sync ship in **1.1.0+** behind a feature flag. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
 
 ## Table of contents
 
@@ -49,7 +49,7 @@ Launch with `-enable_login` to test the login flow locally.
 ### Polish
 
 - Design tokens (`Brand`, `DS`) for colors, spacing, and button styles
-- Lottie animations with Reduce Motion fallbacks on the brand background
+- Brand gradient background with Reduce Motion support on splash and screens
 - VoiceOver labels and `A11yID` identifiers for UI testing on key screens
 - GitHub Pages site for App Store legal URLs (privacy, support, accessibility)
 

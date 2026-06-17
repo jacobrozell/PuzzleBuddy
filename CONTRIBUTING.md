@@ -153,7 +153,6 @@ Puzzle documents use `puzzle.id.uuidString` as the document ID. Fields are defin
 Swift packages are declared in `project.yml`:
 
 - **Firebase** (Analytics, Auth, Crashlytics, Firestore, Messaging)
-- **Lottie**
 - **SwiftData** (system framework — on-device persistence)
 
 Add new packages in `project.yml`, then `xcodegen generate` and commit only `project.yml` and `Package.resolved` (if tracked).

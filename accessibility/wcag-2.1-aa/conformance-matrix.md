@@ -21,7 +21,7 @@ Per-criterion status for Puzzle Buddy iOS app. Updated as audits complete.
 
 | Criterion | Name | Level | Status | Notes |
 |-----------|------|-------|--------|-------|
-| 1.1.1 | Non-text Content | A | Partial | Puzzle images lack user-authored alt text; decorative Lottie |
+| 1.1.1 | Non-text Content | A | Partial | Puzzle images lack user-authored alt text |
 | 1.2.1 | Audio-only and Video-only | A | N/A | No prerecorded A/V |
 | 1.2.2 | Captions (Prerecorded) | A | N/A | |
 | 1.2.3 | Audio Description or Media Alternative | A | N/A | |
@@ -50,7 +50,7 @@ Per-criterion status for Puzzle Buddy iOS app. Updated as audits complete.
 | 2.1.2 | No Keyboard Trap | A | Supports | Standard navigation |
 | 2.1.4 | Character Key Shortcuts | A | N/A | No single-key shortcuts |
 | 2.2.1 | Timing Adjustable | A | Supports | No session timeouts |
-| 2.2.2 | Pause, Stop, Hide | A | Partial | Gradient respects Reduce Motion; Lottie does not |
+| 2.2.2 | Pause, Stop, Hide | A | Supports | Brand gradient and splash respect Reduce Motion |
 | 2.3.1 | Three Flashes or Below | A | Supports | No flashing content |
 | 2.4.1 | Bypass Blocks | A | Supports | Tab bar |
 | 2.4.2 | Page Titled | A | Supports | Navigation titles |

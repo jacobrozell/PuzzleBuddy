@@ -111,14 +111,14 @@ For new top-level folders or targets, edit `project.yml` and run `xcodegen gener
 
 ### Adding Swift packages
 
-Edit `project.yml` under `packages:` and target `dependencies:`, then regenerate. Example existing entries: Firebase, Lottie.
+Edit `project.yml` under `packages:` and target `dependencies:`, then regenerate. Example existing entry: Firebase.
 
 ### Changing bundle ID or version
 
 In `project.yml` under the `Puzzle Buddy` target `settings`:
 
 - `PRODUCT_BUNDLE_IDENTIFIER`
-- `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION`
+- `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` (also `Puzzle_BuddyApp.version` in `Puzzle_BuddyApp.swift` — keep in sync; inaugural release **1.0.0**)
 
 Also update Firebase iOS app registration if bundle ID changes.
 

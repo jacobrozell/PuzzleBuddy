@@ -279,7 +279,6 @@ FCM is integrated in `AppDelegate` but puzzle sync does not depend on push. Toke
 | Package | Products used | Purpose |
 |---------|---------------|---------|
 | firebase-ios-sdk 11+ | Analytics, Auth, Crashlytics, Firestore, Messaging | Telemetry, future auth/sync, push |
-| lottie-ios 3+ | Lottie | Animations |
 | SwiftData | (system) | On-device puzzle persistence |
 
 Declared in `project.yml`; resolved via Swift Package Manager in Xcode.

@@ -95,7 +95,6 @@ Apply via `.optionalAccessibilityIdentifier(A11yID.*)` or `.accessibilityIdentif
 ## Phase 3 — Polish
 
 - [ ] Localization (`Localizable.strings`) — all user-facing strings
-- [ ] Reduced-motion for Lottie animations (pause or static frame)
 - [ ] Manual evidence folder under `accessibility/wcag-2.1-aa/` (screenshots, VoiceOver recordings)
 - [ ] Voice Control label audit
 - [ ] Bold Text and Increase Contrast system setting checks

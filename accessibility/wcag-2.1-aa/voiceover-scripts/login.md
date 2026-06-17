@@ -19,7 +19,7 @@ Expected reading order when swiping right through `LoginView`.
 | 5 | Sign in with Apple | System: "Sign in with Apple, button" | — |
 | 6 | Create account link | Visible link text | — |
 
-Order may vary if decorative Lottie or header content is inserted above the form — decorative elements should be skipped or marked as such.
+Order may vary if decorative header content is inserted above the form — decorative elements should be skipped or marked as such.
 
 ## Rotor checks
 

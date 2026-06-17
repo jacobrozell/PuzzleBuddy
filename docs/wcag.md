@@ -41,8 +41,8 @@ Information and UI components must be presentable to users in ways they can perc
 | Content | Implementation | Status |
 |---------|----------------|--------|
 | Puzzle photos | Decorative when supplementary; puzzle `name` is primary identifier in list/detail | Partial — image picker lacks explicit alt text field |
-| Star rating icons | Value should be exposed to VoiceOver as rating, not only star glyphs | Planned — Phase 2 |
-| Lottie animations | Decorative; non-essential to task completion | Partial — Reduce Motion not yet applied to Lottie |
+| Star rating icons | `Puzzle.Rating.accessibilityDescription` on list rows and `RatingsView` | Supports |
+| Brand gradient background | Static when Reduce Motion is on (`BrandBackground`) | Supports |
 | Tab bar icons | System tab items include text labels ("Puzzles", "Settings") | Supports |
 | App icon | Platform-managed | Supports |
 
@@ -55,7 +55,6 @@ Information and UI components must be presentable to users in ways they can perc
 | Content | Status |
 |---------|--------|
 | Video/audio | Not used |
-| Lottie (animated JSON) | Decorative only; treated under 2.3.1 / 2.2.2 |
 
 #### 1.3 Adaptable (1.3.1, 1.3.2, 1.3.3)
 
@@ -125,14 +124,13 @@ On iOS, **VoiceOver** and **Voice Control** are the primary alternatives to touc
 | Feature | Status |
 |---------|--------|
 | Session timeout | None enforced in-app |
-| Lottie loops | Partial — no pause when Reduce Motion on (Phase 3) |
-| Brand gradient | Supports — static when Reduce Motion enabled |
+| Brand gradient / splash pulse | Supports — static or reduced when Reduce Motion enabled |
 
 #### 2.3 Seizures (2.3.1)
 
 **Requirement:** No content flashes more than three times per second.
 
-Lottie and gradient animations are low-frequency. No strobe content.
+Brand gradient and splash animations are low-frequency. No strobe content.
 
 **Status:** Supports
 
@@ -290,8 +288,7 @@ Puzzle Buddy is tested with these system features:
 ### Reduce Motion testing procedure
 
 1. Enable Reduce Motion
-2. Launch app → login background should be **static** (`BrandBackground`)
-3. Navigate to screens with Lottie → document if animation still plays (known gap)
+2. Launch app → brand background and splash pulse should respect Reduce Motion
 
 ---
 
@@ -341,8 +338,7 @@ Web pages use semantic HTML, viewport meta, and CSS variables for light/dark. Th
 | Gap | WCAG impact | Phase | Remediation |
 |-----|-------------|-------|-------------|
 | Puzzle form fields missing explicit VO labels | 1.3.1, 4.1.2 | 2 | Add `accessibilityLabel` / `accessibilityValue` |
-| Star rating not announced as value | 4.1.2 | 2 | `accessibilityValue: "4 of 5 stars"` |
-| Lottie ignores Reduce Motion | 2.2.2, 2.3.1 | 3 | Check `accessibilityReduceMotion`; show static frame |
+| Star rating not announced as value | 4.1.2 | 2 | Done — `accessibilityDescription` on ratings |
 | No localization | 3.1.1 (future locales) | 3 | `Localizable.strings` |
 | Dynamic Type clipping on cells | 1.4.4 | 2 | Layout audit at AX5 |
 | Full contrast audit incomplete | 1.4.3, 1.4.11 | 2 | Accessibility Inspector measurements |
@@ -378,7 +374,7 @@ RatingsView(rating: $puzzle.rating)
 if reduceMotion {
     Image("staticIllustration")
 } else {
-    LottieView(name: "celebration")
+    AnimatedBrandBackground()
 }
 ```
 

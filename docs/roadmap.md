@@ -1,13 +1,15 @@
 # Roadmap and Future Plans
 
-This document consolidates planned work across releases, accessibility phases, and model extensions. It is the single reference for what ships in **1.0** versus what comes next.
+This document consolidates planned work across releases, accessibility phases, and model extensions. It is the single reference for what ships in **1.0.0** (inaugural App Store release) versus what comes next.
 
 For current shipped behavior, see [features.md](features.md). For architecture of implemented-but-disabled features, see [architecture.md](architecture.md).
+
+**Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `Puzzle_BuddyApp.version`). Follow-on releases use semver: **1.1.0** (login + sync), **1.2.0**, etc.
 
 ### Contents
 
 - [Release strategy](#release-strategy)
-- [Release 1.x — Authentication and cloud sync](#release-1x--authentication-and-cloud-sync)
+- [Release 1.1.0+ — Authentication and cloud sync](#release-110--authentication-and-cloud-sync)
 - [Puzzle model extensions](#puzzle-model-extensions)
 - [Find & organize — user-driven product strategy](#find--organize--user-driven-product-strategy)
 - [Stats and collection insights](#stats-and-collection-insights)
@@ -25,8 +27,8 @@ Puzzle Buddy uses **staged releases** controlled by `ProductService` feature fla
 
 | Release | Theme | Feature flags | Data store |
 |---------|-------|---------------|------------|
-| **1.0** (current) | Local-first catalog | `isLoginEnabled = false` | SwiftData on device |
-| **1.x** (next) | Accounts and cloud sync | `isLoginEnabled = true` | SwiftData + Firestore |
+| **1.0.0** (inaugural) | Local-first catalog | `isLoginEnabled = false` | SwiftData on device |
+| **1.1.0+** | Accounts and cloud sync | `isLoginEnabled = true` | SwiftData + Firestore |
 | **Future** | Richer puzzle metadata, stats, competitive polish | TBD | Possibly Cloud Storage for images |
 
 ### Enabling features during development
@@ -40,9 +42,9 @@ When login ships to production, the flag will likely move to **Firebase Remote C
 
 ---
 
-## Release 1.x — Authentication and cloud sync
+## Release 1.1.0+ — Authentication and cloud sync
 
-Login and Firestore sync are **fully implemented** but disabled for 1.0. This section describes what exists and what remains before shipping.
+Login and Firestore sync are **fully implemented** but disabled for 1.0.0. This section describes what exists and what remains before shipping.
 
 ### Ready for release
 
@@ -179,7 +181,7 @@ Adding new statuses requires:
 | Item | Location | Description |
 |------|----------|-------------|
 | Editable `RatingsView` on form | `PuzzleForm.swift` | ✅ Visual half-star control with tap + VoiceOver adjustable |
-| Search / filter | `PuzzleList` | `searchText` state exists but is not wired to filtering yet |
+| Search / filter | `PuzzleList` | ✅ Search by name, brand (`source`), barcode; piece-count, needs-photo, and missing-pieces filters |
 | Profile tab or settings section | Navigation | Surface `ProfileView` for account management |
 
 ---
@@ -219,7 +221,7 @@ Ship in this order so each layer makes the next feel valuable:
 
 | Step | Features | Rationale |
 |------|----------|-----------|
-| 1 | **Search by name** + **status tabs** (All / To-Do / Completed) + **sort** (name, rating, pieces, date) | Table stakes; status is already stored but not used to segment the list |
+| 1 | **Search by name, brand, barcode** + **status tabs** (All / To-Do / Completed) + **sort** (name, rating, pieces, date) | Table stakes; status is already stored but not used to segment the list |
 | 2 | **Custom tags** — add/edit chips, filter by tag on list, tag counts in stats | Flexible organization; enables pick-next filters |
 | 3 | **"Pick my next puzzle"** — random from backlog, optional tag and piece-count filters | Delight + practical; low cost once filters exist |
 
@@ -349,7 +351,7 @@ Reference: [Puzzle Tracker on the App Store](https://apps.apple.com/us/app/puzzl
 | Status folders | Wishlist, Waiting list, Completed, Abandoned, In progress | To-Do, Completed | Add In-Progress + Wishlist; consider Abandoned |
 | Built-in timer (pause) | ✅ Core feature | ❌ Manual time only | High-value match; pairs with In-Progress |
 | Progress by photos + days | ✅ | ❌ | Start date + optional progress photos |
-| Filtering and sorting | ✅ Extensive (tags, brand, year, type, purchase location, missing pieces, exclude mode) | ❌ `searchText` unwired | Wire search; add filters incrementally |
+| Filtering and sorting | ✅ Extensive (tags, brand, year, type, purchase location, missing pieces, exclude mode) | ✅ Search, status tabs, sort, piece-count / photo / missing-pieces filters | Custom tags next; then incremental filters |
 | Barcode scan | ✅ Bulk + manual entry | ❌ Planned (`barcode` field) | Duplicate-check while shopping — top user request in reviews |
 | Tags | ✅ (e.g. seasonal) | ❌ | Tags or categories for Wheel-style picks |
 | Custom fields / folders | ✅ Premium | ❌ | Lower priority unless power users ask |
@@ -488,7 +490,6 @@ Tracked in detail in [../accessibility/accessibility_todo.md](../accessibility/a
 | Work item | Description |
 |-----------|-------------|
 | Localization | `Localizable.strings` for all user-facing copy |
-| Lottie Reduce Motion | Static frame or pause when Reduce Motion is on |
 | Manual evidence | Screenshots and VoiceOver recordings under `accessibility/wcag-2.1-aa/` |
 | Voice Control audit | Label compatibility with Voice Control |
 | Bold Text / Increase Contrast | System setting compatibility checks |
