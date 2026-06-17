@@ -16,6 +16,9 @@ struct PuzzleList: View {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
+    @State private var showScanner = false
+    @State private var quickAddContext: QuickAddContext?
+    @State private var isLookingUpBarcode = false
     @State private var searchText: String = ""
     @State private var statusFilter: PuzzleListStatusFilter = .all
     @State private var sortOption: PuzzleListSortOption = .completionDate
@@ -89,6 +92,31 @@ struct PuzzleList: View {
         .sheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
         }
+        .sheet(isPresented: $showScanner) {
+            BarcodeScannerSheet { barcode in
+                handleScannedBarcode(barcode)
+            }
+        }
+        .sheet(item: $quickAddContext) { context in
+            QuickAddPuzzleSheet(
+                ps: ps,
+                barcode: context.barcode,
+                metadata: context.metadata
+            )
+        }
+        .overlay {
+            if isLookingUpBarcode {
+                ZStack {
+                    Color.black.opacity(0.25).ignoresSafeArea()
+                    ProgressView("Looking up product…")
+                        .padding()
+                        .background(Brand.card)
+                        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+                }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Looking up product information for barcode")
+            }
+        }
         .confirmationDialog(
             "Delete puzzle?",
             isPresented: Binding(
@@ -110,17 +138,29 @@ struct PuzzleList: View {
             Text("This puzzle will be removed from your collection. This cannot be undone.")
         }
         .overlay(alignment: .bottomTrailing) {
-            Button {
-                present.toggle()
+            Menu {
+                Button {
+                    present = true
+                } label: {
+                    Label("Add puzzle", systemImage: "plus")
+                }
+                .accessibilityIdentifier(A11yID.addPuzzleButton)
+
+                Button {
+                    showScanner = true
+                } label: {
+                    Label("Scan barcode", systemImage: "barcode.viewfinder")
+                }
+                .optionalAccessibilityIdentifier(A11yID.scanBarcodeButton)
+                .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
             } label: {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 52))
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(Brand.textOnAccent, Brand.accent)
             }
-            .accessibilityIdentifier(A11yID.addPuzzleButton)
             .accessibilityLabel("Add puzzle")
-            .accessibilityHint("Opens the form to add a new puzzle")
+            .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
             .padding(DS.Spacing.s4)
             .padding(.bottom, max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2))
         }
@@ -290,6 +330,49 @@ struct PuzzleList: View {
         }
         ps.delete(at: IndexSet(storeIndices))
     }
+
+    private func handleScannedBarcode(_ raw: String) {
+        if let duplicate = ps.findPuzzle(matchingBarcode: raw) {
+            eh.handle(
+                title: "Already in your collection",
+                message: "\(duplicate.name) already uses this barcode."
+            )
+            return
+        }
+
+        guard let normalized = BarcodeNormalizer.normalize(raw) ?? optionalDigits(from: raw) else {
+            eh.handle(
+                title: "Invalid barcode",
+                message: "Enter a barcode with 6 to 14 digits, or try scanning again."
+            )
+            return
+        }
+
+        guard ProductService.isBarcodeLookupEnabled else {
+            quickAddContext = QuickAddContext(barcode: normalized, metadata: nil)
+            return
+        }
+
+        isLookingUpBarcode = true
+        Task {
+            let metadata = await BarcodeLookupService.lookup(barcode: normalized)
+            await MainActor.run {
+                isLookingUpBarcode = false
+                quickAddContext = QuickAddContext(barcode: normalized, metadata: metadata)
+            }
+        }
+    }
+
+    private func optionalDigits(from raw: String) -> String? {
+        let digits = raw.filter(\.isNumber)
+        return digits.isEmpty ? nil : digits
+    }
+}
+
+private struct QuickAddContext: Identifiable {
+    let id = UUID()
+    let barcode: String
+    let metadata: BarcodeProductMetadata?
 }
 
 // MARK: - Previews

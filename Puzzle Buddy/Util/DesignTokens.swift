@@ -222,8 +222,12 @@ enum A11yID {
         "puzzle_row_\(id.uuidString)"
     }
 
-    static let puzzleShareButton = "puzzle_share_button"
+    static let scanBarcodeButton = "scan_barcode_button"
+    static let barcodeScannerSheet = "barcode_scanner_sheet"
+    static let barcodeScannerCancel = "barcode_scanner_cancel"
+    static let quickAddPuzzleSheet = "quick_add_puzzle_sheet"
     static let puzzleCellRating = "puzzle_cell_rating"
     static let puzzleCellMissingPieces = "puzzle_cell_missing_pieces"
     static let puzzleCellProgress = "puzzle_cell_progress"
+    static let puzzleShareButton = "puzzle_share_button"
 }
