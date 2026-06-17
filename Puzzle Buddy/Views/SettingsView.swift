@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @ObservedObject var ps: PuzzleStore
@@ -15,6 +16,11 @@ struct SettingsView: View {
     @State private var showClearCollectionAlert = false
     @State private var showLoadDemoAlert = false
     @State private var showRemoveDemoAlert = false
+    @State private var showIPDbImporter = false
+    @State private var isImporting = false
+    @State private var importSummary: PuzzleImportSummary?
+    @State private var exportShareURL: URL?
+    @State private var isExporting = false
 
     private var appearance: Binding<AppearancePreference> {
         Binding(
@@ -32,6 +38,7 @@ struct SettingsView: View {
             }
 
             appearanceSection
+            collectionSection
             dataSection
             supportSection
             aboutSection
@@ -60,6 +67,36 @@ struct SettingsView: View {
             }
         } message: {
             Text("This permanently removes every puzzle on this device. This cannot be undone.")
+        }
+        .fileImporter(
+            isPresented: $showIPDbImporter,
+            allowedContentTypes: [.commaSeparatedText, .plainText, .utf8PlainText, .data],
+            allowsMultipleSelection: false
+        ) { result in
+            importIPDbCSV(result)
+        }
+        .sheet(item: $importSummary) { summary in
+            IPDbImportSummarySheet(summary: summary)
+        }
+        .sheet(isPresented: Binding(
+            get: { exportShareURL != nil },
+            set: { if !$0 { exportShareURL = nil } }
+        )) {
+            if let exportShareURL {
+                FileShareSheet(url: exportShareURL)
+            }
+        }
+        .overlay {
+            if isImporting || isExporting {
+                ZStack {
+                    Color.black.opacity(0.2).ignoresSafeArea()
+                    ProgressView(isImporting ? "Importing puzzles…" : "Preparing export…")
+                        .padding()
+                        .background(Brand.card)
+                        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+                }
+                .accessibilityLabel(isImporting ? "Importing puzzles from CSV file" : "Preparing collection export")
+            }
         }
     }
 
@@ -111,16 +148,60 @@ struct SettingsView: View {
                 }
             }
             .accessibilityHint("Choose light, dark, or match your device setting")
-
-            Toggle("Look up product from barcode", isOn: $barcodeLookupEnabled)
-                .accessibilityHint("When on, scans try to fetch puzzle title and brand online. Off by default — uses your saved puzzles first, then optional UPC lookup.")
         } header: {
             Text("Display")
         }
     }
 
+    private var collectionSection: some View {
+        Section {
+            Toggle("Look up product from barcode", isOn: $barcodeLookupEnabled)
+                .accessibilityHint("When on, tries online product lookup after checking puzzles you have already saved on this device.")
+
+            Label {
+                Text("Duplicate checks always work offline.")
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.textSecondary)
+            } icon: {
+                Image(systemName: "wifi.slash")
+                    .foregroundStyle(Brand.accent)
+            }
+        } header: {
+            Text("Barcode & cataloging")
+        } footer: {
+            Text("Shopping duplicate check never needs the internet. When lookup is on, barcode digits are sent to a third-party product database (UPCitemdb) after checking puzzles saved on this device. See Privacy Policy.")
+        }
+    }
+
     private var dataSection: some View {
         Section {
+            Button {
+                showIPDbImporter = true
+            } label: {
+                Label("Import from IPDb CSV", systemImage: "square.and.arrow.down")
+            }
+            .disabled(isImporting || isExporting)
+            .optionalAccessibilityIdentifier(A11yID.settingsImportIPDbButton)
+            .accessibilityHint("Opens the Files app to choose an IPDb CSV export")
+
+            Menu {
+                Button {
+                    exportCollection(format: .json)
+                } label: {
+                    Label("Export as JSON", systemImage: "doc.text")
+                }
+                Button {
+                    exportCollection(format: .csv)
+                } label: {
+                    Label("Export as IPDb CSV", systemImage: "tablecells")
+                }
+            } label: {
+                Label("Export collection", systemImage: "square.and.arrow.up")
+            }
+            .disabled(ps.puzzles.isEmpty || isImporting || isExporting)
+            .optionalAccessibilityIdentifier(A11yID.settingsExportCollectionButton)
+            .accessibilityHint("Creates a backup file you can save or share")
+
             Button {
                 showLoadDemoAlert = true
             } label: {
@@ -151,7 +232,13 @@ struct SettingsView: View {
         } header: {
             Text("Collection")
         } footer: {
-            Text("Demo data is useful for screenshots and trying features. Remove demo data only deletes sample puzzles. Delete all removes every puzzle on this device.")
+            VStack(alignment: .leading, spacing: DS.Spacing.s3) {
+                Text("Import: export a CSV from IPDb (Listview toolbar → Export → CSV). Export: back up as JSON or IPDb-compatible CSV for re-import here or in IPDb. Images are not included in CSV files.")
+                LegalDisclaimerFooter(
+                    text: LegalCopy.ipdbImportDisclaimer,
+                    style: .form
+                )
+            }
         }
     }
 
@@ -167,6 +254,11 @@ struct SettingsView: View {
             Link("Accessibility", destination: AppLinks.accessibility)
         } header: {
             Text("Help & Legal")
+        } footer: {
+            LegalDisclaimerFooter(
+                text: LegalCopy.brandTrademarkDisclaimer,
+                accessibilityIdentifier: A11yID.settingsBrandDisclaimerFooter
+            )
         }
     }
 
@@ -203,6 +295,72 @@ struct SettingsView: View {
             try ps.clearAllPuzzles()
         } catch {
             eh.handle(title: "Could not delete puzzles", message: error.localizedDescription)
+        }
+    }
+
+    private func exportCollection(format: PuzzleCollectionExportFormat) {
+        guard !ps.puzzles.isEmpty else {
+            eh.handle(title: "Nothing to export", message: PuzzleCollectionExportError.emptyCollection.localizedDescription)
+            return
+        }
+
+        isExporting = true
+        Task {
+            defer { Task { @MainActor in isExporting = false } }
+            do {
+                let url = try PuzzleCollectionExporter.writeTemporaryFile(from: ps.puzzles, format: format)
+                await MainActor.run {
+                    exportShareURL = url
+                }
+                AppLog.shared.info(
+                    .ui,
+                    eventName: "settings_collection_exported",
+                    message: "User exported collection.",
+                    metadata: ["format": format.rawValue, "puzzle_count": "\(ps.puzzles.count)"]
+                )
+            } catch {
+                await MainActor.run {
+                    eh.handle(title: "Export failed", message: error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    private func importIPDbCSV(_ result: Result<[URL], Error>) {
+        switch result {
+        case .failure(let error):
+            eh.handle(title: "Could not open file", message: error.localizedDescription)
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            isImporting = true
+            Task {
+                defer { Task { @MainActor in isImporting = false } }
+                do {
+                    let summary = try await importIPDbCSV(at: url)
+                    await MainActor.run {
+                        importSummary = summary
+                    }
+                } catch {
+                    await MainActor.run {
+                        eh.handle(title: "Import failed", message: error.localizedDescription)
+                    }
+                }
+            }
+        }
+    }
+
+    private func importIPDbCSV(at url: URL) async throws -> PuzzleImportSummary {
+        let accessed = url.startAccessingSecurityScopedResource()
+        defer {
+            if accessed {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let data = try Data(contentsOf: url)
+        let puzzles = try IPDbCSVImporter.puzzles(from: data)
+        return try await MainActor.run {
+            try ps.importPuzzles(puzzles)
         }
     }
 }

@@ -99,6 +99,72 @@ final class PuzzleStoreTests: XCTestCase {
         XCTAssertEqual(store.puzzles.count, 1)
     }
 
+    func testImportSkipsDuplicateBarcodes() throws {
+        let store = PuzzleStore(modelContext: context)
+        let first = Puzzle.fixture(name: "Existing", pieces: 500)
+        first.barcode = "012345678905"
+        try store.add(puzzle: first)
+
+        let incoming = Puzzle.fixture(name: "Duplicate Import", pieces: 1000)
+        incoming.barcode = "012345678905"
+
+        let summary = try store.importPuzzles([incoming])
+        XCTAssertEqual(summary.imported, 0)
+        XCTAssertEqual(summary.skippedDuplicates, 1)
+        XCTAssertEqual(store.puzzles.count, 1)
+    }
+
+    func testEndToEndIPDbCSVImportIntoStore() throws {
+        let store = PuzzleStore(modelContext: context)
+        let csv = """
+        Title,Brand,Piece Count,Barcode,Status,Rating,Difficulty,Completion Date,Notes
+        Winter Lights,Galison,1000,012345678905,Completed,4,3,2024-01-15,Gift from Mom
+        Harbor View,Ravensburger,500,818870028198,Wishlist,,,,
+        """
+
+        let puzzles = try IPDbCSVImporter.puzzles(from: Data(csv.utf8))
+        let summary = try store.importPuzzles(puzzles)
+
+        XCTAssertEqual(summary.imported, 2)
+        XCTAssertEqual(summary.skippedDuplicates, 0)
+        XCTAssertEqual(summary.skippedInvalid, 0)
+        XCTAssertEqual(store.puzzles.count, 2)
+
+        let winter = try XCTUnwrap(store.puzzles.first { $0.name == "Winter Lights" })
+        XCTAssertEqual(winter.source, "Galison")
+        XCTAssertEqual(winter.pieces, 1000)
+        XCTAssertEqual(winter.barcode, "012345678905")
+        XCTAssertEqual(winter.status, .completed)
+        XCTAssertEqual(winter.notes, "Gift from Mom")
+
+        let harbor = try XCTUnwrap(store.puzzles.first { $0.name == "Harbor View" })
+        XCTAssertEqual(harbor.source, "Ravensburger")
+        XCTAssertEqual(harbor.barcode, "818870028198")
+        XCTAssertEqual(harbor.status, .todo)
+    }
+
+    func testEndToEndIPDbCSVImportSkipsDuplicateBarcodes() throws {
+        let store = PuzzleStore(modelContext: context)
+        let existing = Puzzle.fixture(name: "Already Owned", pieces: 500)
+        existing.barcode = "012345678905"
+        try store.add(puzzle: existing)
+
+        let csv = """
+        Title,Brand,Piece Count,Barcode
+        New Puzzle,Galison,1000,818870028198
+        Duplicate Barcode,Ravensburger,750,012345678905
+        """
+
+        let puzzles = try IPDbCSVImporter.puzzles(from: Data(csv.utf8))
+        let summary = try store.importPuzzles(puzzles)
+
+        XCTAssertEqual(summary.imported, 1)
+        XCTAssertEqual(summary.skippedDuplicates, 1)
+        XCTAssertEqual(store.puzzles.count, 2)
+        XCTAssertTrue(store.puzzles.contains { $0.name == "New Puzzle" })
+        XCTAssertFalse(store.puzzles.contains { $0.name == "Duplicate Barcode" })
+    }
+
     func testUpdateRejectsDuplicateBarcode() throws {
         let store = PuzzleStore(modelContext: context)
         let first = Puzzle.fixture(name: "First", pieces: 500)

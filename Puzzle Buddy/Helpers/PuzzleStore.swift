@@ -102,6 +102,48 @@ class PuzzleStore: ObservableObject {
         )
     }
 
+    @discardableResult
+    func importPuzzles(_ incoming: [Puzzle]) throws -> PuzzleImportSummary {
+        var summary = PuzzleImportSummary()
+
+        for var puzzle in incoming {
+            let trimmedName = puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedName.isEmpty else {
+                summary.skippedInvalid += 1
+                continue
+            }
+            puzzle.name = trimmedName
+
+            do {
+                try add(puzzle: puzzle)
+                summary.imported += 1
+            } catch {
+                if case PuzzleStoreError.duplicateBarcode = error {
+                    summary.skippedDuplicates += 1
+                } else {
+                    summary.skippedInvalid += 1
+                    if summary.errors.count < 5 {
+                        summary.errors.append(error.localizedDescription)
+                    }
+                }
+            }
+        }
+
+        if summary.imported > 0 {
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_import_completed",
+                message: "Imported puzzles from file.",
+                metadata: [
+                    "puzzle_count": "\(summary.imported)",
+                    "puzzle_status": "imported"
+                ]
+            )
+        }
+
+        return summary
+    }
+
     func add(puzzle: Puzzle) throws {
         guard usesCloudSync, let remoteStore = resolveRemoteStore() else {
             try addLocally(puzzle: puzzle)
