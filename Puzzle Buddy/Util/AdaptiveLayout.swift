@@ -28,12 +28,15 @@ enum AdaptiveLayout {
         return verticalSizeClass == .compact
     }
 
-    /// Side-by-side summary + stats on iPad and wide layouts.
+    /// Side-by-side summary + stats on iPad and iPhone landscape.
     static func usesWideDetailLayout(
         horizontalSizeClass: UserInterfaceSizeClass?,
         verticalSizeClass: UserInterfaceSizeClass? = nil
     ) -> Bool {
-        horizontalSizeClass == .regular
+        if horizontalSizeClass == .regular {
+            return true
+        }
+        return verticalSizeClass == .compact
     }
 
     /// Max content width on iPad / regular width. Uses most of the available width with sensible caps.
@@ -127,7 +130,7 @@ private struct ReadableContentWidth: ViewModifier {
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     func body(content: Content) -> some View {
-        if horizontalSizeClass == .regular {
+        if horizontalSizeClass == .regular || verticalSizeClass == .compact {
             content
                 .containerRelativeFrame(.horizontal) { length, _ in
                     AdaptiveLayout.contentMaxWidth(

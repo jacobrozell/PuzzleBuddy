@@ -53,6 +53,16 @@ final class PuzzleSerializationTests: XCTestCase {
         XCTAssertEqual(restored.getDataFields()["status"] as? String, "In-Progress")
     }
 
+    func testFromDataRoundTripTags() {
+        let original = Puzzle.fixture(name: "Tagged", pieces: 500)
+        original.tags = ["Cozy", "Winter"]
+
+        let fields = original.getDataFields()
+        let restored = Puzzle.fromData(fields)
+
+        XCTAssertEqual(restored.tags, ["Cozy", "Winter"])
+    }
+
     func testFromDataRoundTrip() {
         let original = Puzzle.fixture(name: "Galaxy", pieces: 750, rating: .fourHalf, difficulty: .three)
         original.status = .completed

@@ -28,6 +28,8 @@ enum UITestA11yID {
     static let collectionStatsScreen = "collection_stats_screen"
     static let splashScreen = "splash_screen"
     static let collectionStatsCompletedCard = "collection_stats_completed_card"
+    static let settingsImportIPDbButton = "settings_import_ipdb_button"
+    static let settingsExportCollectionButton = "settings_export_collection_button"
 
     static let seededPuzzleRowLabelPrefix = "Mountain Sunset"
 }

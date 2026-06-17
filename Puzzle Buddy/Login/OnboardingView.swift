@@ -31,22 +31,22 @@ struct OnboardingView: View {
     private let pages: [OnboardingPage] = [
         OnboardingPage(
             title: "Welcome to \(Config.appName)",
-            message: "Your personal jigsaw puzzle catalog — track every box on your shelf.",
+            message: "Your personal jigsaw puzzle catalog — track every box on your shelf, offline and private.",
             hero: .brandMark
         ),
         OnboardingPage(
+            title: "Shop With Confidence",
+            message: "Scan a barcode at the thrift store to check duplicates instantly — no account or internet required.",
+            hero: .systemImage("barcode.viewfinder")
+        ),
+        OnboardingPage(
             title: "Build Your Collection",
-            message: "Log piece counts, star ratings, difficulty, and to-do or completed status.",
+            message: "Log brands, piece counts, progress, and ratings. Import from an IPDb CSV export in Settings when you're ready.",
             hero: .systemImage("list.bullet.rectangle.fill")
         ),
         OnboardingPage(
-            title: "Capture the Moment",
-            message: "Attach photos from your camera or library to remember each finished puzzle.",
-            hero: .systemImage("photo.on.rectangle.angled")
-        ),
-        OnboardingPage(
             title: "Ready to Puzzle?",
-            message: "Everything stays on your device — no account needed. Add your first puzzle when you're ready.",
+            message: "Everything stays on your device. Add your first puzzle or import a collection to get started.",
             hero: .systemImage("puzzlepiece.extension.fill")
         ),
     ]

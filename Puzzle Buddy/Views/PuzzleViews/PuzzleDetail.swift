@@ -21,7 +21,7 @@ struct PuzzleDetail: View {
     var body: some View {
         VStack {
             if isEditable, let editFormVm {
-                PuzzleFormInternal(formVm: editFormVm)
+                PuzzleFormInternal(formVm: editFormVm, allPuzzles: ps.puzzles)
                     .adaptiveScrollChrome()
             } else {
                 ScrollView {
@@ -176,8 +176,17 @@ struct DetailView: View {
                     detailRow(label: "Source", value: source)
                 }
 
+                if !puzzle.tags.isEmpty {
+                    detailRow(label: "Tags", value: puzzle.tags.joined(separator: ", "))
+                }
+
                 if let barcode = puzzle.barcode, !barcode.isEmpty {
-                    detailRow(label: "Barcode", value: barcode)
+                    CopyableDetailRow(
+                        label: "Barcode",
+                        value: barcode,
+                        copiedAnnouncement: "Barcode copied",
+                        accessibilityIdentifier: A11yID.puzzleDetailBarcodeRow
+                    )
                 }
 
                 detailRow(

@@ -49,6 +49,9 @@ struct PuzzleCell: View {
 
     private var cellAccessibilityLabel: String {
         var parts = [puzzle.name]
+        if let source = puzzle.source, !source.isEmpty {
+            parts.append(source)
+        }
         if let pieces = puzzle.pieces {
             parts.append("\(pieces) pieces")
         }
@@ -61,6 +64,9 @@ struct PuzzleCell: View {
         parts.append(puzzle.status.accessibilityDescription)
         if puzzle.hasMissingPieces {
             parts.append("Missing pieces")
+        }
+        if !puzzle.tags.isEmpty {
+            parts.append("Tags: \(puzzle.tags.joined(separator: ", "))")
         }
         if puzzle.status == .completed {
             parts.append("Completed \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
@@ -132,6 +138,33 @@ private struct PuzzleCellView: View {
                 .foregroundStyle(Brand.textPrimary)
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
+
+            if let source = puzzle.source, !source.isEmpty {
+                Text(source)
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.textSecondary)
+                    .lineLimit(1)
+            }
+
+            if !puzzle.tags.isEmpty {
+                HStack(spacing: 4) {
+                    ForEach(puzzle.tags.prefix(2), id: \.self) { tag in
+                        Text(tag)
+                            .font(.caption2.weight(.medium))
+                            .foregroundStyle(Brand.textSecondary)
+                            .padding(.horizontal, DS.Spacing.s2)
+                            .padding(.vertical, 2)
+                            .background(Brand.cardElevated)
+                            .clipShape(Capsule())
+                    }
+                    if puzzle.tags.count > 2 {
+                        Text("+\(puzzle.tags.count - 2)")
+                            .font(.caption2)
+                            .foregroundStyle(Brand.textSecondary)
+                    }
+                }
+                .accessibilityLabel("Tags: \(puzzle.tags.joined(separator: ", "))")
+            }
 
             if puzzle.rating != .none {
                 RatingsView(rating: .constant(puzzle.rating))

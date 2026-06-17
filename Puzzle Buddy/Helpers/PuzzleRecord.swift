@@ -26,6 +26,7 @@ final class PuzzleRecord {
     var progressPercent: Int = 0
     var isDemo: Bool = false
     var barcode: String?
+    var tags: [String] = []
     @Attribute(.externalStorage) var imageData: Data?
 
     init(
@@ -44,6 +45,7 @@ final class PuzzleRecord {
         progressPercent: Int = 0,
         isDemo: Bool = false,
         barcode: String? = nil,
+        tags: [String] = [],
         imageData: Data? = nil
     ) {
         self.id = id
@@ -61,6 +63,7 @@ final class PuzzleRecord {
         self.progressPercent = progressPercent
         self.isDemo = isDemo
         self.barcode = barcode
+        self.tags = PuzzleTagSemantics.sanitizedTags(tags)
         self.imageData = imageData
     }
 
@@ -82,6 +85,7 @@ final class PuzzleRecord {
             progressPercent: puzzle.progressPercent,
             isDemo: puzzle.isDemo,
             barcode: puzzle.barcode,
+            tags: puzzle.tags,
             imageData: puzzle.image?.jpegData(compressionQuality: 0.30)
         )
     }
@@ -101,6 +105,7 @@ final class PuzzleRecord {
         progressPercent = puzzle.progressPercent
         isDemo = puzzle.isDemo
         barcode = BarcodeNormalizer.normalize(puzzle.barcode)
+        tags = PuzzleTagSemantics.sanitizedTags(puzzle.tags)
         imageData = puzzle.image?.jpegData(compressionQuality: 0.30)
     }
 
@@ -118,7 +123,8 @@ final class PuzzleRecord {
             source: source,
             progressPercent: progressPercent,
             isDemo: isDemo,
-            barcode: barcode
+            barcode: barcode,
+            tags: tags
         )
         puzzle.id = id
         if let imageData, let image = UIImage(data: imageData) {

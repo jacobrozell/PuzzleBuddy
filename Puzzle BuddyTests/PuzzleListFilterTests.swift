@@ -4,6 +4,7 @@
 //
 
 import XCTest
+import UIKit
 @testable import Puzzle_Buddy
 
 final class PuzzleListFilterTests: XCTestCase {
@@ -52,6 +53,52 @@ final class PuzzleListFilterTests: XCTestCase {
         let puzzles = samplePuzzles() + [Puzzle.fixture(name: "Alpine Meadow", pieces: 300)]
         let results = PuzzleListQuery.search(puzzles, query: "alpine")
         XCTAssertEqual(results.map(\.name), ["Alpine Meadow"])
+    }
+
+    func testSearchMatchesBrandSource() {
+        let puzzle = Puzzle.fixture(name: "Untitled", pieces: 500)
+        puzzle.source = "Ravensburger"
+        let results = PuzzleListQuery.search([puzzle], query: "ravens")
+        XCTAssertEqual(results.count, 1)
+    }
+
+    func testSearchMatchesBarcodeDigits() {
+        let puzzle = Puzzle.fixture(name: "Barcode Puzzle", pieces: 1000)
+        puzzle.barcode = "4005556197523"
+        let results = PuzzleListQuery.search([puzzle], query: "6197523")
+        XCTAssertEqual(results.count, 1)
+    }
+
+    func testFilterNeedsPhotoOnly() {
+        let withPhoto = Puzzle.fixture(name: "Photo", pieces: 500)
+        withPhoto.image = UIImage(systemName: "puzzlepiece")
+        let withoutPhoto = Puzzle.fixture(name: "No Photo", pieces: 500)
+
+        let results = PuzzleListQuery.filterNeedsPhoto([withPhoto, withoutPhoto], needsPhotoOnly: true)
+        XCTAssertEqual(results.map(\.name), ["No Photo"])
+    }
+
+    func testFilterPieceCountRanges() {
+        let small = Puzzle.fixture(name: "Small", pieces: 300)
+        let medium = Puzzle.fixture(name: "Medium", pieces: 1000)
+        let large = Puzzle.fixture(name: "Large", pieces: 2000)
+
+        let thousands = PuzzleListQuery.filterPieceCount(
+            [small, medium, large],
+            pieceCountFilter: .thousand
+        )
+        XCTAssertEqual(thousands.map(\.name), ["Medium"])
+
+        let big = PuzzleListQuery.filterPieceCount(
+            [small, medium, large],
+            pieceCountFilter: .atLeast1500
+        )
+        XCTAssertEqual(big.map(\.name), ["Large"])
+    }
+
+    func testDefaultSortUsesNameForTodoTab() {
+        XCTAssertEqual(PuzzleListSortOption.defaultFor(statusFilter: .todo), .name)
+        XCTAssertEqual(PuzzleListSortOption.defaultFor(statusFilter: .completed), .completionDate)
     }
 
     func testSearchWithEmptyQueryReturnsAll() {
@@ -108,6 +155,39 @@ final class PuzzleListFilterTests: XCTestCase {
         XCTAssertEqual(
             PuzzleListQuery.resultCountLabel(displayedCount: 1000, totalCount: 1000, hasActiveFilters: false),
             "1,000 puzzles"
+        )
+    }
+
+    func testSearchMatchesTag() {
+        let puzzle = Puzzle.fixture(name: "Untitled", pieces: 500)
+        puzzle.tags = ["Wysocki", "cozy"]
+        let results = PuzzleListQuery.search([puzzle], query: "wysock")
+        XCTAssertEqual(results.count, 1)
+    }
+
+    func testFilterByTag() {
+        let tagged = Puzzle.fixture(name: "Tagged", pieces: 500)
+        tagged.tags = ["Winter"]
+        let plain = Puzzle.fixture(name: "Plain", pieces: 500)
+
+        let results = PuzzleListQuery.apply(
+            puzzles: [tagged, plain],
+            statusFilter: .all,
+            searchText: "",
+            sortOption: .name,
+            tagFilter: "winter"
+        )
+        XCTAssertEqual(results.map(\.name), ["Tagged"])
+    }
+
+    func testHasActiveFiltersIncludesTagFilter() {
+        XCTAssertTrue(
+            PuzzleListQuery.hasActiveFilters(
+                statusFilter: .all,
+                searchText: "",
+                missingPiecesOnly: false,
+                tagFilter: "Cozy"
+            )
         )
     }
 

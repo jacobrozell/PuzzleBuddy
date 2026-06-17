@@ -15,6 +15,7 @@ struct ShoppingModeView: View {
 
     @State private var scanResult: ShoppingScanResult?
     @State private var showSuccessFlash = false
+    @State private var scanSessionID = UUID()
 
     var body: some View {
         NavigationStack {
@@ -23,17 +24,12 @@ struct ShoppingModeView: View {
                     BarcodeScannerView { raw in
                         handleScan(raw)
                     }
+                    .id(scanSessionID)
                     .ignoresSafeArea()
 
                     VStack {
                         Spacer()
-                        Text("Align the barcode on the puzzle box inside the frame.")
-                            .font(.subheadline)
-                            .foregroundStyle(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(.black.opacity(0.55))
-                            .accessibilityLabel("Align the barcode on the puzzle box inside the frame")
+                        BarcodeScannerGuidanceOverlay()
                     }
                 } else {
                     ContentUnavailableView(
@@ -50,13 +46,13 @@ struct ShoppingModeView: View {
                         .transition(.opacity)
                 }
 
-                if let scanResult {
+                if let currentScanResult = scanResult {
                     Color.black.opacity(0.45)
                         .ignoresSafeArea()
                         .accessibilityHidden(true)
 
                     ShoppingScanResultCard(
-                        result: scanResult,
+                        result: currentScanResult,
                         onOpenPuzzle: { puzzle in
                             dismiss()
                             onOpenPuzzle(puzzle)
@@ -66,7 +62,8 @@ struct ShoppingModeView: View {
                             onAddPuzzle(barcode)
                         },
                         onScanAnother: {
-                            self.scanResult = nil
+                            scanResult = nil
+                            scanSessionID = UUID()
                         }
                     )
                     .padding(DS.Spacing.s4)
@@ -82,6 +79,7 @@ struct ShoppingModeView: View {
                         dismiss()
                     }
                     .optionalAccessibilityIdentifier(A11yID.shoppingModeCancel)
+                    .accessibilityLabel("Cancel shopping mode")
                 }
             }
             .accessibilityIdentifier(A11yID.shoppingModeSheet)
@@ -168,11 +166,11 @@ private struct ShoppingScanResultCard: View {
     private var header: some View {
         switch result {
         case .match:
-            Label("Already in your collection", systemImage: "checkmark.circle.fill")
+            Label("You already own this", systemImage: "checkmark.circle.fill")
                 .font(.headline)
                 .foregroundStyle(Brand.accent)
         case .noMatch:
-            Label("Not in your collection", systemImage: "questionmark.circle.fill")
+            Label("Safe to buy", systemImage: "bag.badge.plus")
                 .font(.headline)
                 .foregroundStyle(Brand.accentWarm)
         }
@@ -198,10 +196,19 @@ private struct ShoppingScanResultCard: View {
                 }
             }
         case .noMatch(let barcode):
-            Text("Barcode \(barcode) is not saved in your collection yet.")
-                .font(.subheadline)
-                .foregroundStyle(Brand.textSecondary)
-                .multilineTextAlignment(.leading)
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                Text("No puzzle in your collection uses this barcode.")
+                    .font(.subheadline)
+                    .foregroundStyle(Brand.textSecondary)
+                Text(barcode)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(Brand.textPrimary)
+                    .padding(.horizontal, DS.Spacing.s2)
+                    .padding(.vertical, DS.Spacing.s2)
+                    .background(Brand.cardElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+            }
+            .multilineTextAlignment(.leading)
         }
     }
 
@@ -215,11 +222,14 @@ private struct ShoppingScanResultCard: View {
                 }
                 .buttonStyle(BrandPrimaryButtonStyle())
                 .optionalAccessibilityIdentifier(A11yID.shoppingModeOpenPuzzleButton)
+                .accessibilityLabel("Open puzzle")
+                .accessibilityHint("Opens this puzzle in your collection")
 
                 Button("Scan another") {
                     onScanAnother()
                 }
                 .buttonStyle(.bordered)
+                .accessibilityLabel("Scan another barcode")
             }
         case .noMatch(let barcode):
             VStack(spacing: DS.Spacing.s2) {
@@ -228,12 +238,15 @@ private struct ShoppingScanResultCard: View {
                 }
                 .buttonStyle(BrandPrimaryButtonStyle())
                 .optionalAccessibilityIdentifier(A11yID.shoppingModeAddPuzzleButton)
+                .accessibilityLabel("Add this puzzle")
+                .accessibilityHint("Opens quick add with this barcode")
 
                 Button("Scan another") {
                     onScanAnother()
                 }
                 .buttonStyle(.bordered)
                 .optionalAccessibilityIdentifier(A11yID.shoppingModeScanAnotherButton)
+                .accessibilityLabel("Scan another barcode")
             }
         }
     }

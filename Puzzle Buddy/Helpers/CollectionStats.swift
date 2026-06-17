@@ -22,6 +22,7 @@ struct CollectionStats: Equatable {
     let completionsThisYear: Int
     let biggestCompletedPieces: Int?
     let smallestCompletedPieces: Int?
+    let topTags: [PuzzleTagCount]
 
     static func compute(
         from puzzles: [Puzzle],
@@ -69,7 +70,8 @@ struct CollectionStats: Equatable {
                 component: .year
             ),
             biggestCompletedPieces: pieceCounts.max(),
-            smallestCompletedPieces: pieceCounts.min()
+            smallestCompletedPieces: pieceCounts.min(),
+            topTags: PuzzleTagIndex.counts(from: puzzles, limit: 5)
         )
     }
 

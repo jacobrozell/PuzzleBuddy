@@ -52,7 +52,7 @@ struct PuzzleForm: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                PuzzleFormInternal(formVm: formVm)
+                PuzzleFormInternal(formVm: formVm, allPuzzles: ps.puzzles)
                 SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented)
             }
             .brandScreenChrome()
@@ -74,6 +74,8 @@ struct PuzzleForm: View {
 // MARK: - PuzzleFormInternal
 struct PuzzleFormInternal: View {
     @ObservedObject var formVm: PuzzleFormViewModel
+    var allPuzzles: [Puzzle] = []
+    @State private var showBarcodeScanner = false
 
     var body: some View {
         Form {
@@ -132,23 +134,58 @@ struct PuzzleFormInternal: View {
             } header: {
                 Text("Where did you get it?")
             } footer: {
-                Text("Great for gifts from family — add a name after tapping a preset.")
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    Text("Great for gifts from family — add a name after tapping a preset.")
+                    LegalDisclaimerFooter(
+                        text: LegalCopy.brandTrademarkDisclaimer,
+                        style: .form
+                    )
+                }
             }
 
             Section {
-                TextField(
-                    "Barcode",
-                    text: barcodeBinding,
-                    prompt: Text("UPC / EAN from box")
+                PuzzleTagsField(
+                    tags: $formVm.puzzle.tags,
+                    suggestions: PuzzleTagIndex.suggestedTags(
+                        excluding: formVm.puzzle.tags,
+                        from: allPuzzles
+                    )
                 )
-                .keyboardType(.numberPad)
-                .optionalAccessibilityIdentifier(A11yID.puzzleFormBarcodeField)
-                .accessibilityLabel("Barcode")
-                .accessibilityHint("Optional UPC or EAN number from the puzzle box")
+            } header: {
+                Text("Tags")
+            } footer: {
+                Text("Organize your collection with custom labels — artist, theme, season, or anything you like.")
+            }
+
+            Section {
+                HStack(spacing: DS.Spacing.s2) {
+                    TextField(
+                        "Barcode",
+                        text: barcodeBinding,
+                        prompt: Text("UPC / EAN from box")
+                    )
+                    .keyboardType(.numberPad)
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormBarcodeField)
+                    .accessibilityLabel("Barcode")
+                    .accessibilityHint("Optional UPC or EAN number from the puzzle box")
+
+                    if ProductService.isBarcodeScanEnabled {
+                        Button {
+                            showBarcodeScanner = true
+                        } label: {
+                            Image(systemName: "barcode.viewfinder")
+                                .font(.title3)
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityLabel("Scan barcode")
+                        .accessibilityHint("Opens the camera to scan the puzzle box barcode")
+                        .optionalAccessibilityIdentifier(A11yID.puzzleFormScanBarcodeButton)
+                    }
+                }
             } header: {
                 Text("Barcode")
             } footer: {
-                Text("Used to check for duplicates when shopping. Enter 6 to 14 digits.")
+                Text("Used to check for duplicates when shopping. Enter 6 to 14 digits, or scan from the box.")
             }
 
             Section {
@@ -249,6 +286,16 @@ struct PuzzleFormInternal: View {
                 }
             } header: {
                 Text("Condition")
+            }
+        }
+        .sheet(isPresented: $showBarcodeScanner) {
+            BarcodeScannerSheet { raw in
+                if let normalized = BarcodeNormalizer.normalize(raw) {
+                    formVm.puzzle.barcode = normalized
+                } else {
+                    let digits = raw.filter(\.isNumber)
+                    formVm.puzzle.barcode = digits.isEmpty ? nil : digits
+                }
             }
         }
     }

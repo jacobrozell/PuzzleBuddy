@@ -21,13 +21,8 @@ struct BarcodeScannerSheet: View {
                         }
                         .ignoresSafeArea()
 
-                        Text("Align the barcode on the puzzle box inside the frame.")
-                            .font(.subheadline)
-                            .foregroundStyle(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(.black.opacity(0.55))
-                            .accessibilityLabel("Align the barcode on the puzzle box inside the frame")
+                        BarcodeScannerGuidanceOverlay()
+                            .ignoresSafeArea(edges: .bottom)
                     }
                 } else {
                     ContentUnavailableView(

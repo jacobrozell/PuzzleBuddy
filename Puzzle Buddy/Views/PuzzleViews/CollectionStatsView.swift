@@ -27,6 +27,9 @@ struct CollectionStatsView: View {
                     if stats.biggestCompletedPieces != nil || stats.smallestCompletedPieces != nil {
                         pieceRangeSection
                     }
+                    if !stats.topTags.isEmpty {
+                        topTagsSection
+                    }
                 }
             }
             .padding(.horizontal, DS.Spacing.s4)
@@ -162,6 +165,31 @@ struct CollectionStatsView: View {
                     identifier: A11yID.collectionStatsSmallestCard
                 )
             }
+        }
+    }
+
+    private var topTagsSection: some View {
+        statsSection(title: "Top tags") {
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                ForEach(stats.topTags) { tag in
+                    HStack {
+                        Text(tag.name)
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(Brand.textPrimary)
+                        Spacer()
+                        Text("\(tag.count)")
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.textSecondary)
+                    }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(tag.name), \(tag.count) puzzles")
+                }
+            }
+            .padding(DS.Spacing.s4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Brand.card)
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+            .optionalAccessibilityIdentifier(A11yID.collectionStatsTopTagsCard)
         }
     }
 

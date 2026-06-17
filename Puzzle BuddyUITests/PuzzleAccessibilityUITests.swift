@@ -168,10 +168,11 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         waitForSeededPuzzles(in: app)
 
         let searchField = app.descendants(matching: .any)[UITestA11yID.puzzleListSearchField]
+        let searchLabel = "Search name, brand, or barcode"
         if !searchField.waitForExistence(timeout: 3) {
-            XCTAssertTrue(app.textFields["Search by name"].waitForExistence(timeout: 5))
+            XCTAssertTrue(app.textFields[searchLabel].waitForExistence(timeout: 5))
         }
-        let field = searchField.exists ? searchField : app.textFields["Search by name"]
+        let field = searchField.exists ? searchField : app.textFields[searchLabel]
         field.tap()
         field.typeText("mountain")
 
@@ -304,6 +305,23 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         waitForPuzzleForm(in: app, timeout: 15)
 
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
+    }
+
+    func testSettingsCollectionDataActionsPresent() throws {
+        let app = launchForBypassAuth()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        app.tabBars.buttons["Settings"].tap()
+        XCTAssertTrue(app.staticTexts["Help & Legal"].waitForExistence(timeout: 3))
+
+        let importButton = app.buttons[UITestA11yID.settingsImportIPDbButton]
+        let importByLabel = app.buttons["Import from IPDb CSV"]
+        XCTAssertTrue(importButton.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 3))
+
+        let exportButton = app.buttons[UITestA11yID.settingsExportCollectionButton]
+        let exportByLabel = app.buttons["Export collection"]
+        XCTAssertTrue(exportButton.waitForExistence(timeout: 3) || exportByLabel.waitForExistence(timeout: 3))
     }
 
     func testPuzzleListDynamicTypeAudit() throws {

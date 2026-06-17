@@ -25,6 +25,9 @@ struct PuzzleList: View {
     @State private var statusFilter: PuzzleListStatusFilter = .all
     @State private var sortOption: PuzzleListSortOption = .completionDate
     @State private var missingPiecesOnly: Bool = false
+    @State private var needsPhotoOnly: Bool = false
+    @State private var pieceCountFilter: PuzzleListPieceCountFilter = .any
+    @State private var tagFilter: String? = nil
     @State private var pendingDeleteOffsets: IndexSet?
 
     private var displayedPuzzles: [Puzzle] {
@@ -33,15 +36,25 @@ struct PuzzleList: View {
             statusFilter: statusFilter,
             searchText: searchText,
             sortOption: sortOption,
-            missingPiecesOnly: missingPiecesOnly
+            missingPiecesOnly: missingPiecesOnly,
+            needsPhotoOnly: needsPhotoOnly,
+            pieceCountFilter: pieceCountFilter,
+            tagFilter: tagFilter
         )
+    }
+
+    private var availableTags: [PuzzleTagCount] {
+        PuzzleTagIndex.counts(from: ps.puzzles)
     }
 
     private var hasActiveFilters: Bool {
         PuzzleListQuery.hasActiveFilters(
             statusFilter: statusFilter,
             searchText: searchText,
-            missingPiecesOnly: missingPiecesOnly
+            missingPiecesOnly: missingPiecesOnly,
+            needsPhotoOnly: needsPhotoOnly,
+            pieceCountFilter: pieceCountFilter,
+            tagFilter: tagFilter
         )
     }
 
@@ -114,7 +127,8 @@ struct PuzzleList: View {
             QuickAddPuzzleSheet(
                 ps: ps,
                 barcode: context.barcode,
-                metadata: context.metadata
+                metadata: context.metadata,
+                lookupNotice: context.lookupNotice
             )
         }
         .sheet(isPresented: $showShoppingMode) {
@@ -133,17 +147,26 @@ struct PuzzleList: View {
                 PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
             }
         }
+        .onChange(of: statusFilter) { _, newValue in
+            sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
+        }
         .overlay {
             if isLookingUpBarcode {
                 ZStack {
                     Color.black.opacity(0.25).ignoresSafeArea()
-                    ProgressView("Looking up product…")
-                        .padding()
-                        .background(Brand.card)
-                        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+                    VStack(spacing: DS.Spacing.s3) {
+                        ProgressView()
+                        Text("Looking up product…")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(Brand.textPrimary)
+                    }
+                    .padding(DS.Spacing.s5)
+                    .background(Brand.card)
+                    .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+                    .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel("Looking up product information for barcode")
+                .accessibilityLabel("Looking up product details for this barcode")
             }
         }
         .confirmationDialog(
@@ -214,12 +237,12 @@ struct PuzzleList: View {
                     .foregroundStyle(Brand.textSecondary)
                     .accessibilityHidden(true)
 
-                TextField("Search by name", text: $searchText)
+                TextField("Search name, brand, tag, or barcode", text: $searchText)
                     .textFieldStyle(.plain)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .accessibilityIdentifier(A11yID.puzzleListSearchField)
-                    .accessibilityLabel("Search by name")
+                    .accessibilityLabel("Search name, brand, tag, or barcode")
                     .accessibilityHint("Filters the puzzle list as you type")
 
                 if hasActiveSearch {
@@ -240,19 +263,34 @@ struct PuzzleList: View {
             .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
 
             if !ps.puzzles.isEmpty {
-                HStack {
-                    Text(PuzzleListQuery.resultCountLabel(
-                        displayedCount: displayedPuzzles.count,
-                        totalCount: ps.puzzles.count,
-                        hasActiveFilters: hasActiveFilters
-                    ))
-                    .font(.caption)
-                    .foregroundStyle(Brand.textSecondary)
-                    .accessibilityIdentifier(A11yID.puzzleListResultCount)
+                if verticalSizeClass == .compact {
+                    VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                        Text(PuzzleListQuery.resultCountLabel(
+                            displayedCount: displayedPuzzles.count,
+                            totalCount: ps.puzzles.count,
+                            hasActiveFilters: hasActiveFilters
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(Brand.textSecondary)
+                        .accessibilityIdentifier(A11yID.puzzleListResultCount)
 
-                    Spacer()
+                        listFilterControls
+                    }
+                } else {
+                    HStack {
+                        Text(PuzzleListQuery.resultCountLabel(
+                            displayedCount: displayedPuzzles.count,
+                            totalCount: ps.puzzles.count,
+                            hasActiveFilters: hasActiveFilters
+                        ))
+                        .font(.caption)
+                        .foregroundStyle(Brand.textSecondary)
+                        .accessibilityIdentifier(A11yID.puzzleListResultCount)
 
-                    missingPiecesFilterToggle
+                        Spacer()
+
+                        listFilterControls
+                    }
                 }
             }
         }
@@ -261,6 +299,98 @@ struct PuzzleList: View {
         .background(Brand.background.opacity(0.95))
         .accessibilityIdentifier(A11yID.puzzleListStatusFilter)
         .accessibilityElement(children: .contain)
+    }
+
+    private var listFilterControls: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: DS.Spacing.s2) {
+                pieceCountFilterMenu
+                tagFilterMenu
+                needsPhotoFilterToggle
+                missingPiecesFilterToggle
+            }
+
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                pieceCountFilterMenu
+                tagFilterMenu
+                HStack(spacing: DS.Spacing.s2) {
+                    needsPhotoFilterToggle
+                    missingPiecesFilterToggle
+                }
+            }
+        }
+    }
+
+    private var pieceCountFilterMenu: some View {
+        Menu {
+            ForEach(PuzzleListPieceCountFilter.allCases) { filter in
+                Button {
+                    pieceCountFilter = filter
+                } label: {
+                    if pieceCountFilter == filter {
+                        Label(filter.title, systemImage: "checkmark")
+                    } else {
+                        Text(filter.title)
+                    }
+                }
+                .accessibilityLabel(filter.accessibilityLabel)
+            }
+        } label: {
+            Label(pieceCountFilter.title, systemImage: "number")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(pieceCountFilter == .any ? Brand.textSecondary : Brand.accent)
+        }
+        .accessibilityIdentifier(A11yID.puzzleListPieceCountFilter)
+        .accessibilityLabel("Filter by piece count, \(pieceCountFilter.title)")
+    }
+
+    private var tagFilterMenu: some View {
+        Menu {
+            Button {
+                tagFilter = nil
+            } label: {
+                if tagFilter == nil {
+                    Label("Any tag", systemImage: "checkmark")
+                } else {
+                    Text("Any tag")
+                }
+            }
+
+            ForEach(availableTags) { tag in
+                Button {
+                    tagFilter = tag.name
+                } label: {
+                    if tagFilter?.caseInsensitiveCompare(tag.name) == .orderedSame {
+                        Label("\(tag.name) (\(tag.count))", systemImage: "checkmark")
+                    } else {
+                        Text("\(tag.name) (\(tag.count))")
+                    }
+                }
+                .accessibilityLabel("Filter by tag \(tag.name), \(tag.count) puzzles")
+            }
+        } label: {
+            Label(tagFilter ?? "Tags", systemImage: "tag")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(tagFilter == nil ? Brand.textSecondary : Brand.accent)
+        }
+        .accessibilityIdentifier(A11yID.puzzleListTagFilter)
+        .accessibilityLabel("Filter by tag, \(tagFilter ?? "any")")
+        .disabled(availableTags.isEmpty)
+    }
+
+    private var needsPhotoFilterToggle: some View {
+        Button {
+            needsPhotoOnly.toggle()
+        } label: {
+            Label("Needs photo", systemImage: needsPhotoOnly ? "photo.badge.checkmark.fill" : "photo")
+                .font(.caption.weight(.medium))
+                .foregroundStyle(needsPhotoOnly ? Brand.accentWarm : Brand.textSecondary)
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(A11yID.puzzleListNeedsPhotoFilter)
+        .accessibilityLabel("Filter needs photo")
+        .accessibilityValue(needsPhotoOnly ? "On" : "Off")
+        .accessibilityHint("Shows only puzzles without a box photo")
     }
 
     private var missingPiecesFilterToggle: some View {
@@ -340,12 +470,25 @@ struct PuzzleList: View {
     }
 
     private var emptyStateMessage: String {
+        if needsPhotoOnly {
+            return hasActiveSearch
+                ? "No puzzles without photos match your search."
+                : "Every puzzle in this view has a photo."
+        }
         if missingPiecesOnly {
             return hasActiveSearch
                 ? "No puzzles with missing pieces match your search."
                 : "No puzzles flagged with missing pieces."
         }
-        return statusFilter.emptyStateMessage(hasSearchQuery: hasActiveSearch)
+        if pieceCountFilter != .any {
+            return hasActiveSearch
+                ? "No puzzles in this piece-count range match your search."
+                : "No puzzles match this piece-count filter."
+        }
+        if tagFilter != nil {
+            return statusFilter.emptyStateMessage(hasSearchQuery: hasActiveSearch, hasTagFilter: true)
+        }
+        return statusFilter.emptyStateMessage(hasSearchQuery: hasActiveSearch, hasTagFilter: false)
     }
 
     private func deleteDisplayedPuzzles(at offsets: IndexSet) {
@@ -382,21 +525,25 @@ struct PuzzleList: View {
         }
 
         if let local = BarcodeMetadataCache.metadata(for: normalized) {
-            quickAddContext = QuickAddContext(barcode: normalized, metadata: local)
+            quickAddContext = QuickAddContext(barcode: normalized, metadata: local, lookupNotice: nil)
             return
         }
 
         guard !skipLookup, ProductService.isBarcodeLookupEnabled else {
-            quickAddContext = QuickAddContext(barcode: normalized, metadata: nil)
+            quickAddContext = QuickAddContext(barcode: normalized, metadata: nil, lookupNotice: nil)
             return
         }
 
         isLookingUpBarcode = true
         Task {
-            let metadata = await BarcodeLookupService.lookup(barcode: normalized)
+            let result = await BarcodeLookupService.lookup(barcode: normalized)
             await MainActor.run {
                 isLookingUpBarcode = false
-                quickAddContext = QuickAddContext(barcode: normalized, metadata: metadata)
+                quickAddContext = QuickAddContext(
+                    barcode: normalized,
+                    metadata: result.metadata,
+                    lookupNotice: result.notice?.message
+                )
             }
         }
     }
@@ -411,6 +558,7 @@ private struct QuickAddContext: Identifiable {
     let id = UUID()
     let barcode: String
     let metadata: BarcodeProductMetadata?
+    let lookupNotice: String?
 }
 
 private struct OpenPuzzleRequest: Identifiable, Hashable {

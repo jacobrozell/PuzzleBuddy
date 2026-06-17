@@ -62,6 +62,19 @@ final class PuzzlePersistenceTests: XCTestCase {
         XCTAssertEqual(restored.barcode, "4006381333931")
     }
 
+    func testPuzzleRecordPersistsTags() throws {
+        let puzzle = Puzzle.fixture(name: "Tagged", pieces: 500)
+        puzzle.tags = ["Cozy", "Winter"]
+
+        let record = PuzzleRecord(from: puzzle)
+        context.insert(record)
+        try context.save()
+
+        let restored = record.toPuzzle()
+        XCTAssertEqual(restored.tags, ["Cozy", "Winter"])
+        XCTAssertEqual(record.tags, ["Cozy", "Winter"])
+    }
+
     func testPuzzleRecordPersistsInProgressStatus() throws {
         let puzzle = Puzzle.fixture(name: "Tabletop", pieces: 300)
         puzzle.status = .inProgress

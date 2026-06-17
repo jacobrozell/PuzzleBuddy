@@ -33,6 +33,7 @@ final class CollectionStatsTests: XCTestCase {
         XCTAssertEqual(stats.completionsThisYear, 0)
         XCTAssertNil(stats.biggestCompletedPieces)
         XCTAssertNil(stats.smallestCompletedPieces)
+        XCTAssertTrue(stats.topTags.isEmpty)
     }
 
     func testComputeAggregatesCompletedAndBacklog() {
@@ -112,6 +113,19 @@ final class CollectionStatsTests: XCTestCase {
 
         XCTAssertEqual(stats.missingPiecesCount, 1)
         XCTAssertEqual(stats.totalCount, 2)
+    }
+
+    func testComputeTopTags() {
+        let first = makePuzzle(name: "A", pieces: 500, status: .todo)
+        first.tags = ["Cozy", "Winter"]
+        let second = makePuzzle(name: "B", pieces: 500, status: .todo)
+        second.tags = ["cozy"]
+
+        let stats = CollectionStats.compute(from: [first, second], calendar: calendar, now: referenceDate)
+
+        XCTAssertEqual(stats.topTags.count, 2)
+        XCTAssertEqual(stats.topTags.first?.name, "Cozy")
+        XCTAssertEqual(stats.topTags.first?.count, 2)
     }
 
     func testCompletionsFilterByMonthAndYear() {

@@ -36,7 +36,7 @@ enum PuzzleListStatusFilter: String, CaseIterable, Identifiable {
 
     func emptyStateMessage(hasSearchQuery: Bool) -> String {
         if hasSearchQuery {
-            return "No puzzles match your search. Try a different name or clear the search field."
+            return "No puzzles match your search. Try a different name, brand, barcode, or clear the search field."
         }
         switch self {
         case .todo:
@@ -47,6 +47,51 @@ enum PuzzleListStatusFilter: String, CaseIterable, Identifiable {
             return "No completed puzzles yet. Finish one and mark it Completed."
         case .all:
             return "No puzzles yet. Tap Add puzzle to start your collection."
+        }
+    }
+
+    func emptyStateMessage(hasSearchQuery: Bool, hasTagFilter: Bool) -> String {
+        if hasTagFilter {
+            return hasSearchQuery
+                ? "No puzzles with this tag match your search."
+                : "No puzzles use this tag yet."
+        }
+        return emptyStateMessage(hasSearchQuery: hasSearchQuery)
+    }
+}
+
+// MARK: - PuzzleListPieceCountFilter
+
+enum PuzzleListPieceCountFilter: String, CaseIterable, Identifiable {
+    case any = "Any"
+    case upTo500 = "≤500"
+    case thousand = "1000"
+    case atLeast1500 = "1500+"
+
+    var id: String { rawValue }
+
+    var title: String { rawValue }
+
+    var accessibilityLabel: String {
+        switch self {
+        case .any: return "Any piece count"
+        case .upTo500: return "500 pieces or fewer"
+        case .thousand: return "Around 1000 pieces"
+        case .atLeast1500: return "1500 pieces or more"
+        }
+    }
+
+    func matches(_ puzzle: Puzzle) -> Bool {
+        guard let pieces = puzzle.pieces else { return false }
+        switch self {
+        case .any:
+            return true
+        case .upTo500:
+            return pieces <= 500
+        case .thousand:
+            return (751...1249).contains(pieces)
+        case .atLeast1500:
+            return pieces >= 1500
         }
     }
 }
@@ -73,6 +118,15 @@ enum PuzzleListSortOption: String, CaseIterable, Identifiable {
         case .pieces: return "Sort by piece count, largest first"
         }
     }
+
+    static func defaultFor(statusFilter: PuzzleListStatusFilter) -> PuzzleListSortOption {
+        switch statusFilter {
+        case .todo, .inProgress:
+            return .name
+        case .completed, .all:
+            return .completionDate
+        }
+    }
 }
 
 // MARK: - PuzzleListQuery
@@ -83,17 +137,36 @@ enum PuzzleListQuery {
         statusFilter: PuzzleListStatusFilter,
         searchText: String,
         sortOption: PuzzleListSortOption,
-        missingPiecesOnly: Bool = false
+        missingPiecesOnly: Bool = false,
+        needsPhotoOnly: Bool = false,
+        pieceCountFilter: PuzzleListPieceCountFilter = .any,
+        tagFilter: String? = nil
     ) -> [Puzzle] {
         let statusFiltered = PuzzleListStatusFilter.filter(puzzles, by: statusFilter)
         let missingFiltered = filterMissingPieces(statusFiltered, missingPiecesOnly: missingPiecesOnly)
-        let searched = search(missingFiltered, query: searchText)
+        let photoFiltered = filterNeedsPhoto(missingFiltered, needsPhotoOnly: needsPhotoOnly)
+        let pieceFiltered = filterPieceCount(photoFiltered, pieceCountFilter: pieceCountFilter)
+        let tagFiltered = PuzzleTagIndex.filter(pieceFiltered, matching: tagFilter)
+        let searched = search(tagFiltered, query: searchText)
         return sort(searched, by: sortOption)
     }
 
     static func filterMissingPieces(_ puzzles: [Puzzle], missingPiecesOnly: Bool) -> [Puzzle] {
         guard missingPiecesOnly else { return puzzles }
         return puzzles.filter(\.hasMissingPieces)
+    }
+
+    static func filterNeedsPhoto(_ puzzles: [Puzzle], needsPhotoOnly: Bool) -> [Puzzle] {
+        guard needsPhotoOnly else { return puzzles }
+        return puzzles.filter { $0.image == nil }
+    }
+
+    static func filterPieceCount(
+        _ puzzles: [Puzzle],
+        pieceCountFilter: PuzzleListPieceCountFilter
+    ) -> [Puzzle] {
+        guard pieceCountFilter != .any else { return puzzles }
+        return puzzles.filter { pieceCountFilter.matches($0) }
     }
 
     static func resultCountLabel(
@@ -115,15 +188,41 @@ enum PuzzleListQuery {
     static func hasActiveFilters(
         statusFilter: PuzzleListStatusFilter,
         searchText: String,
-        missingPiecesOnly: Bool
+        missingPiecesOnly: Bool,
+        needsPhotoOnly: Bool = false,
+        pieceCountFilter: PuzzleListPieceCountFilter = .any,
+        tagFilter: String? = nil
     ) -> Bool {
-        statusFilter != .all || hasActiveSearch(searchText) || missingPiecesOnly
+        statusFilter != .all
+            || hasActiveSearch(searchText)
+            || missingPiecesOnly
+            || needsPhotoOnly
+            || pieceCountFilter != .any
+            || tagFilter != nil
     }
 
     static func search(_ puzzles: [Puzzle], query: String) -> [Puzzle] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return puzzles }
-        return puzzles.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
+
+        let normalizedQuery = trimmed.lowercased()
+        let digitQuery = trimmed.filter(\.isNumber)
+
+        return puzzles.filter { puzzle in
+            if puzzle.name.localizedCaseInsensitiveContains(trimmed) {
+                return true
+            }
+            if let source = puzzle.source, source.localizedCaseInsensitiveContains(trimmed) {
+                return true
+            }
+            if matchesBarcode(puzzle.barcode, query: normalizedQuery, digitQuery: digitQuery) {
+                return true
+            }
+            if puzzle.tags.contains(where: { $0.localizedCaseInsensitiveContains(trimmed) }) {
+                return true
+            }
+            return false
+        }
     }
 
     static func sort(_ puzzles: [Puzzle], by option: PuzzleListSortOption) -> [Puzzle] {
@@ -147,6 +246,17 @@ enum PuzzleListQuery {
 
     static func hasActiveSearch(_ searchText: String) -> Bool {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private static func matchesBarcode(_ barcode: String?, query: String, digitQuery: String) -> Bool {
+        guard let barcode, !barcode.isEmpty else { return false }
+        let normalizedBarcode = barcode.lowercased()
+        if normalizedBarcode.contains(query) {
+            return true
+        }
+        guard !digitQuery.isEmpty else { return false }
+        let barcodeDigits = barcode.filter(\.isNumber)
+        return barcodeDigits.contains(digitQuery)
     }
 
     private static func difficultyValue(_ puzzle: Puzzle) -> Int {
