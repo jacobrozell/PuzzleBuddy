@@ -8,6 +8,7 @@ import Foundation
 // MARK: - PuzzleListStatusFilter
 
 enum PuzzleListStatusFilter: String, CaseIterable, Identifiable {
+    case wishlist = "Wishlist"
     case todo = "To-Do"
     case inProgress = "In-Progress"
     case completed = "Completed"
@@ -15,10 +16,20 @@ enum PuzzleListStatusFilter: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String { rawValue }
+    var title: String {
+        switch self {
+        case .wishlist: return "Wish"
+        case .todo: return "To-Do"
+        case .inProgress: return "Active"
+        case .completed: return "Done"
+        case .all: return "All"
+        }
+    }
 
     func matches(_ puzzle: Puzzle) -> Bool {
         switch self {
+        case .wishlist:
+            return puzzle.status == .wishlist
         case .todo:
             return puzzle.status == .todo
         case .inProgress:
@@ -39,6 +50,8 @@ enum PuzzleListStatusFilter: String, CaseIterable, Identifiable {
             return "No puzzles match your search. Try a different name, brand, barcode, or clear the search field."
         }
         switch self {
+        case .wishlist:
+            return "Your wishlist is empty. Add a puzzle and mark it Wishlist to track what to buy next."
         case .todo:
             return "No puzzles on your shelf. Add a To-Do puzzle or switch to All."
         case .inProgress:
@@ -121,7 +134,7 @@ enum PuzzleListSortOption: String, CaseIterable, Identifiable {
 
     static func defaultFor(statusFilter: PuzzleListStatusFilter) -> PuzzleListSortOption {
         switch statusFilter {
-        case .todo, .inProgress:
+        case .wishlist, .todo, .inProgress:
             return .name
         case .completed, .all:
             return .completionDate

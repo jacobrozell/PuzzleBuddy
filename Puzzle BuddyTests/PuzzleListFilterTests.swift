@@ -30,6 +30,14 @@ final class PuzzleListFilterTests: XCTestCase {
         XCTAssertEqual(filtered.first?.status, .completed)
     }
 
+    func testWishlistFilterReturnsOnlyWishlist() {
+        let wish = Puzzle.fixture(name: "Wanted", pieces: 500)
+        wish.status = .wishlist
+        let todo = Puzzle.fixture(name: "Shelf", pieces: 500)
+        let filtered = PuzzleListStatusFilter.filter([wish, todo], by: .wishlist)
+        XCTAssertEqual(filtered.map(\.name), ["Wanted"])
+    }
+
     func testInProgressFilterReturnsOnlyInProgress() {
         let puzzles = samplePuzzles() + [inProgressPuzzle()]
         let filtered = PuzzleListStatusFilter.filter(puzzles, by: .inProgress)

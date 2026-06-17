@@ -37,6 +37,11 @@ enum ProductService {
         true
     }
 
+    /// "Pick my next puzzle" random selector mode.
+    static var isPickNextEnabled: Bool {
+        true
+    }
+
     /// Import puzzles from an IPDb CSV export (Settings → Collection).
     static var isIPDbImportEnabled: Bool {
         true

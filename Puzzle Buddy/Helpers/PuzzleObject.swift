@@ -78,6 +78,7 @@ class Puzzle: ObservableObject {
     }
 
     enum Status: String, CaseIterable, Identifiable {
+        case wishlist = "Wishlist"
         case todo = "To-Do"
         case inProgress = "In-Progress"
         case completed = "Completed"
@@ -284,6 +285,8 @@ extension Puzzle {
 extension Puzzle.Status {
     var accessibilityDescription: String {
         switch self {
+        case .wishlist:
+            return "Wishlist, not yet owned"
         case .todo:
             return "To-Do, not started"
         case .inProgress:

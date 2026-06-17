@@ -53,6 +53,8 @@ enum IPDbCSVFormat {
 
     static func folderValue(for status: Puzzle.Status) -> String {
         switch status {
+        case .wishlist:
+            return "Wishlist"
         case .todo:
             return "Wishlist"
         case .inProgress:

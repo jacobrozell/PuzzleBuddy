@@ -23,7 +23,7 @@ enum PuzzleProgressSemantics {
 
     static func progress(for status: Puzzle.Status, current: Int) -> Int {
         switch status {
-        case .todo:
+        case .wishlist, .todo:
             return 0
         case .completed:
             return 100

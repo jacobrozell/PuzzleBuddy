@@ -10,6 +10,8 @@ import Foundation
 enum PuzzleDateSemantics {
     static func detailDateLabel(for status: Puzzle.Status) -> String {
         switch status {
+        case .wishlist:
+            return "Added to wishlist"
         case .todo:
             return "Added"
         case .inProgress:
@@ -22,6 +24,8 @@ enum PuzzleDateSemantics {
     static func formDateSectionTitle(for status: Puzzle.Status, puzzleName: String) -> String {
         let name = puzzleName.isEmpty ? "the puzzle" : puzzleName
         switch status {
+        case .wishlist:
+            return "Added to wishlist on"
         case .todo:
             return "Target date (optional)"
         case .inProgress:
@@ -38,6 +42,8 @@ enum PuzzleDateSemantics {
 
     static func statusPillLabel(for status: Puzzle.Status) -> String {
         switch status {
+        case .wishlist:
+            return "Wishlist"
         case .todo:
             return "To-Do"
         case .inProgress:

@@ -18,6 +18,7 @@ struct PuzzleList: View {
     @State private var present = false
     @State private var showScanner = false
     @State private var showShoppingMode = false
+    @State private var showPickNext = false
     @State private var openPuzzleRequest: OpenPuzzleRequest?
     @State private var quickAddContext: QuickAddContext?
     @State private var isLookingUpBarcode = false
@@ -96,6 +97,16 @@ struct PuzzleList: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: DS.Spacing.s3) {
+                    if ProductService.isPickNextEnabled {
+                        Button {
+                            showPickNext = true
+                        } label: {
+                            Image(systemName: "dice")
+                        }
+                        .accessibilityLabel("Pick my next puzzle")
+                        .accessibilityHint("Opens a random picker from your To-Do backlog")
+                        .accessibilityIdentifier(A11yID.pickNextButton)
+                    }
                     if ProductService.isShoppingModeEnabled {
                         Button {
                             showShoppingMode = true
@@ -130,6 +141,9 @@ struct PuzzleList: View {
                 metadata: context.metadata,
                 lookupNotice: context.lookupNotice
             )
+        }
+        .sheet(isPresented: $showPickNext) {
+            PickNextPuzzleView(ps: ps)
         }
         .sheet(isPresented: $showShoppingMode) {
             ShoppingModeView(
