@@ -107,19 +107,27 @@ final class PuzzleSerializationTests: XCTestCase {
         let puzzle = Puzzle.fixture(name: "Thrift", pieces: 500)
         puzzle.hasMissingPieces = true
         puzzle.notes = "Missing 3 edge pieces"
+        puzzle.source = "Amazon"
+        puzzle.progressPercent = 55
 
         let fields = puzzle.getDataFields()
         XCTAssertEqual(fields["hasMissingPieces"] as? Bool, true)
         XCTAssertEqual(fields["notes"] as? String, "Missing 3 edge pieces")
+        XCTAssertEqual(fields["source"] as? String, "Amazon")
+        XCTAssertEqual(fields["progressPercent"] as? Int, 55)
     }
 
     func testFromDataRestoresMissingPiecesAndNotes() {
         var fields = Puzzle.fixture(name: "Thrift", pieces: 500).getDataFields()
         fields["hasMissingPieces"] = true
         fields["notes"] = "Box damaged"
+        fields["source"] = "Gift from Dad"
+        fields["progressPercent"] = 20
 
         let restored = Puzzle.fromData(fields)
         XCTAssertTrue(restored.hasMissingPieces)
         XCTAssertEqual(restored.notes, "Box damaged")
+        XCTAssertEqual(restored.source, "Gift from Dad")
+        XCTAssertEqual(restored.progressPercent, 20)
     }
 }

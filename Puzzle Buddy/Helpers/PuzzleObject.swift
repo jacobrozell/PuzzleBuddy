@@ -97,6 +97,9 @@ class Puzzle: ObservableObject {
     @Published var status: Status = .todo
     @Published var hasMissingPieces: Bool = false
     @Published var notes: String? = nil
+    @Published var source: String? = nil
+    @Published var progressPercent: Int = 0
+    @Published var isDemo: Bool = false
     @Published var image: UIImage? = nil
 
     internal init(name: String,
@@ -107,7 +110,10 @@ class Puzzle: ObservableObject {
                   completionDate: Date,
                   status: Status = .todo,
                   hasMissingPieces: Bool = false,
-                  notes: String? = nil
+                  notes: String? = nil,
+                  source: String? = nil,
+                  progressPercent: Int = 0,
+                  isDemo: Bool = false
     ) {
         self.name = name
         self.pieces = pieces
@@ -118,6 +124,9 @@ class Puzzle: ObservableObject {
         self.status = status
         self.hasMissingPieces = hasMissingPieces
         self.notes = notes
+        self.source = source
+        self.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
+        self.isDemo = isDemo
     }
 
 //    var category
@@ -141,6 +150,9 @@ class Puzzle: ObservableObject {
             "status": status.rawValue,
             "hasMissingPieces": hasMissingPieces,
             "notes": notes ?? "nil",
+            "source": source ?? "nil",
+            "progressPercent": progressPercent,
+            "isDemo": isDemo,
             "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
         ]
     }
@@ -231,6 +243,18 @@ extension Puzzle {
 
         if let notes = data["notes"] as? String, notes != "nil" {
             p.notes = notes
+        }
+
+        if let source = data["source"] as? String, source != "nil" {
+            p.source = source
+        }
+
+        if let progressPercent = data["progressPercent"] as? Int {
+            p.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
+        }
+
+        if let isDemo = data["isDemo"] as? Bool {
+            p.isDemo = isDemo
         }
 
         if let imageData = data["imageData"] as? String, let data = Data(base64Encoded: imageData) {

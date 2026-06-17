@@ -77,7 +77,13 @@ struct PuzzleList: View {
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                sortMenu
+                HStack(spacing: DS.Spacing.s3) {
+                    PuzzleShareMenu(
+                        entireCollection: ps.puzzles,
+                        visibleList: displayedPuzzles
+                    )
+                    sortMenu
+                }
             }
         }
         .sheet(isPresented: $present) {

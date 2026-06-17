@@ -20,6 +20,39 @@ final class PuzzleStoreTests: XCTestCase {
         context = container.mainContext
     }
 
+    func testLoadDemoPuzzlesMarksPuzzlesAsDemo() throws {
+        let store = PuzzleStore(modelContext: context)
+        try store.loadDemoPuzzles()
+
+        XCTAssertEqual(store.puzzles.count, DemoDataCatalog.puzzleCount)
+        XCTAssertEqual(store.demoPuzzleCount, DemoDataCatalog.puzzleCount)
+        XCTAssertTrue(store.puzzles.allSatisfy(\.isDemo))
+    }
+
+    func testRemoveDemoPuzzlesKeepsUserPuzzles() throws {
+        let store = PuzzleStore(modelContext: context)
+        try store.add(puzzle: Puzzle.fixture(name: "Mine", pieces: 250))
+        try store.loadDemoPuzzles()
+
+        XCTAssertEqual(store.puzzles.count, DemoDataCatalog.puzzleCount + 1)
+
+        try store.removeDemoPuzzles()
+
+        XCTAssertEqual(store.puzzles.count, 1)
+        XCTAssertEqual(store.puzzles.first?.name, "Mine")
+        XCTAssertFalse(store.puzzles.first?.isDemo ?? true)
+        XCTAssertEqual(store.demoPuzzleCount, 0)
+    }
+
+    func testRemoveDemoPuzzlesIsNoOpWhenNonePresent() throws {
+        let store = PuzzleStore(modelContext: context)
+        try store.add(puzzle: Puzzle.fixture(name: "Mine", pieces: 250))
+
+        try store.removeDemoPuzzles()
+
+        XCTAssertEqual(store.puzzles.count, 1)
+    }
+
     func testFetchPuzzlesLoadsLocalRecords() async throws {
         let seed = PuzzleStore(modelContext: context)
         try seed.add(puzzle: Puzzle.fixture(name: "Local", pieces: 300))

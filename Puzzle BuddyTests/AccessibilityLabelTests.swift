@@ -21,11 +21,16 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.statsTab.isEmpty)
         XCTAssertFalse(A11yID.puzzleDetailPaceRow.isEmpty)
         XCTAssertFalse(A11yID.puzzleDetailHoursPer1000Row.isEmpty)
+        XCTAssertFalse(A11yID.puzzleDetailProgress.isEmpty)
+        XCTAssertFalse(A11yID.puzzleFormSourceField.isEmpty)
         XCTAssertFalse(A11yID.puzzleListStatusFilter.isEmpty)
         XCTAssertFalse(A11yID.puzzleListEmptyState.isEmpty)
         XCTAssertFalse(A11yID.puzzleListSortMenu.isEmpty)
         XCTAssertFalse(A11yID.puzzleListSearchField.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellRating.isEmpty)
+        XCTAssertFalse(A11yID.settingsRemoveDemoButton.isEmpty)
+        XCTAssertFalse(A11yID.puzzleShareButton.isEmpty)
+        XCTAssertFalse(A11yID.puzzleCellProgress.isEmpty)
     }
 
     func testPuzzleRatingAccessibilityDescription() {

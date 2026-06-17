@@ -66,6 +66,7 @@ struct PuzzleCell: View {
             parts.append("Completed \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
         } else if puzzle.status == .inProgress {
             parts.append("Started \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
+            parts.append(PuzzleProgressSemantics.displayLabel(for: puzzle.progressPercent))
         }
         return parts.joined(separator: ", ")
     }
@@ -152,6 +153,10 @@ private struct PuzzleCellView: View {
                 }
             }
 
+            if puzzle.status == .inProgress {
+                PuzzleListProgressBar(progress: puzzle.progressPercent)
+            }
+
             HStack {
                 if let pieces = puzzle.pieces {
                     Text("\(pieces) pieces")
@@ -177,9 +182,17 @@ struct PuzzleCellPreview: PreviewProvider {
     static var previews: some View {
         VStack {
             PuzzleCell(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture(name: "Test 1", pieces: 125)))
+            PuzzleCell(ps: PreviewSupport.puzzleStore, puzzle: .constant(inProgressPreview()))
             PuzzleCell(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture(name: "Test 2", pieces: 500, rating: .five)))
         }
         .padding()
         .brandBackground()
+    }
+
+    private static func inProgressPreview() -> Puzzle {
+        let puzzle = Puzzle.fixture(name: "Tabletop Sky", pieces: 300, rating: .two)
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 45
+        return puzzle
     }
 }

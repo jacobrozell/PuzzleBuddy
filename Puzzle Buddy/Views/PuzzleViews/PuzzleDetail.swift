@@ -24,7 +24,7 @@ struct PuzzleDetail: View {
                     .adaptiveScrollChrome()
             } else {
                 ScrollView {
-                    DetailView(puzzle: $puzzle)
+                    DetailView(puzzle: $puzzle, ps: ps)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -68,6 +68,7 @@ struct PuzzleDetail: View {
 // MARK: - DetailView
 struct DetailView: View {
     @Binding var puzzle: Puzzle
+    @ObservedObject var ps: PuzzleStore
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -83,14 +84,18 @@ struct DetailView: View {
         Group {
             if usesWideLayout {
                 HStack(alignment: .top, spacing: DS.Spacing.s5) {
-                    summaryPanel
-                        .frame(maxWidth: .infinity)
+                    VStack(spacing: DS.Spacing.s4) {
+                        summaryPanel
+                        progressPanel
+                    }
+                    .frame(maxWidth: .infinity)
                     statsPanel
                         .frame(maxWidth: .infinity)
                 }
             } else {
                 VStack(spacing: DS.Spacing.s4) {
                     summaryPanel
+                    progressPanel
                     statsPanel
                 }
             }
@@ -136,10 +141,31 @@ struct DetailView: View {
         PuzzleDetailMetrics.compute(pieces: puzzle.pieces, time: puzzle.estimatedTimeSpent)
     }
 
+    private var progressPanel: some View {
+        GroupBox {
+            PuzzleProgressSection(
+                progressPercent: $puzzle.progressPercent,
+                status: $puzzle.status,
+                onCommit: {
+                    ps.update(puzzle: puzzle)
+                }
+            )
+        }
+        .groupBoxStyle(BrandGroupBoxStyle())
+        .accessibilityIdentifier(A11yID.puzzleDetailProgress)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Puzzle progress")
+    }
+
     private var statsPanel: some View {
         GroupBox {
             VStack(spacing: DS.Spacing.s4) {
                 detailRow(label: "Status", value: puzzle.status.accessibilityDescription)
+
+                if let source = puzzle.source?.trimmingCharacters(in: .whitespacesAndNewlines), !source.isEmpty {
+                    detailRow(label: "Source", value: source)
+                }
+
                 detailRow(
                     label: PuzzleDateSemantics.detailDateLabel(for: puzzle.status),
                     value: puzzle.completionDate.formatted(date: .abbreviated, time: .omitted)

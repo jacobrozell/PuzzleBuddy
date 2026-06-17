@@ -36,6 +36,14 @@ struct CollectionStatsView: View {
             .accessibilityElement(children: .contain)
         }
         .readableBrandScreenChrome()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                PuzzleShareMenu(
+                    entireCollection: ps.puzzles,
+                    visibleList: ps.puzzles
+                )
+            }
+        }
     }
 
     // MARK: - Sections

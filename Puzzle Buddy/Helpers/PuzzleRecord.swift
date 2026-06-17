@@ -22,6 +22,9 @@ final class PuzzleRecord {
     var status: String
     var hasMissingPieces: Bool = false
     var notes: String?
+    var source: String?
+    var progressPercent: Int = 0
+    var isDemo: Bool = false
     @Attribute(.externalStorage) var imageData: Data?
 
     init(
@@ -36,6 +39,9 @@ final class PuzzleRecord {
         status: String = Puzzle.Status.todo.rawValue,
         hasMissingPieces: Bool = false,
         notes: String? = nil,
+        source: String? = nil,
+        progressPercent: Int = 0,
+        isDemo: Bool = false,
         imageData: Data? = nil
     ) {
         self.id = id
@@ -49,6 +55,9 @@ final class PuzzleRecord {
         self.status = status
         self.hasMissingPieces = hasMissingPieces
         self.notes = notes
+        self.source = source
+        self.progressPercent = progressPercent
+        self.isDemo = isDemo
         self.imageData = imageData
     }
 
@@ -66,6 +75,9 @@ final class PuzzleRecord {
             status: puzzle.status.rawValue,
             hasMissingPieces: puzzle.hasMissingPieces,
             notes: puzzle.notes,
+            source: puzzle.source,
+            progressPercent: puzzle.progressPercent,
+            isDemo: puzzle.isDemo,
             imageData: puzzle.image?.jpegData(compressionQuality: 0.30)
         )
     }
@@ -81,6 +93,9 @@ final class PuzzleRecord {
         status = puzzle.status.rawValue
         hasMissingPieces = puzzle.hasMissingPieces
         notes = puzzle.notes
+        source = puzzle.source
+        progressPercent = puzzle.progressPercent
+        isDemo = puzzle.isDemo
         imageData = puzzle.image?.jpegData(compressionQuality: 0.30)
     }
 
@@ -94,7 +109,10 @@ final class PuzzleRecord {
             completionDate: completionDate,
             status: Puzzle.Status(rawValue: status) ?? .todo,
             hasMissingPieces: hasMissingPieces,
-            notes: notes
+            notes: notes,
+            source: source,
+            progressPercent: progressPercent,
+            isDemo: isDemo
         )
         puzzle.id = id
         if let imageData, let image = UIImage(data: imageData) {

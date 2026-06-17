@@ -14,12 +14,18 @@ struct Puzzle_BuddyApp: App {
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject var authProvider = FirebaseAuthProvider()
+    @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
+
+    private var preferredColorScheme: ColorScheme? {
+        AppearancePreference(rawValue: appearanceRaw)?.colorScheme
+    }
 
     var body: some Scene {
         WindowGroup {
             AppShell(modelContext: sharedModelContainer.mainContext)
                 .withErrorHandling()
                 .environmentObject(authProvider)
+                .preferredColorScheme(preferredColorScheme)
         }
         .modelContainer(sharedModelContainer)
     }

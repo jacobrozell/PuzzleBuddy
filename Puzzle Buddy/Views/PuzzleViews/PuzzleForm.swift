@@ -81,145 +81,119 @@ struct PuzzleFormInternal: View {
                 .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
 
             Section {
-                VStack {
-                    HStack {
-                        Text("Name:")
+                TextField("Name", text: $formVm.puzzle.name, prompt: Text("Puzzle Name"))
+                    .keyboardType(.namePhonePad)
+                    .disableAutocorrection(true)
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormNameField)
+                    .accessibilityLabel("Puzzle name")
 
-                        Spacer()
+                PuzzlePiecesField(pieces: $formVm.puzzle.pieces)
 
-                        TextField("Name", text: $formVm.puzzle.name, prompt: Text("Puzzle Name"))
-                            .keyboardType(.namePhonePad)
-                            .disableAutocorrection(true)
-                            .multilineTextAlignment(.trailing)
-                            .optionalAccessibilityIdentifier(A11yID.puzzleFormNameField)
-                            .accessibilityLabel("Puzzle name")
-                    }
-
-                    Divider()
-
-                    HStack {
-                        Text("Pieces:")
-
-                        Spacer()
-
-                        TextField("Pieces", value: $formVm.puzzle.pieces, format: .number, prompt: Text("# of Pieces"))
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                            .optionalAccessibilityIdentifier(A11yID.puzzleFormPiecesField)
-                            .accessibilityLabel("Number of pieces")
-                    }
-
-                    Divider()
-
-                    HStack {
-                        Text("Status:")
-
-                        Spacer()
-
-                        Picker("Status", selection: $formVm.puzzle.status) {
-                            ForEach(Puzzle.Status.allCases) { status in
-                                Text(status.rawValue)
-                                    .id(status)
-                                    .tag(status)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .accessibilityLabel("Puzzle status")
-                        .accessibilityValue(formVm.puzzle.status.accessibilityDescription)
+                Picker("Status", selection: $formVm.puzzle.status) {
+                    ForEach(Puzzle.Status.allCases) { status in
+                        Text(status.rawValue)
+                            .id(status)
+                            .tag(status)
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityValue(formVm.puzzle.status.accessibilityDescription)
+                .onChange(of: formVm.puzzle.status) { _, newStatus in
+                    formVm.puzzle.progressPercent = PuzzleProgressSemantics.progress(
+                        for: newStatus,
+                        current: formVm.puzzle.progressPercent
+                    )
+                }
             } header: {
                 Text("Puzzle Info")
-                    .frame(alignment: .leading)
             }
 
-            // Rating Section
             Section {
-                HStack(alignment: .center) {
-                    Text("Rating:")
+                TextField(
+                    "Source",
+                    text: sourceBinding,
+                    prompt: Text("Gift from Mom, Amazon, Goodwill…")
+                )
+                .optionalAccessibilityIdentifier(A11yID.puzzleFormSourceField)
+                .accessibilityLabel("Where you got this puzzle")
 
-                    Spacer()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: DS.Spacing.s2) {
+                        ForEach(PuzzleSourcePreset.allCases) { preset in
+                            Button(preset.label) {
+                                formVm.puzzle.source = preset.suggestedText
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.small)
+                            .accessibilityLabel("Set source to \(preset.label)")
+                        }
+                    }
+                    .padding(.vertical, DS.Spacing.s2)
+                }
+            } header: {
+                Text("Where did you get it?")
+            } footer: {
+                Text("Great for gifts from family — add a name after tapping a preset.")
+            }
 
+            Section {
+                PuzzleProgressSection(
+                    progressPercent: $formVm.puzzle.progressPercent,
+                    status: $formVm.puzzle.status
+                )
+            } header: {
+                Text("Progress")
+            } footer: {
+                Text("Slide to track how far along you are, like Goodreads for puzzles.")
+            }
+
+            Section {
+                LabeledContent("Rating") {
                     RatingsView(rating: $formVm.puzzle.rating)
                         .optionalAccessibilityIdentifier(A11yID.puzzleFormRatingControl)
                 }
 
-                HStack {
-                    Text("Difficulty:")
-
-                    Spacer()
-
-                    Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
-                        ForEach(Puzzle.Difficulty.allCases) { difficulty in
-                            Group {
-                                if difficulty == .none {
-                                    Text("N/A")
-                                } else {
-                                    Text("\(difficulty.rawValue)")
-                                }
+                Picker("Difficulty", selection: $formVm.puzzle.difficulty) {
+                    ForEach(Puzzle.Difficulty.allCases) { difficulty in
+                        Group {
+                            if difficulty == .none {
+                                Text("N/A")
+                            } else {
+                                Text("\(difficulty.rawValue)")
                             }
-                            .id(difficulty)
-                            .tag(difficulty)
                         }
+                        .id(difficulty)
+                        .tag(difficulty)
                     }
-                    .pickerStyle(.menu)
-                    .accessibilityLabel("Puzzle difficulty")
-                    .accessibilityValue(formVm.puzzle.difficulty.accessibilityDescription)
                 }
+                .accessibilityValue(formVm.puzzle.difficulty.accessibilityDescription)
             } header: {
                 Text("How did you like it?")
             }
 
-            // Time Spent Section
             Section {
-                HStack {
-                    Text("Hours:")
+                TextField("Hours", value: Binding(
+                    get: { formVm.puzzle.estimatedTimeSpent?.hours },
+                    set: { new in
+                        if formVm.puzzle.estimatedTimeSpent == nil {
+                            formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
+                        }
+                        formVm.puzzle.estimatedTimeSpent?.hours = new
+                    }
+                ), format: .number, prompt: Text("0"))
+                .keyboardType(.numberPad)
+                .accessibilityLabel("Estimated hours spent")
 
-                    Spacer()
-
-                    TextField(
-                        "Hours Spent",
-                        value: Binding(
-                            get: { formVm.puzzle.estimatedTimeSpent?.hours },
-                            set: { new in
-                                if formVm.puzzle.estimatedTimeSpent == nil {
-                                    formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
-                                }
-                                formVm.puzzle.estimatedTimeSpent?.hours = new
-                            }
-                        ),
-                        format: .number,
-                        prompt: Text("0")
-                    )
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
-                    .accessibilityLabel("Estimated hours spent")
-                }
-
-                HStack {
-                    Text("Minutes:")
-
-                    Spacer()
-
-                    TextField(
-                        "Minutes Spent",
-                        value: Binding(
-                            get: { formVm.puzzle.estimatedTimeSpent?.minutes },
-                            set: { new in
-                                if formVm.puzzle.estimatedTimeSpent == nil {
-                                    formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
-                                }
-                                formVm.puzzle.estimatedTimeSpent?.minutes = new
-                            }
-                        ),
-                        format: .number,
-                        prompt: Text("0")
-                    )
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
-                    .accessibilityLabel("Estimated minutes spent")
-                }
+                TextField("Minutes", value: Binding(
+                    get: { formVm.puzzle.estimatedTimeSpent?.minutes },
+                    set: { new in
+                        if formVm.puzzle.estimatedTimeSpent == nil {
+                            formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
+                        }
+                        formVm.puzzle.estimatedTimeSpent?.minutes = new
+                    }
+                ), format: .number, prompt: Text("0"))
+                .keyboardType(.numberPad)
+                .accessibilityLabel("Estimated minutes spent")
             } header: {
                 Text("How long did it take?")
             }
@@ -269,6 +243,16 @@ struct PuzzleFormInternal: View {
             set: { newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 formVm.puzzle.notes = trimmed.isEmpty ? nil : String(newValue.prefix(2_000))
+            }
+        )
+    }
+
+    private var sourceBinding: Binding<String> {
+        Binding(
+            get: { formVm.puzzle.source ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                formVm.puzzle.source = trimmed.isEmpty ? nil : String(trimmed.prefix(200))
             }
         )
     }

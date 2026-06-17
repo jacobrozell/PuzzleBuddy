@@ -214,15 +214,51 @@ class PuzzleStore: ObservableObject {
         }
     }
 
-    private func clearAllLocalRecords() {
-        do {
-            let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
-            records.forEach { modelContext.delete($0) }
-            try modelContext.save()
-            puzzles = []
-        } catch {
-            AppLog.shared.warning(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
+    var demoPuzzleCount: Int {
+        puzzles.filter(\.isDemo).count
+    }
+
+    func clearAllPuzzles() throws {
+        let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
+        records.forEach { modelContext.delete($0) }
+        try modelContext.save()
+        puzzles = []
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_collection_cleared",
+            message: "Cleared all local puzzles."
+        )
+    }
+
+    func loadDemoPuzzles() throws {
+        for puzzle in DemoDataCatalog.makePuzzles() {
+            try add(puzzle: puzzle)
         }
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "demo_data_loaded",
+            message: "Loaded demo puzzles.",
+            metadata: ["puzzle_count": "\(demoPuzzleCount)"]
+        )
+    }
+
+    func removeDemoPuzzles() throws {
+        let demoIndices = puzzles.enumerated().compactMap { index, puzzle in
+            puzzle.isDemo ? index : nil
+        }
+        guard !demoIndices.isEmpty else { return }
+
+        delete(at: IndexSet(demoIndices))
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "demo_data_removed",
+            message: "Removed demo puzzles.",
+            metadata: ["removed_count": "\(demoIndices.count)"]
+        )
+    }
+
+    private func clearAllLocalRecords() {
+        try? clearAllPuzzles()
     }
 
     private func updateLocally(puzzle: Puzzle) {

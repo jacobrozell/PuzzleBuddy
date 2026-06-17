@@ -181,7 +181,10 @@ enum A11yID {
     static let puzzleDetailStats = "puzzle_detail_stats"
     static let puzzleDetailPaceRow = "puzzle_detail_pace_row"
     static let puzzleDetailHoursPer1000Row = "puzzle_detail_hours_per_1000_row"
+    static let puzzleDetailProgress = "puzzle_detail_progress"
+    static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
     static let settingsSignOutButton = "settings_sign_out_button"
+    static let settingsRemoveDemoButton = "settings_remove_demo_button"
     static let settingsTab = "settings_tab"
     static let puzzlesTab = "puzzles_tab"
     static let statsTab = "stats_tab"
@@ -201,6 +204,7 @@ enum A11yID {
     static let collectionStatsSmallestCard = "collection_stats_smallest_card"
     static let puzzleFormNameField = "puzzle_form_name_field"
     static let puzzleFormPiecesField = "puzzle_form_pieces_field"
+    static let puzzleFormSourceField = "puzzle_form_source_field"
     static let puzzleFormRatingControl = "puzzle_form_rating_control"
     static let puzzleFormSubmitButton = "puzzle_form_submit_button"
     static let puzzleFormChoosePhotoButton = "puzzle_form_choose_photo_button"
@@ -217,6 +221,8 @@ enum A11yID {
         "puzzle_row_\(id.uuidString)"
     }
 
+    static let puzzleShareButton = "puzzle_share_button"
     static let puzzleCellRating = "puzzle_cell_rating"
     static let puzzleCellMissingPieces = "puzzle_cell_missing_pieces"
+    static let puzzleCellProgress = "puzzle_cell_progress"
 }

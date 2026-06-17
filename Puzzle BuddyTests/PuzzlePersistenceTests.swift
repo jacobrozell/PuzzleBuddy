@@ -44,6 +44,9 @@ final class PuzzlePersistenceTests: XCTestCase {
         let puzzle = Puzzle.fixture(name: "Thrift", pieces: 500)
         puzzle.hasMissingPieces = true
         puzzle.notes = "Missing corner piece"
+        puzzle.source = "Gift from Mom"
+        puzzle.progressPercent = 35
+        puzzle.isDemo = true
 
         let record = PuzzleRecord(from: puzzle)
         context.insert(record)
@@ -52,6 +55,9 @@ final class PuzzlePersistenceTests: XCTestCase {
         let restored = record.toPuzzle()
         XCTAssertTrue(restored.hasMissingPieces)
         XCTAssertEqual(restored.notes, "Missing corner piece")
+        XCTAssertEqual(restored.source, "Gift from Mom")
+        XCTAssertEqual(restored.progressPercent, 35)
+        XCTAssertTrue(restored.isDemo)
     }
 
     func testPuzzleRecordPersistsInProgressStatus() throws {

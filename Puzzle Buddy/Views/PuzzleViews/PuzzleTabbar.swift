@@ -47,7 +47,7 @@ struct PuzzleTabbar: View {
                     }
                     .accessibilityIdentifier(A11yID.statsTab)
 
-                SettingsView()
+                SettingsView(ps: ps)
                     .tag(PuzzleBuddyTab.settings)
                     .tabItem {
                         Label {
