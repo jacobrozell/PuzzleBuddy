@@ -61,7 +61,7 @@ final class PuzzleStoreCloudSyncTests: XCTestCase {
         await store.fetchPuzzles()
 
         puzzle.name = "After"
-        store.update(puzzle: puzzle)
+        try store.update(puzzle: puzzle)
         try await waitForRemoteWrite()
 
         let remoteDocs = try await remoteStore.fetchDocuments(at: "users/test@example.com/puzzles")

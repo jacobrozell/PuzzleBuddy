@@ -100,6 +100,7 @@ class Puzzle: ObservableObject {
     @Published var source: String? = nil
     @Published var progressPercent: Int = 0
     @Published var isDemo: Bool = false
+    @Published var barcode: String? = nil
     @Published var image: UIImage? = nil
 
     internal init(name: String,
@@ -113,7 +114,8 @@ class Puzzle: ObservableObject {
                   notes: String? = nil,
                   source: String? = nil,
                   progressPercent: Int = 0,
-                  isDemo: Bool = false
+                  isDemo: Bool = false,
+                  barcode: String? = nil
     ) {
         self.name = name
         self.pieces = pieces
@@ -127,11 +129,8 @@ class Puzzle: ObservableObject {
         self.source = source
         self.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
         self.isDemo = isDemo
+        self.barcode = BarcodeNormalizer.normalize(barcode)
     }
-
-//    var category
-//    var barcode // scan barcode on certain brands
-//    var timer // ability to start timer in app ?
 
 //    var price: Double
 //    var notes: String
@@ -153,6 +152,7 @@ class Puzzle: ObservableObject {
             "source": source ?? "nil",
             "progressPercent": progressPercent,
             "isDemo": isDemo,
+            "barcode": barcode ?? "nil",
             "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
         ]
     }
@@ -255,6 +255,10 @@ extension Puzzle {
 
         if let isDemo = data["isDemo"] as? Bool {
             p.isDemo = isDemo
+        }
+
+        if let barcode = data["barcode"] as? String, barcode != "nil" {
+            p.barcode = BarcodeNormalizer.normalize(barcode)
         }
 
         if let imageData = data["imageData"] as? String, let data = Data(base64Encoded: imageData) {

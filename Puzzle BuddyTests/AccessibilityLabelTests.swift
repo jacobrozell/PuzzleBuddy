@@ -22,7 +22,7 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleDetailPaceRow.isEmpty)
         XCTAssertFalse(A11yID.puzzleDetailHoursPer1000Row.isEmpty)
         XCTAssertFalse(A11yID.puzzleDetailProgress.isEmpty)
-        XCTAssertFalse(A11yID.puzzleFormSourceField.isEmpty)
+        XCTAssertFalse(A11yID.puzzleFormBarcodeField.isEmpty)
         XCTAssertFalse(A11yID.puzzleListStatusFilter.isEmpty)
         XCTAssertFalse(A11yID.puzzleListEmptyState.isEmpty)
         XCTAssertFalse(A11yID.puzzleListSortMenu.isEmpty)

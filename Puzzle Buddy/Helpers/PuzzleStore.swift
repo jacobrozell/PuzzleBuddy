@@ -94,6 +94,14 @@ class PuzzleStore: ObservableObject {
         }
     }
 
+    func findPuzzle(matchingBarcode barcode: String?, excludingID: UUID? = nil) -> Puzzle? {
+        PuzzleDuplicateChecker.findDuplicate(
+            barcode: barcode,
+            excludingID: excludingID,
+            in: puzzles
+        )
+    }
+
     func add(puzzle: Puzzle) throws {
         guard usesCloudSync, let remoteStore = resolveRemoteStore() else {
             try addLocally(puzzle: puzzle)
@@ -121,6 +129,7 @@ class PuzzleStore: ObservableObject {
     }
 
     private func addLocally(puzzle: Puzzle) throws {
+        try validateBarcodeUniqueness(for: puzzle)
         let record = PuzzleRecord(from: puzzle)
         modelContext.insert(record)
         try modelContext.save()
@@ -163,8 +172,9 @@ class PuzzleStore: ObservableObject {
         try? modelContext.save()
     }
 
-    func update(puzzle: Puzzle) {
+    func update(puzzle: Puzzle) throws {
         if usesCloudSync, let remoteStore = resolveRemoteStore() {
+            try validateBarcodeUniqueness(for: puzzle)
             Task {
                 do {
                     try await remoteStore.updateDocument(
@@ -172,7 +182,7 @@ class PuzzleStore: ObservableObject {
                         id: puzzle.id.uuidString,
                         data: puzzle.getDataFields()
                     )
-                    self.updateLocally(puzzle: puzzle)
+                    try self.updateLocally(puzzle: puzzle)
                     AppLog.shared.info(
                         .puzzles,
                         eventName: "puzzle_updated",
@@ -186,7 +196,7 @@ class PuzzleStore: ObservableObject {
             return
         }
 
-        updateLocally(puzzle: puzzle)
+        try updateLocally(puzzle: puzzle)
         AppLog.shared.info(
             .puzzles,
             eventName: "puzzle_updated",
@@ -261,13 +271,24 @@ class PuzzleStore: ObservableObject {
         try? clearAllPuzzles()
     }
 
-    private func updateLocally(puzzle: Puzzle) {
+    private func updateLocally(puzzle: Puzzle) throws {
+        try validateBarcodeUniqueness(for: puzzle)
         guard let record = fetchRecord(id: puzzle.id) else { return }
         record.apply(from: puzzle)
         if let index = puzzles.firstIndex(where: { $0.id == puzzle.id }) {
             puzzles[index] = puzzle
         }
-        try? modelContext.save()
+        try modelContext.save()
+    }
+
+    private func validateBarcodeUniqueness(for puzzle: Puzzle) throws {
+        puzzle.barcode = BarcodeNormalizer.normalize(puzzle.barcode)
+        if let duplicate = findPuzzle(matchingBarcode: puzzle.barcode, excludingID: puzzle.id) {
+            throw PuzzleStoreError.duplicateBarcode(
+                existingPuzzleName: duplicate.name,
+                barcode: puzzle.barcode ?? ""
+            )
+        }
     }
 
     private func fetchRecord(id: UUID) -> PuzzleRecord? {

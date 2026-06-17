@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
+    @EnvironmentObject var eh: ErrorHandling
     @State private var isEditable = false
     @State private var editFormVm: PuzzleFormViewModel?
     @Binding var puzzle: Puzzle
@@ -44,9 +45,13 @@ struct PuzzleDetail: View {
 
                     guard !trimmedNameIsEmpty else { return }
 
-                    ps.update(puzzle: puzzle)
-                    editFormVm = nil
-                    isEditable = false
+                    do {
+                        try ps.update(puzzle: puzzle)
+                        editFormVm = nil
+                        isEditable = false
+                    } catch {
+                        eh.handle(title: "Could not save puzzle", message: error.localizedDescription)
+                    }
                 } label: {
                     Text("\(isEditable ? "Save" : "Edit")")
                 }
@@ -69,6 +74,7 @@ struct PuzzleDetail: View {
 struct DetailView: View {
     @Binding var puzzle: Puzzle
     @ObservedObject var ps: PuzzleStore
+    @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -147,7 +153,11 @@ struct DetailView: View {
                 progressPercent: $puzzle.progressPercent,
                 status: $puzzle.status,
                 onCommit: {
-                    ps.update(puzzle: puzzle)
+                    do {
+                        try ps.update(puzzle: puzzle)
+                    } catch {
+                        eh.handle(title: "Could not save progress", message: error.localizedDescription)
+                    }
                 }
             )
         }
@@ -164,6 +174,10 @@ struct DetailView: View {
 
                 if let source = puzzle.source?.trimmingCharacters(in: .whitespacesAndNewlines), !source.isEmpty {
                     detailRow(label: "Source", value: source)
+                }
+
+                if let barcode = puzzle.barcode, !barcode.isEmpty {
+                    detailRow(label: "Barcode", value: barcode)
                 }
 
                 detailRow(

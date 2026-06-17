@@ -136,6 +136,22 @@ struct PuzzleFormInternal: View {
             }
 
             Section {
+                TextField(
+                    "Barcode",
+                    text: barcodeBinding,
+                    prompt: Text("UPC / EAN from box")
+                )
+                .keyboardType(.numberPad)
+                .optionalAccessibilityIdentifier(A11yID.puzzleFormBarcodeField)
+                .accessibilityLabel("Barcode")
+                .accessibilityHint("Optional UPC or EAN number from the puzzle box")
+            } header: {
+                Text("Barcode")
+            } footer: {
+                Text("Used to check for duplicates when shopping. Enter 6 to 14 digits.")
+            }
+
+            Section {
                 PuzzleProgressSection(
                     progressPercent: $formVm.puzzle.progressPercent,
                     status: $formVm.puzzle.status
@@ -253,6 +269,18 @@ struct PuzzleFormInternal: View {
             set: { newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 formVm.puzzle.source = trimmed.isEmpty ? nil : String(trimmed.prefix(200))
+            }
+        )
+    }
+
+    private var barcodeBinding: Binding<String> {
+        Binding(
+            get: { formVm.puzzle.barcode ?? "" },
+            set: { newValue in
+                let digits = newValue.filter(\.isNumber)
+                formVm.puzzle.barcode = digits.isEmpty
+                    ? nil
+                    : String(digits.prefix(BarcodeNormalizer.maxLength))
             }
         )
     }

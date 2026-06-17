@@ -47,6 +47,7 @@ final class PuzzlePersistenceTests: XCTestCase {
         puzzle.source = "Gift from Mom"
         puzzle.progressPercent = 35
         puzzle.isDemo = true
+        puzzle.barcode = "4006381333931"
 
         let record = PuzzleRecord(from: puzzle)
         context.insert(record)
@@ -58,6 +59,7 @@ final class PuzzlePersistenceTests: XCTestCase {
         XCTAssertEqual(restored.source, "Gift from Mom")
         XCTAssertEqual(restored.progressPercent, 35)
         XCTAssertTrue(restored.isDemo)
+        XCTAssertEqual(restored.barcode, "4006381333931")
     }
 
     func testPuzzleRecordPersistsInProgressStatus() throws {

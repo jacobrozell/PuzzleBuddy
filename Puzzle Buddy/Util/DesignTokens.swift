@@ -205,6 +205,7 @@ enum A11yID {
     static let puzzleFormNameField = "puzzle_form_name_field"
     static let puzzleFormPiecesField = "puzzle_form_pieces_field"
     static let puzzleFormSourceField = "puzzle_form_source_field"
+    static let puzzleFormBarcodeField = "puzzle_form_barcode_field"
     static let puzzleFormRatingControl = "puzzle_form_rating_control"
     static let puzzleFormSubmitButton = "puzzle_form_submit_button"
     static let puzzleFormChoosePhotoButton = "puzzle_form_choose_photo_button"

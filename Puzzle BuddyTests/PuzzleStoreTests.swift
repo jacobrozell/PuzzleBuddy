@@ -73,7 +73,7 @@ final class PuzzleStoreTests: XCTestCase {
         puzzle.name = "After"
         puzzle.pieces = 250
         puzzle.status = .completed
-        store.update(puzzle: puzzle)
+        try store.update(puzzle: puzzle)
 
         let reloaded = PuzzleStore(modelContext: context)
         await reloaded.fetchPuzzles()
@@ -82,6 +82,34 @@ final class PuzzleStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.puzzles.first?.name, "After")
         XCTAssertEqual(reloaded.puzzles.first?.pieces, 250)
         XCTAssertEqual(reloaded.puzzles.first?.status, .completed)
+    }
+
+    func testAddRejectsDuplicateBarcode() throws {
+        let store = PuzzleStore(modelContext: context)
+        let first = Puzzle.fixture(name: "First", pieces: 500)
+        first.barcode = "012345678905"
+        try store.add(puzzle: first)
+
+        let second = Puzzle.fixture(name: "Second", pieces: 1000)
+        second.barcode = "012345678905"
+
+        XCTAssertThrowsError(try store.add(puzzle: second)) { error in
+            XCTAssertTrue(error is PuzzleStoreError)
+        }
+        XCTAssertEqual(store.puzzles.count, 1)
+    }
+
+    func testUpdateRejectsDuplicateBarcode() throws {
+        let store = PuzzleStore(modelContext: context)
+        let first = Puzzle.fixture(name: "First", pieces: 500)
+        first.barcode = "012345678905"
+        let second = Puzzle.fixture(name: "Second", pieces: 1000)
+        try store.add(puzzle: first)
+        try store.add(puzzle: second)
+
+        second.barcode = "012345678905"
+
+        XCTAssertThrowsError(try store.update(puzzle: second))
     }
 
     func testDeleteRemovesPuzzleLocally() async throws {
