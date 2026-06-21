@@ -107,3 +107,4 @@ TestResults.xcresult
 TestResults-unit.xcresult
 xcodebuild-*.log
 .packages/
+.DS_Store
