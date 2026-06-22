@@ -47,4 +47,9 @@ final class Puzzle_BuddyTests: XCTestCase {
     func testAppInfoDisplayName() {
         XCTAssertEqual(AppInfo.displayName, "Puzzle Buddy")
     }
+
+    func testOnboardingUsesAppDisplayName() {
+        XCTAssertFalse(AppInfo.displayName.isEmpty)
+        XCTAssertFalse(AppInfo.displayName.localizedCaseInsensitiveContains("Pal"))
+    }
 }

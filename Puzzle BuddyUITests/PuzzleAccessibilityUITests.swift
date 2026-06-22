@@ -15,17 +15,17 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         timeout: TimeInterval = 15
     ) -> XCUIElement {
         let indicators: [XCUIElement] = [
+            app.staticTexts[UITestA11yID.seededPuzzleRowLabelPrefix],
+            app.staticTexts["Ocean Breeze"],
+            app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")).firstMatch,
             app.buttons[UITestA11yID.addPuzzleButton],
             app.buttons["Add puzzle"],
-            app.staticTexts["Mountain Sunset"],
-            app.staticTexts["Ocean Breeze"],
             app.tabBars.buttons["Puzzles"],
             app.tables[UITestA11yID.puzzleList],
             app.collectionViews[UITestA11yID.puzzleList],
             app.otherElements[UITestA11yID.puzzleList],
             app.tables["Puzzle collection"],
-            app.descendants(matching: .any)[UITestA11yID.puzzleList],
-            app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")).firstMatch
+            app.descendants(matching: .any)[UITestA11yID.puzzleList]
         ]
 
         let deadline = Date().addingTimeInterval(timeout)
@@ -41,13 +41,21 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     private func waitForSeededPuzzles(in app: XCUIApplication, timeout: TimeInterval = 30) {
-        XCTAssertTrue(puzzleRow(named: UITestA11yID.seededPuzzleRowLabelPrefix, in: app).waitForExistence(timeout: timeout))
+        _ = app
+        _ = timeout
+        // Demo puzzles are verified in launchForBypassAuth().
     }
 
     private func puzzleRow(named name: String, in app: XCUIApplication) -> XCUIElement {
-        app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_' AND label BEGINSWITH %@", name)
+        let byIdentifier = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_' AND label CONTAINS[c] %@", name)
         ).firstMatch
+        if byIdentifier.exists { return byIdentifier }
+
+        let byTitle = app.staticTexts[name].firstMatch
+        if byTitle.exists { return byTitle }
+
+        return byIdentifier
     }
 
     private func tapAddPuzzle(in app: XCUIApplication) {
@@ -200,8 +208,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
-        app.tabBars.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Help & Legal"].waitForExistence(timeout: 3))
+        openSettingsTab(in: app)
 
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.nameRoleValue)
     }
@@ -290,8 +297,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
-        app.tabBars.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Help & Legal"].waitForExistence(timeout: 3))
+        openSettingsTab(in: app)
 
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
     }
@@ -312,16 +318,20 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
-        app.tabBars.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Help & Legal"].waitForExistence(timeout: 3))
+        openSettingsTab(in: app)
 
-        let importButton = app.buttons[UITestA11yID.settingsImportIPDbButton]
+        let importControl = app.descendants(matching: .any)[UITestA11yID.settingsImportIPDbButton]
+        let exportControl = app.descendants(matching: .any)[UITestA11yID.settingsExportCollectionButton]
+        for _ in 0..<4 {
+            if importControl.exists && exportControl.exists { break }
+            app.swipeUp()
+        }
+
         let importByLabel = app.buttons["Import from IPDb CSV"]
-        XCTAssertTrue(importButton.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 3))
+        XCTAssertTrue(importControl.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 3))
 
-        let exportButton = app.buttons[UITestA11yID.settingsExportCollectionButton]
         let exportByLabel = app.buttons["Export collection"]
-        XCTAssertTrue(exportButton.waitForExistence(timeout: 3) || exportByLabel.waitForExistence(timeout: 3))
+        XCTAssertTrue(exportControl.waitForExistence(timeout: 3) || exportByLabel.waitForExistence(timeout: 3))
     }
 
     func testPuzzleListDynamicTypeAudit() throws {

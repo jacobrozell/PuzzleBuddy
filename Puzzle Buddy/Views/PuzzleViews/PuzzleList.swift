@@ -101,6 +101,8 @@ struct PuzzleList: View {
                             showShoppingMode = true
                         } label: {
                             Image(systemName: "barcode.viewfinder")
+                                .frame(minWidth: 44, minHeight: 44)
+                                .contentShape(Rectangle())
                         }
                         .accessibilityLabel("Check duplicate")
                         .accessibilityHint("Scan a barcode to see if you already own this puzzle")
@@ -253,6 +255,8 @@ struct PuzzleList: View {
                             .foregroundStyle(Brand.textSecondary)
                     }
                     .buttonStyle(.plain)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
                     .accessibilityLabel("Clear search")
                     .accessibilityHint("Clears the search field")
                 }
@@ -340,6 +344,8 @@ struct PuzzleList: View {
                 .font(.caption.weight(.medium))
                 .foregroundStyle(pieceCountFilter == .any ? Brand.textSecondary : Brand.accent)
         }
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityIdentifier(A11yID.puzzleListPieceCountFilter)
         .accessibilityLabel("Filter by piece count, \(pieceCountFilter.title)")
     }
@@ -373,6 +379,8 @@ struct PuzzleList: View {
                 .font(.caption.weight(.medium))
                 .foregroundStyle(tagFilter == nil ? Brand.textSecondary : Brand.accent)
         }
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityIdentifier(A11yID.puzzleListTagFilter)
         .accessibilityLabel("Filter by tag, \(tagFilter ?? "any")")
         .disabled(availableTags.isEmpty)
@@ -387,6 +395,8 @@ struct PuzzleList: View {
                 .foregroundStyle(needsPhotoOnly ? Brand.accentWarm : Brand.textSecondary)
         }
         .buttonStyle(.plain)
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityIdentifier(A11yID.puzzleListNeedsPhotoFilter)
         .accessibilityLabel("Filter needs photo")
         .accessibilityValue(needsPhotoOnly ? "On" : "Off")
@@ -402,6 +412,8 @@ struct PuzzleList: View {
                 .foregroundStyle(missingPiecesOnly ? Brand.accentWarm : Brand.textSecondary)
         }
         .buttonStyle(.plain)
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
         .accessibilityIdentifier(A11yID.puzzleListMissingPiecesFilter)
         .accessibilityLabel("Filter missing pieces")
         .accessibilityValue(missingPiecesOnly ? "On" : "Off")
@@ -424,6 +436,9 @@ struct PuzzleList: View {
             }
         } label: {
             Image(systemName: "arrow.up.arrow.down.circle")
+                .font(.title3)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
         }
         .accessibilityIdentifier(A11yID.puzzleListSortMenu)
         .accessibilityLabel("Sort puzzles, \(sortOption.title)")

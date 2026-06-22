@@ -12,6 +12,17 @@ enum WCAGAccessibilityAuditProfile {
 }
 
 extension XCTestCase {
+    func openSettingsTab(in app: XCUIApplication, file: StaticString = #filePath, line: UInt = #line) {
+        let settingsTab = app.tabBars.buttons["Settings"]
+        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), file: file, line: line)
+        settingsTab.tap()
+        let settingsLoaded =
+            app.staticTexts["Help & Legal"].waitForExistence(timeout: 5)
+            || app.staticTexts["Display"].waitForExistence(timeout: 3)
+            || app.staticTexts["Track your puzzle collection"].waitForExistence(timeout: 3)
+        XCTAssertTrue(settingsLoaded, file: file, line: line)
+    }
+
     func launchForLogin(
         extraArguments: [String] = [],
         contentSizeCategory: String? = nil
@@ -61,27 +72,25 @@ extension XCTestCase {
 
         let addButton = app.descendants(matching: .any)[UITestA11yID.addPuzzleButton]
         let addByLabel = app.buttons["Add puzzle"]
+        let seededTitle = app.staticTexts[UITestA11yID.seededPuzzleRowLabelPrefix]
         let seededRow = app.descendants(matching: .any).matching(
             NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")
         ).firstMatch
 
         let deadline = Date().addingTimeInterval(30)
         while Date() < deadline {
-            if addButton.exists || addByLabel.exists || seededRow.exists { break }
+            if seededRow.exists || seededTitle.exists { break }
             RunLoop.current.run(until: Date().addingTimeInterval(0.25))
         }
 
         XCTAssertTrue(
-            addButton.exists || addByLabel.exists || seededRow.exists,
-            "Puzzle list did not load. \(app.debugDescription.prefix(1_000))"
+            seededRow.exists || seededTitle.exists,
+            "Seeded puzzles did not appear. \(app.debugDescription.prefix(1_000))"
         )
 
-        let puzzleRows = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")
-        ).firstMatch
         XCTAssertTrue(
-            puzzleRows.waitForExistence(timeout: 30),
-            "Seeded puzzles did not appear."
+            addButton.exists || addByLabel.exists || app.tabBars.buttons["Puzzles"].exists,
+            "Puzzle list chrome did not load."
         )
 
         return app

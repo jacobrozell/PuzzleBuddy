@@ -60,6 +60,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Puzzle-Buddy-Info.plist
         INFOPLIST_KEY_NSCameraUsageDescription: Puzzle Buddy uses the camera to photograph puzzle boxes and scan barcodes for faster cataloging and duplicate checks.
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: Puzzle Buddy uses your photo library so you can attach puzzle box photos to your collection entries.
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone:

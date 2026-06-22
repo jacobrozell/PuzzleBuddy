@@ -11,7 +11,7 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject var auth: FirebaseAuthProvider
     let modelContext: ModelContext
-    @State private var showOnboarding = true
+    @State private var showOnboarding = !OnboardingStorage.isComplete
 
     var body: some View {
         Group {
@@ -22,9 +22,6 @@ struct RootView: View {
             } else {
                 PuzzleView(modelContext: modelContext)
             }
-        }
-        .onAppear {
-            showOnboarding = !OnboardingStorage.isComplete
         }
         .task {
             if UITestSupport.isBypassAuthEnabled {

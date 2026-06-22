@@ -22,9 +22,12 @@
     <h2>Data we collect</h2>
     <ul>
       <li>Puzzle metadata you enter (title, piece count, ratings, photos) — stored on your device in version 1.0</li>
-      <li>Anonymous usage analytics and crash reports (no email in analytics events)</li>
+      <li>Anonymous usage analytics (Firebase Analytics) and crash reports (Firebase Crashlytics). Events are allowlisted and do not include your email, puzzle titles, or photos.</li>
       <li>Account email and display name — only if and when you choose to create an account in a future release</li>
     </ul>
+
+    <h2>Analytics and crash reporting</h2>
+    <p>Version 1.0 may send anonymous app-open and puzzle-count events to Firebase Analytics, and crash diagnostics to Firebase Crashlytics, to improve stability. You can review Firebase’s policies at <a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a>. Puzzle Buddy does not use advertising tracking or sell your data.</p>
 
     <h2>Optional barcode lookup</h2>
     <p>If you turn on <strong>Look up product from barcode</strong> in Settings, Puzzle Buddy sends the barcode digits to <a href="https://www.upcitemdb.com/">UPCitemdb</a> to suggest a product title or brand. This happens only when you scan or add a puzzle and only after checking your saved collection on device. We do not send your name, email, or puzzle photos. You can leave this off and use the app fully offline except for that optional feature.</p>

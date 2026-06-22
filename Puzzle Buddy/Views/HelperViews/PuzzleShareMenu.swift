@@ -80,6 +80,8 @@ struct PuzzleShareMenu: View {
             .disabled(visibleList.isEmpty)
         } label: {
             Image(systemName: "square.and.arrow.up")
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
         }
         .accessibilityIdentifier(A11yID.puzzleShareButton)
         .accessibilityLabel("Share collection")

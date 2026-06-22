@@ -30,7 +30,7 @@ struct OnboardingView: View {
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(
-            title: "Welcome to \(Config.appName)",
+            title: "Welcome to \(AppInfo.displayName)",
             message: "Your personal jigsaw puzzle catalog — track every box on your shelf, offline and private.",
             hero: .brandMark
         ),

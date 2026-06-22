@@ -9,19 +9,20 @@ Plans and projects **in implementation** — approved, specced, and actively bei
 | Ship blockers / release train | [`docs/release/`](../docs/release/) |
 | Shipped behavior | [`specs/`](../specs/) + [`docs/feature-inventory.md`](../docs/feature-inventory.md) |
 
-**Last updated:** 2026-06-20
+**Last updated:** 2026-06-22
 
 ## Active
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
+| App Store 1.0 submit | [`docs/release/todo.md`](../docs/release/todo.md) | In progress | Review fixes + Connect checklist |
 | WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2–3 accessibility |
-| Garage collector | [`docs/spec-garage-collector.md`](../docs/spec-garage-collector.md) | Partial — QA pending | Phase 1 implemented |
-| UPC lookup | [`docs/upc-lookup-plan.md`](../docs/upc-lookup-plan.md) | Approved — not started | Phases 2–3 after Phase 1 sign-off |
+| UPC lookup | [`docs/upc-lookup-plan.md`](../docs/upc-lookup-plan.md) | Shipped (optional toggle) | Network failure UX verified in unit tests |
 
 ## See also
 
-- Ship blockers: [`docs/release/todo.md`](../docs/release/todo.md)
+- Reviewer handoff: [`FutureIdeas/ReviewerReadinessHandoff.md`](../FutureIdeas/ReviewerReadinessHandoff.md)
+- Connect checklist: [`docs/release/app-store-connect.md`](../docs/release/app-store-connect.md)
 - Post-1.0 roadmap: [`docs/roadmap.md`](../docs/roadmap.md)
 
 ## Finished (archive)

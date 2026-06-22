@@ -20,7 +20,11 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         FirebaseApp.configure()
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
 
-        // Setup Push
+        // Push is only used when account sign-in ships (1.1+). Do not prompt on 1.0 local-first launch.
+        guard ProductService.isLoginEnabled else {
+            return true
+        }
+
         Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().delegate = self
 

@@ -48,7 +48,15 @@ class PuzzleStore: ObservableObject {
 
         if UITestSupport.shouldSeedPuzzles {
             clearAllLocalRecords()
-            UITestSupport.seedPuzzlesIfNeeded(into: self)
+            do {
+                try loadDemoPuzzles()
+            } catch {
+                AppLog.shared.warning(
+                    .puzzles,
+                    eventName: "demo_data_seed_failed",
+                    message: error.localizedDescription
+                )
+            }
         }
     }
 
