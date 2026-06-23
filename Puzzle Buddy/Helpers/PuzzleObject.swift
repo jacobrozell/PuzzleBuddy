@@ -67,6 +67,33 @@ class Puzzle: ObservableObject {
             return "\(hours)hr:\(minutes)min"
         }
 
+        /// Human-readable label for UI (e.g. detail screen, form preview).
+        var displayLabel: String? {
+            let hourValue = max(hours ?? 0, 0)
+            let minuteValue = max(minutes ?? 0, 0)
+            guard hourValue > 0 || minuteValue > 0 else { return nil }
+
+            var parts: [String] = []
+            if hourValue > 0 {
+                parts.append(hourValue == 1 ? "1 hr" : "\(hourValue) hr")
+            }
+            if minuteValue > 0 {
+                parts.append(minuteValue == 1 ? "1 min" : "\(minuteValue) min")
+            }
+            return parts.joined(separator: " ")
+        }
+
+        mutating func normalizeComponents() {
+            var hourValue = max(hours ?? 0, 0)
+            var minuteValue = max(minutes ?? 0, 0)
+            if minuteValue >= 60 {
+                hourValue += minuteValue / 60
+                minuteValue %= 60
+            }
+            hours = hourValue
+            minutes = minuteValue
+        }
+
         /// Returns # of minutes
         func toMin() -> Int {
             guard let hours = hours, let minutes = minutes else {

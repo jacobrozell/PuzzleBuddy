@@ -28,6 +28,7 @@ struct PuzzleList: View {
     @State private var needsPhotoOnly: Bool = false
     @State private var pieceCountFilter: PuzzleListPieceCountFilter = .any
     @State private var tagFilter: String? = nil
+    @State private var showTagFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
 
     private var displayedPuzzles: [Puzzle] {
@@ -44,7 +45,7 @@ struct PuzzleList: View {
     }
 
     private var availableTags: [PuzzleTagCount] {
-        PuzzleTagIndex.counts(from: ps.puzzles)
+        PuzzleTagIndex.counts(from: ps.puzzles, limit: Int.max)
     }
 
     private var hasActiveFilters: Bool {
@@ -60,6 +61,16 @@ struct PuzzleList: View {
 
     private var hasActiveSearch: Bool {
         PuzzleListQuery.hasActiveSearch(searchText)
+    }
+
+    private var hasSecondaryFilters: Bool {
+        PuzzleListQuery.hasSecondaryFilters(
+            searchText: searchText,
+            missingPiecesOnly: missingPiecesOnly,
+            needsPhotoOnly: needsPhotoOnly,
+            pieceCountFilter: pieceCountFilter,
+            tagFilter: tagFilter
+        )
     }
 
     var body: some View {
@@ -148,6 +159,12 @@ struct PuzzleList: View {
             if let index = ps.puzzles.firstIndex(where: { $0.id == request.id }) {
                 PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
             }
+        }
+        .sheet(isPresented: $showTagFilterSheet) {
+            TagFilterSheet(
+                tags: availableTags,
+                selection: $tagFilter
+            )
         }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
@@ -243,6 +260,7 @@ struct PuzzleList: View {
                     .textFieldStyle(.plain)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
+                    .submitLabel(.search)
                     .accessibilityIdentifier(A11yID.puzzleListSearchField)
                     .accessibilityLabel("Search name, brand, tag, or barcode")
                     .accessibilityHint("Filters the puzzle list as you type")
@@ -267,62 +285,93 @@ struct PuzzleList: View {
             .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
 
             if !ps.puzzles.isEmpty {
+                HStack(alignment: .center, spacing: DS.Spacing.s2) {
+                    Text(PuzzleListQuery.resultCountLabel(
+                        displayedCount: displayedPuzzles.count,
+                        totalCount: ps.puzzles.count,
+                        hasActiveFilters: hasActiveFilters
+                    ))
+                    .font(.caption)
+                    .foregroundStyle(Brand.textSecondary)
+                    .accessibilityIdentifier(A11yID.puzzleListResultCount)
+
+                    if hasSecondaryFilters {
+                        Button("Clear filters") {
+                            clearSecondaryFilters()
+                        }
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Brand.accent)
+                        .frame(minHeight: 44)
+                        .accessibilityIdentifier(A11yID.puzzleListClearFilters)
+                        .accessibilityHint("Clears search, tag, and other list filters")
+                    }
+
+                    Spacer(minLength: 0)
+
+                    if verticalSizeClass != .compact {
+                        listFilterControls
+                    }
+                }
+
                 if verticalSizeClass == .compact {
-                    VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                        Text(PuzzleListQuery.resultCountLabel(
-                            displayedCount: displayedPuzzles.count,
-                            totalCount: ps.puzzles.count,
-                            hasActiveFilters: hasActiveFilters
-                        ))
-                        .font(.caption)
-                        .foregroundStyle(Brand.textSecondary)
-                        .accessibilityIdentifier(A11yID.puzzleListResultCount)
-
-                        listFilterControls
-                    }
-                } else {
-                    HStack {
-                        Text(PuzzleListQuery.resultCountLabel(
-                            displayedCount: displayedPuzzles.count,
-                            totalCount: ps.puzzles.count,
-                            hasActiveFilters: hasActiveFilters
-                        ))
-                        .font(.caption)
-                        .foregroundStyle(Brand.textSecondary)
-                        .accessibilityIdentifier(A11yID.puzzleListResultCount)
-
-                        Spacer()
-
-                        listFilterControls
-                    }
+                    listFilterControls
                 }
             }
         }
         .padding(.horizontal, DS.Spacing.s4)
         .padding(.vertical, DS.Spacing.s2)
-        .background(Brand.background.opacity(0.95))
+        .background {
+            Brand.background.opacity(0.95)
+                .overlay(alignment: .bottom) {
+                    Divider()
+                }
+        }
         .accessibilityIdentifier(A11yID.puzzleListStatusFilter)
         .accessibilityElement(children: .contain)
     }
 
     private var listFilterControls: some View {
-        ViewThatFits(in: .horizontal) {
+        ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DS.Spacing.s2) {
                 pieceCountFilterMenu
-                tagFilterMenu
+                tagFilterButton
                 needsPhotoFilterToggle
                 missingPiecesFilterToggle
             }
-
-            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                pieceCountFilterMenu
-                tagFilterMenu
-                HStack(spacing: DS.Spacing.s2) {
-                    needsPhotoFilterToggle
-                    missingPiecesFilterToggle
-                }
-            }
         }
+    }
+
+    private func clearSecondaryFilters() {
+        searchText = ""
+        missingPiecesOnly = false
+        needsPhotoOnly = false
+        pieceCountFilter = .any
+        tagFilter = nil
+    }
+
+    private func listFilterChipLabel(
+        _ title: String,
+        systemImage: String,
+        isActive: Bool,
+        activeColor: Color = Brand.accent
+    ) -> some View {
+        Label(title, systemImage: systemImage)
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(isActive ? activeColor : Brand.textPrimary)
+            .lineLimit(1)
+            .padding(.horizontal, DS.Spacing.s3)
+            .padding(.vertical, 10)
+            .frame(minHeight: 44)
+            .background(isActive ? activeColor.opacity(0.14) : Brand.card)
+            .clipShape(Capsule())
+            .overlay {
+                Capsule()
+                    .strokeBorder(
+                        isActive ? activeColor.opacity(0.45) : Brand.textSecondary.opacity(0.22),
+                        lineWidth: 1
+                    )
+            }
+            .contentShape(Capsule())
     }
 
     private var pieceCountFilterMenu: some View {
@@ -340,49 +389,31 @@ struct PuzzleList: View {
                 .accessibilityLabel(filter.accessibilityLabel)
             }
         } label: {
-            Label(pieceCountFilter.title, systemImage: "number")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(pieceCountFilter == .any ? Brand.textSecondary : Brand.accent)
+            listFilterChipLabel(
+                pieceCountFilter.title,
+                systemImage: "number",
+                isActive: pieceCountFilter != .any
+            )
         }
-        .frame(minWidth: 44, minHeight: 44)
-        .contentShape(Rectangle())
+        .buttonStyle(.plain)
         .accessibilityIdentifier(A11yID.puzzleListPieceCountFilter)
         .accessibilityLabel("Filter by piece count, \(pieceCountFilter.title)")
     }
 
-    private var tagFilterMenu: some View {
-        Menu {
-            Button {
-                tagFilter = nil
-            } label: {
-                if tagFilter == nil {
-                    Label("Any tag", systemImage: "checkmark")
-                } else {
-                    Text("Any tag")
-                }
-            }
-
-            ForEach(availableTags) { tag in
-                Button {
-                    tagFilter = tag.name
-                } label: {
-                    if tagFilter?.caseInsensitiveCompare(tag.name) == .orderedSame {
-                        Label("\(tag.name) (\(tag.count))", systemImage: "checkmark")
-                    } else {
-                        Text("\(tag.name) (\(tag.count))")
-                    }
-                }
-                .accessibilityLabel("Filter by tag \(tag.name), \(tag.count) puzzles")
-            }
+    private var tagFilterButton: some View {
+        Button {
+            showTagFilterSheet = true
         } label: {
-            Label(tagFilter ?? "Tags", systemImage: "tag")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(tagFilter == nil ? Brand.textSecondary : Brand.accent)
+            listFilterChipLabel(
+                tagFilter ?? "Tags",
+                systemImage: "tag",
+                isActive: tagFilter != nil
+            )
         }
-        .frame(minWidth: 44, minHeight: 44)
-        .contentShape(Rectangle())
+        .buttonStyle(.plain)
         .accessibilityIdentifier(A11yID.puzzleListTagFilter)
         .accessibilityLabel("Filter by tag, \(tagFilter ?? "any")")
+        .accessibilityHint("Opens a searchable list of tags")
         .disabled(availableTags.isEmpty)
     }
 
@@ -390,13 +421,14 @@ struct PuzzleList: View {
         Button {
             needsPhotoOnly.toggle()
         } label: {
-            Label("Needs photo", systemImage: needsPhotoOnly ? "photo.badge.checkmark.fill" : "photo")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(needsPhotoOnly ? Brand.accentWarm : Brand.textSecondary)
+            listFilterChipLabel(
+                "Needs photo",
+                systemImage: needsPhotoOnly ? "photo.badge.checkmark.fill" : "photo",
+                isActive: needsPhotoOnly,
+                activeColor: Brand.accentWarm
+            )
         }
         .buttonStyle(.plain)
-        .frame(minWidth: 44, minHeight: 44)
-        .contentShape(Rectangle())
         .accessibilityIdentifier(A11yID.puzzleListNeedsPhotoFilter)
         .accessibilityLabel("Filter needs photo")
         .accessibilityValue(needsPhotoOnly ? "On" : "Off")
@@ -407,13 +439,14 @@ struct PuzzleList: View {
         Button {
             missingPiecesOnly.toggle()
         } label: {
-            Label("Missing pieces", systemImage: missingPiecesOnly ? "checkmark.circle.fill" : "circle")
-                .font(.caption.weight(.medium))
-                .foregroundStyle(missingPiecesOnly ? Brand.accentWarm : Brand.textSecondary)
+            listFilterChipLabel(
+                "Missing pieces",
+                systemImage: missingPiecesOnly ? "checkmark.circle.fill" : "circle",
+                isActive: missingPiecesOnly,
+                activeColor: Brand.accentWarm
+            )
         }
         .buttonStyle(.plain)
-        .frame(minWidth: 44, minHeight: 44)
-        .contentShape(Rectangle())
         .accessibilityIdentifier(A11yID.puzzleListMissingPiecesFilter)
         .accessibilityLabel("Filter missing pieces")
         .accessibilityValue(missingPiecesOnly ? "On" : "Off")
@@ -578,6 +611,129 @@ private struct QuickAddContext: Identifiable {
 
 private struct OpenPuzzleRequest: Identifiable, Hashable {
     let id: UUID
+}
+
+private struct TagFilterSheet: View {
+    let tags: [PuzzleTagCount]
+    @Binding var selection: String?
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+
+    private var filteredTags: [PuzzleTagCount] {
+        PuzzleTagIndex.filteredCounts(tags, matching: searchText)
+    }
+
+    private var trimmedSearch: String {
+        searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                Section {
+                    Button {
+                        selection = nil
+                        dismiss()
+                    } label: {
+                        tagRow(
+                            name: "Any tag",
+                            badge: "All",
+                            isSelected: selection == nil
+                        )
+                    }
+                    .accessibilityLabel("Any tag")
+                    .accessibilityAddTraits(selection == nil ? .isSelected : [])
+                }
+
+                Section {
+                    if filteredTags.isEmpty {
+                        ContentUnavailableView(
+                            "No matching tags",
+                            systemImage: "tag.slash",
+                            description: Text(
+                                trimmedSearch.isEmpty
+                                    ? "Add tags to puzzles to filter by them here."
+                                    : "Try a different spelling or clear your search."
+                            )
+                        )
+                        .listRowBackground(Color.clear)
+                    } else {
+                        ForEach(filteredTags) { tag in
+                            Button {
+                                selection = tag.name
+                                dismiss()
+                            } label: {
+                                tagRow(
+                                    name: tag.name,
+                                    badge: "\(tag.count)",
+                                    isSelected: selection?.caseInsensitiveCompare(tag.name) == .orderedSame
+                                )
+                            }
+                            .accessibilityLabel("Filter by tag \(tag.name), \(tag.count) puzzles")
+                            .accessibilityAddTraits(
+                                selection?.caseInsensitiveCompare(tag.name) == .orderedSame ? .isSelected : []
+                            )
+                        }
+                    }
+                } header: {
+                    if trimmedSearch.isEmpty {
+                        Text("Your tags")
+                    } else {
+                        Text("Results")
+                    }
+                } footer: {
+                    if !trimmedSearch.isEmpty, !filteredTags.isEmpty {
+                        Text("\(filteredTags.count) tag\(filteredTags.count == 1 ? "" : "s") match “\(trimmedSearch)”.")
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .searchable(text: $searchText, prompt: "Search tags")
+            .navigationTitle("Filter by tag")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+    }
+
+    @ViewBuilder
+    private func tagRow(
+        name: String,
+        badge: String,
+        isSelected: Bool
+    ) -> some View {
+        HStack(spacing: DS.Spacing.s3) {
+            Image(systemName: "tag.fill")
+                .foregroundStyle(isSelected ? Brand.accent : Brand.textSecondary)
+                .accessibilityHidden(true)
+
+            Text(name)
+                .foregroundStyle(Brand.textPrimary)
+
+            Spacer()
+
+            Text(badge)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(isSelected ? Brand.textOnAccent : Brand.textSecondary)
+                .padding(.horizontal, DS.Spacing.s2)
+                .padding(.vertical, 4)
+                .background(isSelected ? Brand.accent : Brand.cardElevated)
+                .clipShape(Capsule())
+
+            if isSelected {
+                Image(systemName: "checkmark")
+                    .foregroundStyle(Brand.accent)
+                    .accessibilityHidden(true)
+            }
+        }
+    }
 }
 
 // MARK: - Previews

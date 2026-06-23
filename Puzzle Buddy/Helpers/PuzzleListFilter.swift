@@ -248,6 +248,20 @@ enum PuzzleListQuery {
         !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    static func hasSecondaryFilters(
+        searchText: String,
+        missingPiecesOnly: Bool,
+        needsPhotoOnly: Bool = false,
+        pieceCountFilter: PuzzleListPieceCountFilter = .any,
+        tagFilter: String? = nil
+    ) -> Bool {
+        hasActiveSearch(searchText)
+            || missingPiecesOnly
+            || needsPhotoOnly
+            || pieceCountFilter != .any
+            || tagFilter != nil
+    }
+
     private static func matchesBarcode(_ barcode: String?, query: String, digitQuery: String) -> Bool {
         guard let barcode, !barcode.isEmpty else { return false }
         let normalizedBarcode = barcode.lowercased()

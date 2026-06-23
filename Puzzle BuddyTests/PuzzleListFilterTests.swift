@@ -191,6 +191,31 @@ final class PuzzleListFilterTests: XCTestCase {
         )
     }
 
+    func testHasSecondaryFiltersIgnoresStatusTab() {
+        XCTAssertFalse(
+            PuzzleListQuery.hasSecondaryFilters(
+                searchText: "",
+                missingPiecesOnly: false,
+                tagFilter: nil
+            )
+        )
+        XCTAssertTrue(
+            PuzzleListQuery.hasSecondaryFilters(
+                searchText: "winter",
+                missingPiecesOnly: false,
+                tagFilter: nil
+            )
+        )
+        XCTAssertTrue(
+            PuzzleListQuery.hasActiveFilters(
+                statusFilter: .completed,
+                searchText: "",
+                missingPiecesOnly: false,
+                tagFilter: nil
+            )
+        )
+    }
+
     func testApplyCombinesStatusSearchAndSort() {
         let shelf = Puzzle.fixture(name: "Winter Cabin", pieces: 500, rating: .three)
         let done = Puzzle.fixture(name: "Winter Lights", pieces: 1000, rating: .five)

@@ -146,15 +146,12 @@ struct PuzzleFormInternal: View {
             Section {
                 PuzzleTagsField(
                     tags: $formVm.puzzle.tags,
-                    suggestions: PuzzleTagIndex.suggestedTags(
-                        excluding: formVm.puzzle.tags,
-                        from: allPuzzles
-                    )
+                    catalog: PuzzleTagIndex.allTagNames(from: allPuzzles)
                 )
             } header: {
                 Text("Tags")
             } footer: {
-                Text("Organize your collection with custom labels — artist, theme, season, or anything you like.")
+                Text("Organize your collection with custom labels. Type to search existing tags or add a new one.")
             }
 
             Section {
@@ -224,31 +221,32 @@ struct PuzzleFormInternal: View {
             }
 
             Section {
-                TextField("Hours", value: Binding(
-                    get: { formVm.puzzle.estimatedTimeSpent?.hours },
-                    set: { new in
-                        if formVm.puzzle.estimatedTimeSpent == nil {
-                            formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
-                        }
-                        formVm.puzzle.estimatedTimeSpent?.hours = new
-                    }
-                ), format: .number, prompt: Text("0"))
-                .keyboardType(.numberPad)
-                .accessibilityLabel("Estimated hours spent")
+                HStack(alignment: .top, spacing: DS.Spacing.s4) {
+                    timeComponentField(
+                        title: "Hours",
+                        unit: "hr",
+                        value: timeHoursBinding,
+                        accessibilityLabel: "Hours spent on puzzle"
+                    )
 
-                TextField("Minutes", value: Binding(
-                    get: { formVm.puzzle.estimatedTimeSpent?.minutes },
-                    set: { new in
-                        if formVm.puzzle.estimatedTimeSpent == nil {
-                            formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
-                        }
-                        formVm.puzzle.estimatedTimeSpent?.minutes = new
-                    }
-                ), format: .number, prompt: Text("0"))
-                .keyboardType(.numberPad)
-                .accessibilityLabel("Estimated minutes spent")
+                    timeComponentField(
+                        title: "Minutes",
+                        unit: "min",
+                        value: timeMinutesBinding,
+                        accessibilityLabel: "Minutes spent on puzzle"
+                    )
+                }
+
+                if let preview = formVm.puzzle.estimatedTimeSpent?.displayLabel {
+                    Label(preview, systemImage: "clock")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Brand.accent)
+                        .accessibilityLabel("Total time: \(preview)")
+                }
             } header: {
                 Text("How long did it take?")
+            } footer: {
+                Text("Optional. Enter hours and minutes separately — for example, 3 hr and 45 min. Minutes roll over at 60.")
             }
 
             // Completion Section
@@ -298,6 +296,62 @@ struct PuzzleFormInternal: View {
                 }
             }
         }
+    }
+
+    private var timeHoursBinding: Binding<Int?> {
+        Binding(
+            get: { formVm.puzzle.estimatedTimeSpent?.hours },
+            set: { new in
+                if formVm.puzzle.estimatedTimeSpent == nil {
+                    formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
+                }
+                formVm.puzzle.estimatedTimeSpent?.hours = new.map { max($0, 0) }
+            }
+        )
+    }
+
+    private var timeMinutesBinding: Binding<Int?> {
+        Binding(
+            get: { formVm.puzzle.estimatedTimeSpent?.minutes },
+            set: { new in
+                if formVm.puzzle.estimatedTimeSpent == nil {
+                    formVm.puzzle.estimatedTimeSpent = Puzzle.PuzzleTime()
+                }
+                formVm.puzzle.estimatedTimeSpent?.minutes = new.map { max($0, 0) }
+                formVm.puzzle.estimatedTimeSpent?.normalizeComponents()
+            }
+        )
+    }
+
+    @ViewBuilder
+    private func timeComponentField(
+        title: String,
+        unit: String,
+        value: Binding<Int?>,
+        accessibilityLabel: String
+    ) -> some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+            Text(title)
+                .font(.caption.weight(.medium))
+                .foregroundStyle(Brand.textSecondary)
+
+            HStack(spacing: DS.Spacing.s2) {
+                TextField("0", value: value, format: .number)
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.trailing)
+                    .accessibilityLabel(accessibilityLabel)
+
+                Text(unit)
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(Brand.textSecondary)
+                    .accessibilityHidden(true)
+            }
+            .padding(.horizontal, DS.Spacing.s3)
+            .padding(.vertical, DS.Spacing.s2)
+            .background(Brand.cardElevated)
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var notesBinding: Binding<String> {

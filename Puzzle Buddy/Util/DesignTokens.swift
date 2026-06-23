@@ -179,6 +179,7 @@ enum A11yID {
     static let puzzleListNeedsPhotoFilter = "puzzle_list_needs_photo_filter"
     static let puzzleListPieceCountFilter = "puzzle_list_piece_count_filter"
     static let puzzleListTagFilter = "puzzle_list_tag_filter"
+    static let puzzleListClearFilters = "puzzle_list_clear_filters"
     static let addPuzzleButton = "add_puzzle_button"
     static let puzzleDetailSummary = "puzzle_detail_summary"
     static let puzzleDetailStats = "puzzle_detail_stats"

@@ -83,9 +83,25 @@ final class PuzzleSerializationTests: XCTestCase {
         let empty = Puzzle.PuzzleTime()
         XCTAssertEqual(empty.toName(), "N/A")
         XCTAssertEqual(empty.toMin(), 1)
+        XCTAssertNil(empty.displayLabel)
 
         let zeroed = Puzzle.PuzzleTime(hours: 0, minutes: 0)
         XCTAssertEqual(zeroed.toMin(), 1)
+        XCTAssertNil(zeroed.displayLabel)
+    }
+
+    func testPuzzleTimeDisplayLabel() {
+        XCTAssertEqual(Puzzle.PuzzleTime(hours: 3, minutes: 15).displayLabel, "3 hr 15 min")
+        XCTAssertEqual(Puzzle.PuzzleTime(hours: 1, minutes: 0).displayLabel, "1 hr")
+        XCTAssertEqual(Puzzle.PuzzleTime(hours: 0, minutes: 45).displayLabel, "45 min")
+        XCTAssertEqual(Puzzle.PuzzleTime(hours: 2, minutes: 1).displayLabel, "2 hr 1 min")
+    }
+
+    func testPuzzleTimeNormalizeComponentsRollsMinutes() {
+        var time = Puzzle.PuzzleTime(hours: 1, minutes: 90)
+        time.normalizeComponents()
+        XCTAssertEqual(time.hours, 2)
+        XCTAssertEqual(time.minutes, 30)
     }
 
     func testDifficultyRoundTripInDataFields() {

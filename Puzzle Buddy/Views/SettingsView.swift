@@ -244,11 +244,6 @@ struct SettingsView: View {
 
     private var supportSection: some View {
         Section {
-            Link(destination: AppLinks.tipJar) {
-                Label("Buy Me a Coffee", systemImage: "cup.and.saucer.fill")
-            }
-            .accessibilityHint("Opens the tip jar in your browser")
-
             Link("Privacy Policy", destination: AppLinks.privacyPolicy)
             Link("Support", destination: AppLinks.support)
             Link("Accessibility", destination: AppLinks.accessibility)

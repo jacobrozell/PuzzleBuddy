@@ -38,6 +38,7 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleListEmptyState.isEmpty)
         XCTAssertFalse(A11yID.puzzleListSortMenu.isEmpty)
         XCTAssertFalse(A11yID.puzzleListSearchField.isEmpty)
+        XCTAssertFalse(A11yID.puzzleListClearFilters.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellRating.isEmpty)
         XCTAssertFalse(A11yID.settingsRemoveDemoButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleShareButton.isEmpty)

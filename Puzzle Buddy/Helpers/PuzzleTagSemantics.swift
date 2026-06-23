@@ -83,12 +83,41 @@ enum PuzzleTagIndex {
         from puzzles: [Puzzle],
         limit: Int = 8
     ) -> [String] {
+        matchingTags(
+            query: "",
+            excluding: existing,
+            fromCatalog: allTagNames(from: puzzles),
+            limit: limit
+        )
+    }
+
+    static func matchingTags(
+        query: String,
+        excluding existing: [String],
+        fromCatalog catalog: [String],
+        limit: Int = 8
+    ) -> [String] {
         let excluded = Set(existing.map { $0.lowercased() })
-        return counts(from: puzzles)
-            .map(\.name)
-            .filter { !excluded.contains($0.lowercased()) }
-            .prefix(limit)
-            .map { $0 }
+        let available = catalog.filter { !excluded.contains($0.lowercased()) }
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let candidates: [String]
+        if trimmed.isEmpty {
+            candidates = available
+        } else {
+            candidates = available.filter { $0.localizedCaseInsensitiveContains(trimmed) }
+        }
+
+        return Array(candidates.prefix(limit))
+    }
+
+    static func filteredCounts(
+        _ tags: [PuzzleTagCount],
+        matching query: String
+    ) -> [PuzzleTagCount] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return tags }
+        return tags.filter { $0.name.localizedCaseInsensitiveContains(trimmed) }
     }
 
     static func filter(_ puzzles: [Puzzle], matching selectedTag: String?) -> [Puzzle] {

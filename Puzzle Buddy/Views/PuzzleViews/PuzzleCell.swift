@@ -149,13 +149,17 @@ private struct PuzzleCellView: View {
             if !puzzle.tags.isEmpty {
                 HStack(spacing: 4) {
                     ForEach(puzzle.tags.prefix(2), id: \.self) { tag in
-                        Text(tag)
-                            .font(.caption2.weight(.medium))
-                            .foregroundStyle(Brand.textSecondary)
-                            .padding(.horizontal, DS.Spacing.s2)
-                            .padding(.vertical, 2)
-                            .background(Brand.cardElevated)
-                            .clipShape(Capsule())
+                        HStack(spacing: 3) {
+                            Image(systemName: "tag.fill")
+                                .font(.caption2)
+                            Text(tag)
+                                .font(.caption2.weight(.medium))
+                        }
+                        .foregroundStyle(Brand.textSecondary)
+                        .padding(.horizontal, DS.Spacing.s2)
+                        .padding(.vertical, 2)
+                        .background(Brand.cardElevated)
+                        .clipShape(Capsule())
                     }
                     if puzzle.tags.count > 2 {
                         Text("+\(puzzle.tags.count - 2)")

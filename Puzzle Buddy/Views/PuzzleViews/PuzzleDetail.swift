@@ -202,8 +202,9 @@ struct DetailView: View {
                     detailRow(label: "Notes", value: notes)
                 }
 
-                if let estimatedTimeSpent = puzzle.estimatedTimeSpent {
-                    detailRow(label: "Time spent", value: estimatedTimeSpent.toName())
+                if let estimatedTimeSpent = puzzle.estimatedTimeSpent,
+                   let timeLabel = estimatedTimeSpent.displayLabel {
+                    detailRow(label: "Time spent", value: timeLabel)
                 }
 
                 if let paceLabel = detailMetrics.timeBucketLabel {

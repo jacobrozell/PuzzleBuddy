@@ -55,4 +55,31 @@ final class PuzzleTagSemanticsTests: XCTestCase {
         )
         XCTAssertEqual(Set(suggestions), Set(["Winter", "Gift"]))
     }
+
+    func testMatchingTagsFiltersByQuery() {
+        let catalog = ["Cozy", "Winter", "Wysocki", "Gift"]
+
+        XCTAssertEqual(
+            PuzzleTagIndex.matchingTags(query: "wys", excluding: [], fromCatalog: catalog),
+            ["Wysocki"]
+        )
+        XCTAssertEqual(
+            PuzzleTagIndex.matchingTags(query: "", excluding: ["Cozy"], fromCatalog: catalog, limit: 2),
+            ["Winter", "Wysocki"]
+        )
+    }
+
+    func testFilteredCountsMatchesQuery() {
+        let tags = [
+            PuzzleTagCount(name: "Cozy", count: 3),
+            PuzzleTagCount(name: "Winter", count: 2),
+            PuzzleTagCount(name: "Wysocki", count: 1)
+        ]
+
+        XCTAssertEqual(
+            PuzzleTagIndex.filteredCounts(tags, matching: "win").map(\.name),
+            ["Winter"]
+        )
+        XCTAssertEqual(PuzzleTagIndex.filteredCounts(tags, matching: "").count, 3)
+    }
 }
