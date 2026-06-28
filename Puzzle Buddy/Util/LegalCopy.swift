@@ -16,4 +16,8 @@ enum LegalCopy {
     static let ipdbImportDisclaimer = """
     Puzzle Buddy is not affiliated with IPDb. Imported titles and brands come from your own export and are stored only in your personal collection on this device.
     """
+
+    static let barcodeScanDisclaimer = """
+    A scanned barcode is only a starting point. Puzzle Buddy may suggest a title, brand, or piece count from a previous entry with the same barcode, and that data can be wrong or cleaned up incorrectly. Always review and edit before saving.
+    """
 }

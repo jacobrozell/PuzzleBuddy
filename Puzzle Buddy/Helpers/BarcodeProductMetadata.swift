@@ -9,8 +9,8 @@ struct BarcodeProductMetadata: Equatable {
     let title: String?
     let brand: String?
     let pieces: Int?
-    let imageURL: URL?
-    let source: String
+    let sourcePuzzleID: UUID?
+    let sourcePuzzleName: String?
 
     var suggestedName: String? {
         BarcodeTitleParser.cleanedTitle(title)
@@ -21,23 +21,9 @@ struct BarcodeProductMetadata: Equatable {
     }
 
     var lookupSourceLabel: String? {
-        switch source {
-        case "local_cache":
-            return "From your saved puzzles"
-        case "upcitemdb":
-            return "From online product lookup"
-        default:
-            return nil
+        if let sourcePuzzleName, !sourcePuzzleName.isEmpty {
+            return "Previously saved as \(sourcePuzzleName)"
         }
-    }
-
-    static func fromLookup(title: String?, brand: String?, imageURL: URL?) -> BarcodeProductMetadata {
-        BarcodeProductMetadata(
-            title: BarcodeTitleParser.cleanedTitle(title),
-            brand: BarcodeTitleParser.cleanedTitle(brand),
-            pieces: BarcodeTitleParser.pieces(from: title),
-            imageURL: imageURL,
-            source: "upcitemdb"
-        )
+        return "From your saved puzzles"
     }
 }

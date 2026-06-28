@@ -21,7 +21,7 @@ struct PuzzleList: View {
     @State private var showPickNext = false
     @State private var openPuzzleRequest: OpenPuzzleRequest?
     @State private var quickAddContext: QuickAddContext?
-    @State private var isLookingUpBarcode = false
+    @State private var listScanDuplicate: ListScanDuplicateRequest?
     @State private var searchText: String = ""
     @State private var statusFilter: PuzzleListStatusFilter = .all
     @State private var sortOption: PuzzleListSortOption = .completionDate
@@ -141,7 +141,7 @@ struct PuzzleList: View {
                                 .contentShape(Rectangle())
                         }
                         .accessibilityLabel("Check duplicate")
-                        .accessibilityHint("Scan a barcode to see if you already own this puzzle")
+                        .accessibilityHint("Scan a barcode to see if you already own this puzzle while shopping")
                         .optionalAccessibilityIdentifier(A11yID.checkDuplicateButton)
                         .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
                     }
@@ -165,9 +165,37 @@ struct PuzzleList: View {
             QuickAddPuzzleSheet(
                 ps: ps,
                 barcode: context.barcode,
-                metadata: context.metadata,
-                lookupNotice: context.lookupNotice
+                metadata: context.metadata
             )
+        }
+        .sheet(item: $listScanDuplicate) { request in
+            NavigationStack {
+                ScrollView {
+                    BarcodeScanResultCard(
+                        result: .match(request.puzzle),
+                        onOpenPuzzle: { puzzle in
+                            listScanDuplicate = nil
+                            openPuzzleRequest = OpenPuzzleRequest(id: puzzle.id)
+                        },
+                        onAddPuzzle: { _ in },
+                        onScanAnother: {
+                            listScanDuplicate = nil
+                            showScanner = true
+                        }
+                    )
+                    .padding(DS.Spacing.s4)
+                }
+                .readableBrandScreenChrome()
+                .navigationTitle("Already in collection")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Done") {
+                            listScanDuplicate = nil
+                        }
+                    }
+                }
+            }
         }
         .sheet(isPresented: $showPickNext) {
             PickNextPuzzleView(ps: ps)
@@ -176,7 +204,7 @@ struct PuzzleList: View {
             ShoppingModeView(
                 ps: ps,
                 onAddPuzzle: { barcode in
-                    beginQuickAdd(barcode: barcode, skipLookup: true)
+                    beginQuickAdd(barcode: barcode)
                 },
                 onOpenPuzzle: { puzzle in
                     openPuzzleRequest = OpenPuzzleRequest(id: puzzle.id)
@@ -196,25 +224,6 @@ struct PuzzleList: View {
         }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
-        }
-        .overlay {
-            if isLookingUpBarcode {
-                ZStack {
-                    Color.black.opacity(0.25).ignoresSafeArea()
-                    VStack(spacing: DS.Spacing.s3) {
-                        ProgressView()
-                        Text("Looking up product…")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(Brand.textPrimary)
-                    }
-                    .padding(DS.Spacing.s5)
-                    .background(Brand.card)
-                    .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
-                    .shadow(color: .black.opacity(0.12), radius: 8, y: 2)
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Looking up product details for this barcode")
-            }
         }
         .confirmationDialog(
             "Delete puzzle?",
@@ -248,7 +257,16 @@ struct PuzzleList: View {
                 Button {
                     showScanner = true
                 } label: {
-                    Label("Scan barcode", systemImage: "barcode.viewfinder")
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Scan barcode")
+                            Text("Add to your collection")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "barcode.viewfinder")
+                    }
                 }
                 .optionalAccessibilityIdentifier(A11yID.scanBarcodeButton)
                 .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
@@ -652,18 +670,6 @@ struct PuzzleList: View {
     }
 
     private func handleScannedBarcode(_ raw: String) {
-        if let duplicate = ps.findPuzzle(matchingBarcode: raw) {
-            eh.handle(
-                title: "Already in your collection",
-                message: "\(duplicate.name) already uses this barcode."
-            )
-            return
-        }
-
-        beginQuickAdd(barcode: raw, skipLookup: false)
-    }
-
-    private func beginQuickAdd(barcode raw: String, skipLookup: Bool) {
         guard let normalized = BarcodeNormalizer.normalize(raw) ?? optionalDigits(from: raw) else {
             eh.handle(
                 title: "Invalid barcode",
@@ -672,28 +678,19 @@ struct PuzzleList: View {
             return
         }
 
-        if let local = BarcodeMetadataCache.metadata(for: normalized) {
-            quickAddContext = QuickAddContext(barcode: normalized, metadata: local, lookupNotice: nil)
+        if let duplicate = ps.findPuzzle(matchingBarcode: normalized) {
+            BarcodeScanFeedback.duplicateFound()
+            listScanDuplicate = ListScanDuplicateRequest(puzzle: duplicate)
             return
         }
 
-        guard !skipLookup, ProductService.isBarcodeLookupEnabled else {
-            quickAddContext = QuickAddContext(barcode: normalized, metadata: nil, lookupNotice: nil)
-            return
-        }
+        BarcodeScanFeedback.scanAccepted()
+        beginQuickAdd(barcode: normalized)
+    }
 
-        isLookingUpBarcode = true
-        Task {
-            let result = await BarcodeLookupService.lookup(barcode: normalized)
-            await MainActor.run {
-                isLookingUpBarcode = false
-                quickAddContext = QuickAddContext(
-                    barcode: normalized,
-                    metadata: result.metadata,
-                    lookupNotice: result.notice?.message
-                )
-            }
-        }
+    private func beginQuickAdd(barcode normalized: String) {
+        let metadata = BarcodeMetadataCache.metadata(for: normalized)
+        quickAddContext = QuickAddContext(barcode: normalized, metadata: metadata)
     }
 
     private func optionalDigits(from raw: String) -> String? {
@@ -706,7 +703,16 @@ private struct QuickAddContext: Identifiable {
     let id = UUID()
     let barcode: String
     let metadata: BarcodeProductMetadata?
-    let lookupNotice: String?
+}
+
+private struct ListScanDuplicateRequest: Identifiable {
+    let id: UUID
+    let puzzle: Puzzle
+
+    init(puzzle: Puzzle) {
+        id = puzzle.id
+        self.puzzle = puzzle
+    }
 }
 
 private struct OpenPuzzleRequest: Identifiable, Hashable {

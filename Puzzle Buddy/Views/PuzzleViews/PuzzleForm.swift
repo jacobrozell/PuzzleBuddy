@@ -77,6 +77,14 @@ struct PuzzleFormInternal: View {
     var allPuzzles: [Puzzle] = []
     @State private var showBarcodeScanner = false
 
+    private var barcodeDuplicate: Puzzle? {
+        PuzzleDuplicateChecker.findDuplicate(
+            barcode: formVm.puzzle.barcode,
+            excludingID: formVm.puzzle.id,
+            in: allPuzzles
+        )
+    }
+
     var body: some View {
         Form {
             ImagePickerView(image: $formVm.image)
@@ -188,10 +196,27 @@ struct PuzzleFormInternal: View {
                         .optionalAccessibilityIdentifier(A11yID.puzzleFormScanBarcodeButton)
                     }
                 }
+
+                if let duplicate = barcodeDuplicate {
+                    Label {
+                        Text("Matches \(duplicate.name) in your collection.")
+                    } icon: {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(Brand.accentWarm)
+                    .accessibilityLabel("This barcode matches \(duplicate.name) in your collection")
+                }
             } header: {
                 Text("Barcode")
             } footer: {
-                Text("Used to check for duplicates when shopping. Enter 6 to 14 digits, or scan from the box.")
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    Text("Used to check for duplicates when shopping. Enter 6 to 14 digits, or scan from the box.")
+                    LegalDisclaimerFooter(
+                        text: LegalCopy.barcodeScanDisclaimer,
+                        style: .form
+                    )
+                }
             }
 
             Section {

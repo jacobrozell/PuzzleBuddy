@@ -16,6 +16,7 @@ struct BarcodeScannerSheet: View {
                 if BarcodeScannerSupport.isAvailable {
                     ZStack(alignment: .bottom) {
                         BarcodeScannerView { barcode in
+                            BarcodeScanFeedback.scanAccepted()
                             onBarcodeScanned(barcode)
                             dismiss()
                         }
@@ -23,6 +24,10 @@ struct BarcodeScannerSheet: View {
 
                         BarcodeScannerGuidanceOverlay()
                             .ignoresSafeArea(edges: .bottom)
+                    }
+                    .overlay(alignment: .topTrailing) {
+                        BarcodeScannerTorchButton()
+                            .padding(DS.Spacing.s4)
                     }
                 } else {
                     ContentUnavailableView(

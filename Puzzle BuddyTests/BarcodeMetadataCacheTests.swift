@@ -23,7 +23,8 @@ final class BarcodeMetadataCacheTests: XCTestCase {
         XCTAssertEqual(metadata?.suggestedName, "Winter Lights 1000 Piece Puzzle")
         XCTAssertEqual(metadata?.brand, "Galison")
         XCTAssertEqual(metadata?.suggestedPieces, 1000)
-        XCTAssertEqual(metadata?.source, "local_cache")
+        XCTAssertEqual(metadata?.sourcePuzzleName, "Winter Lights 1000 Piece Puzzle")
+        XCTAssertEqual(metadata?.sourcePuzzleID, puzzle.id)
     }
 
     func testWarmCacheLoadsFromPuzzles() {
@@ -33,34 +34,5 @@ final class BarcodeMetadataCacheTests: XCTestCase {
         BarcodeMetadataCache.warmCache(from: [puzzle])
 
         XCTAssertNotNil(BarcodeMetadataCache.metadata(for: "123456789012"))
-    }
-
-    func testStoreLookupPersistsOnlineResults() {
-        let metadata = BarcodeProductMetadata.fromLookup(
-            title: "Ravensburger Paris 1000 Piece Puzzle",
-            brand: "Ravensburger",
-            imageURL: nil
-        )
-
-        BarcodeMetadataCache.storeLookup(metadata, for: "4005556162980")
-
-        let cached = BarcodeMetadataCache.metadata(for: "4005556162980")
-        XCTAssertEqual(cached?.suggestedName, "Ravensburger Paris 1000 Piece Puzzle")
-        XCTAssertEqual(cached?.brand, "Ravensburger")
-        XCTAssertEqual(cached?.source, "local_cache")
-    }
-
-    func testStoreLookupIgnoresEmptyMetadata() {
-        let metadata = BarcodeProductMetadata(
-            title: nil,
-            brand: nil,
-            pieces: nil,
-            imageURL: nil,
-            source: "upcitemdb"
-        )
-
-        BarcodeMetadataCache.storeLookup(metadata, for: "4005556162980")
-
-        XCTAssertNil(BarcodeMetadataCache.metadata(for: "4005556162980"))
     }
 }

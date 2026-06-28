@@ -2,7 +2,7 @@
 //  BarcodeMetadataCache.swift
 //  Puzzle Buddy
 //
-//  On-device barcode → puzzle metadata. Free alternative to paid UPC APIs.
+//  On-device barcode → puzzle metadata from puzzles you have already saved.
 //
 
 import Foundation
@@ -11,6 +11,8 @@ private struct CachedBarcodeEntry: Codable, Equatable {
     var title: String?
     var brand: String?
     var pieces: Int?
+    var sourcePuzzleID: UUID?
+    var sourcePuzzleName: String?
 }
 
 enum BarcodeMetadataCache {
@@ -23,7 +25,9 @@ enum BarcodeMetadataCache {
         cache[normalized] = CachedBarcodeEntry(
             title: BarcodeTitleParser.cleanedTitle(puzzle.name),
             brand: BarcodeTitleParser.cleanedTitle(puzzle.source),
-            pieces: puzzle.pieces
+            pieces: puzzle.pieces,
+            sourcePuzzleID: puzzle.id,
+            sourcePuzzleName: BarcodeTitleParser.cleanedTitle(puzzle.name)
         )
         saveCache(cache)
     }
@@ -35,7 +39,9 @@ enum BarcodeMetadataCache {
             cache[normalized] = CachedBarcodeEntry(
                 title: BarcodeTitleParser.cleanedTitle(puzzle.name),
                 brand: BarcodeTitleParser.cleanedTitle(puzzle.source),
-                pieces: puzzle.pieces
+                pieces: puzzle.pieces,
+                sourcePuzzleID: puzzle.id,
+                sourcePuzzleName: BarcodeTitleParser.cleanedTitle(puzzle.name)
             )
         }
         saveCache(cache)
@@ -51,24 +57,9 @@ enum BarcodeMetadataCache {
             title: entry.title,
             brand: entry.brand,
             pieces: entry.pieces,
-            imageURL: nil,
-            source: "local_cache"
+            sourcePuzzleID: entry.sourcePuzzleID,
+            sourcePuzzleName: entry.sourcePuzzleName
         )
-    }
-
-    /// Persists a successful online lookup so repeat scans avoid network calls.
-    static func storeLookup(_ metadata: BarcodeProductMetadata, for barcode: String) {
-        guard metadata.source == "upcitemdb" else { return }
-        guard metadata.suggestedName != nil || metadata.brand != nil else { return }
-        guard let normalized = BarcodeNormalizer.normalize(barcode) else { return }
-
-        var cache = loadCache()
-        cache[normalized] = CachedBarcodeEntry(
-            title: metadata.title,
-            brand: metadata.brand,
-            pieces: metadata.suggestedPieces
-        )
-        saveCache(cache)
     }
 
     #if DEBUG

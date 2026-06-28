@@ -12,10 +12,18 @@ struct QuickAddPuzzleSheet: View {
 
     let barcode: String
     let metadata: BarcodeProductMetadata?
-    let lookupNotice: String?
 
     @StateObject private var formVm = PuzzleFormViewModel()
     @State private var isSaving = false
+
+    private var hasSuggestedDetails: Bool {
+        metadata?.suggestedName != nil || metadata?.brand != nil
+    }
+
+    private var sourcePuzzle: Puzzle? {
+        guard let sourceID = metadata?.sourcePuzzleID else { return nil }
+        return ps.puzzles.first { $0.id == sourceID }
+    }
 
     private var similarMatches: [Puzzle] {
         PuzzleSimilarMatchFinder.findSimilar(
@@ -31,38 +39,43 @@ struct QuickAddPuzzleSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                if let lookupNotice {
-                    Section {
-                        Label(lookupNotice, systemImage: "exclamationmark.triangle")
-                            .font(.subheadline)
-                            .foregroundStyle(Brand.accentWarm)
-                            .accessibilityIdentifier(A11yID.quickAddLookupNotice)
-                    }
-                }
-
-                if let metadata, metadata.suggestedName != nil || metadata.brand != nil || metadata.lookupSourceLabel != nil {
+                if hasSuggestedDetails, let metadata {
                     Section {
                         if let label = metadata.lookupSourceLabel {
-                            Label(label, systemImage: metadata.source == "local_cache" ? "internaldrive" : "globe")
+                            Label(label, systemImage: "internaldrive")
                                 .font(.subheadline)
                                 .foregroundStyle(Brand.textSecondary)
                         }
+
+                        if let sourcePuzzle {
+                            HStack(spacing: DS.Spacing.s3) {
+                                sourceThumbnail(for: sourcePuzzle)
+                                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                                    Text(sourcePuzzle.name)
+                                        .font(.subheadline.weight(.semibold))
+                                    if let pieces = sourcePuzzle.pieces {
+                                        Text("\(pieces) pieces")
+                                            .font(.caption)
+                                            .foregroundStyle(Brand.textSecondary)
+                                    }
+                                }
+                            }
+                        }
+
                         if let brand = metadata.brand {
                             LabeledContent("Brand", value: brand)
                         }
                         if let suggestedName = metadata.suggestedName {
                             LabeledContent("Suggested name", value: suggestedName)
                         }
-                        if metadata.suggestedName == nil, metadata.brand == nil {
-                            Text("No product details found for this barcode. Enter a name below.")
-                                .font(.subheadline)
-                                .foregroundStyle(Brand.textSecondary)
-                        }
                     } header: {
                         Text("Suggested details")
                     } footer: {
                         VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                            Text("Confirm everything before saving — especially piece count and title.")
+                            LegalDisclaimerFooter(
+                                text: LegalCopy.barcodeScanDisclaimer,
+                                style: .form
+                            )
                             if metadata.brand != nil {
                                 LegalDisclaimerFooter(
                                     text: LegalCopy.brandTrademarkDisclaimer,
@@ -70,6 +83,22 @@ struct QuickAddPuzzleSheet: View {
                                 )
                             }
                         }
+                    }
+                } else {
+                    Section {
+                        Text("First time scanning this barcode. Enter the details below.")
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.textPrimary)
+                        Text("Next time you scan it, Puzzle Buddy can suggest what you saved on this device.")
+                            .font(.caption)
+                            .foregroundStyle(Brand.textSecondary)
+                    } header: {
+                        Text("New barcode")
+                    } footer: {
+                        LegalDisclaimerFooter(
+                            text: LegalCopy.barcodeScanDisclaimer,
+                            style: .form
+                        )
                     }
                 }
 
@@ -143,6 +172,26 @@ struct QuickAddPuzzleSheet: View {
                 applyScannedValues()
             }
         }
+    }
+
+    @ViewBuilder
+    private func sourceThumbnail(for puzzle: Puzzle) -> some View {
+        Group {
+            if let image = puzzle.image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(systemName: "puzzlepiece.extension.fill")
+                    .font(.body)
+                    .foregroundStyle(Brand.accent)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Brand.cardElevated)
+            }
+        }
+        .frame(width: 44, height: 44)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+        .accessibilityHidden(true)
     }
 
     private func similarMatchAccessibilityLabel(for puzzle: Puzzle) -> String {

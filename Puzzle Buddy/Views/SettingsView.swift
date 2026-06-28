@@ -12,7 +12,6 @@ struct SettingsView: View {
     @EnvironmentObject var eh: ErrorHandling
 
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
-    @AppStorage(UserPreferences.barcodeLookupStorageKey) private var barcodeLookupEnabled = false
     @State private var showClearCollectionAlert = false
     @State private var showLoadDemoAlert = false
     @State private var showRemoveDemoAlert = false
@@ -38,7 +37,6 @@ struct SettingsView: View {
             }
 
             appearanceSection
-            collectionSection
             dataSection
             supportSection
             aboutSection
@@ -103,7 +101,7 @@ struct SettingsView: View {
     private var settingsHeader: some View {
         Section {
             VStack(spacing: DS.Spacing.s3) {
-                BrandMark(size: 72)
+                PuzzleHeroView(size: 100)
                 Text(AppInfo.displayName)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(Brand.textPrimary)
@@ -150,26 +148,6 @@ struct SettingsView: View {
             .accessibilityHint("Choose light, dark, or match your device setting")
         } header: {
             Text("Display")
-        }
-    }
-
-    private var collectionSection: some View {
-        Section {
-            Toggle("Look up product from barcode", isOn: $barcodeLookupEnabled)
-                .accessibilityHint("When on, tries online product lookup after checking puzzles you have already saved on this device.")
-
-            Label {
-                Text("Duplicate checks always work offline.")
-                    .font(.subheadline)
-                    .foregroundStyle(Brand.textSecondary)
-            } icon: {
-                Image(systemName: "wifi.slash")
-                    .foregroundStyle(Brand.accent)
-            }
-        } header: {
-            Text("Barcode & cataloging")
-        } footer: {
-            Text("Shopping duplicate check never needs the internet. When lookup is on, barcode digits are sent to a third-party product database (UPCitemdb) after checking puzzles saved on this device. See Privacy Policy.")
         }
     }
 
@@ -261,10 +239,15 @@ struct SettingsView: View {
         } header: {
             Text("Help & Legal")
         } footer: {
-            LegalDisclaimerFooter(
-                text: LegalCopy.brandTrademarkDisclaimer,
-                accessibilityIdentifier: A11yID.settingsBrandDisclaimerFooter
-            )
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                Text("Barcodes work offline. The barcode icon on your puzzle list checks for duplicates while shopping. Scanning to add can suggest details from puzzles you already saved — always review before saving.")
+                    .font(.footnote)
+                    .foregroundStyle(Brand.textSecondary)
+                LegalDisclaimerFooter(
+                    text: LegalCopy.brandTrademarkDisclaimer,
+                    accessibilityIdentifier: A11yID.settingsBrandDisclaimerFooter
+                )
+            }
         }
     }
 

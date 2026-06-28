@@ -21,4 +21,11 @@ final class BarcodeTitleParserTests: XCTestCase {
     func testReturnsNilWhenNoPieceCount() {
         XCTAssertNil(BarcodeTitleParser.pieces(from: "Mystery puzzle box"))
     }
+
+    func testStripsTrailingJigsawJunkFromTitle() {
+        XCTAssertEqual(
+            BarcodeTitleParser.cleanedTitle("Mountain Sunset - Jigsaw Puzzle"),
+            "Mountain Sunset"
+        )
+    }
 }

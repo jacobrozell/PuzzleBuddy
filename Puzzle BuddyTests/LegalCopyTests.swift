@@ -15,4 +15,9 @@ final class LegalCopyTests: XCTestCase {
     func testIPDbDisclaimerMentionsNonAffiliation() {
         XCTAssertTrue(LegalCopy.ipdbImportDisclaimer.localizedCaseInsensitiveContains("not affiliated with IPDb"))
     }
+
+    func testBarcodeScanDisclaimerMentionsReviewBeforeSaving() {
+        XCTAssertTrue(LegalCopy.barcodeScanDisclaimer.localizedCaseInsensitiveContains("starting point"))
+        XCTAssertTrue(LegalCopy.barcodeScanDisclaimer.localizedCaseInsensitiveContains("review"))
+    }
 }
