@@ -18,6 +18,7 @@ struct PuzzleList: View {
     @State private var present = false
     @State private var showScanner = false
     @State private var showShoppingMode = false
+    @State private var showPickNext = false
     @State private var openPuzzleRequest: OpenPuzzleRequest?
     @State private var quickAddContext: QuickAddContext?
     @State private var isLookingUpBarcode = false
@@ -28,6 +29,9 @@ struct PuzzleList: View {
     @State private var needsPhotoOnly: Bool = false
     @State private var pieceCountFilter: PuzzleListPieceCountFilter = .any
     @State private var tagFilter: String? = nil
+    @State private var typeFilter: PuzzleType? = nil
+    @State private var materialFilter: PuzzleMaterial? = nil
+    @State private var dispositionFilter: PuzzleDisposition? = nil
     @State private var showTagFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
 
@@ -40,7 +44,10 @@ struct PuzzleList: View {
             missingPiecesOnly: missingPiecesOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
-            tagFilter: tagFilter
+            tagFilter: tagFilter,
+            typeFilter: typeFilter,
+            materialFilter: materialFilter,
+            dispositionFilter: dispositionFilter
         )
     }
 
@@ -55,7 +62,10 @@ struct PuzzleList: View {
             missingPiecesOnly: missingPiecesOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
-            tagFilter: tagFilter
+            tagFilter: tagFilter,
+            typeFilter: typeFilter,
+            materialFilter: materialFilter,
+            dispositionFilter: dispositionFilter
         )
     }
 
@@ -69,7 +79,10 @@ struct PuzzleList: View {
             missingPiecesOnly: missingPiecesOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
-            tagFilter: tagFilter
+            tagFilter: tagFilter,
+            typeFilter: typeFilter,
+            materialFilter: materialFilter,
+            dispositionFilter: dispositionFilter
         )
     }
 
@@ -107,6 +120,18 @@ struct PuzzleList: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: DS.Spacing.s3) {
+                    if ProductService.isPickNextEnabled {
+                        Button {
+                            showPickNext = true
+                        } label: {
+                            Image(systemName: "dice")
+                                .frame(minWidth: 44, minHeight: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityLabel("Pick my next puzzle")
+                        .accessibilityHint("Opens a random picker from your To-Do backlog")
+                        .accessibilityIdentifier(A11yID.pickNextButton)
+                    }
                     if ProductService.isShoppingModeEnabled {
                         Button {
                             showShoppingMode = true
@@ -143,6 +168,9 @@ struct PuzzleList: View {
                 metadata: context.metadata,
                 lookupNotice: context.lookupNotice
             )
+        }
+        .sheet(isPresented: $showPickNext) {
+            PickNextPuzzleView(ps: ps)
         }
         .sheet(isPresented: $showShoppingMode) {
             ShoppingModeView(
@@ -256,13 +284,13 @@ struct PuzzleList: View {
                     .foregroundStyle(Brand.textSecondary)
                     .accessibilityHidden(true)
 
-                TextField("Search name, brand, tag, or barcode", text: $searchText)
+                TextField("Search name, brand, store, tag, or barcode", text: $searchText)
                     .textFieldStyle(.plain)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .submitLabel(.search)
                     .accessibilityIdentifier(A11yID.puzzleListSearchField)
-                    .accessibilityLabel("Search name, brand, tag, or barcode")
+                    .accessibilityLabel("Search name, brand, store, tag, or barcode")
                     .accessibilityHint("Filters the puzzle list as you type")
 
                 if hasActiveSearch {
@@ -334,6 +362,9 @@ struct PuzzleList: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: DS.Spacing.s2) {
                 pieceCountFilterMenu
+                typeFilterMenu
+                materialFilterMenu
+                dispositionFilterMenu
                 tagFilterButton
                 needsPhotoFilterToggle
                 missingPiecesFilterToggle
@@ -347,6 +378,75 @@ struct PuzzleList: View {
         needsPhotoOnly = false
         pieceCountFilter = .any
         tagFilter = nil
+        typeFilter = nil
+        materialFilter = nil
+        dispositionFilter = nil
+    }
+
+    private var typeFilterMenu: some View {
+        Menu {
+            Button { typeFilter = nil } label: {
+                if typeFilter == nil { Label("Any type", systemImage: "checkmark") } else { Text("Any type") }
+            }
+            ForEach(PuzzleType.selectableCases) { type in
+                Button { typeFilter = type } label: {
+                    if typeFilter == type { Label(type.displayLabel, systemImage: "checkmark") }
+                    else { Text(type.displayLabel) }
+                }
+            }
+        } label: {
+            listFilterChipLabel(
+                typeFilter?.displayLabel ?? "Type",
+                systemImage: "square.grid.2x2",
+                isActive: typeFilter != nil
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(A11yID.puzzleListTypeFilter)
+    }
+
+    private var materialFilterMenu: some View {
+        Menu {
+            Button { materialFilter = nil } label: {
+                if materialFilter == nil { Label("Any material", systemImage: "checkmark") } else { Text("Any material") }
+            }
+            ForEach(PuzzleMaterial.selectableCases) { material in
+                Button { materialFilter = material } label: {
+                    if materialFilter == material { Label(material.displayLabel, systemImage: "checkmark") }
+                    else { Text(material.displayLabel) }
+                }
+            }
+        } label: {
+            listFilterChipLabel(
+                materialFilter?.displayLabel ?? "Material",
+                systemImage: "square.stack.3d.up",
+                isActive: materialFilter != nil
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(A11yID.puzzleListMaterialFilter)
+    }
+
+    private var dispositionFilterMenu: some View {
+        Menu {
+            Button { dispositionFilter = nil } label: {
+                if dispositionFilter == nil { Label("Any disposition", systemImage: "checkmark") } else { Text("Any disposition") }
+            }
+            ForEach(PuzzleDisposition.selectableCases) { disposition in
+                Button { dispositionFilter = disposition } label: {
+                    if dispositionFilter == disposition { Label(disposition.displayLabel, systemImage: "checkmark") }
+                    else { Text(disposition.displayLabel) }
+                }
+            }
+        } label: {
+            listFilterChipLabel(
+                dispositionFilter?.displayLabel ?? "Fate",
+                systemImage: "arrow.triangle.branch",
+                isActive: dispositionFilter != nil
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(A11yID.puzzleListDispositionFilter)
     }
 
     private func listFilterChipLabel(

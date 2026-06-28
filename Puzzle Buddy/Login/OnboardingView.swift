@@ -41,12 +41,12 @@ struct OnboardingView: View {
         ),
         OnboardingPage(
             title: "Build Your Collection",
-            message: "Log brands, piece counts, progress, and ratings. Import from an IPDb CSV export in Settings when you're ready.",
+            message: "Log brands, piece counts, tags, ratings, and progress. Spin the dice to pick your next puzzle from the backlog.",
             hero: .systemImage("list.bullet.rectangle.fill")
         ),
         OnboardingPage(
             title: "Ready to Puzzle?",
-            message: "Everything stays on your device. Add your first puzzle or import a collection to get started.",
+            message: "Everything stays on your device. Add your first puzzle and start tracking.",
             hero: .systemImage("puzzlepiece.extension.fill")
         ),
     ]

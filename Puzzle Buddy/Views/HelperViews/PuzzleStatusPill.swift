@@ -23,23 +23,31 @@ struct PuzzleStatusPill: View {
 
     private var foregroundColor: Color {
         switch status {
+        case .wishlist:
+            return Brand.accentWarm
         case .todo:
             return Brand.textSecondary
         case .inProgress:
             return Brand.textOnAccent
         case .completed:
             return Brand.accent
+        case .abandoned:
+            return Brand.textSecondary
         }
     }
 
     private var backgroundColor: Color {
         switch status {
+        case .wishlist:
+            return Brand.accentWarm.opacity(0.15)
         case .todo:
             return Brand.cardElevated
         case .inProgress:
             return Brand.accent
         case .completed:
             return Brand.accent.opacity(0.15)
+        case .abandoned:
+            return Brand.cardElevated.opacity(0.7)
         }
     }
 }

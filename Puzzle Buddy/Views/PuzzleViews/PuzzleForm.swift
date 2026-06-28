@@ -99,11 +99,8 @@ struct PuzzleFormInternal: View {
                     }
                 }
                 .accessibilityValue(formVm.puzzle.status.accessibilityDescription)
-                .onChange(of: formVm.puzzle.status) { _, newStatus in
-                    formVm.puzzle.progressPercent = PuzzleProgressSemantics.progress(
-                        for: newStatus,
-                        current: formVm.puzzle.progressPercent
-                    )
+                .onChange(of: formVm.puzzle.status) { previousStatus, newStatus in
+                    formVm.puzzle.noteStatusChanged(from: previousStatus, to: newStatus)
                 }
             } header: {
                 Text("Puzzle Info")
@@ -111,36 +108,48 @@ struct PuzzleFormInternal: View {
 
             Section {
                 TextField(
-                    "Source",
+                    "Brand",
                     text: sourceBinding,
-                    prompt: Text("Gift from Mom, Amazon, Goodwill…")
+                    prompt: Text("Ravensburger, Galison, Buffalo Games…")
                 )
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormSourceField)
-                .accessibilityLabel("Where you got this puzzle")
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: DS.Spacing.s2) {
-                        ForEach(PuzzleSourcePreset.allCases) { preset in
-                            Button(preset.label) {
-                                formVm.puzzle.source = preset.suggestedText
-                            }
-                            .buttonStyle(.bordered)
-                            .controlSize(.small)
-                            .accessibilityLabel("Set source to \(preset.label)")
-                        }
-                    }
-                    .padding(.vertical, DS.Spacing.s2)
-                }
+                .accessibilityLabel("Puzzle brand or manufacturer")
             } header: {
-                Text("Where did you get it?")
-            } footer: {
-                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                    Text("Great for gifts from family — add a name after tapping a preset.")
-                    LegalDisclaimerFooter(
-                        text: LegalCopy.brandTrademarkDisclaimer,
-                        style: .form
-                    )
+                Text("Brand")
+            }
+
+            Section {
+                TextField(
+                    "Store or source",
+                    text: purchaseLocationBinding,
+                    prompt: Text("Amazon, Goodwill, puzzle swap…")
+                )
+                .optionalAccessibilityIdentifier(A11yID.puzzleFormPurchaseLocationField)
+                .accessibilityLabel("Where you bought this puzzle")
+
+                Picker("Release year", selection: releaseYearBinding) {
+                    Text("Unknown").tag(Optional<Int>.none)
+                    ForEach(releaseYearOptions, id: \.self) { year in
+                        Text(String(year)).tag(Optional(year))
+                    }
                 }
+                .accessibilityLabel("Release year")
+
+                Picker("Puzzle type", selection: $formVm.puzzle.puzzleType) {
+                    ForEach(PuzzleType.allCases) { type in
+                        Text(type.displayLabel).tag(type)
+                    }
+                }
+                .accessibilityValue(formVm.puzzle.puzzleType.accessibilityDescription)
+
+                Picker("Material", selection: $formVm.puzzle.material) {
+                    ForEach(PuzzleMaterial.allCases) { material in
+                        Text(material.displayLabel).tag(material)
+                    }
+                }
+                .accessibilityValue(formVm.puzzle.material.accessibilityDescription)
+            } header: {
+                Text("About this puzzle")
             }
 
             Section {
@@ -253,7 +262,8 @@ struct PuzzleFormInternal: View {
             Section {
                 DatePicker(
                     PuzzleDateSemantics.detailDateLabel(for: formVm.puzzle.status),
-                    selection: $formVm.puzzle.completionDate
+                    selection: $formVm.puzzle.completionDate,
+                    displayedComponents: .date
                 )
                     .datePickerStyle(.graphical)
                     .accessibilityLabel(PuzzleDateSemantics.detailDateLabel(for: formVm.puzzle.status))
@@ -262,6 +272,35 @@ struct PuzzleFormInternal: View {
                     for: formVm.puzzle.status,
                     puzzleName: formVm.puzzle.name
                 ))
+            }
+
+            if PuzzleDateSemantics.showsStartDatePicker(for: formVm.puzzle.status) {
+                Section {
+                    DatePicker(
+                        "Started on",
+                        selection: startDateBinding,
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormStartDateField)
+                    .accessibilityLabel("Started on")
+                } footer: {
+                    Text("Used for days puzzling on the detail screen.")
+                }
+            }
+
+            if formVm.puzzle.status == .completed {
+                Section {
+                    Picker("After finishing", selection: $formVm.puzzle.disposition) {
+                        ForEach(PuzzleDisposition.allCases) { disposition in
+                            Text(disposition.displayLabel).tag(disposition)
+                        }
+                    }
+                    .accessibilityLabel("What happened to this puzzle after finishing")
+                    .accessibilityValue(formVm.puzzle.disposition.accessibilityDescription)
+                } header: {
+                    Text("After finishing")
+                }
             }
 
             // Condition Section
@@ -360,6 +399,35 @@ struct PuzzleFormInternal: View {
             set: { newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 formVm.puzzle.notes = trimmed.isEmpty ? nil : String(newValue.prefix(2_000))
+            }
+        )
+    }
+
+    private var releaseYearOptions: [Int] {
+        let current = Calendar.current.component(.year, from: Date())
+        return (0..<40).map { current - $0 }
+    }
+
+    private var releaseYearBinding: Binding<Int?> {
+        Binding(
+            get: { formVm.puzzle.releaseYear },
+            set: { formVm.puzzle.releaseYear = $0 }
+        )
+    }
+
+    private var startDateBinding: Binding<Date> {
+        Binding(
+            get: { formVm.puzzle.startDate ?? formVm.puzzle.completionDate },
+            set: { formVm.puzzle.startDate = $0 }
+        )
+    }
+
+    private var purchaseLocationBinding: Binding<String> {
+        Binding(
+            get: { formVm.puzzle.purchaseLocation ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                formVm.puzzle.purchaseLocation = trimmed.isEmpty ? nil : String(trimmed.prefix(200))
             }
         )
     }

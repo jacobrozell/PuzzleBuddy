@@ -9,6 +9,8 @@ import SwiftUI
 
 struct CollectionStatsView: View {
     @ObservedObject var ps: PuzzleStore
+    @State private var showPickNext = false
+    @State private var pendingMilestone: CollectionMilestone?
 
     private var stats: CollectionStats {
         CollectionStats.compute(from: ps.puzzles)
@@ -21,8 +23,14 @@ struct CollectionStatsView: View {
                     welcomeHeader
                     emptyState
                 } else {
+                    if let pendingMilestone {
+                        milestoneBanner(pendingMilestone)
+                    }
                     heroSection
                     collectionSection
+                    if stats.favoritePuzzleType != nil || !stats.topPurchaseLocations.isEmpty {
+                        howYouPuzzleSection
+                    }
                     periodSection
                     if stats.biggestCompletedPieces != nil || stats.smallestCompletedPieces != nil {
                         pieceRangeSection
@@ -39,7 +47,26 @@ struct CollectionStatsView: View {
             .accessibilityElement(children: .contain)
         }
         .readableBrandScreenChrome()
+        .onAppear {
+            refreshPendingMilestone()
+        }
+        .onChange(of: ps.puzzles.count) { _, _ in
+            refreshPendingMilestone()
+        }
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                if ProductService.isPickNextEnabled {
+                    Button {
+                        showPickNext = true
+                    } label: {
+                        Image(systemName: "dice")
+                            .frame(minWidth: 44, minHeight: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel("Pick my next puzzle")
+                    .accessibilityIdentifier(A11yID.collectionStatsPickNextButton)
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 PuzzleShareMenu(
                     entireCollection: ps.puzzles,
@@ -47,6 +74,50 @@ struct CollectionStatsView: View {
                 )
             }
         }
+        .sheet(isPresented: $showPickNext) {
+            PickNextPuzzleView(ps: ps)
+        }
+    }
+
+    private func refreshPendingMilestone() {
+        let acknowledged = CollectionMilestones.loadAcknowledged()
+        pendingMilestone = CollectionMilestones.newlyEarned(
+            stats: stats,
+            previouslyAcknowledged: acknowledged
+        ).first
+    }
+
+    private func milestoneBanner(_ milestone: CollectionMilestone) -> some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s3) {
+            HStack(spacing: DS.Spacing.s3) {
+                Image(systemName: milestone.icon)
+                    .font(.title2)
+                    .foregroundStyle(Brand.accentWarm)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    Text(milestone.title)
+                        .font(.headline)
+                        .foregroundStyle(Brand.textPrimary)
+                    if let subtitle = milestone.subtitle {
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.textSecondary)
+                    }
+                }
+            }
+            Button("Nice!") {
+                CollectionMilestones.acknowledge(milestone.id)
+                pendingMilestone = nil
+            }
+            .buttonStyle(BrandSecondaryButtonStyle())
+            .accessibilityIdentifier(A11yID.collectionStatsMilestoneDismiss)
+        }
+        .padding(DS.Spacing.s4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Brand.cardElevated)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(A11yID.collectionStatsMilestoneBanner)
     }
 
     // MARK: - Sections
@@ -95,6 +166,30 @@ struct CollectionStatsView: View {
                 subtitle: "To-Do puzzles waiting",
                 identifier: A11yID.collectionStatsBacklogCard
             )
+            if stats.wishlistCount > 0 {
+                statCard(
+                    value: "\(stats.wishlistCount)",
+                    label: "On your wishlist",
+                    subtitle: "Want to buy",
+                    identifier: A11yID.collectionStatsWishlistCard
+                )
+            }
+            if stats.abandonedCount > 0 {
+                statCard(
+                    value: "\(stats.abandonedCount)",
+                    label: "Abandoned",
+                    subtitle: "Will not finish",
+                    identifier: A11yID.collectionStatsAbandonedCard
+                )
+            }
+            if let averageDays = stats.formattedAverageDaysToComplete {
+                statCard(
+                    value: averageDays,
+                    label: "Avg. finish time",
+                    subtitle: "Start to complete",
+                    identifier: A11yID.collectionStatsAverageDaysCard
+                )
+            }
             if stats.missingPiecesCount > 0 {
                 statCard(
                     value: "\(stats.missingPiecesCount)",
@@ -125,6 +220,27 @@ struct CollectionStatsView: View {
                     label: "Time at the table",
                     subtitle: "Across completed puzzles",
                     identifier: A11yID.collectionStatsHoursCard
+                )
+            }
+        }
+    }
+
+    private var howYouPuzzleSection: some View {
+        statsSection(title: "How you puzzle") {
+            if let favoriteType = stats.favoritePuzzleType {
+                statCard(
+                    value: favoriteType.displayLabel,
+                    label: "Favorite type",
+                    subtitle: "Among completed puzzles",
+                    identifier: A11yID.collectionStatsFavoriteTypeCard
+                )
+            }
+            if let topStore = stats.topPurchaseLocations.first {
+                statCard(
+                    value: topStore,
+                    label: "Top store",
+                    subtitle: stats.topPurchaseLocations.count > 1 ? "Most puzzles bought here" : nil,
+                    identifier: A11yID.collectionStatsTopStoreCard
                 )
             }
         }

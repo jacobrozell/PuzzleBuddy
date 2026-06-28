@@ -64,12 +64,16 @@ struct PuzzleProgressSection: View {
 
     private var statusLabel: String {
         switch status {
+        case .wishlist:
+            return "On wishlist"
         case .todo:
             return "Not started"
         case .inProgress:
             return "In progress"
         case .completed:
             return "Completed"
+        case .abandoned:
+            return "Abandoned, will not finish"
         }
     }
 

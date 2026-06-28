@@ -173,7 +173,28 @@ struct DetailView: View {
                 detailRow(label: "Status", value: puzzle.status.accessibilityDescription)
 
                 if let source = puzzle.source?.trimmingCharacters(in: .whitespacesAndNewlines), !source.isEmpty {
-                    detailRow(label: "Source", value: source)
+                    detailRow(label: "Brand", value: source)
+                }
+
+                if let purchaseLocation = puzzle.purchaseLocation?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   !purchaseLocation.isEmpty {
+                    detailRow(label: "Bought at", value: purchaseLocation)
+                }
+
+                if let releaseYear = puzzle.releaseYear {
+                    detailRow(label: "Year", value: String(releaseYear))
+                }
+
+                if puzzle.puzzleType != .none {
+                    detailRow(label: "Type", value: puzzle.puzzleType.displayLabel)
+                }
+
+                if puzzle.material != .none {
+                    detailRow(label: "Material", value: puzzle.material.displayLabel)
+                }
+
+                if puzzle.status == .completed, puzzle.disposition != .none {
+                    detailRow(label: "After finishing", value: puzzle.disposition.displayLabel)
                 }
 
                 if !puzzle.tags.isEmpty {
@@ -193,6 +214,19 @@ struct DetailView: View {
                     label: PuzzleDateSemantics.detailDateLabel(for: puzzle.status),
                     value: puzzle.completionDate.formatted(date: .abbreviated, time: .omitted)
                 )
+
+                if let progressDays = PuzzleDateSemantics.progressDaysLabel(for: puzzle) {
+                    detailRow(label: "Days puzzling", value: progressDays)
+                }
+
+                if let startDate = puzzle.startDate,
+                   PuzzleDateSemantics.showsStartDatePicker(for: puzzle.status) {
+                    detailRow(
+                        label: "Started on",
+                        value: startDate.formatted(date: .abbreviated, time: .omitted)
+                    )
+                }
+
                 detailRow(
                     label: "Missing pieces",
                     value: puzzle.hasMissingPieces ? "Yes" : "No"

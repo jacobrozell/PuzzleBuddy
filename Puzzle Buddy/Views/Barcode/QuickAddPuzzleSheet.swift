@@ -109,11 +109,8 @@ struct QuickAddPuzzleSheet: View {
                         }
                     }
                     .accessibilityLabel("Status")
-                    .onChange(of: formVm.puzzle.status) { _, newStatus in
-                        formVm.puzzle.progressPercent = PuzzleProgressSemantics.progress(
-                            for: newStatus,
-                            current: formVm.puzzle.progressPercent
-                        )
+                    .onChange(of: formVm.puzzle.status) { previousStatus, newStatus in
+                        formVm.puzzle.noteStatusChanged(from: previousStatus, to: newStatus)
                     }
 
                     LabeledContent("Barcode", value: barcode)
