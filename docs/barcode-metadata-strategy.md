@@ -8,23 +8,21 @@ Puzzle Buddy’s core barcode value is **offline duplicate checking** (Phases A�
 |----------|------|-----------------|
 | **Local duplicate check** | Free | 100% for barcodes you’ve saved |
 | **On-device cache** (`BarcodeMetadataCache`) | Free | 100% for barcodes you’ve saved before |
-| **UPCitemdb trial** | Free, ~100 req/day | Unknown; often poor for jigsaws |
-| **Paid UPC APIs** (Barcode Lookup, Go-UPC, etc.) | $99+/mo typical | Unknown; not justified for 1.0 |
+| **Paid UPC APIs** (Barcode Lookup, Go-UPC, UPCitemdb paid tier, etc.) | $99+/mo typical | Unknown; not justified for 1.0 |
 | **[IPDb](https://www.ipdb.plus/)** | Free to users | High for puzzles — **no public API** |
 
-**Decision:** Do not depend on paid UPC APIs. Keep online lookup **off by default**; prefer local data. Pursue IPDb through **partnership** and **user-initiated exports** for migration.
+**Decision:** Do not depend on paid or trial UPC APIs (free tiers are too restrictive for real use). Prefer local data and IPDb through **partnership** and **user-initiated exports** for migration.
 
 ## Shipped today
 
 1. **Barcode field + duplicate guard** — exact UPC match against your collection (SwiftData).
 2. **Shopping mode** — scan → instant match / no-match, fully offline.
 3. **Local metadata cache** — when you save a puzzle with a barcode, name/pieces/source are cached on-device for future scans (no network).
-4. **Optional UPCitemdb trial** — Settings → “Look up product from barcode”; only runs after local cache misses.
-5. **Soft similar-match hints** — name + brand/pieces warnings in quick-add (IPDb-inspired, offline).
-6. **Inline scan on add/edit form** — barcode row scan button on device.
-7. **IPDb CSV import** — shipped in Settings. See [ipdb-csv-import.md](ipdb-csv-import.md).
+4. **Soft similar-match hints** — name + brand/pieces warnings in quick-add (IPDb-inspired, offline).
+5. **Inline scan on add/edit form** — barcode row scan button on device.
+6. **IPDb CSV import** — shipped in Settings. See [ipdb-csv-import.md](ipdb-csv-import.md).
 
-Lookup order: in-memory session cache → `BarcodeMetadataCache` → UPCitemdb (if enabled).
+Lookup is **on-device only**: `BarcodeMetadataCache` from puzzles you have already saved.
 
 ## IPDb (Internet Puzzle Database)
 
@@ -101,7 +99,7 @@ Puzzle Buddy ships **(1)** as a hard guard and **(2)/(3)** as soft “looks simi
 | Offline shopping duplicate check | N/A (online DB) | N/A |
 | Fits local-first 1.0 | CSV yes; API only with consent + attribution | Poor value for jigsaws |
 
-**Strategy:** Prefer IPDb-shaped enrichment (community puzzle data, box OCR) over generic UPC lookups. Keep UPCitemdb as an optional, off-by-default fallback.
+**Strategy:** Prefer IPDb-shaped enrichment (community puzzle data, box OCR) over generic UPC lookups. Generic UPC APIs were evaluated and **not pursued** (trial limits too restrictive; paid tiers not justified for jigsaw hit rates).
 
 ### Integration principles
 
@@ -122,22 +120,19 @@ Puzzle Buddy shows manufacturer **names** (source field, lookup, CSV import). Li
 
 | Priority | Idea | Effort | Notes |
 |----------|------|--------|-------|
-| **1** | UPC lookup hardening + hit-rate spike | Small | See [upc-lookup-plan.md](upc-lookup-plan.md) |
-| **2** | Box photo OCR (Vision) | Medium | IPDb Digital Assistant equivalent, on-device |
-| **3** | IPDb partnership / read-only API | Small–Large | See [ipdb-partnership-outreach.md](ipdb-partnership-outreach.md) |
-| **4** | IPDb CSV import (user-facing) | Shipped | Settings → Collection |
+| **1** | Box photo OCR (Vision) | Medium | IPDb Digital Assistant equivalent, on-device |
+| **2** | IPDb partnership / read-only API | Small–Large | See [ipdb-partnership-outreach.md](ipdb-partnership-outreach.md) |
+| **3** | IPDb CSV import (user-facing) | Shipped | Settings → Collection |
 
 ## What we are not doing
 
-- Embedding paid API keys in the app
+- Embedding paid or trial UPC API keys in the app
 - Requiring network for duplicate checks
 - Auto-saving puzzles from lookup without user confirmation
 
 ## Related docs
 
 - [spec-barcode-scanner.md](spec-barcode-scanner.md) — full phased spec
-- [upc-lookup-plan.md](upc-lookup-plan.md) — UPC enrichment roadmap
-- [upc-lookup-spike-results.md](upc-lookup-spike-results.md) — Phase 2 corpus spike
 - [roadmap.md](roadmap.md) — competitive context
 - [ipdb-csv-import.md](ipdb-csv-import.md) — user migration guide
 - [ipdb-partnership-outreach.md](ipdb-partnership-outreach.md) — partnership email draft

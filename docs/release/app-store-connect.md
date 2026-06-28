@@ -35,7 +35,7 @@ Declare what **actually ships** in 1.0.0 (`isLoginEnabled = false`).
 | **Crash data** (Firebase Crashlytics) | Yes | No | No | Crash logs and non-PII warnings |
 | **Photos / user content** | Yes | No | No | Puzzle cover images stored **on device** only in 1.0 |
 | **Other user content** | Yes | No | No | Puzzle titles, ratings, tags — on device |
-| **Identifiers** (UPC barcode digits) | Optional | No | No | Only when user enables **Look up product from barcode**; sent to UPCitemdb |
+| **Identifiers** (UPC barcode digits) | No | No | No | Stored on device only; not sent to third parties |
 
 **Do not declare** (not used in 1.0): email, name, precise location, contacts, financial info, push token (push not requested in 1.0).
 

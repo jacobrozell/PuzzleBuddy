@@ -254,7 +254,6 @@ enum A11yID {
     static let quickAddPuzzleSheet = "quick_add_puzzle_sheet"
     static let quickAddSaveButton = "quick_add_save_button"
     static let quickAddSimilarSection = "quick_add_similar_section"
-    static let quickAddLookupNotice = "quick_add_lookup_notice"
     static let shoppingModeSheet = "shopping_mode_sheet"
     static let shoppingModeCancel = "shopping_mode_cancel"
     static let shoppingModeMatchCard = "shopping_mode_match_card"

@@ -10,7 +10,6 @@ import Foundation
 enum ProductService {
     private static let enableLoginArgument = "-enable_login"
     private static let enableCollectionImportExportArgument = "-enable_collection_import_export"
-    private static let disableBarcodeLookupArgument = "-disable_barcode_lookup"
 
     /// Account sign-in and Firestore sync. Off for 1.0.0 local-only release.
     static var isLoginEnabled: Bool {
@@ -56,13 +55,5 @@ enum ProductService {
     /// Export collection as JSON or IPDb-compatible CSV.
     static var isCollectionExportEnabled: Bool {
         isCollectionImportExportEnabled
-    }
-
-    /// Online UPC metadata lookup via UPCitemdb trial API (100 requests/day).
-    static var isBarcodeLookupEnabled: Bool {
-        if ProcessInfo.processInfo.arguments.contains(disableBarcodeLookupArgument) {
-            return false
-        }
-        return UserPreferences.isBarcodeLookupEnabled
     }
 }

@@ -31,7 +31,6 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.ipdbImportSummarySheet.isEmpty)
         XCTAssertFalse(A11yID.ipdbImportDoneButton.isEmpty)
         XCTAssertFalse(A11yID.quickAddSimilarSection.isEmpty)
-        XCTAssertFalse(A11yID.quickAddLookupNotice.isEmpty)
         XCTAssertFalse(A11yID.settingsImportIPDbButton.isEmpty)
         XCTAssertFalse(A11yID.settingsExportCollectionButton.isEmpty)
         XCTAssertFalse(A11yID.shoppingModeMatchCard.isEmpty)

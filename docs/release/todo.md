@@ -19,7 +19,7 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 ## Pre-submit
 
 - [ ] **Landscape + iPad** — Phase 2 layout sign-off
-- [x] **UPC lookup** — optional toggle; graceful network failure
+- [x] **Generic UPC API lookup** — evaluated and removed; barcode enrichment is on-device only
 - [x] **Onboarding** — no IPDb/import claims in 1.0 copy
 - [x] **Unit tests** — 174+ passing
 

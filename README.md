@@ -33,8 +33,7 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 
 ### Shopping & barcode
 
-- Barcode scan for quick-add and **shopping duplicate-check** (offline)
-- Optional UPC metadata lookup (Settings toggle; UPCitemdb)
+- Barcode scan for quick-add and **shopping duplicate-check** (offline; suggests details from your saved puzzles when available)
 
 ### Collection stats
 

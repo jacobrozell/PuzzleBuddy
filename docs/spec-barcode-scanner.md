@@ -455,17 +455,13 @@ General UPC databases (Go-UPC, Barcode Lookup, Buycott) index **retail products*
 3. **Go threshold:** median score ≥6/10 → integrate optional enrichment behind feature flag.
 4. **No-go:** Ship scan + duplicate only; defer API spend.
 
-### 10.4 Enrichment architecture (if go)
+### 10.4 Enrichment architecture (not shipped)
 
-```
-Scan → Local duplicate check → (if online & flag on) BarcodeLookupService
-  → Cache in BarcodeCacheEntry
-  → Pre-fill Quick Add
-```
+Generic UPC APIs were evaluated and **not integrated**. Trial tiers (e.g. UPCitemdb) are too restrictive; paid tiers are not justified for jigsaw hit rates.
 
-**Feature flag:** `ProductService.isBarcodeLookupEnabled` default `false`.
+**Shipped instead:** scan → local duplicate check → `BarcodeMetadataCache` (from puzzles you already saved) → pre-fill quick add when cache hits.
 
-**Privacy:** Only barcode digits sent to API; no user id; disclose in privacy policy appendix.
+**Privacy:** Barcode digits stay on device; no third-party product lookup.
 
 ### 10.5 Piece count extraction heuristic (offline, no API)
 
@@ -504,9 +500,8 @@ flowchart TB
         AVC[AVCaptureMetadata fallback]
     end
 
-    subgraph Optional
-        BLS[BarcodeLookupService]
-        CACHE[BarcodeCacheEntry]
+    subgraph LocalMetadata
+        BMC[BarcodeMetadataCache]
     end
 
     PL --> BS
@@ -519,8 +514,7 @@ flowchart TB
     DC --> PS
     BS --> QA
     QA --> PS
-    BLS --> CACHE
-    BLS -.-> QA
+    BMC -.-> QA
 ```
 
 ### 11.2 New types (proposed files)
@@ -533,8 +527,7 @@ flowchart TB
 | `Views/Barcode/BarcodeScannerSheet.swift` | SwiftUI chrome, torch, permissions |
 | `Views/Barcode/ShoppingModeView.swift` | Duplicate-only flow |
 | `Views/Barcode/QuickAddPuzzleSheet.swift` | Minimal post-scan form |
-| `Services/BarcodeLookupService.swift` | Phase D HTTP client |
-| `Helpers/BarcodeCacheEntry.swift` | Phase D SwiftData model |
+| `Helpers/BarcodeMetadataCache.swift` | On-device barcode → metadata from saved puzzles |
 
 ### 11.3 Integration with `PuzzleStore`
 
@@ -564,12 +557,10 @@ Add `NSCameraUsageDescription` to `Puzzle-Buddy-Info.plist` if not generated fro
 ```swift
 static var isBarcodeScanEnabled: Bool = true  // Phase B
 static var isShoppingModeEnabled: Bool = true  // Phase C
-static var isBarcodeLookupEnabled: Bool = false  // Phase D
 ```
 
 Launch arguments for QA:
 
-- `-enable_barcode_lookup`
 - `-disable_barcode_scan`
 
 ---
@@ -755,19 +746,18 @@ Scanner chrome uses **black** background (camera standard), not brand gradient.
 
 | Data | Stored locally | Sent off-device |
 |------|----------------|-----------------|
-| Barcode digits | Yes | Only if Phase D lookup enabled |
+| Barcode digits | Yes | No |
 | Camera frames | No persistence | Processed on-device only |
 | Puzzle metadata | Yes | Firestore when sync on |
 
-### 16.2 Privacy policy updates (before Phase D)
+### 16.2 Privacy policy
 
-- Disclose optional UPC lookup to third-party API.
+- Barcode scanning and duplicate check are on-device only.
 - No barcode transmitted in analytics events—use hashed bucket or length only.
 
 ### 16.3 Security
 
 - Barcode strings are not PII; still exclude from Crashlytics logs.
-- API keys for UPC services live in **server proxy** preferred over embedded keys (Phase D). If embedded, use obfuscation + rate limits.
 
 ### 16.4 App Store
 
@@ -906,16 +896,11 @@ Use Apple-documented **synthetic** codes for simulator/manual QA; never use real
 
 ---
 
-### Phase D — UPC enrichment (gated by R&D spike)
+### Phase D — UPC enrichment (cancelled)
 
-**Scope:**
+**Status:** Evaluated and **not shipped**. Generic UPC trial APIs are too restrictive; paid tiers are not justified for puzzle hit rates.
 
-- `BarcodeLookupService` + cache
-- Feature flag + privacy policy
-- Pre-fill name/brand/image when API returns useful data
-
-**Estimate:** 5–10 dev days (includes spike)  
-**Gate:** ≥50% useful responses on puzzle sample set
+**Shipped instead:** `BarcodeMetadataCache` — pre-fill name/brand/pieces from puzzles the user already saved on device.
 
 ---
 

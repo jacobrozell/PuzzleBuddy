@@ -19,7 +19,7 @@
 | Catalog | Search, status tabs, sort, filters (incl. **type / material / disposition**) | `PuzzleList`, `PuzzleListFilter` |
 | Catalog | Half-star ratings on form + list | `RatingsView`, `PuzzleCell` |
 | Shopping | Barcode scan, shopping duplicate-check | `BarcodeScannerSheet`, `ShoppingModeView` |
-| Shopping | Optional UPC lookup (Settings toggle) | `BarcodeLookupService` |
+| Shopping | Local barcode metadata from saved puzzles | `BarcodeMetadataCache` |
 | Organize | **Pick my next puzzle** (list + **Stats tab**) | `PickNextPuzzleView`, `PuzzleRandomPicker` |
 | Tracking | **Progress over days** (`startDate`) | `PuzzleDateSemantics`, detail stats |
 | Stats | Collection stats + **wishlist / abandoned / avg days / favorite type / top stores** | `CollectionStatsView`, `CollectionStats` |

@@ -1,3 +1,3 @@
-# Barcode / UPC quick add (shipped)
+# Barcode quick add (shipped)
 
-IPDb CSV + UPC lookup — [`../../docs/features.md`](../../docs/features.md)
+Offline scan → duplicate check → quick-add with local metadata from saved puzzles — [`../../docs/features.md`](../../docs/features.md)

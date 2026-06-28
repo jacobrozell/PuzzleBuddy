@@ -270,7 +270,6 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 | Section | 1.0 content | When login enabled |
 |---------|-------------|-------------------|
 | Account | Hidden | Sign Out button |
-| Barcode & cataloging | Online lookup toggle (optional UPC enrichment) | Same |
 | Collection | Demo data, delete all | Import/export when `isCollectionImportExportEnabled` (off in 1.0) |
 | Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) | Same |
 | About | App version from `Puzzle_BuddyApp.version` | Same |

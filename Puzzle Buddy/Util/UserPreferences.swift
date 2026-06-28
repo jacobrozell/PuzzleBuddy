@@ -44,18 +44,4 @@ enum UserPreferences {
             UserDefaults.standard.set(newValue.rawValue, forKey: appearanceStorageKey)
         }
     }
-
-    static let barcodeLookupStorageKey = "PuzzleBuddy.BarcodeLookupEnabled"
-
-    static var isBarcodeLookupEnabled: Bool {
-        get {
-            if UserDefaults.standard.object(forKey: barcodeLookupStorageKey) == nil {
-                return false
-            }
-            return UserDefaults.standard.bool(forKey: barcodeLookupStorageKey)
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: barcodeLookupStorageKey)
-        }
-    }
 }
