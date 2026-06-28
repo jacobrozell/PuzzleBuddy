@@ -107,7 +107,7 @@ struct SplashView: View {
                 .strokeBorder(Brand.accent.opacity(0.12), lineWidth: 8)
                 .frame(width: crestDiameter * 1.18, height: crestDiameter * 1.18)
 
-            BrandMark(size: crestDiameter * 0.68)
+            BrandMark(size: crestDiameter, animated: true)
         }
         .accessibilityLabel(AppInfo.displayName)
     }

@@ -26,6 +26,8 @@ targets:
       - path: Puzzle Buddy
         excludes:
           - "**/README.md"
+      - path: Puzzle Buddy/Resources
+        buildPhase: resources
       - path: GoogleService-Info.plist
         type: file
         buildPhase: resources

@@ -95,6 +95,11 @@ Puzzle Buddy.xcodeproj/
 # MCP screenshot / scratch output
 tmp/
 
+# Local render deps for splash GIF script
+node_modules/
+package.json
+package-lock.json
+
 # Cursor IDE local config
 .cursor/
 
