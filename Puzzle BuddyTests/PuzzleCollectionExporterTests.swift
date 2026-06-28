@@ -82,10 +82,19 @@ final class PuzzleCollectionExporterTests: XCTestCase {
         XCTAssertEqual(roundTripped.notes, "Started last weekend")
     }
 
-    func testExportsWishlistFolderForToDoStatus() throws {
+    func testExportsToDoFolderForOwnedBacklog() throws {
         let puzzle = Puzzle.fixture(name: "Harbor Sunset", pieces: 500)
         puzzle.source = "Galison"
         puzzle.status = .todo
+
+        let data = try PuzzleCollectionExporter.csvData(from: [puzzle])
+        let csv = String(decoding: data, as: UTF8.self)
+        XCTAssertTrue(csv.contains("To-Do"))
+    }
+
+    func testExportsWishlistFolderForWishlistStatus() throws {
+        let puzzle = Puzzle.fixture(name: "Future Buy", pieces: 500)
+        puzzle.status = .wishlist
 
         let data = try PuzzleCollectionExporter.csvData(from: [puzzle])
         let csv = String(decoding: data, as: UTF8.self)

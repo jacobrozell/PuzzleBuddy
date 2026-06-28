@@ -36,8 +36,14 @@ final class Puzzle_BuddyTests: XCTestCase {
         XCTAssertFalse(ProductService.isLoginEnabled)
     }
 
-    func testIPDbImportEnabled() {
-        XCTAssertTrue(ProductService.isIPDbImportEnabled)
+    func testCollectionImportExportDisabledForOnePointZero() {
+        XCTAssertFalse(ProductService.isCollectionImportExportEnabled)
+        XCTAssertFalse(ProductService.isIPDbImportEnabled)
+        XCTAssertFalse(ProductService.isCollectionExportEnabled)
+    }
+
+    func testPickNextEnabledForOnePointZero() {
+        XCTAssertTrue(ProductService.isPickNextEnabled)
     }
 
     func testCloudSyncDisabledWhenLoginDisabled() {

@@ -25,7 +25,7 @@ final class IPDbCSVImporterTests: XCTestCase {
         XCTAssertEqual(puzzles[0].notes, "Gift from Mom")
 
         XCTAssertEqual(puzzles[1].name, "Harbor View")
-        XCTAssertEqual(puzzles[1].status, .todo)
+        XCTAssertEqual(puzzles[1].status, .wishlist)
         XCTAssertNil(puzzles[1].barcode)
     }
 
@@ -70,7 +70,7 @@ final class IPDbCSVImporterTests: XCTestCase {
         XCTAssertEqual(inProgress.barcode, "818870028198")
 
         let wishlist = try XCTUnwrap(puzzles.first { $0.name == "Harbor Sunset" })
-        XCTAssertEqual(wishlist.status, .todo)
+        XCTAssertEqual(wishlist.status, .wishlist)
 
         let completed = try XCTUnwrap(puzzles.first { $0.name == "Mystery Lake" })
         XCTAssertEqual(completed.status, .completed)

@@ -23,7 +23,8 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleDetailHoursPer1000Row.isEmpty)
         XCTAssertFalse(A11yID.puzzleDetailProgress.isEmpty)
         XCTAssertFalse(A11yID.scanBarcodeButton.isEmpty)
-        XCTAssertFalse(A11yID.barcodeScannerSheet.isEmpty)
+        XCTAssertFalse(A11yID.pickNextButton.isEmpty)
+        XCTAssertFalse(A11yID.pickNextSpinButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleFormScanBarcodeButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleDetailBarcodeRow.isEmpty)
         XCTAssertFalse(A11yID.settingsBrandDisclaimerFooter.isEmpty)
@@ -53,6 +54,7 @@ final class AccessibilityLabelTests: XCTestCase {
     }
 
     func testPuzzleStatusAccessibilityDescription() {
+        XCTAssertEqual(Puzzle.Status.wishlist.accessibilityDescription, "Wishlist, not yet owned")
         XCTAssertEqual(Puzzle.Status.todo.accessibilityDescription, "To-Do, not started")
         XCTAssertEqual(Puzzle.Status.inProgress.accessibilityDescription, "In progress")
         XCTAssertEqual(Puzzle.Status.completed.accessibilityDescription, "Completed")

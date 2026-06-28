@@ -39,9 +39,11 @@ final class PuzzleSerializationTests: XCTestCase {
 
     func testStatusLabels() {
         XCTAssertEqual(Puzzle.Status.todo.rawValue, "To-Do")
+        XCTAssertEqual(Puzzle.Status.wishlist.rawValue, "Wishlist")
         XCTAssertEqual(Puzzle.Status.inProgress.rawValue, "In-Progress")
         XCTAssertEqual(Puzzle.Status.completed.rawValue, "Completed")
-        XCTAssertEqual(Puzzle.Status.allCases.count, 3)
+        XCTAssertEqual(Puzzle.Status.abandoned.rawValue, "Abandoned")
+        XCTAssertEqual(Puzzle.Status.allCases.count, 5)
     }
 
     func testFromDataInProgressStatus() {

@@ -146,7 +146,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         let segmented = app.segmentedControls.firstMatch
         XCTAssertTrue(filter.waitForExistence(timeout: 5) || segmented.waitForExistence(timeout: 3))
 
-        let completedButton = segmented.buttons["Completed"]
+        let completedButton = segmented.buttons["Done"]
         XCTAssertTrue(completedButton.waitForExistence(timeout: 3))
 
         XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).exists)
@@ -160,7 +160,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 3))
         XCTAssertFalse(puzzleRow(named: "Harbor Lights", in: app).exists)
 
-        segmented.buttons["In-Progress"].tap()
+        segmented.buttons["Active"].tap()
         XCTAssertTrue(puzzleRow(named: "Tabletop Sky", in: app).waitForExistence(timeout: 3))
         XCTAssertFalse(puzzleRow(named: "Mountain Sunset", in: app).exists)
 
@@ -176,7 +176,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         waitForSeededPuzzles(in: app)
 
         let searchField = app.descendants(matching: .any)[UITestA11yID.puzzleListSearchField]
-        let searchLabel = "Search name, brand, or barcode"
+        let searchLabel = "Search name, brand, store, tag, or barcode"
         if !searchField.waitForExistence(timeout: 3) {
             XCTAssertTrue(app.textFields[searchLabel].waitForExistence(timeout: 5))
         }
@@ -313,7 +313,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
     }
 
-    func testSettingsCollectionDataActionsPresent() throws {
+    func testSettingsCollectionImportExportHiddenInOnePointZero() throws {
         let app = launchForBypassAuth()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
@@ -322,16 +322,10 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
         let importControl = app.descendants(matching: .any)[UITestA11yID.settingsImportIPDbButton]
         let exportControl = app.descendants(matching: .any)[UITestA11yID.settingsExportCollectionButton]
-        for _ in 0..<4 {
-            if importControl.exists && exportControl.exists { break }
-            app.swipeUp()
-        }
-
-        let importByLabel = app.buttons["Import from IPDb CSV"]
-        XCTAssertTrue(importControl.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 3))
-
-        let exportByLabel = app.buttons["Export collection"]
-        XCTAssertTrue(exportControl.waitForExistence(timeout: 3) || exportByLabel.waitForExistence(timeout: 3))
+        XCTAssertFalse(importControl.waitForExistence(timeout: 2))
+        XCTAssertFalse(exportControl.waitForExistence(timeout: 1))
+        XCTAssertFalse(app.buttons["Import from IPDb CSV"].waitForExistence(timeout: 1))
+        XCTAssertFalse(app.buttons["Export collection"].waitForExistence(timeout: 1))
     }
 
     func testPuzzleListDynamicTypeAudit() throws {

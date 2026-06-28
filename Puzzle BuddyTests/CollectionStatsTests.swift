@@ -26,8 +26,11 @@ final class CollectionStatsTests: XCTestCase {
         XCTAssertEqual(stats.totalPiecesCompleted, 0)
         XCTAssertEqual(stats.totalMinutesPuzzling, 0)
         XCTAssertEqual(stats.backlogCount, 0)
+        XCTAssertEqual(stats.wishlistCount, 0)
+        XCTAssertEqual(stats.abandonedCount, 0)
         XCTAssertEqual(stats.missingPiecesCount, 0)
         XCTAssertNil(stats.averageRating)
+        XCTAssertNil(stats.averageDaysToComplete)
         XCTAssertNil(stats.favoritePieceCount)
         XCTAssertEqual(stats.completionsThisMonth, 0)
         XCTAssertEqual(stats.completionsThisYear, 0)
@@ -144,6 +147,37 @@ final class CollectionStatsTests: XCTestCase {
         XCTAssertEqual(stats.completionsThisMonth, 1)
         XCTAssertEqual(stats.completionsThisYear, 1)
         XCTAssertEqual(stats.completedCount, 2)
+    }
+
+    func testComputeAverageDaysToComplete() {
+        var completed = makePuzzle(name: "Done", pieces: 500, status: .completed)
+        completed.startDate = calendar.date(byAdding: .day, value: -4, to: referenceDate)!
+        completed.completionDate = referenceDate
+
+        let stats = CollectionStats.compute(from: [completed], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.averageDaysToComplete, 4)
+        XCTAssertEqual(stats.formattedAverageDaysToComplete, "About 4 days")
+    }
+
+    func testComputeWishlistAndAbandonedCounts() {
+        let wishlist = makePuzzle(name: "Want", pieces: 500, status: .wishlist)
+        let abandoned = makePuzzle(name: "Quit", pieces: 500, status: .abandoned)
+
+        let stats = CollectionStats.compute(from: [wishlist, abandoned], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.wishlistCount, 1)
+        XCTAssertEqual(stats.abandonedCount, 1)
+    }
+
+    func testComputeTopPurchaseLocations() {
+        var first = makePuzzle(name: "A", pieces: 500, status: .todo)
+        first.purchaseLocation = "Goodwill"
+        var second = makePuzzle(name: "B", pieces: 500, status: .todo)
+        second.purchaseLocation = "Goodwill"
+        var third = makePuzzle(name: "C", pieces: 500, status: .todo)
+        third.purchaseLocation = "Amazon"
+
+        let stats = CollectionStats.compute(from: [first, second, third], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.topPurchaseLocations.first, "Goodwill")
     }
 
     // MARK: - Helpers

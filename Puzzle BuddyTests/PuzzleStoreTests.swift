@@ -140,7 +140,7 @@ final class PuzzleStoreTests: XCTestCase {
         let harbor = try XCTUnwrap(store.puzzles.first { $0.name == "Harbor View" })
         XCTAssertEqual(harbor.source, "Ravensburger")
         XCTAssertEqual(harbor.barcode, "818870028198")
-        XCTAssertEqual(harbor.status, .todo)
+        XCTAssertEqual(harbor.status, .wishlist)
     }
 
     func testEndToEndIPDbCSVImportSkipsDuplicateBarcodes() throws {
