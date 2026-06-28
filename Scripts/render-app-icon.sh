@@ -29,7 +29,9 @@ if [[ ! -f "$GIF" ]]; then
   exit 1
 fi
 
-magick "$GIF[$GIF_FRAME]" -coalesce "$WORK/hero-tile.png"
+# GIF frames are delta-compressed; coalesce the full animation before picking a scene.
+magick "$GIF" -coalesce "$WORK/coalesced.gif"
+magick "$WORK/coalesced.gif[$GIF_FRAME]" PNG32:"$WORK/hero-tile.png"
 
 generate_marketing_icon() {
   local size="$1"

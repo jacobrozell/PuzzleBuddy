@@ -77,7 +77,7 @@ Information and UI components must be presentable to users in ways they can perc
 | Criterion | Puzzle Buddy approach | Status |
 |-----------|----------------------|--------|
 | **1.4.1 Use of Color** | Difficulty and rating supplemented by position/count; status is text | Supports |
-| **1.4.3 Contrast (Minimum)** | `Brand` tokens designed for AA; accent `#0D8C9E` on white text | Partial — full audit pending |
+| **1.4.3 Contrast (Minimum)** | `Brand` tokens designed for AA; accent `#C15C38` on white text | Partial — full audit pending |
 | **1.4.4 Resize Text** | System Dynamic Type via SwiftUI text styles | Partial — layout audit at AX5 pending |
 | **1.4.5 Images of Text** | No critical information in bitmap text | Supports |
 | **1.4.10 Reflow** | Scroll views and `Form` for overflow | Partial |

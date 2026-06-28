@@ -67,7 +67,7 @@ struct SplashView: View {
 
             RadialGradient(
                 colors: [
-                    Brand.gradientTop.opacity(0.12),
+                    Brand.accent.opacity(0.14),
                     Brand.background.opacity(0),
                 ],
                 center: .bottomTrailing,

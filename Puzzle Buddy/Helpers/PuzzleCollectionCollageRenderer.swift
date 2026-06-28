@@ -147,14 +147,14 @@ enum PuzzleCollectionCollageRenderer {
     }
 
     private static func drawPlaceholderBackground(in rect: CGRect, context: CGContext) {
-        context.setFillColor(UIColor(red: 0.92, green: 0.95, blue: 0.97, alpha: 1).cgColor)
+        context.setFillColor(UIColor(red: 0.957, green: 0.937, blue: 0.902, alpha: 1).cgColor)
         context.fill(rect)
     }
 
     private static func drawPlaceholderIcon(in rect: CGRect) {
         let config = UIImage.SymbolConfiguration(pointSize: min(rect.width, rect.height) * 0.28, weight: .semibold)
         guard let symbol = UIImage(systemName: "puzzlepiece.extension.fill", withConfiguration: config)?
-            .withTintColor(UIColor(red: 0.05, green: 0.55, blue: 0.62, alpha: 1), renderingMode: .alwaysOriginal)
+            .withTintColor(UIColor(red: 0.757, green: 0.361, blue: 0.220, alpha: 1), renderingMode: .alwaysOriginal)
         else { return }
 
         let symbolSize = symbol.size
@@ -187,7 +187,7 @@ enum PuzzleCollectionCollageRenderer {
         let text = "+\(count) more puzzles" as NSString
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 22, weight: .semibold),
-            .foregroundColor: UIColor(red: 0.05, green: 0.55, blue: 0.62, alpha: 1)
+            .foregroundColor: UIColor(red: 0.757, green: 0.361, blue: 0.220, alpha: 1)
         ]
         let size = text.size(withAttributes: attributes)
         text.draw(

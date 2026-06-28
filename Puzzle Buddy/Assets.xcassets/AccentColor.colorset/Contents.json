@@ -2,21 +2,13 @@
   "colors" : [
     {
       "color" : {
-        "platform" : "universal",
-        "reference" : "systemOrangeColor"
-      },
-      "idiom" : "universal"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
+          "blue" : "0.220",
+          "green" : "0.361",
+          "red" : "0.757"
         }
-      ],
-      "color" : {
-        "platform" : "ios",
-        "reference" : "systemBlueColor"
       },
       "idiom" : "universal"
     },
@@ -28,8 +20,13 @@
         }
       ],
       "color" : {
-        "platform" : "universal",
-        "reference" : "systemOrangeColor"
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
+          "blue" : "0.267",
+          "green" : "0.451",
+          "red" : "0.831"
+        }
       },
       "idiom" : "universal"
     }
