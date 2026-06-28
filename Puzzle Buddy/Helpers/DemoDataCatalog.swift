@@ -32,7 +32,13 @@ enum DemoDataCatalog {
         let puzzle = demoFixture(name: name, pieces: pieces, rating: .three)
         puzzle.status = .completed
         puzzle.progressPercent = 100
-        puzzle.source = "Retail store"
+        puzzle.source = "Galison"
+        puzzle.purchaseLocation = "Local bookshop"
+        puzzle.releaseYear = 2022
+        puzzle.puzzleType = .landscape
+        puzzle.material = .cardboard
+        puzzle.disposition = .kept
+        puzzle.startDate = Calendar.current.date(byAdding: .day, value: -5, to: puzzle.completionDate)
         return puzzle
     }
 
@@ -40,7 +46,11 @@ enum DemoDataCatalog {
         let puzzle = demoFixture(name: name, pieces: pieces, rating: .two)
         puzzle.status = .inProgress
         puzzle.progressPercent = 45
-        puzzle.source = "Gift"
+        puzzle.source = "Ravensburger"
+        puzzle.purchaseLocation = "Thrift store"
+        puzzle.puzzleType = .gradient
+        puzzle.material = .cardboard
+        puzzle.startDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())
         return puzzle
     }
 }

@@ -105,9 +105,11 @@ class Puzzle: ObservableObject {
     }
 
     enum Status: String, CaseIterable, Identifiable {
+        case wishlist = "Wishlist"
         case todo = "To-Do"
         case inProgress = "In-Progress"
         case completed = "Completed"
+        case abandoned = "Abandoned"
 
         var id: String {
             self.rawValue
@@ -121,10 +123,16 @@ class Puzzle: ObservableObject {
     @Published var difficulty: Difficulty = .none
     @Published var estimatedTimeSpent: PuzzleTime? = nil
     @Published var completionDate: Date = Date()
+    @Published var startDate: Date? = nil
     @Published var status: Status = .todo
     @Published var hasMissingPieces: Bool = false
     @Published var notes: String? = nil
     @Published var source: String? = nil
+    @Published var purchaseLocation: String? = nil
+    @Published var releaseYear: Int? = nil
+    @Published var puzzleType: PuzzleType = .none
+    @Published var material: PuzzleMaterial = .none
+    @Published var disposition: PuzzleDisposition = .none
     @Published var progressPercent: Int = 0
     @Published var isDemo: Bool = false
     @Published var barcode: String? = nil
@@ -138,9 +146,15 @@ class Puzzle: ObservableObject {
                   estimatedTimeSpent: PuzzleTime?,
                   completionDate: Date,
                   status: Status = .todo,
+                  startDate: Date? = nil,
                   hasMissingPieces: Bool = false,
                   notes: String? = nil,
                   source: String? = nil,
+                  purchaseLocation: String? = nil,
+                  releaseYear: Int? = nil,
+                  puzzleType: PuzzleType = .none,
+                  material: PuzzleMaterial = .none,
+                  disposition: PuzzleDisposition = .none,
                   progressPercent: Int = 0,
                   isDemo: Bool = false,
                   barcode: String? = nil,
@@ -152,10 +166,16 @@ class Puzzle: ObservableObject {
         self.difficulty = difficulty
         self.estimatedTimeSpent = estimatedTimeSpent
         self.completionDate = completionDate
+        self.startDate = startDate
         self.status = status
         self.hasMissingPieces = hasMissingPieces
         self.notes = notes
         self.source = source
+        self.purchaseLocation = purchaseLocation
+        self.releaseYear = releaseYear
+        self.puzzleType = puzzleType
+        self.material = material
+        self.disposition = disposition
         self.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
         self.isDemo = isDemo
         self.barcode = BarcodeNormalizer.normalize(barcode)
@@ -175,11 +195,17 @@ class Puzzle: ObservableObject {
             "rating": rating.rawValue,
             "difficulty": difficulty.rawValue,
             "completionDate": completionDate,
+            "startDate": startDate as Any? ?? "nil",
             "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
             "status": status.rawValue,
             "hasMissingPieces": hasMissingPieces,
             "notes": notes ?? "nil",
             "source": source ?? "nil",
+            "purchaseLocation": purchaseLocation ?? "nil",
+            "releaseYear": releaseYear ?? "nil",
+            "puzzleType": puzzleType.rawValue,
+            "material": material.rawValue,
+            "disposition": disposition.rawValue,
             "progressPercent": progressPercent,
             "isDemo": isDemo,
             "barcode": barcode ?? "nil",
@@ -262,6 +288,12 @@ extension Puzzle {
             print("KeyError: completionDate not found")
         }
 
+        if let startDate = data["startDate"] as? Timestamp {
+            p.startDate = startDate.dateValue()
+        } else if let startDate = data["startDate"] as? Date {
+            p.startDate = startDate
+        }
+
         if let status = data["status"] as? String {
             p.status = Puzzle.Status(rawValue: status) ?? .todo
         } else {
@@ -278,6 +310,26 @@ extension Puzzle {
 
         if let source = data["source"] as? String, source != "nil" {
             p.source = source
+        }
+
+        if let purchaseLocation = data["purchaseLocation"] as? String, purchaseLocation != "nil" {
+            p.purchaseLocation = purchaseLocation
+        }
+
+        if let releaseYear = data["releaseYear"] as? Int {
+            p.releaseYear = releaseYear
+        }
+
+        if let puzzleType = data["puzzleType"] as? String {
+            p.puzzleType = PuzzleType(rawValue: puzzleType) ?? .none
+        }
+
+        if let material = data["material"] as? String {
+            p.material = PuzzleMaterial(rawValue: material) ?? .none
+        }
+
+        if let disposition = data["disposition"] as? String {
+            p.disposition = PuzzleDisposition(rawValue: disposition) ?? .none
         }
 
         if let progressPercent = data["progressPercent"] as? Int {
@@ -311,12 +363,33 @@ extension Puzzle {
 extension Puzzle.Status {
     var accessibilityDescription: String {
         switch self {
+        case .wishlist:
+            return "Wishlist, not yet owned"
         case .todo:
             return "To-Do, not started"
         case .inProgress:
             return "In progress"
         case .completed:
             return "Completed"
+        case .abandoned:
+            return "Abandoned, will not finish"
+        }
+    }
+}
+
+extension Puzzle {
+    /// Side effects when status changes (progress percent, start date).
+    func noteStatusChanged(from previousStatus: Status, to newStatus: Status) {
+        progressPercent = PuzzleProgressSemantics.progress(for: newStatus, current: progressPercent)
+        switch newStatus {
+        case .inProgress where startDate == nil:
+            startDate = Date()
+        case .completed where startDate == nil && previousStatus == .inProgress:
+            startDate = completionDate
+        case .abandoned where previousStatus == .inProgress && startDate == nil:
+            startDate = completionDate
+        default:
+            break
         }
     }
 }

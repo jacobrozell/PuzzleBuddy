@@ -2,8 +2,6 @@
 //  PuzzleRecord.swift
 //  Puzzle Buddy
 //
-//  SwiftData persistence for local puzzle storage.
-//
 
 import Foundation
 import SwiftData
@@ -19,10 +17,16 @@ final class PuzzleRecord {
     var estimatedTimeHours: Int?
     var estimatedTimeMinutes: Int?
     var completionDate: Date
+    var startDate: Date?
     var status: String
     var hasMissingPieces: Bool = false
     var notes: String?
     var source: String?
+    var purchaseLocation: String?
+    var releaseYear: Int?
+    var puzzleType: String = PuzzleType.none.rawValue
+    var material: String = PuzzleMaterial.none.rawValue
+    var disposition: String = PuzzleDisposition.none.rawValue
     var progressPercent: Int = 0
     var isDemo: Bool = false
     var barcode: String?
@@ -38,10 +42,16 @@ final class PuzzleRecord {
         estimatedTimeHours: Int? = nil,
         estimatedTimeMinutes: Int? = nil,
         completionDate: Date = Date(),
+        startDate: Date? = nil,
         status: String = Puzzle.Status.todo.rawValue,
         hasMissingPieces: Bool = false,
         notes: String? = nil,
         source: String? = nil,
+        purchaseLocation: String? = nil,
+        releaseYear: Int? = nil,
+        puzzleType: String = PuzzleType.none.rawValue,
+        material: String = PuzzleMaterial.none.rawValue,
+        disposition: String = PuzzleDisposition.none.rawValue,
         progressPercent: Int = 0,
         isDemo: Bool = false,
         barcode: String? = nil,
@@ -56,10 +66,16 @@ final class PuzzleRecord {
         self.estimatedTimeHours = estimatedTimeHours
         self.estimatedTimeMinutes = estimatedTimeMinutes
         self.completionDate = completionDate
+        self.startDate = startDate
         self.status = status
         self.hasMissingPieces = hasMissingPieces
         self.notes = notes
         self.source = source
+        self.purchaseLocation = purchaseLocation
+        self.releaseYear = releaseYear
+        self.puzzleType = puzzleType
+        self.material = material
+        self.disposition = disposition
         self.progressPercent = progressPercent
         self.isDemo = isDemo
         self.barcode = barcode
@@ -78,10 +94,16 @@ final class PuzzleRecord {
             estimatedTimeHours: time?.hours,
             estimatedTimeMinutes: time?.minutes,
             completionDate: puzzle.completionDate,
+            startDate: puzzle.startDate,
             status: puzzle.status.rawValue,
             hasMissingPieces: puzzle.hasMissingPieces,
             notes: puzzle.notes,
             source: puzzle.source,
+            purchaseLocation: puzzle.purchaseLocation,
+            releaseYear: puzzle.releaseYear,
+            puzzleType: puzzle.puzzleType.rawValue,
+            material: puzzle.material.rawValue,
+            disposition: puzzle.disposition.rawValue,
             progressPercent: puzzle.progressPercent,
             isDemo: puzzle.isDemo,
             barcode: puzzle.barcode,
@@ -98,10 +120,16 @@ final class PuzzleRecord {
         estimatedTimeHours = puzzle.estimatedTimeSpent?.hours
         estimatedTimeMinutes = puzzle.estimatedTimeSpent?.minutes
         completionDate = puzzle.completionDate
+        startDate = puzzle.startDate
         status = puzzle.status.rawValue
         hasMissingPieces = puzzle.hasMissingPieces
         notes = puzzle.notes
         source = puzzle.source
+        purchaseLocation = puzzle.purchaseLocation
+        releaseYear = puzzle.releaseYear
+        puzzleType = puzzle.puzzleType.rawValue
+        material = puzzle.material.rawValue
+        disposition = puzzle.disposition.rawValue
         progressPercent = puzzle.progressPercent
         isDemo = puzzle.isDemo
         barcode = BarcodeNormalizer.normalize(puzzle.barcode)
@@ -118,9 +146,15 @@ final class PuzzleRecord {
             estimatedTimeSpent: estimatedTimePuzzleTime,
             completionDate: completionDate,
             status: Puzzle.Status(rawValue: status) ?? .todo,
+            startDate: startDate,
             hasMissingPieces: hasMissingPieces,
             notes: notes,
             source: source,
+            purchaseLocation: purchaseLocation,
+            releaseYear: releaseYear,
+            puzzleType: PuzzleType(rawValue: puzzleType) ?? .none,
+            material: PuzzleMaterial(rawValue: material) ?? .none,
+            disposition: PuzzleDisposition(rawValue: disposition) ?? .none,
             progressPercent: progressPercent,
             isDemo: isDemo,
             barcode: barcode,

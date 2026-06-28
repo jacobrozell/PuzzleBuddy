@@ -7,17 +7,21 @@ import Foundation
 
 // MARK: - CollectionStats
 
-/// Aggregated collection metrics derived from puzzle records (no schema change).
 struct CollectionStats: Equatable {
     let totalCount: Int
     let completedCount: Int
     let inProgressCount: Int
+    let wishlistCount: Int
+    let abandonedCount: Int
     let totalPiecesCompleted: Int
     let totalMinutesPuzzling: Int
     let backlogCount: Int
     let missingPiecesCount: Int
     let averageRating: Double?
     let favoritePieceCount: Int?
+    let averageDaysToComplete: Double?
+    let favoritePuzzleType: PuzzleType?
+    let topPurchaseLocations: [String]
     let completionsThisMonth: Int
     let completionsThisYear: Int
     let biggestCompletedPieces: Int?
@@ -32,6 +36,8 @@ struct CollectionStats: Equatable {
         let completed = puzzles.filter { $0.status == .completed }
         let todo = puzzles.filter { $0.status == .todo }
         let inProgress = puzzles.filter { $0.status == .inProgress }
+        let wishlist = puzzles.filter { $0.status == .wishlist }
+        let abandoned = puzzles.filter { $0.status == .abandoned }
         let missingPieces = puzzles.filter(\.hasMissingPieces)
 
         let pieceCounts = completed.compactMap(\.pieces)
@@ -47,16 +53,27 @@ struct CollectionStats: Equatable {
             partial + minutesSpent(on: puzzle)
         }
 
+        let dayCounts = PuzzleDateSemantics.completionDayCounts(for: completed, calendar: calendar)
+        let averageDays: Double? = {
+            guard !dayCounts.isEmpty else { return nil }
+            return Double(dayCounts.reduce(0, +)) / Double(dayCounts.count)
+        }()
+
         return CollectionStats(
             totalCount: puzzles.count,
             completedCount: completed.count,
             inProgressCount: inProgress.count,
+            wishlistCount: wishlist.count,
+            abandonedCount: abandoned.count,
             totalPiecesCompleted: pieceCounts.reduce(0, +),
             totalMinutesPuzzling: totalMinutes,
             backlogCount: todo.count,
             missingPiecesCount: missingPieces.count,
             averageRating: averageRating,
             favoritePieceCount: favoritePieceCount(from: pieceCounts),
+            averageDaysToComplete: averageDays,
+            favoritePuzzleType: favoritePuzzleType(from: completed),
+            topPurchaseLocations: topPurchaseLocations(from: puzzles, limit: 3),
             completionsThisMonth: completionCount(
                 in: completed,
                 calendar: calendar,
@@ -84,6 +101,23 @@ struct CollectionStats: Equatable {
     var formattedAverageRating: String? {
         guard let averageRating else { return nil }
         return String(format: "%.1f", averageRating)
+    }
+
+    var formattedAverageDaysToComplete: String? {
+        Self.formatAverageDays(averageDaysToComplete)
+    }
+
+    static func formatAverageDays(_ value: Double?) -> String? {
+        guard let value else { return nil }
+        let rounded = value.rounded()
+        if rounded >= 14 {
+            let weeks = (rounded / 7).rounded()
+            return weeks == 1 ? "About 1 week" : "About \(Int(weeks)) weeks"
+        }
+        if rounded <= 1 {
+            return "About 1 day"
+        }
+        return "About \(Int(rounded)) days"
     }
 
     static func formatHours(fromMinutes minutes: Int) -> String {
@@ -130,7 +164,6 @@ struct CollectionStats: Equatable {
         }.count
     }
 
-    /// Mode of completed piece counts; median when every count is unique.
     static func favoritePieceCount(from counts: [Int]) -> Int? {
         guard !counts.isEmpty else { return nil }
 
@@ -151,5 +184,27 @@ struct CollectionStats: Equatable {
             return (sorted[middle - 1] + sorted[middle]) / 2
         }
         return sorted[middle]
+    }
+
+    private static func favoritePuzzleType(from completed: [Puzzle]) -> PuzzleType? {
+        let types = completed.map(\.puzzleType).filter { $0 != .none }
+        guard !types.isEmpty else { return nil }
+        let frequencies = Dictionary(grouping: types, by: { $0 }).mapValues(\.count)
+        return frequencies.max(by: { $0.value < $1.value })?.key
+    }
+
+    private static func topPurchaseLocations(from puzzles: [Puzzle], limit: Int) -> [String] {
+        let locations = puzzles.compactMap(\.purchaseLocation).filter { !$0.isEmpty }
+        guard !locations.isEmpty else { return [] }
+        let frequencies = Dictionary(grouping: locations, by: { $0 }).mapValues(\.count)
+        return frequencies
+            .sorted { lhs, rhs in
+                if lhs.value == rhs.value {
+                    return lhs.key.localizedCaseInsensitiveCompare(rhs.key) == .orderedAscending
+                }
+                return lhs.value > rhs.value
+            }
+            .prefix(limit)
+            .map(\.key)
     }
 }
