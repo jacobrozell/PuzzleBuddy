@@ -47,6 +47,11 @@ enum IPDbCSVImporter {
         let rating = parseRating(firstValue(in: normalized, keys: ratingKeys))
         let difficulty = parseDifficulty(firstValue(in: normalized, keys: difficultyKeys))
         let completionDate = parseDate(firstValue(in: normalized, keys: completionDateKeys)) ?? Date()
+        let purchaseLocation = firstValue(in: normalized, keys: purchaseLocationKeys)
+        let releaseYear = firstValue(in: normalized, keys: releaseYearKeys).flatMap(parseReleaseYear)
+        let puzzleType = parsePuzzleType(firstValue(in: normalized, keys: puzzleTypeKeys))
+        let material = parseMaterial(firstValue(in: normalized, keys: materialKeys))
+        let disposition = parseDisposition(firstValue(in: normalized, keys: dispositionKeys))
 
         let puzzle = Puzzle(
             name: String(name.prefix(200)),
@@ -58,6 +63,11 @@ enum IPDbCSVImporter {
             status: status,
             notes: notes,
             source: brand.map { String($0.prefix(200)) },
+            purchaseLocation: purchaseLocation.map { String($0.prefix(200)) },
+            releaseYear: releaseYear,
+            puzzleType: puzzleType,
+            material: material,
+            disposition: disposition,
             progressPercent: progress,
             barcode: barcode
         )
@@ -98,6 +108,21 @@ enum IPDbCSVImporter {
     ]
     private static let manufacturerIDKeys = [
         "manufacturer id", "manufacturer id reference", "sku", "product id", "reference number"
+    ]
+    private static let purchaseLocationKeys = [
+        "purchase location", "store", "where bought", "shop", "retailer"
+    ]
+    private static let releaseYearKeys = [
+        "year", "release year", "puzzle year", "copyright year"
+    ]
+    private static let puzzleTypeKeys = [
+        "type", "puzzle type", "category", "theme"
+    ]
+    private static let materialKeys = [
+        "material", "puzzle material"
+    ]
+    private static let dispositionKeys = [
+        "disposition", "fate", "after complete", "after finishing"
     ]
 
     private static func normalizeKeys(_ record: [String: String]) -> [String: String] {
@@ -160,7 +185,13 @@ enum IPDbCSVImporter {
         if value.contains("progress") || value.contains("started") || value.contains("working") {
             return .inProgress
         }
-        if value.contains("wish") || value.contains("to-do") || value.contains("todo") || value.contains("backlog") {
+        if value.contains("wish") {
+            return .wishlist
+        }
+        if value.contains("abandon") || value.contains("quit") || value.contains("stopped") {
+            return .abandoned
+        }
+        if value.contains("to-do") || value.contains("todo") || value.contains("backlog") || value.contains("waiting") {
             return .todo
         }
         return .todo
@@ -200,6 +231,42 @@ enum IPDbCSVImporter {
             }
         }
         return nil
+    }
+
+    private static func parseReleaseYear(_ raw: String) -> Int? {
+        let digits = raw.filter(\.isNumber)
+        guard let year = Int(digits), (1900...2100).contains(year) else { return nil }
+        return year
+    }
+
+    private static func parsePuzzleType(_ raw: String?) -> PuzzleType {
+        guard let raw, !raw.isEmpty else { return .none }
+        let normalized = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let match = PuzzleType.allCases.first(where: {
+            $0 != .none && $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
+        }) {
+            return match
+        }
+        return .other
+    }
+
+    private static func parseMaterial(_ raw: String?) -> PuzzleMaterial {
+        guard let raw, !raw.isEmpty else { return .none }
+        let normalized = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let match = PuzzleMaterial.allCases.first(where: {
+            $0 != .none && $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
+        }) {
+            return match
+        }
+        return .other
+    }
+
+    private static func parseDisposition(_ raw: String?) -> PuzzleDisposition {
+        guard let raw, !raw.isEmpty else { return .none }
+        let normalized = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        return PuzzleDisposition.allCases.first(where: {
+            $0 != .none && $0.rawValue.caseInsensitiveCompare(normalized) == .orderedSame
+        }) ?? .none
     }
 
     private static func decodeText(from data: Data) -> String? {

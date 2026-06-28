@@ -36,8 +36,14 @@ struct PuzzleExportRecord: Codable, Equatable {
     let estimatedTimeHours: Int?
     let estimatedTimeMinutes: Int?
     let completionDate: Date
+    let startDate: Date?
     let notes: String?
     let source: String?
+    let purchaseLocation: String?
+    let releaseYear: Int?
+    let puzzleType: String
+    let material: String
+    let disposition: String
     let progressPercent: Int
     let barcode: String?
     let tags: [String]
@@ -97,8 +103,14 @@ enum PuzzleCollectionExporter {
             estimatedTimeHours: puzzle.estimatedTimeSpent?.hours,
             estimatedTimeMinutes: puzzle.estimatedTimeSpent?.minutes,
             completionDate: puzzle.completionDate,
+            startDate: puzzle.startDate,
             notes: puzzle.notes,
             source: puzzle.source,
+            purchaseLocation: puzzle.purchaseLocation,
+            releaseYear: puzzle.releaseYear,
+            puzzleType: puzzle.puzzleType.rawValue,
+            material: puzzle.material.rawValue,
+            disposition: puzzle.disposition.rawValue,
             progressPercent: puzzle.progressPercent,
             barcode: puzzle.barcode,
             tags: puzzle.tags,
