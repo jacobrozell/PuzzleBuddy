@@ -3,11 +3,11 @@
 **What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md).
 
 **Last updated:** 2026-06-27  
-**Target v1.0.1:** Local-first catalog — no account. Import/export gated off.
+**Target v1.0.0:** Inaugural App Store release — local-first catalog, no account. Import/export gated off. **Not yet submitted.**
 
 ---
 
-## Shipped (1.0.1 default build)
+## In build (1.0.0 default)
 
 | Area | Feature | Code paths |
 |------|---------|------------|
@@ -32,7 +32,7 @@
 
 ---
 
-## Gated off (1.0)
+## Gated off (1.0.0)
 
 | Feature | Flag | Dogfood |
 |---------|------|---------|
@@ -64,4 +64,4 @@ See [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and `specs/planned/`.
 
 | Release | Last verified | Tests |
 |---------|---------------|-------|
-| 1.0.1 metadata sprint | 2026-06-27 | 180 unit tests green |
+| 1.0.0 pre-ship | 2026-06-27 | 180 unit tests green |
