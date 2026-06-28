@@ -22,45 +22,48 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 
 ## Features
 
-### Puzzle catalog
+### Puzzle catalog (1.0)
 
-- Add puzzles with name, piece count, star rating (0–5 in half-star steps), difficulty (1–5), estimated time spent, completion date, and status (To-Do / Completed)
-- Attach a photo from the camera or photo library (stored as compressed JPEG on device)
-- Browse puzzles in a tabbed list with detail and edit flows
-- Delete puzzles with swipe-to-delete
-- **SwiftData** persistence — puzzles survive app restarts with no account required
+- **Statuses:** Wishlist, To-Do, In-Progress, Completed — with progress % and days puzzling on detail
+- **Metadata:** name, brand (`source`), piece count, half-star rating, difficulty, time spent, tags, notes, missing-pieces flag, barcode
+- **Photos:** cover image from camera or library (JPEG on device)
+- **Find & organize:** status tabs, search (name/brand/barcode/tags), sort, piece-count / missing-pieces / needs-photo / tag filters
+- **Pick my next puzzle:** random selector from backlog with tag and piece-count filters (dice toolbar button)
+- **SwiftData** persistence — no account required
 
-### Authentication (future release)
+### Shopping & barcode
 
-Login and cloud sync are implemented but **disabled for 1.0** via `ProductService.isLoginEnabled`. When enabled in a future release:
+- Barcode scan for quick-add and **shopping duplicate-check** (offline)
+- Optional UPC metadata lookup (Settings toggle; UPCitemdb)
 
-- Email and password sign-in and account creation
-- Sign in with Apple (nonce-based OAuth flow via Firebase Auth)
-- Forgot-password flow
-- Firestore-backed sync scoped per user: `/users/{email}/puzzles/{puzzleId}`
+### Collection stats
 
-Launch with `-enable_login` to test the login flow locally.
+- Stats tab: completed count, pieces assembled, backlog, time at the table, top tags
+- Share collage of collection or filtered list
+
+### Gated for 1.1+ (implemented, off in 1.0)
+
+| Feature | Flag | Dogfood launch arg |
+|---------|------|-------------------|
+| IPDb CSV import + JSON/CSV export | `isCollectionImportExportEnabled` | `-enable_collection_import_export` |
+| Login + Firestore sync | `isLoginEnabled` | `-enable_login` |
+
+### Authentication (1.1+)
+
+Email/password, Sign in with Apple, forgot password, Firestore sync — see [docs/firebase-setup.md](docs/firebase-setup.md).
 
 ### Observability
 
-- `AppLog` wrapper: structured os.log output plus allowlisted Firebase Analytics events
-- **Firebase Crashlytics** for warnings and non-fatal errors (no PII)
-- No PII (email, UID, password, display name) sent to Analytics — metadata keys are redacted before upload
-- Firebase only configures when a real `GoogleService-Info.plist` is present (placeholder values are ignored)
+- Allowlisted Firebase Analytics + Crashlytics (no PII)
+- Firebase bootstrap guard for CI / fresh clones
 
-### Polish
+### Accessibility
 
-- Design tokens (`Brand`, `DS`) for colors, spacing, and button styles
-- Brand gradient background with Reduce Motion support on splash and screens
-- VoiceOver labels and `A11yID` identifiers for UI testing on key screens
-- GitHub Pages site for App Store legal URLs (privacy, support, accessibility)
+- WCAG 2.1 AA work in progress — VoiceOver labels, `A11yID`, Reduce Motion, automated `XCUIAccessibilityAudit`
 
-### Planned (see [docs/roadmap.md](docs/roadmap.md))
+### Roadmap
 
-- **Collection stats** — totals for completed puzzles, pieces, hours, backlog, and period summaries (data already captured; UI not built)
-- **Catalog polish** — status tabs, search/filter, ratings on list rows
-- **Richer tracking** — In-Progress status, timer, barcode scan, tags, notes (phased; see roadmap)
-- **Competitive positioning** — feature comparison and build priority vs. [Puzzle Tracker](https://apps.apple.com/us/app/puzzle-tracker/id1561473799)
+Post-1.0 plans: in-app timer, multi-photo gallery, purchase location, year/type, JSON restore — [FutureIdeas/backlog.md](FutureIdeas/backlog.md) and [docs/roadmap.md](docs/roadmap.md).
 
 ## Requirements
 

@@ -1,33 +1,28 @@
 # Ongoing work
 
-Plans and projects **in implementation** — approved, specced, and actively being built (not shipped yet).
-
-| Stage | Where it lives |
-|-------|----------------|
-| Idea / not specced | [`FutureIdeas/`](../FutureIdeas/) |
-| **In implementation** | **This folder** |
-| Ship blockers / release train | [`docs/release/`](../docs/release/) |
-| Shipped behavior | [`specs/`](../specs/) + [`docs/feature-inventory.md`](../docs/feature-inventory.md) |
-
-**Last updated:** 2026-06-22
+**Last updated:** 2026-06-27
 
 ## Active
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
-| App Store 1.0 submit | [`docs/release/todo.md`](../docs/release/todo.md) | In progress | Review fixes + Connect checklist |
-| WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2–3 accessibility |
-| UPC lookup | [`docs/upc-lookup-plan.md`](../docs/upc-lookup-plan.md) | Shipped (optional toggle) | Network failure UX verified in unit tests |
+| App Store 1.0 submit | [`docs/release/todo.md`](../docs/release/todo.md) | In progress | 1.0.1 build ready; import/export gated |
+| WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2 manual pass |
+| Future backlog | [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) | Maintained | 1.1–1.3 specs in `specs/planned/` |
 
-## See also
+## Recently shipped
 
-- Reviewer handoff: [`FutureIdeas/ReviewerReadinessHandoff.md`](../FutureIdeas/ReviewerReadinessHandoff.md)
-- Connect checklist: [`docs/release/app-store-connect.md`](../docs/release/app-store-connect.md)
-- Post-1.0 roadmap: [`docs/roadmap.md`](../docs/roadmap.md)
+| Item | Spec |
+|------|------|
+| **1.0.1 metadata sprint** | [`docs/implementation/1.0.1-metadata-sprint.md`](../docs/implementation/1.0.1-metadata-sprint.md) |
+| Pick my next puzzle | [`specs/features/pick-next-puzzle.md`](../specs/features/pick-next-puzzle.md) |
+| Progress over days | [`specs/features/progress-over-days.md`](../specs/features/progress-over-days.md) |
+| Wishlist status | Part of pick-next branch merge |
 
 ## Finished (archive)
 
-| Plan | Shipped | Notes |
-|------|---------|-------|
-| Phase 1 polish | 1.0 prep | [`docs/phase-1-polish-plan.md`](../docs/phase-1-polish-plan.md) |
-| Phase 2 landscape a11y | 1.0 prep | [`docs/phase-2-landscape-a11y-plan.md`](../docs/phase-2-landscape-a11y-plan.md) |
+| Plan | Notes |
+|------|-------|
+| Phase 1 polish | [`docs/phase-1-polish-plan.md`](../docs/phase-1-polish-plan.md) |
+| Phase 2 landscape a11y | [`docs/phase-2-landscape-a11y-plan.md`](../docs/phase-2-landscape-a11y-plan.md) |
+| UPC lookup | [`docs/upc-lookup-plan.md`](../docs/upc-lookup-plan.md) |

@@ -75,8 +75,8 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Puzzle Buddy/Puzzle Buddy.entitlements
         DEVELOPMENT_ASSET_PATHS: '"Puzzle Buddy/Preview Content"'
         ENABLE_PREVIEWS: YES
-        CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 1.0.1
     info:
       path: Puzzle-Buddy-Info.plist
       properties:
@@ -104,8 +104,8 @@ targets:
         TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Puzzle Buddy.app/Puzzle Buddy"
         BUNDLE_LOADER: "$(TEST_HOST)"
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
-        CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 1.0.1
   Puzzle BuddyUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -120,5 +120,5 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-BuddyUITests
         TEST_TARGET_NAME: Puzzle Buddy
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
-        CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 2
+        MARKETING_VERSION: 1.0.1

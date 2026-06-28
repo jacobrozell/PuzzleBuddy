@@ -40,7 +40,7 @@ First-time users see a four-page onboarding carousel (`OnboardingView`) stored i
 | 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — track every box on your shelf |
 | 2 | Build Your Collection | Log piece counts, ratings, difficulty, and status |
 | 3 | Capture the Moment | Attach photos from camera or library |
-| 4 | Ready to Puzzle? | Barcode scan, shopping duplicate-check, IPDb CSV import — everything stays on device |
+| 4 | Ready to Puzzle? | Barcode scan, shopping duplicate-check, pick my next puzzle — everything stays on device |
 
 Navigation:
 
@@ -271,13 +271,11 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 |---------|-------------|-------------------|
 | Account | Hidden | Sign Out button |
 | Barcode & cataloging | Online lookup toggle (optional UPC enrichment) | Same |
-| Collection | **Import from IPDb CSV**, **Export collection** (JSON or IPDb-compatible CSV), demo data, delete all | Same |
+| Collection | Demo data, delete all | Import/export when `isCollectionImportExportEnabled` (off in 1.0) |
 | Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) | Same |
 | About | App version from `Puzzle_BuddyApp.version` | Same |
 
-**IPDb import:** Settings → Import from IPDb CSV opens the system file picker. Parsed rows merge into SwiftData with duplicate detection. Summary sheet reminds users to re-add box photos (CSV has no images). See [ipdb-csv-import.md](ipdb-csv-import.md).
-
-**Collection export:** Settings → Export collection shares a JSON backup or IPDb-compatible CSV via the system share sheet. See [collection-export.md](collection-export.md).
+**IPDb import / export (1.1+):** Gated by `ProductService.isCollectionImportExportEnabled`. Dogfood with launch arg `-enable_collection_import_export`. See [ipdb-csv-import.md](ipdb-csv-import.md) and [collection-export.md](collection-export.md).
 
 Legal URLs point to `https://jacobrozell.github.io/PuzzleBuddy/`.
 
