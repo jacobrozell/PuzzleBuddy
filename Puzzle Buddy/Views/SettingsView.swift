@@ -175,32 +175,9 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         Section {
-            Button {
-                showIPDbImporter = true
-            } label: {
-                Label("Import from IPDb CSV", systemImage: "square.and.arrow.down")
+            if ProductService.isCollectionImportExportEnabled {
+                importExportButtons
             }
-            .disabled(isImporting || isExporting)
-            .optionalAccessibilityIdentifier(A11yID.settingsImportIPDbButton)
-            .accessibilityHint("Opens the Files app to choose an IPDb CSV export")
-
-            Menu {
-                Button {
-                    exportCollection(format: .json)
-                } label: {
-                    Label("Export as JSON", systemImage: "doc.text")
-                }
-                Button {
-                    exportCollection(format: .csv)
-                } label: {
-                    Label("Export as IPDb CSV", systemImage: "tablecells")
-                }
-            } label: {
-                Label("Export collection", systemImage: "square.and.arrow.up")
-            }
-            .disabled(ps.puzzles.isEmpty || isImporting || isExporting)
-            .optionalAccessibilityIdentifier(A11yID.settingsExportCollectionButton)
-            .accessibilityHint("Creates a backup file you can save or share")
 
             Button {
                 showLoadDemoAlert = true
@@ -233,13 +210,47 @@ struct SettingsView: View {
             Text("Collection")
         } footer: {
             VStack(alignment: .leading, spacing: DS.Spacing.s3) {
-                Text("Import: export a CSV from IPDb (Listview toolbar → Export → CSV). Export: back up as JSON or IPDb-compatible CSV for re-import here or in IPDb. Images are not included in CSV files.")
-                LegalDisclaimerFooter(
-                    text: LegalCopy.ipdbImportDisclaimer,
-                    style: .form
-                )
+                if ProductService.isCollectionImportExportEnabled {
+                    Text("Import: export a CSV from IPDb (Listview toolbar → Export → CSV). Export: back up as JSON or IPDb-compatible CSV. Images are not included in CSV files.")
+                    LegalDisclaimerFooter(
+                        text: LegalCopy.ipdbImportDisclaimer,
+                        style: .form
+                    )
+                } else {
+                    Text("Backup and IPDb import arrive in a future update. Your collection stays on this device.")
+                }
             }
         }
+    }
+
+    @ViewBuilder
+    private var importExportButtons: some View {
+        Button {
+            showIPDbImporter = true
+        } label: {
+            Label("Import from IPDb CSV", systemImage: "square.and.arrow.down")
+        }
+        .disabled(isImporting || isExporting)
+        .optionalAccessibilityIdentifier(A11yID.settingsImportIPDbButton)
+        .accessibilityHint("Opens the Files app to choose an IPDb CSV export")
+
+        Menu {
+            Button {
+                exportCollection(format: .json)
+            } label: {
+                Label("Export as JSON", systemImage: "doc.text")
+            }
+            Button {
+                exportCollection(format: .csv)
+            } label: {
+                Label("Export as IPDb CSV", systemImage: "tablecells")
+            }
+        } label: {
+            Label("Export collection", systemImage: "square.and.arrow.up")
+        }
+        .disabled(ps.puzzles.isEmpty || isImporting || isExporting)
+        .optionalAccessibilityIdentifier(A11yID.settingsExportCollectionButton)
+        .accessibilityHint("Creates a backup file you can save or share")
     }
 
     private var supportSection: some View {

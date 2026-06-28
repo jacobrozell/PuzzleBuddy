@@ -9,6 +9,7 @@ import Foundation
 
 enum ProductService {
     private static let enableLoginArgument = "-enable_login"
+    private static let enableCollectionImportExportArgument = "-enable_collection_import_export"
     private static let disableBarcodeLookupArgument = "-disable_barcode_lookup"
 
     /// Account sign-in and Firestore sync. Off for 1.0.0 local-only release.
@@ -37,9 +38,24 @@ enum ProductService {
         true
     }
 
+    /// "Pick my next puzzle" random selector (1.0).
+    static var isPickNextEnabled: Bool {
+        true
+    }
+
+    /// IPDb CSV import and JSON/CSV export (Settings → Collection). Off for 1.0.0.
+    static var isCollectionImportExportEnabled: Bool {
+        ProcessInfo.processInfo.arguments.contains(enableCollectionImportExportArgument)
+    }
+
     /// Import puzzles from an IPDb CSV export (Settings → Collection).
     static var isIPDbImportEnabled: Bool {
-        true
+        isCollectionImportExportEnabled
+    }
+
+    /// Export collection as JSON or IPDb-compatible CSV.
+    static var isCollectionExportEnabled: Bool {
+        isCollectionImportExportEnabled
     }
 
     /// Online UPC metadata lookup via UPCitemdb trial API (100 requests/day).
