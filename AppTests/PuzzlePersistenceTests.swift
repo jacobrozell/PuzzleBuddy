@@ -6,7 +6,7 @@
 import SwiftData
 import UIKit
 import XCTest
-@testable import Puzzle_Buddy
+@testable import PuzzleBuddy
 
 @MainActor
 final class PuzzlePersistenceTests: XCTestCase {

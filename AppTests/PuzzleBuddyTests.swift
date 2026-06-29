@@ -1,12 +1,12 @@
 //
-//  Puzzle_BuddyTests.swift
+//  PuzzleBuddyTests.swift
 //  Puzzle BuddyTests
 //
 
 import XCTest
-@testable import Puzzle_Buddy
+@testable import PuzzleBuddy
 
-final class Puzzle_BuddyTests: XCTestCase {
+final class PuzzleBuddyTests: XCTestCase {
     func testAppVersionIsNonEmpty() {
         XCTAssertFalse(PuzzleBuddyApp.version.isEmpty)
     }

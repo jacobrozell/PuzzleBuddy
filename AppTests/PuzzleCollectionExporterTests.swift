@@ -5,7 +5,7 @@
 
 import UIKit
 import XCTest
-@testable import Puzzle_Buddy
+@testable import PuzzleBuddy
 
 final class PuzzleCollectionExporterTests: XCTestCase {
     func testExportsJSONWithPuzzleFields() throws {

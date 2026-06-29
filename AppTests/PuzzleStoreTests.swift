@@ -5,7 +5,7 @@
 
 import SwiftData
 import XCTest
-@testable import Puzzle_Buddy
+@testable import PuzzleBuddy
 
 @MainActor
 final class PuzzleStoreTests: XCTestCase {

@@ -48,7 +48,7 @@ Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 16"
 | `PuzzleSerializationTests` | `PuzzleTime`, `getDataFields()`, `fromData(_:)` |
 | `PuzzlePersistenceTests` | `PuzzleRecord` round-trip, `PuzzleStore` save/reload |
 | `AppLoggingTests` | Analytics mapping, redaction, Crashlytics non-fatal codes |
-| `Puzzle_BuddyTests` | App version, allowlist smoke, `ProductService` flags |
+| `AppTests` | App version, allowlist smoke, `ProductService` flags |
 | `AccessibilityLabelTests` | `A11yID` contract |
 
 When changing puzzle fields: extend serialization/persistence tests first.
@@ -99,7 +99,7 @@ CI uses `GoogleService-Info.plist.example` → Firebase does not configure. Test
 | New `Puzzle` / `PuzzleRecord` field | `PuzzleSerializationTests` / `PuzzlePersistenceTests` |
 | New primary control | `A11yID` + label or UI test |
 | New Analytics event | Allowlist + `AppLoggingTests` + [telemetry.md](telemetry.md) |
-| `ProductService` flag | `Puzzle_BuddyTests` + docs |
+| `ProductService` flag | `AppTests` + docs |
 
 ---
 

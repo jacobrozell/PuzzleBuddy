@@ -218,7 +218,7 @@ Do not rely on redaction as a safety net — never pass PII intentionally.
 3. Add parameter keys to `allowlistedParameterKeys` only if PII-free
 4. Call `AppLog.shared.info` (or warning/error) from feature code
 5. Document in this file (Analytics table)
-6. Add/adjust test in `AppLoggingTests` or `Puzzle_BuddyTests`
+6. Add/adjust test in `AppLoggingTests` or `AppTests`
 7. If `.error` should be a Crashlytics non-fatal, add to `FirebaseCrashlyticsEventMapping` with new stable code
 8. **Android parity** — update `PuzzleBuddy-Android/.../FirebaseAnalyticsEventMapping.kt` (and Crashlytics mapping) in the same change; run `~/Desktop/personal/DaRules/scripts/check-firebase-parity.sh`
 

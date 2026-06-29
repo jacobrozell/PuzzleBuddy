@@ -4,7 +4,7 @@
 //
 
 import XCTest
-@testable import Puzzle_Buddy
+@testable import PuzzleBuddy
 
 final class PuzzleCompletionSemanticsTests: XCTestCase {
     func testMakeCompletionCapturesPuzzleSnapshot() {

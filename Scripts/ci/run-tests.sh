@@ -4,7 +4,7 @@ set -euo pipefail
 DESTINATION="${1:?destination required}"
 
 PROJECT="${CI_XCODE_PROJECT:-PuzzleBuddy.xcodeproj}"
-SCHEME="${CI_XCODE_SCHEME:-Puzzle Buddy}"
+SCHEME="${CI_XCODE_SCHEME:-PuzzleBuddy}"
 LOG_FILE="${CI_XCODE_TEST_LOG:-xcodebuild-test.log}"
 PARALLEL_TESTING="${CI_PARALLEL_TESTING:-NO}"
 

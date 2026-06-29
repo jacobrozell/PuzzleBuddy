@@ -110,7 +110,7 @@ When adding or changing a screen:
 ```bash
 # Run label unit tests
 xcodebuild test-without-building \
-  -only-testing:Puzzle_BuddyTests/AccessibilityLabelTests \
+  -only-testing:AppTests/AccessibilityLabelTests \
   ...
 ```
 

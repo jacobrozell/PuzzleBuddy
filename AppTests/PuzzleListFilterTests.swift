@@ -5,7 +5,7 @@
 
 import XCTest
 import UIKit
-@testable import Puzzle_Buddy
+@testable import PuzzleBuddy
 
 final class PuzzleListFilterTests: XCTestCase {
     func testAllFilterReturnsEveryPuzzle() {
