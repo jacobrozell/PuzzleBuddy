@@ -27,6 +27,16 @@ struct CollectionStats: Equatable {
     let biggestCompletedPieces: Int?
     let smallestCompletedPieces: Int?
     let topTags: [PuzzleTagCount]
+    let totalSpend: Double?
+    let spendCurrencyCode: String?
+    let favoriteBrand: String?
+    let averageDifficulty: Double?
+    let averageInProgressPercent: Int?
+    let replayedPuzzleCount: Int
+    let averageHoursPer1000Pieces: Double?
+    let paceBuckets: [PaceBucket]
+    let purchaseLocationCounts: [PuzzleTagCount]
+    let completionsByMonthThisYear: [Int]
 
     static func compute(
         from puzzles: [Puzzle],
@@ -59,6 +69,8 @@ struct CollectionStats: Equatable {
             return Double(dayCounts.reduce(0, +)) / Double(dayCounts.count)
         }()
 
+        let spend = totalSpend(from: puzzles)
+
         return CollectionStats(
             totalCount: puzzles.count,
             completedCount: completed.count,
@@ -88,7 +100,21 @@ struct CollectionStats: Equatable {
             ),
             biggestCompletedPieces: pieceCounts.max(),
             smallestCompletedPieces: pieceCounts.min(),
-            topTags: PuzzleTagIndex.counts(from: puzzles, limit: 5)
+            topTags: PuzzleTagIndex.counts(from: puzzles, limit: 5),
+            totalSpend: spend?.amount,
+            spendCurrencyCode: spend?.currency,
+            favoriteBrand: favoriteBrand(from: puzzles),
+            averageDifficulty: averageDifficulty(from: puzzles),
+            averageInProgressPercent: averageInProgressPercent(from: inProgress),
+            replayedPuzzleCount: puzzles.filter { $0.timesCompleted >= 2 }.count,
+            averageHoursPer1000Pieces: averageHoursPer1000Pieces(from: completed),
+            paceBuckets: paceBuckets(from: completed),
+            purchaseLocationCounts: purchaseLocationCounts(from: puzzles, limit: 3),
+            completionsByMonthThisYear: completionsByMonth(
+                in: completed,
+                calendar: calendar,
+                now: now
+            )
         )
     }
 
@@ -106,6 +132,57 @@ struct CollectionStats: Equatable {
     var formattedAverageDaysToComplete: String? {
         Self.formatAverageDays(averageDaysToComplete)
     }
+
+    var formattedTotalSpend: String? {
+        guard let totalSpend, totalSpend > 0 else { return nil }
+        return PurchasePriceFormatting.displayLabel(price: totalSpend, currencyCode: spendCurrencyCode)
+    }
+
+    var formattedAverageDifficulty: String? {
+        guard let averageDifficulty else { return nil }
+        return String(format: "%.1f / 5", averageDifficulty)
+    }
+
+    var averageDifficultyDescriptor: String? {
+        guard let averageDifficulty else { return nil }
+        switch averageDifficulty {
+        case ..<1.5: return "Mostly easygoing"
+        case ..<2.5: return "Light challenge"
+        case ..<3.5: return "Solid challenge"
+        case ..<4.5: return "Tough puzzles"
+        default: return "Expert level"
+        }
+    }
+
+    var formattedAverageSpeed: String? {
+        guard let averageHoursPer1000Pieces else { return nil }
+        return PuzzleDetailMetrics(
+            timeBucketLabel: nil,
+            hoursPer1000Pieces: averageHoursPer1000Pieces
+        ).formattedHoursPer1000Pieces
+    }
+
+    var formattedAverageInProgress: String? {
+        guard let averageInProgressPercent else { return nil }
+        return "\(averageInProgressPercent)%"
+    }
+
+    /// Busiest calendar month so far this year, e.g. ("March", 4). Nil when nothing finished this year.
+    var mostProductiveMonthThisYear: (label: String, count: Int)? {
+        guard let maxCount = completionsByMonthThisYear.max(), maxCount > 0,
+              let index = completionsByMonthThisYear.firstIndex(of: maxCount) else { return nil }
+        return (Self.monthSymbols[index], maxCount)
+    }
+
+    static let monthSymbols: [String] = {
+        var calendar = Calendar(identifier: .gregorian)
+        return calendar.monthSymbols
+    }()
+
+    static let monthAbbreviations: [String] = {
+        var calendar = Calendar(identifier: .gregorian)
+        return calendar.shortMonthSymbols
+    }()
 
     static func formatAverageDays(_ value: Double?) -> String? {
         guard let value else { return nil }
@@ -192,17 +269,140 @@ struct CollectionStats: Equatable {
     }
 
     private static func topPurchaseLocations(from puzzles: [Puzzle], limit: Int) -> [String] {
-        let locations = puzzles.compactMap(\.purchaseLocation).filter { !$0.isEmpty }
+        purchaseLocationCounts(from: puzzles, limit: limit).map(\.name)
+    }
+
+    private static func purchaseLocationCounts(from puzzles: [Puzzle], limit: Int) -> [PuzzleTagCount] {
+        let locations = puzzles
+            .compactMap { $0.purchaseLocation?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
         guard !locations.isEmpty else { return [] }
-        let frequencies = Dictionary(grouping: locations, by: { $0 }).mapValues(\.count)
-        return frequencies
+        var frequencies: [String: (display: String, count: Int)] = [:]
+        for location in locations {
+            let key = location.lowercased()
+            if let existing = frequencies[key] {
+                frequencies[key] = (existing.display, existing.count + 1)
+            } else {
+                frequencies[key] = (location, 1)
+            }
+        }
+        return frequencies.values
+            .map { PuzzleTagCount(name: $0.display, count: $0.count) }
             .sorted { lhs, rhs in
-                if lhs.value == rhs.value {
-                    return lhs.key.localizedCaseInsensitiveCompare(rhs.key) == .orderedAscending
+                if lhs.count == rhs.count {
+                    return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
                 }
-                return lhs.value > rhs.value
+                return lhs.count > rhs.count
             }
             .prefix(limit)
-            .map(\.key)
+            .map { $0 }
     }
+
+    private static func favoriteBrand(from puzzles: [Puzzle]) -> String? {
+        let brands = puzzles
+            .compactMap { $0.source?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        guard !brands.isEmpty else { return nil }
+        var frequencies: [String: (display: String, count: Int)] = [:]
+        for brand in brands {
+            let key = brand.lowercased()
+            if let existing = frequencies[key] {
+                frequencies[key] = (existing.display, existing.count + 1)
+            } else {
+                frequencies[key] = (brand, 1)
+            }
+        }
+        return frequencies.values
+            .sorted { lhs, rhs in
+                if lhs.count == rhs.count {
+                    return lhs.display.localizedCaseInsensitiveCompare(rhs.display) == .orderedAscending
+                }
+                return lhs.count > rhs.count
+            }
+            .first?.display
+    }
+
+    private static func averageDifficulty(from puzzles: [Puzzle]) -> Double? {
+        let values = puzzles.compactMap { puzzle -> Double? in
+            guard puzzle.difficulty != .none, let raw = Double(puzzle.difficulty.rawValue) else { return nil }
+            return raw
+        }
+        guard !values.isEmpty else { return nil }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private static func averageInProgressPercent(from inProgress: [Puzzle]) -> Int? {
+        guard !inProgress.isEmpty else { return nil }
+        let total = inProgress.reduce(0) { $0 + $1.progressPercent }
+        return Int((Double(total) / Double(inProgress.count)).rounded())
+    }
+
+    private static func averageHoursPer1000Pieces(from completed: [Puzzle]) -> Double? {
+        let speeds = completed.compactMap { puzzle -> Double? in
+            guard let pieces = puzzle.pieces, pieces > 0 else { return nil }
+            let minutes = minutesSpent(on: puzzle)
+            guard minutes > 0 else { return nil }
+            let hours = Double(minutes) / 60.0
+            return hours / (Double(pieces) / 1000.0)
+        }
+        guard !speeds.isEmpty else { return nil }
+        return speeds.reduce(0, +) / Double(speeds.count)
+    }
+
+    private static func paceBuckets(from completed: [Puzzle]) -> [PaceBucket] {
+        let order = ["Quick finish", "Weekend puzzle", "Marathon project"]
+        var counts: [String: Int] = [:]
+        for puzzle in completed {
+            let minutes = minutesSpent(on: puzzle)
+            guard minutes > 0 else { continue }
+            let label = PuzzleDetailMetrics.timeBucketLabel(forMinutes: minutes)
+            counts[label, default: 0] += 1
+        }
+        return order.compactMap { label in
+            guard let count = counts[label], count > 0 else { return nil }
+            return PaceBucket(label: label, count: count)
+        }
+    }
+
+    private static func totalSpend(from puzzles: [Puzzle]) -> (amount: Double, currency: String)? {
+        let priced = puzzles.compactMap { puzzle -> (price: Double, code: String)? in
+            guard let price = puzzle.purchasePrice, price > 0 else { return nil }
+            let code = puzzle.purchaseCurrencyCode ?? Locale.current.currency?.identifier ?? "USD"
+            return (price, code)
+        }
+        guard !priced.isEmpty else { return nil }
+        let currencyFrequencies = Dictionary(grouping: priced, by: { $0.code }).mapValues(\.count)
+        let dominant = currencyFrequencies
+            .sorted { lhs, rhs in
+                lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value
+            }
+            .first?.key ?? "USD"
+        let total = priced.filter { $0.code == dominant }.reduce(0.0) { $0 + $1.price }
+        return (total, dominant)
+    }
+
+    private static func completionsByMonth(
+        in completed: [Puzzle],
+        calendar: Calendar,
+        now: Date
+    ) -> [Int] {
+        var months = Array(repeating: 0, count: 12)
+        let currentYear = calendar.component(.year, from: now)
+        for puzzle in completed {
+            let components = calendar.dateComponents([.year, .month], from: puzzle.completionDate)
+            guard components.year == currentYear, let month = components.month,
+                  (1...12).contains(month) else { continue }
+            months[month - 1] += 1
+        }
+        return months
+    }
+}
+
+// MARK: - PaceBucket
+
+struct PaceBucket: Equatable, Identifiable {
+    let label: String
+    let count: Int
+
+    var id: String { label }
 }

@@ -198,6 +198,122 @@ final class CollectionStatsTests: XCTestCase {
         XCTAssertEqual(stats.topPurchaseLocations.first, "Goodwill")
     }
 
+    func testComputeTotalSpendUsesDominantCurrency() {
+        let a = makePuzzle(name: "A", pieces: 500, status: .completed)
+        a.purchasePrice = 19.99
+        a.purchaseCurrencyCode = "USD"
+        let b = makePuzzle(name: "B", pieces: 500, status: .todo)
+        b.purchasePrice = 25
+        b.purchaseCurrencyCode = "USD"
+        let c = makePuzzle(name: "C", pieces: 500, status: .todo)
+        c.purchasePrice = 100
+        c.purchaseCurrencyCode = "EUR"
+
+        let stats = CollectionStats.compute(from: [a, b, c], calendar: calendar, now: referenceDate)
+
+        XCTAssertEqual(stats.spendCurrencyCode, "USD")
+        XCTAssertEqual(stats.totalSpend ?? 0, 44.99, accuracy: 0.001)
+    }
+
+    func testComputeFavoriteBrand() {
+        let a = makePuzzle(name: "A", pieces: 500, status: .completed)
+        a.source = "Ravensburger"
+        let b = makePuzzle(name: "B", pieces: 500, status: .todo)
+        b.source = "ravensburger"
+        let c = makePuzzle(name: "C", pieces: 500, status: .todo)
+        c.source = "Buffalo"
+
+        let stats = CollectionStats.compute(from: [a, b, c], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.favoriteBrand, "Ravensburger")
+    }
+
+    func testComputeAverageDifficulty() {
+        let a = makePuzzle(name: "A", pieces: 500, status: .completed)
+        a.difficulty = .two
+        let b = makePuzzle(name: "B", pieces: 500, status: .todo)
+        b.difficulty = .four
+        let none = makePuzzle(name: "C", pieces: 500, status: .todo)
+        none.difficulty = .none
+
+        let stats = CollectionStats.compute(from: [a, b, none], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.averageDifficulty ?? 0, 3.0, accuracy: 0.001)
+        XCTAssertEqual(stats.formattedAverageDifficulty, "3.0 / 5")
+    }
+
+    func testComputeAverageInProgressPercent() {
+        let a = makePuzzle(name: "A", pieces: 500, status: .inProgress)
+        a.progressPercent = 40
+        let b = makePuzzle(name: "B", pieces: 500, status: .inProgress)
+        b.progressPercent = 60
+
+        let stats = CollectionStats.compute(from: [a, b], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.averageInProgressPercent, 50)
+    }
+
+    func testComputeReplayedPuzzleCount() {
+        let replayed = makePuzzle(name: "A", pieces: 500, status: .completed)
+        replayed.timesCompleted = 3
+        let once = makePuzzle(name: "B", pieces: 500, status: .completed)
+        once.timesCompleted = 1
+
+        let stats = CollectionStats.compute(from: [replayed, once], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.replayedPuzzleCount, 1)
+    }
+
+    func testComputeAverageHoursPer1000Pieces() {
+        let completed = makePuzzle(name: "A", pieces: 1000, status: .completed)
+        completed.estimatedTimeSpent = Puzzle.PuzzleTime(hours: 5, minutes: 0)
+        completed.completionDate = referenceDate
+
+        let stats = CollectionStats.compute(from: [completed], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.averageHoursPer1000Pieces ?? 0, 5.0, accuracy: 0.001)
+    }
+
+    func testComputePaceBuckets() {
+        let quick = makePuzzle(name: "Quick", pieces: 300, status: .completed)
+        quick.estimatedTimeSpent = Puzzle.PuzzleTime(hours: 2, minutes: 0)
+        quick.completionDate = referenceDate
+        let marathon = makePuzzle(name: "Marathon", pieces: 2000, status: .completed)
+        marathon.estimatedTimeSpent = Puzzle.PuzzleTime(hours: 20, minutes: 0)
+        marathon.completionDate = referenceDate
+
+        let stats = CollectionStats.compute(from: [quick, marathon], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.paceBuckets.count, 2)
+        XCTAssertEqual(stats.paceBuckets.first?.label, "Quick finish")
+        XCTAssertEqual(stats.paceBuckets.first?.count, 1)
+        XCTAssertEqual(stats.paceBuckets.last?.label, "Marathon project")
+    }
+
+    func testComputePurchaseLocationCounts() {
+        let a = makePuzzle(name: "A", pieces: 500, status: .todo)
+        a.purchaseLocation = "Goodwill"
+        let b = makePuzzle(name: "B", pieces: 500, status: .todo)
+        b.purchaseLocation = "goodwill"
+        let c = makePuzzle(name: "C", pieces: 500, status: .todo)
+        c.purchaseLocation = "Amazon"
+
+        let stats = CollectionStats.compute(from: [a, b, c], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.purchaseLocationCounts.first?.name, "Goodwill")
+        XCTAssertEqual(stats.purchaseLocationCounts.first?.count, 2)
+        XCTAssertEqual(stats.purchaseLocationCounts.count, 2)
+    }
+
+    func testComputeCompletionsByMonthThisYear() {
+        let june = makePuzzle(name: "June", pieces: 500, status: .completed)
+        june.completionDate = referenceDate
+        let january = makePuzzle(name: "Jan", pieces: 500, status: .completed)
+        january.completionDate = calendar.date(from: DateComponents(year: 2026, month: 1, day: 5))!
+        let lastYear = makePuzzle(name: "Old", pieces: 500, status: .completed)
+        lastYear.completionDate = calendar.date(from: DateComponents(year: 2025, month: 6, day: 1))!
+
+        let stats = CollectionStats.compute(from: [june, january, lastYear], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.completionsByMonthThisYear.count, 12)
+        XCTAssertEqual(stats.completionsByMonthThisYear[5], 1)
+        XCTAssertEqual(stats.completionsByMonthThisYear[0], 1)
+        XCTAssertEqual(stats.completionsByMonthThisYear.reduce(0, +), 2)
+        XCTAssertEqual(stats.mostProductiveMonthThisYear?.count, 1)
+    }
+
     // MARK: - Helpers
 
     private func makePuzzle(
