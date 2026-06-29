@@ -27,7 +27,7 @@ ORIENTATIONS="${ORIENTATIONS:-portrait landscape}"
 DEVICE_KIND="${DEVICE_KIND:-iphone}"
 MARKETING_BASE="${MARKETING_BASE:-$ROOT/marketing-screenshots}"
 BUNDLE_ID="com.jacobrozell.Puzzle-Buddy"
-SCHEME="Puzzle Buddy"
+SCHEME="${SCHEME:-PuzzleBuddy}"
 PROJECT="$ROOT/PuzzleBuddy.xcodeproj"
 DERIVED_DATA="${DERIVED_DATA:-$ROOT/.derivedData/marketing-screenshots}"
 LAUNCH_DELAY="${LAUNCH_DELAY:-6}"
@@ -93,7 +93,7 @@ xcodebuild \
   -derivedDataPath "$DERIVED_DATA" \
   build
 
-APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphonesimulator/Puzzle Buddy.app"
+APP_PATH="$DERIVED_DATA/Build/Products/Debug-iphonesimulator/PuzzleBuddy.app"
 if [[ ! -d "$APP_PATH" ]]; then
   echo "Build succeeded but app not found at $APP_PATH" >&2
   exit 1
