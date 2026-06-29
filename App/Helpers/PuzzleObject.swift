@@ -48,20 +48,6 @@ class Puzzle: ObservableObject {
             self.minutes = minutes
         }
 
-        init(name: String) {
-            let intArray = name.components(separatedBy: CharacterSet.decimalDigits.inverted).compactMap({ Int($0) })
-            self.hours = intArray.first ?? nil
-            self.minutes = intArray.last ?? nil
-        }
-
-        func toName() -> String {
-            guard let hours = hours, let minutes = minutes else {
-                return "N/A"
-            }
-
-            return "\(hours)hr:\(minutes)min"
-        }
-
         /// Human-readable label for UI (e.g. detail screen, form preview).
         var displayLabel: String? {
             let hourValue = max(hours ?? 0, 0)
@@ -87,15 +73,6 @@ class Puzzle: ObservableObject {
             }
             hours = hourValue
             minutes = minuteValue
-        }
-
-        /// Returns # of minutes
-        func toMin() -> Int {
-            guard let hours = hours, let minutes = minutes else {
-                return 1
-            }
-
-            return max((hours * 60) + minutes, 1)
         }
     }
 
@@ -244,42 +221,59 @@ class Puzzle: ObservableObject {
         }
     }
 
-//    var price: Double
-//    var notes: String
-//    var image: UIImage // reverse image search to find info
-    // var urlLink
-
-    func getDataFields() -> [String: Any] {
-        return [
-            "id": id.uuidString,
-            "name": name,
-            "pieces": pieces ?? "nil",
-            "rating": rating.rawValue,
-            "difficulty": difficulty.rawValue,
-            "completionDate": completionDate,
-            "startDate": startDate as Any? ?? "nil",
-            "estimatedTimeSpent": estimatedTimeSpent?.toName() ?? "nil",
-            "status": status.rawValue,
-            "hasMissingPieces": hasMissingPieces,
-            "notes": notes ?? "nil",
-            "source": source ?? "nil",
-            "purchaseLocation": purchaseLocation ?? "nil",
-            "releaseYear": releaseYear ?? "nil",
-            "puzzleType": puzzleType.rawValue,
-            "material": material.rawValue,
-            "disposition": disposition.rawValue,
-            "progressPercent": progressPercent,
-            "purchasePrice": purchasePrice ?? "nil",
-            "purchaseCurrencyCode": purchaseCurrencyCode ?? "nil",
-            "puzzleShape": puzzleShape.rawValue,
-            "cutType": cutType.rawValue,
-            "dimensionsText": dimensionsText ?? "nil",
-            "timesCompleted": timesCompleted,
-            "isDemo": isDemo,
-            "barcode": barcode ?? "nil",
-            "tags": tags,
-            "imageData": image?.jpegData(compressionQuality: 0.30)?.base64EncodedString() ?? "nil"
-        ]
+    /// Deep copy for edit mode so in-form changes do not mutate the live detail binding.
+    func copy() -> Puzzle {
+        let copiedPhotos = photos.map {
+            PuzzlePhoto(id: $0.id, sortOrder: $0.sortOrder, image: $0.image, createdAt: $0.createdAt)
+        }
+        let copiedCompletions = completions.map {
+            PuzzleCompletion(
+                id: $0.id,
+                completionNumber: $0.completionNumber,
+                startedAt: $0.startedAt,
+                completedAt: $0.completedAt,
+                timeSpentHours: $0.timeSpentHours,
+                timeSpentMinutes: $0.timeSpentMinutes,
+                rating: $0.rating
+            )
+        }
+        var copiedTime: PuzzleTime?
+        if let estimatedTimeSpent {
+            copiedTime = PuzzleTime(hours: estimatedTimeSpent.hours, minutes: estimatedTimeSpent.minutes)
+        }
+        let copy = Puzzle(
+            name: name,
+            pieces: pieces,
+            rating: rating,
+            difficulty: difficulty,
+            estimatedTimeSpent: copiedTime,
+            completionDate: completionDate,
+            status: status,
+            startDate: startDate,
+            hasMissingPieces: hasMissingPieces,
+            notes: notes,
+            source: source,
+            purchaseLocation: purchaseLocation,
+            releaseYear: releaseYear,
+            puzzleType: puzzleType,
+            material: material,
+            disposition: disposition,
+            progressPercent: progressPercent,
+            purchasePrice: purchasePrice,
+            purchaseCurrencyCode: purchaseCurrencyCode,
+            puzzleShape: puzzleShape,
+            cutType: cutType,
+            dimensionsText: dimensionsText,
+            timesCompleted: timesCompleted,
+            photos: copiedPhotos,
+            completions: copiedCompletions,
+            isDemo: isDemo,
+            barcode: barcode,
+            tags: tags
+        )
+        copy.id = id
+        copy.image = image
+        return copy
     }
 }
 
@@ -305,145 +299,6 @@ extension Puzzle {
               completionDate: Date(),
               status: .todo
         )
-    }
-}
-
-extension Puzzle {
-    static func fromData(_ data: [String: Any?]) -> Puzzle {
-        let p: Puzzle = .fixture()
-
-        if let id = data["id"] as? String, let id = UUID(uuidString: id) {
-            p.id = id
-        } else {
-            print("KeyError: id not found")
-        }
-
-        if let name = data["name"] as? String {
-            p.name = name
-        } else {
-            print("KeyError: name not found")
-        }
-
-        if let pieces = data["pieces"] as? Int {
-            p.pieces = pieces
-        } else {
-            print("KeyError: pieces not found")
-        }
-
-        if let rating = data["rating"] as? Double {
-            p.rating = Puzzle.Rating(rawValue: rating) ?? .one
-        } else {
-            print("KeyError: rating not found")
-        }
-
-        if let difficulty = data["difficulty"] as? String {
-            p.difficulty = Puzzle.Difficulty(rawValue: difficulty) ?? .one
-        } else {
-            print("KeyError: difficulty not found")
-        }
-
-        if let estimatedTimeSpent = data["estimatedTimeSpent"] as? String {
-            p.estimatedTimeSpent = Puzzle.PuzzleTime(name: estimatedTimeSpent)
-        } else {
-            print("KeyError: estimatedTimeSpent not found")
-        }
-
-        if let completionDate = data["completionDate"] as? Date {
-            p.completionDate = completionDate
-        } else {
-            print("KeyError: completionDate not found")
-        }
-
-        if let startDate = data["startDate"] as? Date {
-            p.startDate = startDate
-        }
-
-        if let status = data["status"] as? String {
-            p.status = Puzzle.Status(rawValue: status) ?? .todo
-        } else {
-            print("KeyError: status not found")
-        }
-
-        if let hasMissingPieces = data["hasMissingPieces"] as? Bool {
-            p.hasMissingPieces = hasMissingPieces
-        }
-
-        if let notes = data["notes"] as? String, notes != "nil" {
-            p.notes = notes
-        }
-
-        if let source = data["source"] as? String, source != "nil" {
-            p.source = source
-        }
-
-        if let purchaseLocation = data["purchaseLocation"] as? String, purchaseLocation != "nil" {
-            p.purchaseLocation = purchaseLocation
-        }
-
-        if let releaseYear = data["releaseYear"] as? Int {
-            p.releaseYear = releaseYear
-        }
-
-        if let puzzleType = data["puzzleType"] as? String {
-            p.puzzleType = PuzzleType(rawValue: puzzleType) ?? .none
-        }
-
-        if let material = data["material"] as? String {
-            p.material = PuzzleMaterial(rawValue: material) ?? .none
-        }
-
-        if let disposition = data["disposition"] as? String {
-            p.disposition = PuzzleDisposition(rawValue: disposition) ?? .none
-        }
-
-        if let progressPercent = data["progressPercent"] as? Int {
-            p.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
-        }
-
-        if let purchasePrice = data["purchasePrice"] as? Double {
-            p.purchasePrice = purchasePrice
-        }
-
-        if let purchaseCurrencyCode = data["purchaseCurrencyCode"] as? String, purchaseCurrencyCode != "nil" {
-            p.purchaseCurrencyCode = purchaseCurrencyCode
-        }
-
-        if let puzzleShape = data["puzzleShape"] as? String {
-            p.puzzleShape = PuzzleShape(rawValue: puzzleShape) ?? .none
-        }
-
-        if let cutType = data["cutType"] as? String {
-            p.cutType = PuzzleCutType(rawValue: cutType) ?? .none
-        }
-
-        if let dimensionsText = data["dimensionsText"] as? String, dimensionsText != "nil" {
-            p.dimensionsText = dimensionsText
-        }
-
-        if let timesCompleted = data["timesCompleted"] as? Int {
-            p.timesCompleted = timesCompleted
-        }
-
-        if let isDemo = data["isDemo"] as? Bool {
-            p.isDemo = isDemo
-        }
-
-        if let barcode = data["barcode"] as? String, barcode != "nil" {
-            p.barcode = BarcodeNormalizer.normalize(barcode)
-        }
-
-        if let tags = data["tags"] as? [String] {
-            p.tags = PuzzleTagSemantics.sanitizedTags(tags)
-        }
-
-        if let imageData = data["imageData"] as? String, let data = Data(base64Encoded: imageData) {
-            p.image = UIImage(data: data)
-        } else {
-            print("KeyError: image not found")
-        }
-
-        p.prepareForPersistence()
-        return p
     }
 }
 

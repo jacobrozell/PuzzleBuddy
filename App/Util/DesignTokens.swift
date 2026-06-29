@@ -142,6 +142,26 @@ extension View {
         modifier(BrandScreenChrome())
     }
 
+    /// Done button above the keyboard for number/decimal pads. Attach to the `NavigationStack`, not nested scroll views.
+    func keyboardDismissToolbar() -> some View {
+        toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+                .font(.body.weight(.semibold))
+                .foregroundStyle(Brand.accent)
+                .accessibilityLabel("Dismiss keyboard")
+            }
+        }
+    }
+
     func optionalAccessibilityIdentifier(_ identifier: String?) -> some View {
         modifier(OptionalAccessibilityIdentifier(identifier: identifier))
     }
@@ -234,6 +254,7 @@ enum A11yID {
     static let puzzleFormNotesField = "puzzle_form_notes_field"
     static let puzzleFormTagsField = "puzzle_form_tags_field"
     static let puzzleDetailEditButton = "puzzle_detail_edit_button"
+    static let puzzleDetailCancelButton = "puzzle_detail_cancel_button"
     static let puzzleDetailRedoButton = "puzzle_detail_redo_button"
     static let puzzleDetailBarcodeRow = "puzzle_detail_barcode_row"
     static let onboardingSkipButton = "onboarding_skip_button"

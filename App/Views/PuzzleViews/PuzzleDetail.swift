@@ -16,13 +16,17 @@ struct PuzzleDetail: View {
     @Binding var puzzle: Puzzle
 
     private var trimmedNameIsEmpty: Bool {
-        puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if isEditable, let editFormVm {
+            return editFormVm.puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        return puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     var body: some View {
         VStack {
             if isEditable, let editFormVm {
                 PuzzleFormInternal(formVm: editFormVm, allPuzzles: ps.puzzles)
+                    .keyboardDismissToolbar()
                     .adaptiveScrollChrome()
             } else {
                 ScrollView {
@@ -37,7 +41,15 @@ struct PuzzleDetail: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                if puzzle.status == .completed && !isEditable {
+                if isEditable {
+                    Button("Cancel") {
+                        editFormVm = nil
+                        isEditable = false
+                    }
+                    .optionalAccessibilityIdentifier(A11yID.puzzleDetailCancelButton)
+                    .accessibilityLabel("Cancel editing")
+                    .accessibilityHint("Discards unsaved changes and returns to details")
+                } else if puzzle.status == .completed {
                     Button("Puzzle again") {
                         showRedoConfirmation = true
                     }
@@ -48,17 +60,21 @@ struct PuzzleDetail: View {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     guard isEditable else {
-                        editFormVm = PuzzleFormViewModel(puzzle: puzzle)
+                        editFormVm = PuzzleFormViewModel(puzzle: puzzle.copy())
                         isEditable = true
                         return
                     }
 
-                    guard !trimmedNameIsEmpty else { return }
+                    guard let editFormVm, !trimmedNameIsEmpty else { return }
 
                     do {
-                        try ps.update(puzzle: puzzle)
-                        editFormVm = nil
+                        try ps.update(puzzle: editFormVm.puzzle)
+                        if let refreshed = ps.puzzles.first(where: { $0.id == editFormVm.puzzle.id }) {
+                            puzzle = refreshed
+                        }
+                        self.editFormVm = nil
                         isEditable = false
+                        BarcodeScanFeedback.scanAccepted()
                     } catch {
                         eh.handle(title: "Could not save puzzle", message: error.localizedDescription)
                     }
@@ -184,6 +200,9 @@ struct DetailView: View {
                 onCommit: {
                     do {
                         try ps.update(puzzle: puzzle)
+                        if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                            puzzle = refreshed
+                        }
                     } catch {
                         eh.handle(title: "Could not save progress", message: error.localizedDescription)
                     }

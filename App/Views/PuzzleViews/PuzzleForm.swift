@@ -5,10 +5,8 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
-import Photos
 import PhotosUI
 import SwiftUI
-import UIKit
 
 class PuzzleFormViewModel: ObservableObject {
     @Published var puzzle: Puzzle
@@ -54,7 +52,10 @@ struct PuzzleForm: View {
                 PuzzleFormInternal(formVm: formVm, allPuzzles: ps.puzzles)
                 SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented)
             }
-            .brandScreenChrome()
+            .background {
+                Brand.background
+                    .ignoresSafeArea(edges: [.horizontal, .bottom])
+            }
             .navigationTitle("Add Puzzle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -66,6 +67,7 @@ struct PuzzleForm: View {
                     .accessibilityHint("Closes the add puzzle form without saving")
                 }
             }
+            .keyboardDismissToolbar()
         }
     }
 }
@@ -131,21 +133,19 @@ struct PuzzleFormInternal: View {
             }
 
             Section {
-                TextField(
-                    "Bought at",
-                    text: purchaseLocationBinding,
-                    prompt: Text("Amazon, Goodwill, puzzle swap")
-                )
+                LabeledContent("Bought at") {
+                    TextField("Amazon, Goodwill, puzzle swap", text: purchaseLocationBinding)
+                        .multilineTextAlignment(.trailing)
+                }
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormPurchaseLocationField)
                 .accessibilityLabel("Bought at")
                 .accessibilityHint("Optional. Where you bought it or got it — not the puzzle brand.")
 
-                TextField(
-                    "Amount paid",
-                    text: purchasePriceBinding,
-                    prompt: Text("19.99")
-                )
-                .keyboardType(.decimalPad)
+                LabeledContent("Amount paid") {
+                    TextField("19.99", text: purchasePriceBinding)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                }
                 .accessibilityLabel("Amount paid")
                 .accessibilityHint("Optional. Enter how much you paid, such as 19.99.")
 
@@ -185,11 +185,10 @@ struct PuzzleFormInternal: View {
                 }
                 .accessibilityValue(formVm.puzzle.cutType.accessibilityDescription)
 
-                TextField(
-                    "Finished size",
-                    text: dimensionsBinding,
-                    prompt: Text("27 × 19 in or 68 × 49 cm")
-                )
+                LabeledContent("Finished size") {
+                    TextField("27 × 19 in or 68 × 49 cm", text: dimensionsBinding)
+                        .multilineTextAlignment(.trailing)
+                }
                 .accessibilityLabel("Finished puzzle size")
                 .accessibilityHint("Optional. Use inches or centimeters, as printed on the box.")
             } header: {
@@ -293,20 +292,32 @@ struct PuzzleFormInternal: View {
             }
 
             Section {
-                HStack(alignment: .top, spacing: DS.Spacing.s4) {
-                    timeComponentField(
-                        title: "Hours",
-                        unit: "hr",
-                        value: timeHoursBinding,
-                        accessibilityLabel: "Hours spent on puzzle"
-                    )
+                LabeledContent("Hours") {
+                    HStack(spacing: DS.Spacing.s2) {
+                        TextField("0", value: timeHoursBinding, format: .number)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 72)
+                            .accessibilityLabel("Hours spent on puzzle")
 
-                    timeComponentField(
-                        title: "Minutes",
-                        unit: "min",
-                        value: timeMinutesBinding,
-                        accessibilityLabel: "Minutes spent on puzzle"
-                    )
+                        Text("hr")
+                            .foregroundStyle(Brand.textSecondary)
+                            .accessibilityHidden(true)
+                    }
+                }
+
+                LabeledContent("Minutes") {
+                    HStack(spacing: DS.Spacing.s2) {
+                        TextField("0", value: timeMinutesBinding, format: .number)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 72)
+                            .accessibilityLabel("Minutes spent on puzzle")
+
+                        Text("min")
+                            .foregroundStyle(Brand.textSecondary)
+                            .accessibilityHidden(true)
+                    }
                 }
 
                 if let preview = formVm.puzzle.estimatedTimeSpent?.displayLabel {
@@ -388,16 +399,9 @@ struct PuzzleFormInternal: View {
                 Text("Condition")
             }
         }
+        .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.interactively)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    dismissKeyboard()
-                }
-                .accessibilityLabel("Dismiss keyboard")
-            }
-        }
+        .background(Brand.background)
         .sheet(isPresented: $showBarcodeScanner) {
             BarcodeScannerSheet { raw in
                 if let normalized = BarcodeNormalizer.normalize(raw) {
@@ -433,37 +437,6 @@ struct PuzzleFormInternal: View {
                 formVm.puzzle.estimatedTimeSpent?.normalizeComponents()
             }
         )
-    }
-
-    @ViewBuilder
-    private func timeComponentField(
-        title: String,
-        unit: String,
-        value: Binding<Int?>,
-        accessibilityLabel: String
-    ) -> some View {
-        VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-            Text(title)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(Brand.textSecondary)
-
-            HStack(spacing: DS.Spacing.s2) {
-                TextField("0", value: value, format: .number)
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.trailing)
-                    .accessibilityLabel(accessibilityLabel)
-
-                Text(unit)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(Brand.textSecondary)
-                    .accessibilityHidden(true)
-            }
-            .padding(.horizontal, DS.Spacing.s3)
-            .padding(.vertical, DS.Spacing.s2)
-            .background(Brand.cardElevated)
-            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
-        }
-        .frame(maxWidth: .infinity)
     }
 
     private var notesBinding: Binding<String> {
@@ -549,14 +522,6 @@ struct PuzzleFormInternal: View {
         )
     }
 
-    private func dismissKeyboard() {
-        UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder),
-            to: nil,
-            from: nil,
-            for: nil
-        )
-    }
 }
 
 // MARK: - SubmitAddButton
@@ -570,12 +535,13 @@ struct SubmitAddButton: View {
         Button {
             do {
                 try ps.add(puzzle: formVm.puzzle)
+                BarcodeScanFeedback.scanAccepted()
                 isPresented = false
             } catch {
-                eh.handle(title: "Error Adding Puzzle!", message: "\(error.localizedDescription)")
+                eh.handle(title: "Couldn't add puzzle", message: error.localizedDescription)
             }
         } label: {
-            Text("Submit")
+            Text("Save")
                 .frame(maxWidth: .infinity)
                 .contentShape(Rectangle())
         }
