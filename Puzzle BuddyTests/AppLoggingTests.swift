@@ -119,4 +119,39 @@ final class AppLoggingTests: XCTestCase {
         )
         XCTAssertEqual(mapped?.name, "onboarding_completed")
     }
+
+    func testAnalyticsMapsPhaseBEventsAndParameters() {
+        let statusChanged = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_status_changed",
+            category: .puzzles,
+            metadata: [
+                "status_from": "To-Do",
+                "status_to": "In-Progress",
+                "piece_count_bucket": "1000",
+            ],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(statusChanged?.name, "puzzle_status_changed")
+        XCTAssertEqual(statusChanged?.parameters["status_to"] as? String, "In-Progress")
+
+        let pickNext = PuzzleAnalyticsEventMapping.map(
+            eventName: "pick_next_puzzle_selected",
+            category: .ui,
+            metadata: ["entry_point": "stats", "piece_count_bucket": "under_500"],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(pickNext?.parameters["entry_point"] as? String, "stats")
+
+        let enrichedAdd = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_added",
+            category: .puzzles,
+            metadata: [
+                "add_source": "barcode",
+                "has_photo": "false",
+                "piece_count_bucket": "1000",
+            ],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(enrichedAdd?.parameters["add_source"] as? String, "barcode")
+    }
 }

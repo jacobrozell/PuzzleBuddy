@@ -113,6 +113,13 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `settings_collection_exported` | same | `SettingsView` | Gated by import/export flag |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |
+| `puzzle_status_changed` | same | `PuzzleStore.update` | Status field changed |
+| `tab_selected` | same | `PuzzleTabbar` | Tab switch |
+| `pick_next_puzzle_selected` | same | `PickNextPuzzleView` | Pick-next spin |
+| `barcode_scan_completed` | same | List scan, shopping mode | Unified barcode outcome |
+| `onboarding_skipped` | same | `OnboardingView` | Skip on page 1 (no `onboarding_completed`) |
+| `demo_data_loaded` | same | `PuzzleStore.loadDemoPuzzles` | Demo collection loaded |
+| `demo_data_removed` | same | `PuzzleStore.removeDemoPuzzles` | Demo collection removed |
 
 Events **not** in this set are logged to os.log only (never sent to Firebase Analytics).
 
@@ -129,6 +136,20 @@ Only these metadata keys are forwarded (max 100 chars each):
 | `completion_number` | `puzzle_completion_recorded` |
 | `completion_count` | `puzzle_redo_started` |
 | `format` | Export format (`json`, `csv`, etc.) |
+| `import_policy` | Import / restore |
+| `add_source` | `puzzle_added` — `manual`, `barcode`, `import`, `demo` |
+| `piece_count_bucket` | Puzzle metadata helper |
+| `has_photo` | Puzzle metadata helper |
+| `photo_count` | Puzzle metadata helper |
+| `status_from` / `status_to` | `puzzle_status_changed` |
+| `scan_context` / `scan_result` | `barcode_scan_completed` |
+| `tab` | `tab_selected` |
+| `entry_point` | `pick_next_puzzle_selected` |
+| `page_index` | `onboarding_skipped` |
+| `puzzle_type` | `puzzle_completion_recorded` |
+| `difficulty` | `puzzle_completion_recorded` |
+| `rating_bucket` | `puzzle_completion_recorded` |
+| `has_missing_pieces` | `puzzle_completion_recorded` |
 
 ---
 
@@ -139,8 +160,6 @@ These appear in Console / Crashlytics breadcrumbs but **not** as Analytics event
 | Event name | Level | Source |
 |------------|-------|--------|
 | `puzzle_collection_cleared` | info | `PuzzleStore.clearAllPuzzles` |
-| `demo_data_loaded` | info | `PuzzleStore.loadDemoPuzzles` |
-| `demo_data_removed` | info | `PuzzleStore.removeDemoPuzzles` |
 | `demo_data_seed_failed` | warning | `PuzzleStore` UI test seed |
 | `model_container_load_failed` | warning | `PuzzleModelContainer` |
 | `model_container_reset_failed` | warning | `PuzzleModelContainer` |
@@ -225,6 +244,8 @@ Non-fatals appear under Crashlytics → Issues (grouped by error code). Breadcru
 
 ## Related docs
 
+- [ga4-analytics-spec.md](ga4-analytics-spec.md) — GA4 reports, funnels, custom dimensions, future events
+- [release/ga4-phase-b-console-checklist.md](release/ga4-phase-b-console-checklist.md) — Firebase Console registration steps
 - [analytics.md](analytics.md) — shorter developer quick reference
 - [firebase-setup.md](firebase-setup.md) — Console and plist setup
 - [testing.md](testing.md) — disabling telemetry in tests

@@ -86,6 +86,22 @@ struct PuzzleTabbar: View {
                 }
             }
         }
+        .onChange(of: tab) { _, newTab in
+            AppLog.shared.info(
+                .ui,
+                eventName: "tab_selected",
+                message: "Tab selected.",
+                metadata: ["tab": analyticsTabID(for: newTab)]
+            )
+        }
+    }
+
+    private func analyticsTabID(for tab: PuzzleBuddyTab) -> String {
+        switch tab {
+        case .puzzles: return "puzzles"
+        case .stats: return "stats"
+        case .settings: return "settings"
+        }
     }
 }
 

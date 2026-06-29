@@ -84,7 +84,13 @@ struct OnboardingView: View {
                 .accessibilityLabel("Previous onboarding page")
             } else {
                 Button("Skip") {
-                    completeOnboarding()
+                    AppLog.shared.info(
+                        .app,
+                        eventName: "onboarding_skipped",
+                        message: "Onboarding skipped.",
+                        metadata: ["page_index": "0"]
+                    )
+                    completeOnboarding(logCompletedEvent: false)
                 }
                 .buttonStyle(BrandSecondaryButtonStyle())
                 .accessibilityIdentifier(A11yID.onboardingSkipButton)
@@ -110,10 +116,12 @@ struct OnboardingView: View {
         .padding(.vertical, DS.Spacing.s4)
     }
 
-    private func completeOnboarding() {
+    private func completeOnboarding(logCompletedEvent: Bool = true) {
         OnboardingStorage.markComplete()
         isPresented = false
-        AppLog.shared.info(.app, eventName: "onboarding_completed", message: "Onboarding finished.")
+        if logCompletedEvent {
+            AppLog.shared.info(.app, eventName: "onboarding_completed", message: "Onboarding finished.")
+        }
     }
 }
 

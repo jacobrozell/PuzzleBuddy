@@ -197,7 +197,7 @@ struct PuzzleList: View {
             }
         }
         .sheet(isPresented: $showPickNext) {
-            PickNextPuzzleView(ps: ps)
+            PickNextPuzzleView(ps: ps, entryPoint: "list")
         }
         .sheet(isPresented: $showShoppingMode) {
             ShoppingModeView(
@@ -704,10 +704,22 @@ struct PuzzleList: View {
         if let duplicate = ps.findPuzzle(matchingBarcode: normalized) {
             BarcodeScanFeedback.duplicateFound()
             listScanDuplicate = ListScanDuplicateRequest(puzzle: duplicate)
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "barcode_scan_completed",
+                message: "Barcode scan completed.",
+                metadata: ["scan_context": "list_scan", "scan_result": "match"]
+            )
             return
         }
 
         BarcodeScanFeedback.scanAccepted()
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "barcode_scan_completed",
+            message: "Barcode scan completed.",
+            metadata: ["scan_context": "list_scan", "scan_result": "no_match"]
+        )
         beginQuickAdd(barcode: normalized)
     }
 

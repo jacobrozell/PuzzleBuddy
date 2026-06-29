@@ -67,7 +67,7 @@ class PuzzleStore: ObservableObject {
             puzzle.name = trimmedName
 
             do {
-                try add(puzzle: puzzle)
+                try add(puzzle: puzzle, source: .import)
                 summary.imported += 1
             } catch {
                 if case PuzzleStoreError.duplicateBarcode = error {
@@ -151,11 +151,11 @@ class PuzzleStore: ObservableObject {
         return summary
     }
 
-    func add(puzzle: Puzzle) throws {
-        try addLocally(puzzle: puzzle)
+    func add(puzzle: Puzzle, source: PuzzleAddSource = .manual) throws {
+        try addLocally(puzzle: puzzle, source: source)
     }
 
-    private func addLocally(puzzle: Puzzle) throws {
+    private func addLocally(puzzle: Puzzle, source: PuzzleAddSource) throws {
         try validateBarcodeUniqueness(for: puzzle)
         var puzzle = puzzle
         puzzle.prepareForPersistence()
@@ -172,7 +172,7 @@ class PuzzleStore: ObservableObject {
             .puzzles,
             eventName: "puzzle_added",
             message: "Puzzle saved.",
-            metadata: ["puzzle_status": puzzle.status.rawValue]
+            metadata: PuzzleAnalyticsMetadata.metadata(for: puzzle, addSource: source)
         )
     }
 
@@ -207,13 +207,26 @@ class PuzzleStore: ObservableObject {
     }
 
     func update(puzzle: Puzzle) throws {
+        let previousStatus = puzzles.first(where: { $0.id == puzzle.id })?.status
         try updateLocally(puzzle: puzzle)
         AppLog.shared.info(
             .puzzles,
             eventName: "puzzle_updated",
             message: "Puzzle updated.",
-            metadata: ["puzzle_status": puzzle.status.rawValue]
+            metadata: PuzzleAnalyticsMetadata.metadata(for: puzzle)
         )
+        if let previousStatus, previousStatus != puzzle.status {
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_status_changed",
+                message: "Puzzle status changed.",
+                metadata: [
+                    "status_from": previousStatus.rawValue,
+                    "status_to": puzzle.status.rawValue,
+                    "piece_count_bucket": PuzzleAnalyticsMetadata.pieceCountBucket(for: puzzle.pieces)
+                ]
+            )
+        }
     }
 
     func startRedo(puzzle: Puzzle) throws {
@@ -279,7 +292,7 @@ class PuzzleStore: ObservableObject {
 
     func loadDemoPuzzles() throws {
         for puzzle in DemoDataCatalog.makePuzzles() {
-            try add(puzzle: puzzle)
+            try add(puzzle: puzzle, source: .demo)
         }
         AppLog.shared.info(
             .puzzles,
@@ -342,7 +355,7 @@ class PuzzleStore: ObservableObject {
             .puzzles,
             eventName: "puzzle_completion_recorded",
             message: "Recorded puzzle completion.",
-            metadata: ["completion_number": "\(nextNumber)"]
+            metadata: PuzzleAnalyticsMetadata.completionMetadata(for: puzzle, completionNumber: nextNumber)
         )
     }
 

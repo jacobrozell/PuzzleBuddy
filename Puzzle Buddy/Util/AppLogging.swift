@@ -114,7 +114,14 @@ enum PuzzleAnalyticsEventMapping {
         "puzzle_completion_recorded",
         "settings_collection_exported",
         "shopping_scan_match",
-        "shopping_scan_no_match"
+        "shopping_scan_no_match",
+        "puzzle_status_changed",
+        "tab_selected",
+        "pick_next_puzzle_selected",
+        "barcode_scan_completed",
+        "onboarding_skipped",
+        "demo_data_loaded",
+        "demo_data_removed"
     ]
 
     private static let allowlistedParameterKeys: Set<String> = [
@@ -125,7 +132,22 @@ enum PuzzleAnalyticsEventMapping {
         "completion_number",
         "completion_count",
         "import_policy",
-        "format"
+        "format",
+        "add_source",
+        "piece_count_bucket",
+        "has_photo",
+        "photo_count",
+        "status_from",
+        "status_to",
+        "scan_context",
+        "scan_result",
+        "tab",
+        "entry_point",
+        "page_index",
+        "puzzle_type",
+        "difficulty",
+        "rating_bucket",
+        "has_missing_pieces"
     ]
 
     static func map(

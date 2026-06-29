@@ -1,6 +1,6 @@
 # Analytics and logging
 
-Quick reference for Puzzle Buddy telemetry. **Full spec:** [telemetry.md](telemetry.md).
+Quick reference for Puzzle Buddy telemetry. **Full spec:** [telemetry.md](telemetry.md). **GA4 reports & roadmap:** [ga4-analytics-spec.md](ga4-analytics-spec.md).
 
 ## Rules
 

@@ -223,7 +223,7 @@ struct QuickAddPuzzleSheet: View {
     private func savePuzzle() {
         isSaving = true
         do {
-            try ps.add(puzzle: formVm.puzzle)
+            try ps.add(puzzle: formVm.puzzle, source: .barcode)
             dismiss()
         } catch {
             isSaving = false

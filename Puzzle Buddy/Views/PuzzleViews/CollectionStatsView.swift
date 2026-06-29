@@ -75,7 +75,7 @@ struct CollectionStatsView: View {
             }
         }
         .sheet(isPresented: $showPickNext) {
-            PickNextPuzzleView(ps: ps)
+            PickNextPuzzleView(ps: ps, entryPoint: "stats")
         }
     }
 

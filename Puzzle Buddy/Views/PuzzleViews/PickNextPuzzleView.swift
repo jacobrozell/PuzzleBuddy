@@ -8,6 +8,7 @@ import SwiftUI
 struct PickNextPuzzleView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var ps: PuzzleStore
+    var entryPoint: String = "list"
 
     @State private var includeInProgress: Bool = false
     @State private var pieceCountFilter: PuzzleListPieceCountFilter = .any
@@ -230,6 +231,17 @@ struct PickNextPuzzleView: View {
         let next = PuzzleRandomPicker.pick(from: pool, excluding: pickedID)
         withAnimation(.spring(response: 0.45, dampingFraction: 0.7)) {
             pickedID = next?.id
+        }
+        if next != nil {
+            AppLog.shared.info(
+                .ui,
+                eventName: "pick_next_puzzle_selected",
+                message: "Pick next puzzle selected.",
+                metadata: [
+                    "entry_point": entryPoint,
+                    "piece_count_bucket": PuzzleAnalyticsMetadata.pieceCountBucket(for: pieceCountFilter)
+                ]
+            )
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
             isSpinning = false

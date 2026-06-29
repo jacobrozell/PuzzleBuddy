@@ -127,6 +127,12 @@ struct ShoppingModeView: View {
             }
             announceMatch(match)
             AppLog.shared.info(.puzzles, eventName: "shopping_scan_match", message: "Duplicate found while shopping.")
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "barcode_scan_completed",
+                message: "Barcode scan completed.",
+                metadata: ["scan_context": "shopping", "scan_result": "match"]
+            )
             return
         }
 
@@ -146,6 +152,12 @@ struct ShoppingModeView: View {
         }
         UIAccessibility.post(notification: .announcement, argument: "Not in your collection. You can add this puzzle or scan another barcode.")
         AppLog.shared.info(.puzzles, eventName: "shopping_scan_no_match", message: "No duplicate while shopping.")
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "barcode_scan_completed",
+            message: "Barcode scan completed.",
+            metadata: ["scan_context": "shopping", "scan_result": "no_match"]
+        )
     }
 
     private func announceMatch(_ puzzle: Puzzle) {
