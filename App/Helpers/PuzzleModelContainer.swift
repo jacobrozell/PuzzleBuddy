@@ -69,6 +69,16 @@ enum PuzzleModelContainer {
         }
 
         UserPreferences.isRunningInEphemeralStore = false
-        return try ModelContainer(for: schema, configurations: [configuration])
+        let container = try ModelContainer(for: schema, configurations: [configuration])
+
+        // Recovery succeeded but the previous collection was unreadable and is now gone.
+        // Flag it for a one-time user notice and record a non-fatal so we hear about it.
+        UserPreferences.markStoreWasReset()
+        AppLog.shared.error(
+            .puzzles,
+            eventName: "model_container_store_reset",
+            message: "Saved collection was unreadable and was reset to a new empty store."
+        )
+        return container
     }
 }

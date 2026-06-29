@@ -165,4 +165,16 @@ final class AppLoggingTests: XCTestCase {
         )
         XCTAssertEqual(error?.code, 2005)
     }
+
+    func testCrashlyticsMapsStoreReset() {
+        let error = FirebaseCrashlyticsEventMapping.nonFatalError(
+            level: .error,
+            category: .puzzles,
+            eventName: "model_container_store_reset",
+            metadata: [:],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(error?.code, 2006)
+        XCTAssertEqual(error?.userInfo["event_name"] as? String, "model_container_store_reset")
+    }
 }

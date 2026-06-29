@@ -32,7 +32,14 @@ enum AppearancePreference: String, CaseIterable, Identifiable {
 enum UserPreferences {
     static let appearanceStorageKey = "PuzzleBuddy.AppearancePreference"
     static let ephemeralStoreBannerDismissedKey = "PuzzleBuddy.EphemeralStoreBannerDismissed"
+    static let storeWasResetNoticePendingKey = "PuzzleBuddy.StoreWasResetNoticePending"
 
     /// True when SwiftData fell back to an in-memory store (changes won't survive relaunch).
     static var isRunningInEphemeralStore = false
+
+    /// Records that an unreadable on-disk store was wiped and rebuilt fresh, so the user
+    /// can be told their previous collection could not be recovered. Persists until dismissed.
+    static func markStoreWasReset() {
+        UserDefaults.standard.set(true, forKey: storeWasResetNoticePendingKey)
+    }
 }

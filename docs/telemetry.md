@@ -194,6 +194,7 @@ Only allowlisted `.error` events become `Crashlytics.record(error:)` via `Fireba
 | `model_container_reset_failed` | 2003 | Store recovery failed |
 | `demo_data_seed_failed` | 2004 | UI test demo seed failed |
 | `model_container_ephemeral_fallback` | 2005 | Persistent store unavailable; in-memory fallback active |
+| `model_container_store_reset` | 2006 | On-disk store unreadable; wiped and rebuilt fresh (also surfaced to the user via a one-time "Collection was reset" banner) |
 
 Domain: `com.jacobrozell.Puzzle-Buddy.logger`
 
