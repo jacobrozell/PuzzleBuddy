@@ -166,6 +166,7 @@ struct QuickAddPuzzleSheet: View {
                     .accessibilityHint("Adds this puzzle to your collection")
                 }
             }
+            .keyboardDismissToolbar()
             .optionalAccessibilityIdentifier(A11yID.quickAddPuzzleSheet)
             .accessibilityElement(children: .contain)
             .onAppear {
@@ -224,6 +225,7 @@ struct QuickAddPuzzleSheet: View {
         isSaving = true
         do {
             try ps.add(puzzle: formVm.puzzle, source: .barcode)
+            BarcodeScanFeedback.scanAccepted()
             dismiss()
         } catch {
             isSaving = false

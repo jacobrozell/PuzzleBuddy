@@ -12,6 +12,7 @@ struct PuzzlePhotoGalleryEditor: View {
     @State private var pendingImage = UIImage()
     @State private var pickerItems: [PhotosPickerItem] = []
     @State private var isImportingPhotos = false
+    @State private var pendingPhotoRemovalID: UUID?
 
     private var sortedPhotos: [PuzzlePhoto] {
         PuzzlePhotoSemantics.photosInOrder(photos)
@@ -113,6 +114,26 @@ struct PuzzlePhotoGalleryEditor: View {
         .fullScreenCover(isPresented: $showCameraPicker) {
             ImagePicker(sourceType: .camera, selectedImage: $pendingImage)
                 .onDisappear { appendPendingImageIfNeeded() }
+        }
+        .confirmationDialog(
+            "Remove photo?",
+            isPresented: Binding(
+                get: { pendingPhotoRemovalID != nil },
+                set: { if !$0 { pendingPhotoRemovalID = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Remove", role: .destructive) {
+                if let id = pendingPhotoRemovalID {
+                    removePhoto(id: id)
+                }
+                pendingPhotoRemovalID = nil
+            }
+            Button("Cancel", role: .cancel) {
+                pendingPhotoRemovalID = nil
+            }
+        } message: {
+            Text("This photo will be removed from the puzzle.")
         }
     }
 
@@ -232,12 +253,12 @@ struct PuzzlePhotoGalleryEditor: View {
                     }
                 }
                 Button("Remove", role: .destructive) {
-                    removePhoto(id: photo.id)
+                    pendingPhotoRemovalID = photo.id
                 }
             }
 
             Button {
-                removePhoto(id: photo.id)
+                pendingPhotoRemovalID = photo.id
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .symbolRenderingMode(.palette)

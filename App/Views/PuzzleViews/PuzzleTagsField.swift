@@ -10,6 +10,7 @@ struct PuzzleTagsField: View {
     let catalog: [String]
 
     @State private var draft = ""
+    @State private var showClearTagsConfirmation = false
 
     private var canAddMore: Bool {
         tags.count < PuzzleTagSemantics.maxTagsPerPuzzle
@@ -46,7 +47,7 @@ struct PuzzleTagsField: View {
 
                 if !tags.isEmpty {
                     Button("Clear all") {
-                        tags = []
+                        showClearTagsConfirmation = true
                     }
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(Brand.accentWarm)
@@ -134,6 +135,18 @@ struct PuzzleTagsField: View {
                     .accessibilityLabel(isSearching ? "Matching tags" : "Suggested tags")
                 }
             }
+        }
+        .confirmationDialog(
+            "Clear all tags?",
+            isPresented: $showClearTagsConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Clear all", role: .destructive) {
+                tags = []
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("All tags on this puzzle will be removed.")
         }
     }
 

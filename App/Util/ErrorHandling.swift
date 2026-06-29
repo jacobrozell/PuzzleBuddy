@@ -1,6 +1,6 @@
 //
 //  ErrorHandling.swift
-//  Opelika Utilities
+//  Puzzle Buddy
 //
 //  Created by Jacob Rozell on 11/3/21.
 //

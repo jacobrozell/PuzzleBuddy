@@ -82,20 +82,20 @@ struct OnboardingView: View {
                 .buttonStyle(BrandSecondaryButtonStyle())
                 .accessibilityIdentifier(A11yID.onboardingBackButton)
                 .accessibilityLabel("Previous onboarding page")
-            } else {
-                Button("Skip") {
-                    AppLog.shared.info(
-                        .app,
-                        eventName: "onboarding_skipped",
-                        message: "Onboarding skipped.",
-                        metadata: ["page_index": "0"]
-                    )
-                    completeOnboarding(logCompletedEvent: false)
-                }
-                .buttonStyle(BrandSecondaryButtonStyle())
-                .accessibilityIdentifier(A11yID.onboardingSkipButton)
-                .accessibilityLabel("Skip onboarding")
             }
+
+            Button("Skip") {
+                AppLog.shared.info(
+                    .app,
+                    eventName: "onboarding_skipped",
+                    message: "Onboarding skipped.",
+                    metadata: ["page_index": "\(pageIndex)"]
+                )
+                completeOnboarding(logCompletedEvent: false)
+            }
+            .buttonStyle(BrandSecondaryButtonStyle())
+            .accessibilityIdentifier(A11yID.onboardingSkipButton)
+            .accessibilityLabel("Skip onboarding")
 
             Spacer()
 
