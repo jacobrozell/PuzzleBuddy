@@ -8,7 +8,7 @@ import XCTest
 
 final class Puzzle_BuddyTests: XCTestCase {
     func testAppVersionIsNonEmpty() {
-        XCTAssertFalse(Puzzle_BuddyApp.version.isEmpty)
+        XCTAssertFalse(PuzzleBuddyApp.version.isEmpty)
     }
 
     func testAnalyticsAllowlistIncludesBootstrap() {

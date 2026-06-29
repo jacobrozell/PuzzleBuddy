@@ -267,9 +267,9 @@ private extension LogLevel {
 enum AppLog {
     static let shared: AppLogger = {
         #if DEBUG
-        return DefaultAppLogger(minimumLevel: .debug, appVersion: Puzzle_BuddyApp.version)
+        return DefaultAppLogger(minimumLevel: .debug, appVersion: PuzzleBuddyApp.version)
         #else
-        return DefaultAppLogger(minimumLevel: .info, appVersion: Puzzle_BuddyApp.version)
+        return DefaultAppLogger(minimumLevel: .info, appVersion: PuzzleBuddyApp.version)
         #endif
     }()
 }

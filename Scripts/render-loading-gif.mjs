@@ -13,7 +13,7 @@ await runCli([
   process.argv[1],
   path.join(repoRoot, "Resources/loading-animation-source"),
   "-o",
-  path.join(repoRoot, "Puzzle Buddy/Resources/splash_loading.gif"),
+  path.join(repoRoot, "App/Resources/splash_loading.gif"),
   "--size",
   "240",
 ]);

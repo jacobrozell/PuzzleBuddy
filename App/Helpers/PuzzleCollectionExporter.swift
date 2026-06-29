@@ -78,7 +78,7 @@ enum PuzzleCollectionExporter {
         let payload = ExportPayload(
             backupFormatVersion: PuzzleCollectionBackupFormat.currentVersion,
             exportedAt: Date(),
-            appVersion: Puzzle_BuddyApp.version,
+            appVersion: PuzzleBuddyApp.version,
             puzzleCount: puzzles.count,
             puzzles: exportRecords(from: puzzles)
         )

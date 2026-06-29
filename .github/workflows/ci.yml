@@ -10,8 +10,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CI_XCODE_PROJECT: Puzzle Buddy.xcodeproj
-  CI_XCODE_SCHEME: Puzzle Buddy
+  CI_XCODE_PROJECT: PuzzleBuddy.xcodeproj
+  CI_XCODE_SCHEME: PuzzleBuddy
   CI_PARALLEL_TESTING: NO
   SIM_DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
 

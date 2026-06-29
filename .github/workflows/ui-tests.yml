@@ -11,8 +11,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  CI_XCODE_PROJECT: Puzzle Buddy.xcodeproj
-  CI_XCODE_SCHEME: Puzzle Buddy
+  CI_XCODE_PROJECT: PuzzleBuddy.xcodeproj
+  CI_XCODE_SCHEME: PuzzleBuddy
   CI_PARALLEL_TESTING: NO
 
 jobs:
@@ -76,7 +76,7 @@ jobs:
             -project "${{ env.CI_XCODE_PROJECT }}" \
             -scheme "${{ env.CI_XCODE_SCHEME }}" \
             -destination "${{ matrix.destination }}" \
-            -only-testing:"Puzzle BuddyUITests/${{ matrix.test_class }}" \
+            -only-testing:"AppUITests/${{ matrix.test_class }}" \
             -derivedDataPath DerivedData \
             CODE_SIGN_IDENTITY=- \
             CODE_SIGNING_REQUIRED=NO \

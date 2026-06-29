@@ -1,4 +1,4 @@
-name: Puzzle Buddy
+name: PuzzleBuddy
 attributes:
   ORGANIZATIONNAME: Jacob Rozell
 packages:
@@ -19,14 +19,14 @@ settings:
     DEVELOPMENT_TEAM: 7JT2JB89AV
     CODE_SIGN_STYLE: Automatic
 targets:
-  Puzzle Buddy:
+  PuzzleBuddy:
     type: application
     platform: iOS
     sources:
-      - path: Puzzle Buddy
+      - path: App
         excludes:
           - "**/README.md"
-      - path: Puzzle Buddy/Resources
+      - path: App/Resources
         buildPhase: resources
       - path: GoogleService-Info.plist
         type: file
@@ -51,12 +51,12 @@ targets:
       base:
         DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
         PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-Buddy
-        PRODUCT_NAME: "$(TARGET_NAME)"
+        INFOPLIST_KEY_CFBundleDisplayName: Puzzle Buddy
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_FILE: Puzzle-Buddy-Info.plist
+        INFOPLIST_FILE: Info.plist
         INFOPLIST_KEY_NSCameraUsageDescription: Puzzle Buddy uses the camera to photograph puzzle boxes and scan barcodes for faster cataloging and duplicate checks.
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: Puzzle Buddy uses your photo library so you can attach puzzle box photos to your collection entries.
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
@@ -70,13 +70,13 @@ targets:
           - UIInterfaceOrientationPortraitUpsideDown
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
-        CODE_SIGN_ENTITLEMENTS: Puzzle Buddy/Puzzle Buddy.entitlements
-        DEVELOPMENT_ASSET_PATHS: '"Puzzle Buddy/Preview Content"'
+        CODE_SIGN_ENTITLEMENTS: App/PuzzleBuddy.entitlements
+        DEVELOPMENT_ASSET_PATHS: '"App/Preview Content"'
         ENABLE_PREVIEWS: YES
         CURRENT_PROJECT_VERSION: 3
         MARKETING_VERSION: 1.0.0
     info:
-      path: Puzzle-Buddy-Info.plist
+      path: Info.plist
       properties:
         CFBundleShortVersionString: "1.0.0"
         CFBundleVersion: "2"
@@ -84,39 +84,39 @@ targets:
         UILaunchStoryboardName: LaunchScreen
     scheme:
       testTargets:
-        - Puzzle BuddyTests
-        - Puzzle BuddyUITests
-  Puzzle BuddyTests:
+        - AppTests
+        - AppUITests
+  AppTests:
     type: bundle.unit-test
     platform: iOS
     sources:
-      - path: Puzzle BuddyTests
+      - path: AppTests
     resources:
-      - path: Puzzle BuddyTests/Fixtures
+      - path: AppTests/Fixtures
     dependencies:
-      - target: Puzzle Buddy
+      - target: PuzzleBuddy
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-BuddyTests
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Puzzle Buddy.app/Puzzle Buddy"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/PuzzleBuddy.app/PuzzleBuddy"
         BUNDLE_LOADER: "$(TEST_HOST)"
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
         CURRENT_PROJECT_VERSION: 3
         MARKETING_VERSION: 1.0.0
-  Puzzle BuddyUITests:
+  AppUITests:
     type: bundle.ui-testing
     platform: iOS
     deploymentTarget: "17.0"
     sources:
-      - path: Puzzle BuddyUITests
+      - path: AppUITests
     dependencies:
-      - target: Puzzle Buddy
+      - target: PuzzleBuddy
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-BuddyUITests
-        TEST_TARGET_NAME: Puzzle Buddy
+        TEST_TARGET_NAME: PuzzleBuddy
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
         CURRENT_PROJECT_VERSION: 3
         MARKETING_VERSION: 1.0.0

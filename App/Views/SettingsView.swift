@@ -263,7 +263,7 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section {
-            LabeledContent("Version", value: Puzzle_BuddyApp.version)
+            LabeledContent("Version", value: PuzzleBuddyApp.version)
             LabeledContent("Puzzles", value: "\(ps.puzzles.count)")
             if ps.demoPuzzleCount > 0 {
                 LabeledContent("Demo puzzles", value: "\(ps.demoPuzzleCount)")

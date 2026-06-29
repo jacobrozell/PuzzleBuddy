@@ -19,8 +19,8 @@ import { startStaticServer } from "../../claude-design-zip-to-gif/lib/server.mjs
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourceDir = path.join(repoRoot, "Resources/loading-animation-source");
 const entryHtml = path.join(sourceDir, "Puzzle Buddy Loader.dc.html");
-const appIconDir = path.join(repoRoot, "Puzzle Buddy/Assets.xcassets/AppIcon.appiconset");
-const heroDir = path.join(repoRoot, "Puzzle Buddy/Assets.xcassets/LaunchCrestHero.imageset");
+const appIconDir = path.join(repoRoot, "App/Assets.xcassets/AppIcon.appiconset");
+const heroDir = path.join(repoRoot, "App/Assets.xcassets/LaunchCrestHero.imageset");
 const previewDir = path.join(repoRoot, "design/icon-options/previews");
 const CANVAS_SELECTOR = "svg[data-om-exportable-video-with-duration-secs]";
 const SETTLE_MS = 60;

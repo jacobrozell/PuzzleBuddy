@@ -3,9 +3,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-GIF="$ROOT/Puzzle Buddy/Resources/splash_loading.gif"
-APPICON_DIR="$ROOT/Puzzle Buddy/Assets.xcassets/AppIcon.appiconset"
-HERO_DIR="$ROOT/Puzzle Buddy/Assets.xcassets/LaunchCrestHero.imageset"
+GIF="$ROOT/App/Resources/splash_loading.gif"
+APPICON_DIR="$ROOT/App/Assets.xcassets/AppIcon.appiconset"
+HERO_DIR="$ROOT/App/Assets.xcassets/LaunchCrestHero.imageset"
 WORK="/tmp/puzzle-buddy-app-icon-$$"
 
 # Fully assembled hold frame (see puzzle-scene.jsx timeline).

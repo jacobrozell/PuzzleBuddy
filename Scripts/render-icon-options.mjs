@@ -147,7 +147,7 @@ async function main() {
 
   const currentIcon = path.join(
     repoRoot,
-    "Puzzle Buddy/Assets.xcassets/AppIcon.appiconset/ios-marketing.png",
+    "App/Assets.xcassets/AppIcon.appiconset/ios-marketing.png",
   );
   await fs.copyFile(currentIcon, path.join(outDir, "00-current-shipped.png"));
 

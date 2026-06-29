@@ -1,7 +1,7 @@
 included:
-  - Puzzle Buddy
-  - Puzzle BuddyTests
-  - Puzzle BuddyUITests
+  - App
+  - AppTests
+  - AppUITests
 
 opt_in_rules:
   - force_unwrapping
@@ -29,7 +29,7 @@ function_body_length:
 
 custom_rules:
   no_print_statements:
-    included: "Puzzle Buddy/.*\\.swift"
+    included: "App/.*\\.swift"
     name: No Print Statements
     regex: '^\s*print\('
     message: "Use AppLog instead of print() in production code."

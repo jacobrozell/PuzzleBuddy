@@ -1,6 +1,6 @@
 //
-//  Puzzle_BuddyApp.swift
-//  Puzzle Buddy
+//  PuzzleBuddyApp.swift
+//  PuzzleBuddy
 //
 //  Created by Jacob Rozell on 7/12/22.
 //
@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 @main
-struct Puzzle_BuddyApp: App {
+struct PuzzleBuddyApp: App {
     public static let version = "1.0.0" // Keep in sync with MARKETING_VERSION in project.yml
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
