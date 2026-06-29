@@ -25,4 +25,15 @@ final class BarcodeNormalizerTests: XCTestCase {
         XCTAssertNil(BarcodeNormalizer.normalize(""))
         XCTAssertNil(BarcodeNormalizer.normalize(nil))
     }
+
+    func testNormalizeRejectsFifteenPlusDigits() {
+        XCTAssertNil(BarcodeNormalizer.normalize(String(repeating: "1", count: 15)))
+    }
+
+    func testOptionalDigitsExtractsWithoutLengthValidation() {
+        XCTAssertEqual(
+            BarcodeNormalizer.optionalDigits(from: String(repeating: "9", count: 20))?.count,
+            20
+        )
+    }
 }

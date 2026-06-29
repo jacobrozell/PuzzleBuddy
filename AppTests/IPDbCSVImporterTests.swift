@@ -87,6 +87,28 @@ final class IPDbCSVImporterTests: XCTestCase {
         XCTAssertEqual(puzzle.status, .inProgress)
     }
 
+    func testParsesAmbiguousDateAsISOWhenPresent() throws {
+        let csv = """
+        Title,Brand,Piece Count,Completion Date
+        Winter,Galison,500,2024-01-15
+        """
+        let puzzle = try XCTUnwrap(IPDbCSVImporter.puzzles(from: Data(csv.utf8)).first)
+        let calendar = Calendar(identifier: .gregorian)
+        let components = calendar.dateComponents([.year, .month, .day], from: puzzle.completionDate)
+        XCTAssertEqual(components.year, 2024)
+        XCTAssertEqual(components.month, 1)
+        XCTAssertEqual(components.day, 15)
+    }
+
+    func testDropsOverlongBarcodeFromOptionalDigitsPath() throws {
+        let csv = """
+        Title,Brand,Piece Count,Barcode
+        Long Code,Galison,500,\(String(repeating: "9", count: 20))
+        """
+        let puzzle = try XCTUnwrap(IPDbCSVImporter.puzzles(from: Data(csv.utf8)).first)
+        XCTAssertNil(puzzle.barcode)
+    }
+
     private func loadFixture(named name: String, extension ext: String) throws -> Data {
         let bundle = Bundle(for: IPDbCSVImporterTests.self)
         guard let url = bundle.url(forResource: name, withExtension: ext, subdirectory: "Fixtures")

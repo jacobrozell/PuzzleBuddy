@@ -30,4 +30,8 @@ final class PurchasePriceFormattingTests: XCTestCase {
         XCTAssertTrue(label.contains("12.5") || label.contains("12.50"))
         XCTAssertTrue(label.contains("$") || label.contains("US"))
     }
+
+    func testParseEuropeanCommaDecimal() {
+        XCTAssertEqual(PurchasePriceFormatting.parse("12,50"), 12.50)
+    }
 }

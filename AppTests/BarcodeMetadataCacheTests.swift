@@ -13,7 +13,7 @@ final class BarcodeMetadataCacheTests: XCTestCase {
     }
 
     func testStoresAndRetrievesMetadata() {
-        var puzzle = Puzzle.fixture(name: "Winter Lights 1000 Piece Puzzle", pieces: 1000)
+        let puzzle = Puzzle.fixture(name: "Winter Lights 1000 Piece Puzzle", pieces: 1000)
         puzzle.barcode = "012345678905"
         puzzle.source = "Galison"
 
@@ -28,11 +28,30 @@ final class BarcodeMetadataCacheTests: XCTestCase {
     }
 
     func testWarmCacheLoadsFromPuzzles() {
-        var puzzle = Puzzle.fixture(name: "Harbor Lights", pieces: 750)
+        let puzzle = Puzzle.fixture(name: "Harbor Lights", pieces: 750)
         puzzle.barcode = "123456789012"
 
         BarcodeMetadataCache.warmCache(from: [puzzle])
 
         XCTAssertNotNil(BarcodeMetadataCache.metadata(for: "123456789012"))
+    }
+
+    func testPersistenceRoundTripThroughUserDefaults() {
+        BarcodeMetadataCache.resetForTesting()
+        let puzzle = Puzzle.fixture(name: "Persisted", pieces: 1000)
+        puzzle.barcode = "4005556197523"
+        puzzle.source = "Ravensburger"
+
+        BarcodeMetadataCache.store(from: puzzle)
+
+        let metadata = BarcodeMetadataCache.metadata(for: "4005556197523")
+        XCTAssertEqual(metadata?.brand, "Ravensburger")
+        XCTAssertEqual(metadata?.suggestedPieces, 1000)
+    }
+
+    func testCorruptCacheReturnsNil() {
+        BarcodeMetadataCache.resetForTesting()
+        UserDefaults.standard.set(Data("not-json".utf8), forKey: "PuzzleBuddy.BarcodeMetadataCache")
+        XCTAssertNil(BarcodeMetadataCache.metadata(for: "012345678905"))
     }
 }

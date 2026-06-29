@@ -78,6 +78,24 @@ final class CollectionStatsTests: XCTestCase {
         XCTAssertNil(stats.averageRating)
     }
 
+    func testMinutesSpentHoursOnly() {
+        let completed = makePuzzle(name: "Hours only", pieces: 500, status: .completed)
+        completed.estimatedTimeSpent = Puzzle.PuzzleTime(hours: 2, minutes: nil)
+        completed.completionDate = referenceDate
+
+        let stats = CollectionStats.compute(from: [completed], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.totalMinutesPuzzling, 120)
+    }
+
+    func testMinutesSpentMinutesOnly() {
+        let completed = makePuzzle(name: "Minutes only", pieces: 500, status: .completed)
+        completed.estimatedTimeSpent = Puzzle.PuzzleTime(hours: nil, minutes: 45)
+        completed.completionDate = referenceDate
+
+        let stats = CollectionStats.compute(from: [completed], calendar: calendar, now: referenceDate)
+        XCTAssertEqual(stats.totalMinutesPuzzling, 45)
+    }
+
     func testFavoritePieceCountUsesMode() {
         XCTAssertEqual(CollectionStats.favoritePieceCount(from: [500, 1000, 500, 300]), 500)
     }
@@ -150,7 +168,7 @@ final class CollectionStatsTests: XCTestCase {
     }
 
     func testComputeAverageDaysToComplete() {
-        var completed = makePuzzle(name: "Done", pieces: 500, status: .completed)
+        let completed = makePuzzle(name: "Done", pieces: 500, status: .completed)
         completed.startDate = calendar.date(byAdding: .day, value: -4, to: referenceDate)!
         completed.completionDate = referenceDate
 
@@ -169,11 +187,11 @@ final class CollectionStatsTests: XCTestCase {
     }
 
     func testComputeTopPurchaseLocations() {
-        var first = makePuzzle(name: "A", pieces: 500, status: .todo)
+        let first = makePuzzle(name: "A", pieces: 500, status: .todo)
         first.purchaseLocation = "Goodwill"
-        var second = makePuzzle(name: "B", pieces: 500, status: .todo)
+        let second = makePuzzle(name: "B", pieces: 500, status: .todo)
         second.purchaseLocation = "Goodwill"
-        var third = makePuzzle(name: "C", pieces: 500, status: .todo)
+        let third = makePuzzle(name: "C", pieces: 500, status: .todo)
         third.purchaseLocation = "Amazon"
 
         let stats = CollectionStats.compute(from: [first, second, third], calendar: calendar, now: referenceDate)

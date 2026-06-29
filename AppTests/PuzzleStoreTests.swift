@@ -183,7 +183,7 @@ final class PuzzleStoreTests: XCTestCase {
         try store.add(puzzle: Puzzle.fixture(name: "Keep", pieces: 100))
         try store.add(puzzle: Puzzle.fixture(name: "Remove", pieces: 200))
 
-        store.delete(at: IndexSet(integer: 1))
+        try store.delete(at: IndexSet(integer: 1))
 
         XCTAssertEqual(store.puzzles.count, 1)
         XCTAssertEqual(store.puzzles.first?.name, "Keep")

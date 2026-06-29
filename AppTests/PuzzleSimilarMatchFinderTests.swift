@@ -8,7 +8,7 @@ import XCTest
 
 final class PuzzleSimilarMatchFinderTests: XCTestCase {
     func testFindsMatchByNameBrandAndPieces() {
-        var existing = Puzzle.fixture(name: "Winter Lights", pieces: 1000)
+        let existing = Puzzle.fixture(name: "Winter Lights", pieces: 1000)
         existing.source = "Galison"
 
         let matches = PuzzleSimilarMatchFinder.findSimilar(
@@ -25,7 +25,7 @@ final class PuzzleSimilarMatchFinderTests: XCTestCase {
     }
 
     func testSkipsExactBarcodeDuplicate() {
-        var existing = Puzzle.fixture(name: "Winter Lights", pieces: 1000)
+        let existing = Puzzle.fixture(name: "Winter Lights", pieces: 1000)
         existing.barcode = "012345678905"
 
         let matches = PuzzleSimilarMatchFinder.findSimilar(

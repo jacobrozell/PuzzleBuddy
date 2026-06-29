@@ -154,4 +154,15 @@ final class AppLoggingTests: XCTestCase {
         )
         XCTAssertEqual(enrichedAdd?.parameters["add_source"] as? String, "barcode")
     }
+
+    func testCrashlyticsMapsEphemeralFallback() {
+        let error = FirebaseCrashlyticsEventMapping.nonFatalError(
+            level: .error,
+            category: .puzzles,
+            eventName: "model_container_ephemeral_fallback",
+            metadata: [:],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(error?.code, 2005)
+    }
 }

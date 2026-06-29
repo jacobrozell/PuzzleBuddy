@@ -186,7 +186,7 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         try store.add(puzzle: puzzle)
         let puzzleID = try XCTUnwrap(store.puzzles.first?.id)
 
-        store.delete(at: IndexSet(integer: 0))
+        try store.delete(at: IndexSet(integer: 0))
 
         let photos = try context.fetch(FetchDescriptor<PuzzlePhotoRecord>())
         let completions = try context.fetch(FetchDescriptor<PuzzleCompletionRecord>())

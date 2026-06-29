@@ -37,7 +37,8 @@ final class PuzzlePersistenceTests: XCTestCase {
         XCTAssertEqual(restored.rating, .fourHalf)
         XCTAssertEqual(restored.difficulty, .three)
         XCTAssertEqual(restored.status, .completed)
-        XCTAssertEqual(restored.estimatedTimeSpent?.toName(), "3hr:15min")
+        XCTAssertEqual(restored.estimatedTimeSpent?.hours, 3)
+        XCTAssertEqual(restored.estimatedTimeSpent?.minutes, 15)
     }
 
     func testPuzzleRecordPersistsMissingPiecesAndNotes() throws {
