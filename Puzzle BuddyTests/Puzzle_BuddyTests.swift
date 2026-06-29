@@ -36,8 +36,8 @@ final class Puzzle_BuddyTests: XCTestCase {
         XCTAssertTrue(ProductService.isPickNextEnabled)
     }
 
-    func testCollectionImportExportDisabledForOnePointZero() {
-        XCTAssertFalse(ProductService.isCollectionImportExportEnabled)
+    func testCollectionImportExportEnabledByDefault() {
+        XCTAssertTrue(ProductService.isCollectionImportExportEnabled)
     }
 
     func testAppInfoDisplayName() {

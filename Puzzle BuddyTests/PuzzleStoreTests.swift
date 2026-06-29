@@ -14,7 +14,7 @@ final class PuzzleStoreTests: XCTestCase {
 
     override func setUpWithError() throws {
         container = try ModelContainer(
-            for: PuzzleRecord.self,
+            for: PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         context = container.mainContext

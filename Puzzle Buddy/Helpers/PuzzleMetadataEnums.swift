@@ -88,3 +88,57 @@ enum PuzzleDisposition: String, CaseIterable, Identifiable, Codable {
         allCases.filter { $0 != .none }
     }
 }
+
+// MARK: - PuzzleShape
+
+enum PuzzleShape: String, CaseIterable, Identifiable, Codable {
+    case none = "None"
+    case rectangular = "Rectangular"
+    case square = "Square"
+    case round = "Round"
+    case irregular = "Irregular"
+
+    var id: String { rawValue }
+
+    var displayLabel: String {
+        switch self {
+        case .none: return "Not set"
+        default: return rawValue
+        }
+    }
+
+    var accessibilityDescription: String {
+        self == .none ? "No shape" : "Shape \(rawValue)"
+    }
+
+    static var selectableCases: [PuzzleShape] {
+        allCases.filter { $0 != .none }
+    }
+}
+
+// MARK: - PuzzleCutType
+
+enum PuzzleCutType: String, CaseIterable, Identifiable, Codable {
+    case none = "None"
+    case ribbon = "Ribbon"
+    case grid = "Grid"
+    case random = "Random"
+    case unknown = "Unknown"
+
+    var id: String { rawValue }
+
+    var displayLabel: String {
+        switch self {
+        case .none: return "Not set"
+        default: return rawValue
+        }
+    }
+
+    var accessibilityDescription: String {
+        self == .none ? "No cut type" : "Cut type \(rawValue)"
+    }
+
+    static var selectableCases: [PuzzleCutType] {
+        allCases.filter { $0 != .none }
+    }
+}

@@ -8,7 +8,7 @@
 import Foundation
 
 enum ProductService {
-    private static let enableCollectionImportExportArgument = "-enable_collection_import_export"
+    private static let disableCollectionImportExportArgument = "-disable_collection_import_export"
 
     /// Live barcode scanner (VisionKit). Requires camera hardware.
     @MainActor
@@ -26,8 +26,8 @@ enum ProductService {
         true
     }
 
-    /// IPDb CSV import and JSON/CSV export (Settings → Collection). Off for 1.0.0.
+    /// IPDb CSV import and JSON/CSV export (Settings → Collection). On by default for 1.0.
     static var isCollectionImportExportEnabled: Bool {
-        ProcessInfo.processInfo.arguments.contains(enableCollectionImportExportArgument)
+        !ProcessInfo.processInfo.arguments.contains(disableCollectionImportExportArgument)
     }
 }

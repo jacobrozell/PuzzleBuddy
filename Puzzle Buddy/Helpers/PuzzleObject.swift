@@ -129,10 +129,38 @@ class Puzzle: ObservableObject {
     @Published var material: PuzzleMaterial = .none
     @Published var disposition: PuzzleDisposition = .none
     @Published var progressPercent: Int = 0
+    @Published var purchasePrice: Double?
+    @Published var purchaseCurrencyCode: String?
+    @Published var puzzleShape: PuzzleShape = .none
+    @Published var cutType: PuzzleCutType = .none
+    @Published var dimensionsText: String? = nil
+    @Published var timesCompleted: Int = 0
+    @Published var photos: [PuzzlePhoto] = []
+    @Published var completions: [PuzzleCompletion] = []
     @Published var isDemo: Bool = false
     @Published var barcode: String? = nil
     @Published var tags: [String] = []
-    @Published var image: UIImage? = nil
+    @Published var image: UIImage? = nil {
+        didSet {
+            syncCoverPhotoFromLegacyImage()
+        }
+    }
+
+    /// Cover photo for list cells and legacy callers.
+    var coverImage: UIImage? {
+        PuzzlePhotoSemantics.coverImage(from: photos) ?? image
+    }
+
+    private func syncCoverPhotoFromLegacyImage() {
+        guard let image else { return }
+        if photos.isEmpty {
+            photos = [PuzzlePhoto(sortOrder: 0, image: image)]
+        } else if let coverIndex = photos.firstIndex(where: { $0.sortOrder == 0 }) {
+            photos[coverIndex].image = image
+        } else if let firstIndex = photos.indices.first {
+            photos[firstIndex].image = image
+        }
+    }
 
     internal init(name: String,
                   pieces: Int?,
@@ -151,6 +179,14 @@ class Puzzle: ObservableObject {
                   material: PuzzleMaterial = .none,
                   disposition: PuzzleDisposition = .none,
                   progressPercent: Int = 0,
+                  purchasePrice: Double? = nil,
+                  purchaseCurrencyCode: String? = nil,
+                  puzzleShape: PuzzleShape = .none,
+                  cutType: PuzzleCutType = .none,
+                  dimensionsText: String? = nil,
+                  timesCompleted: Int = 0,
+                  photos: [PuzzlePhoto] = [],
+                  completions: [PuzzleCompletion] = [],
                   isDemo: Bool = false,
                   barcode: String? = nil,
                   tags: [String] = []
@@ -172,9 +208,40 @@ class Puzzle: ObservableObject {
         self.material = material
         self.disposition = disposition
         self.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
+        self.purchasePrice = purchasePrice
+        self.purchaseCurrencyCode = purchaseCurrencyCode
+        self.puzzleShape = puzzleShape
+        self.cutType = cutType
+        self.dimensionsText = dimensionsText
+        self.timesCompleted = timesCompleted
+        self.photos = PuzzlePhotoSemantics.normalizedSortOrders(photos)
+        self.completions = completions
         self.isDemo = isDemo
         self.barcode = BarcodeNormalizer.normalize(barcode)
         self.tags = PuzzleTagSemantics.sanitizedTags(tags)
+        self.image = PuzzlePhotoSemantics.coverImage(from: self.photos)
+    }
+
+    func prepareForPersistence() {
+        photos = PuzzlePhotoSemantics.normalizedSortOrders(
+            photos.filter { $0.image != nil }
+        )
+        if photos.count > PuzzlePhotoLimits.maxCount {
+            photos = Array(photos.prefix(PuzzlePhotoLimits.maxCount))
+            photos = PuzzlePhotoSemantics.normalizedSortOrders(photos)
+        }
+        image = PuzzlePhotoSemantics.coverImage(from: photos)
+        if let price = purchasePrice {
+            purchasePrice = max(0, min(price, 999_999.99))
+            if purchaseCurrencyCode == nil {
+                purchaseCurrencyCode = Locale.current.currency?.identifier ?? "USD"
+            }
+        } else {
+            purchaseCurrencyCode = nil
+        }
+        if let dimensionsText {
+            self.dimensionsText = String(dimensionsText.prefix(80))
+        }
     }
 
 //    var price: Double
@@ -202,6 +269,12 @@ class Puzzle: ObservableObject {
             "material": material.rawValue,
             "disposition": disposition.rawValue,
             "progressPercent": progressPercent,
+            "purchasePrice": purchasePrice ?? "nil",
+            "purchaseCurrencyCode": purchaseCurrencyCode ?? "nil",
+            "puzzleShape": puzzleShape.rawValue,
+            "cutType": cutType.rawValue,
+            "dimensionsText": dimensionsText ?? "nil",
+            "timesCompleted": timesCompleted,
             "isDemo": isDemo,
             "barcode": barcode ?? "nil",
             "tags": tags,
@@ -327,6 +400,30 @@ extension Puzzle {
             p.progressPercent = PuzzleProgressSemantics.clamped(progressPercent)
         }
 
+        if let purchasePrice = data["purchasePrice"] as? Double {
+            p.purchasePrice = purchasePrice
+        }
+
+        if let purchaseCurrencyCode = data["purchaseCurrencyCode"] as? String, purchaseCurrencyCode != "nil" {
+            p.purchaseCurrencyCode = purchaseCurrencyCode
+        }
+
+        if let puzzleShape = data["puzzleShape"] as? String {
+            p.puzzleShape = PuzzleShape(rawValue: puzzleShape) ?? .none
+        }
+
+        if let cutType = data["cutType"] as? String {
+            p.cutType = PuzzleCutType(rawValue: cutType) ?? .none
+        }
+
+        if let dimensionsText = data["dimensionsText"] as? String, dimensionsText != "nil" {
+            p.dimensionsText = dimensionsText
+        }
+
+        if let timesCompleted = data["timesCompleted"] as? Int {
+            p.timesCompleted = timesCompleted
+        }
+
         if let isDemo = data["isDemo"] as? Bool {
             p.isDemo = isDemo
         }
@@ -345,6 +442,7 @@ extension Puzzle {
             print("KeyError: image not found")
         }
 
+        p.prepareForPersistence()
         return p
     }
 }

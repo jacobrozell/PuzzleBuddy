@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import UIKit
 
 // MARK: - PuzzleStore
 @MainActor
@@ -21,6 +22,7 @@ class PuzzleStore: ObservableObject {
     @Published var state: PuzzleStoreState = .idle
 
     private let modelContext: ModelContext
+    private var didRunLegacyPhotoMigration = false
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -100,10 +102,16 @@ class PuzzleStore: ObservableObject {
 
     private func addLocally(puzzle: Puzzle) throws {
         try validateBarcodeUniqueness(for: puzzle)
+        var puzzle = puzzle
+        puzzle.prepareForPersistence()
         let record = PuzzleRecord(from: puzzle)
         modelContext.insert(record)
+        try syncPhotos(for: puzzle)
+        if puzzle.status == .completed {
+            try appendCompletion(for: puzzle)
+        }
         try modelContext.save()
-        puzzles.append(puzzle)
+        puzzles.append(puzzleFromRecord(record))
         BarcodeMetadataCache.store(from: puzzle)
         AppLog.shared.info(
             .puzzles,
@@ -122,6 +130,7 @@ class PuzzleStore: ObservableObject {
         for index in offsets {
             let puzzle = puzzles[index]
             if let record = fetchRecord(id: puzzle.id) {
+                deleteRelatedRecords(puzzleID: puzzle.id)
                 modelContext.delete(record)
             }
         }
@@ -139,14 +148,35 @@ class PuzzleStore: ObservableObject {
         )
     }
 
+    func startRedo(puzzle: Puzzle) throws {
+        guard puzzle.status == .completed else { return }
+        var puzzle = puzzle
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 0
+        puzzle.startDate = Date()
+        puzzle.completionDate = Date()
+        try update(puzzle: puzzle)
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_redo_started",
+            message: "Started puzzle again.",
+            metadata: ["completion_count": "\(puzzle.timesCompleted)"]
+        )
+    }
+
     private func loadLocalPuzzles() {
         state = .fetching
 
         do {
+            if !didRunLegacyPhotoMigration {
+                try migrateLegacyCoverPhotosIfNeeded()
+                didRunLegacyPhotoMigration = true
+            }
+
             let descriptor = FetchDescriptor<PuzzleRecord>(
                 sortBy: [SortDescriptor(\.completionDate, order: .reverse)]
             )
-            puzzles = try modelContext.fetch(descriptor).map { $0.toPuzzle() }
+            puzzles = try modelContext.fetch(descriptor).map { puzzleFromRecord($0) }
             BarcodeMetadataCache.warmCache(from: puzzles)
             state = .done
             AppLog.shared.info(
@@ -166,6 +196,8 @@ class PuzzleStore: ObservableObject {
     }
 
     func clearAllPuzzles() throws {
+        try modelContext.fetch(FetchDescriptor<PuzzlePhotoRecord>()).forEach { modelContext.delete($0) }
+        try modelContext.fetch(FetchDescriptor<PuzzleCompletionRecord>()).forEach { modelContext.delete($0) }
         let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
         records.forEach { modelContext.delete($0) }
         try modelContext.save()
@@ -211,12 +243,108 @@ class PuzzleStore: ObservableObject {
     private func updateLocally(puzzle: Puzzle) throws {
         try validateBarcodeUniqueness(for: puzzle)
         guard let record = fetchRecord(id: puzzle.id) else { return }
+
+        let previousStatus = Puzzle.Status(rawValue: record.status) ?? .todo
+        var puzzle = puzzle
+        puzzle.prepareForPersistence()
         record.apply(from: puzzle)
+
+        if puzzle.status == .completed && previousStatus != .completed {
+            try appendCompletion(for: puzzle)
+        }
+
+        try syncPhotos(for: puzzle)
+
         if let index = puzzles.firstIndex(where: { $0.id == puzzle.id }) {
-            puzzles[index] = puzzle
+            puzzles[index] = puzzleFromRecord(record)
         }
         BarcodeMetadataCache.store(from: puzzle)
         try modelContext.save()
+    }
+
+    private func appendCompletion(for puzzle: Puzzle) throws {
+        let existing = fetchCompletionRecords(puzzleID: puzzle.id)
+        let nextNumber = (existing.map(\.completionNumber).max() ?? 0) + 1
+        let completion = PuzzleCompletionSemantics.makeCompletion(from: puzzle, number: nextNumber)
+        modelContext.insert(PuzzleCompletionRecord(from: completion, puzzleID: puzzle.id))
+        if let record = fetchRecord(id: puzzle.id) {
+            record.timesCompleted = nextNumber
+        }
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_completion_recorded",
+            message: "Recorded puzzle completion.",
+            metadata: ["completion_number": "\(nextNumber)"]
+        )
+    }
+
+    private func syncPhotos(for puzzle: Puzzle) throws {
+        let existing = fetchPhotoRecords(puzzleID: puzzle.id)
+        existing.forEach { modelContext.delete($0) }
+
+        let normalized = PuzzlePhotoSemantics.normalizedSortOrders(
+            puzzle.photos.filter { $0.image != nil }.prefix(PuzzlePhotoLimits.maxCount).map { $0 }
+        )
+        for photo in normalized {
+            modelContext.insert(PuzzlePhotoRecord(from: photo, puzzleID: puzzle.id))
+        }
+
+        if let record = fetchRecord(id: puzzle.id) {
+            if normalized.isEmpty {
+                record.imageData = puzzle.image?.jpegData(compressionQuality: 0.30)
+            } else {
+                record.imageData = normalized.first?.image?.jpegData(compressionQuality: 0.30)
+            }
+        }
+    }
+
+    private func migrateLegacyCoverPhotosIfNeeded() throws {
+        let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
+        for record in records {
+            let photos = fetchPhotoRecords(puzzleID: record.id)
+            guard photos.isEmpty, let imageData = record.imageData else { continue }
+            modelContext.insert(
+                PuzzlePhotoRecord(
+                    puzzleID: record.id,
+                    sortOrder: 0,
+                    imageData: imageData
+                )
+            )
+        }
+        try modelContext.save()
+    }
+
+    private func puzzleFromRecord(_ record: PuzzleRecord) -> Puzzle {
+        var puzzle = record.toPuzzle()
+        puzzle.photos = fetchPhotoRecords(puzzleID: record.id).map { $0.toPuzzlePhoto() }
+        if puzzle.photos.isEmpty, let imageData = record.imageData, let image = UIImage(data: imageData) {
+            puzzle.photos = [PuzzlePhoto(sortOrder: 0, image: image)]
+        }
+        puzzle.completions = fetchCompletionRecords(puzzleID: record.id).map { $0.toPuzzleCompletion() }
+        puzzle.timesCompleted = max(record.timesCompleted, puzzle.completions.count)
+        puzzle.image = puzzle.coverImage
+        return puzzle
+    }
+
+    private func deleteRelatedRecords(puzzleID: UUID) {
+        fetchPhotoRecords(puzzleID: puzzleID).forEach { modelContext.delete($0) }
+        fetchCompletionRecords(puzzleID: puzzleID).forEach { modelContext.delete($0) }
+    }
+
+    private func fetchPhotoRecords(puzzleID: UUID) -> [PuzzlePhotoRecord] {
+        var descriptor = FetchDescriptor<PuzzlePhotoRecord>(
+            predicate: #Predicate { $0.puzzleID == puzzleID },
+            sortBy: [SortDescriptor(\.sortOrder)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
+    }
+
+    private func fetchCompletionRecords(puzzleID: UUID) -> [PuzzleCompletionRecord] {
+        var descriptor = FetchDescriptor<PuzzleCompletionRecord>(
+            predicate: #Predicate { $0.puzzleID == puzzleID },
+            sortBy: [SortDescriptor(\.completionNumber)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
     }
 
     private func validateBarcodeUniqueness(for puzzle: Puzzle) throws {

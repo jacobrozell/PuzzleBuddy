@@ -40,15 +40,32 @@ struct PuzzleExportRecord: Codable, Equatable {
     let notes: String?
     let source: String?
     let purchaseLocation: String?
+    let purchasePrice: Double?
+    let purchaseCurrencyCode: String?
     let releaseYear: Int?
     let puzzleType: String
     let material: String
     let disposition: String
+    let puzzleShape: String
+    let cutType: String
+    let dimensionsText: String?
     let progressPercent: Int
+    let timesCompleted: Int
     let barcode: String?
     let tags: [String]
     let hasMissingPieces: Bool
     let hasImage: Bool
+    let photoCount: Int
+    let completions: [PuzzleExportCompletionRecord]
+}
+
+struct PuzzleExportCompletionRecord: Codable, Equatable {
+    let completionNumber: Int
+    let startedAt: Date?
+    let completedAt: Date
+    let timeSpentHours: Int?
+    let timeSpentMinutes: Int?
+    let rating: Double?
 }
 
 enum PuzzleCollectionExporter {
@@ -107,15 +124,32 @@ enum PuzzleCollectionExporter {
             notes: puzzle.notes,
             source: puzzle.source,
             purchaseLocation: puzzle.purchaseLocation,
+            purchasePrice: puzzle.purchasePrice,
+            purchaseCurrencyCode: puzzle.purchaseCurrencyCode,
             releaseYear: puzzle.releaseYear,
             puzzleType: puzzle.puzzleType.rawValue,
             material: puzzle.material.rawValue,
             disposition: puzzle.disposition.rawValue,
+            puzzleShape: puzzle.puzzleShape.rawValue,
+            cutType: puzzle.cutType.rawValue,
+            dimensionsText: puzzle.dimensionsText,
             progressPercent: puzzle.progressPercent,
+            timesCompleted: puzzle.timesCompleted,
             barcode: puzzle.barcode,
             tags: puzzle.tags,
             hasMissingPieces: puzzle.hasMissingPieces,
-            hasImage: puzzle.image != nil
+            hasImage: puzzle.coverImage != nil,
+            photoCount: puzzle.photos.filter { $0.image != nil }.count,
+            completions: puzzle.completions.map {
+                PuzzleExportCompletionRecord(
+                    completionNumber: $0.completionNumber,
+                    startedAt: $0.startedAt,
+                    completedAt: $0.completedAt,
+                    timeSpentHours: $0.timeSpentHours,
+                    timeSpentMinutes: $0.timeSpentMinutes,
+                    rating: $0.rating
+                )
+            }
         )
     }
 

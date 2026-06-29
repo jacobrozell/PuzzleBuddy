@@ -233,6 +233,7 @@ enum A11yID {
     static let puzzleFormNotesField = "puzzle_form_notes_field"
     static let puzzleFormTagsField = "puzzle_form_tags_field"
     static let puzzleDetailEditButton = "puzzle_detail_edit_button"
+    static let puzzleDetailRedoButton = "puzzle_detail_redo_button"
     static let puzzleDetailBarcodeRow = "puzzle_detail_barcode_row"
     static let onboardingSkipButton = "onboarding_skip_button"
     static let onboardingNextButton = "onboarding_next_button"

@@ -28,6 +28,12 @@ final class PuzzleRecord {
     var material: String = PuzzleMaterial.none.rawValue
     var disposition: String = PuzzleDisposition.none.rawValue
     var progressPercent: Int = 0
+    var purchasePrice: Double?
+    var purchaseCurrencyCode: String?
+    var puzzleShape: String = PuzzleShape.none.rawValue
+    var cutType: String = PuzzleCutType.none.rawValue
+    var dimensionsText: String?
+    var timesCompleted: Int = 0
     var isDemo: Bool = false
     var barcode: String?
     var tags: [String] = []
@@ -53,6 +59,12 @@ final class PuzzleRecord {
         material: String = PuzzleMaterial.none.rawValue,
         disposition: String = PuzzleDisposition.none.rawValue,
         progressPercent: Int = 0,
+        purchasePrice: Double? = nil,
+        purchaseCurrencyCode: String? = nil,
+        puzzleShape: String = PuzzleShape.none.rawValue,
+        cutType: String = PuzzleCutType.none.rawValue,
+        dimensionsText: String? = nil,
+        timesCompleted: Int = 0,
         isDemo: Bool = false,
         barcode: String? = nil,
         tags: [String] = [],
@@ -77,6 +89,12 @@ final class PuzzleRecord {
         self.material = material
         self.disposition = disposition
         self.progressPercent = progressPercent
+        self.purchasePrice = purchasePrice
+        self.purchaseCurrencyCode = purchaseCurrencyCode
+        self.puzzleShape = puzzleShape
+        self.cutType = cutType
+        self.dimensionsText = dimensionsText
+        self.timesCompleted = timesCompleted
         self.isDemo = isDemo
         self.barcode = barcode
         self.tags = PuzzleTagSemantics.sanitizedTags(tags)
@@ -105,6 +123,12 @@ final class PuzzleRecord {
             material: puzzle.material.rawValue,
             disposition: puzzle.disposition.rawValue,
             progressPercent: puzzle.progressPercent,
+            purchasePrice: puzzle.purchasePrice,
+            purchaseCurrencyCode: puzzle.purchaseCurrencyCode,
+            puzzleShape: puzzle.puzzleShape.rawValue,
+            cutType: puzzle.cutType.rawValue,
+            dimensionsText: puzzle.dimensionsText,
+            timesCompleted: puzzle.timesCompleted,
             isDemo: puzzle.isDemo,
             barcode: puzzle.barcode,
             tags: puzzle.tags,
@@ -131,6 +155,12 @@ final class PuzzleRecord {
         material = puzzle.material.rawValue
         disposition = puzzle.disposition.rawValue
         progressPercent = puzzle.progressPercent
+        purchasePrice = puzzle.purchasePrice
+        purchaseCurrencyCode = puzzle.purchaseCurrencyCode
+        puzzleShape = puzzle.puzzleShape.rawValue
+        cutType = puzzle.cutType.rawValue
+        dimensionsText = puzzle.dimensionsText
+        timesCompleted = puzzle.timesCompleted
         isDemo = puzzle.isDemo
         barcode = BarcodeNormalizer.normalize(puzzle.barcode)
         tags = PuzzleTagSemantics.sanitizedTags(puzzle.tags)
@@ -156,6 +186,12 @@ final class PuzzleRecord {
             material: PuzzleMaterial(rawValue: material) ?? .none,
             disposition: PuzzleDisposition(rawValue: disposition) ?? .none,
             progressPercent: progressPercent,
+            purchasePrice: purchasePrice,
+            purchaseCurrencyCode: purchaseCurrencyCode,
+            puzzleShape: PuzzleShape(rawValue: puzzleShape) ?? .none,
+            cutType: PuzzleCutType(rawValue: cutType) ?? .none,
+            dimensionsText: dimensionsText,
+            timesCompleted: timesCompleted,
             isDemo: isDemo,
             barcode: barcode,
             tags: tags

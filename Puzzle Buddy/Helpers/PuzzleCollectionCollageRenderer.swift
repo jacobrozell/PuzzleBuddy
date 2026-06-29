@@ -120,7 +120,7 @@ enum PuzzleCollectionCollageRenderer {
         context.saveGState()
         path.addClip()
 
-        if let image = puzzle.image {
+        if let image = puzzle.coverImage {
             image.draw(in: coverRect(for: image.size, inside: rect))
         } else {
             drawPlaceholderBackground(in: rect, context: context)

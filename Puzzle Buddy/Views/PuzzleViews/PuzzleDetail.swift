@@ -12,6 +12,7 @@ struct PuzzleDetail: View {
     @EnvironmentObject var eh: ErrorHandling
     @State private var isEditable = false
     @State private var editFormVm: PuzzleFormViewModel?
+    @State private var showRedoConfirmation = false
     @Binding var puzzle: Puzzle
 
     private var trimmedNameIsEmpty: Bool {
@@ -35,6 +36,15 @@ struct PuzzleDetail: View {
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                if puzzle.status == .completed && !isEditable {
+                    Button("Puzzle again") {
+                        showRedoConfirmation = true
+                    }
+                    .optionalAccessibilityIdentifier(A11yID.puzzleDetailRedoButton)
+                    .accessibilityHint("Starts a new attempt and keeps your completion history")
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     guard isEditable else {
@@ -67,6 +77,25 @@ struct PuzzleDetail: View {
             }
         }
         .readableBrandScreenChrome()
+        .confirmationDialog(
+            "Puzzle again?",
+            isPresented: $showRedoConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Puzzle again") {
+                do {
+                    try ps.startRedo(puzzle: puzzle)
+                    if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                        puzzle = refreshed
+                    }
+                } catch {
+                    eh.handle(title: "Could not start again", message: error.localizedDescription)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Start this puzzle again? Your previous completions stay in your history.")
+        }
     }
 }
 
@@ -113,7 +142,7 @@ struct DetailView: View {
 
     private var summaryPanel: some View {
         GroupBox {
-            puzzleImage
+            PuzzlePhotoGalleryDetail(photos: puzzle.photos, puzzleName: puzzle.name)
             Text(puzzle.name)
                 .bold()
                 .font(.title3)
@@ -193,6 +222,43 @@ struct DetailView: View {
                     detailRow(label: "Material", value: puzzle.material.displayLabel)
                 }
 
+                if puzzle.puzzleShape != .none {
+                    detailRow(label: "Shape", value: puzzle.puzzleShape.displayLabel)
+                }
+
+                if puzzle.cutType != .none {
+                    detailRow(label: "Cut type", value: puzzle.cutType.displayLabel)
+                }
+
+                if let dimensions = puzzle.dimensionsText?.trimmingCharacters(in: .whitespacesAndNewlines),
+                   !dimensions.isEmpty {
+                    detailRow(label: "Dimensions", value: dimensions)
+                }
+
+                if let price = puzzle.purchasePrice {
+                    detailRow(
+                        label: "Paid",
+                        value: PurchasePriceFormatting.displayLabel(
+                            price: price,
+                            currencyCode: puzzle.purchaseCurrencyCode
+                        )
+                    )
+                }
+
+                if puzzle.timesCompleted > 0 {
+                    detailRow(
+                        label: "Times completed",
+                        value: "\(puzzle.timesCompleted)"
+                    )
+                }
+
+                ForEach(PuzzleCompletionSemantics.sortedNewestFirst(puzzle.completions)) { completion in
+                    detailRow(
+                        label: "Completion \(completion.completionNumber)",
+                        value: completionSummary(completion)
+                    )
+                }
+
                 if puzzle.status == .completed, puzzle.disposition != .none {
                     detailRow(label: "After finishing", value: puzzle.disposition.displayLabel)
                 }
@@ -268,25 +334,12 @@ struct DetailView: View {
         .accessibilityLabel("Puzzle details")
     }
 
-    @ViewBuilder
-    private var puzzleImage: some View {
-        if let image = puzzle.image {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 280 : 150, alignment: .center)
-                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
-                .padding()
-                .accessibilityLabel("Puzzle photo for \(puzzle.name)")
-        } else {
-            Image(systemName: "puzzlepiece.extension.fill")
-                .resizable()
-                .foregroundStyle(Brand.accent)
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: usesWideLayout ? 280 : 150, alignment: .center)
-                .padding()
-                .accessibilityLabel("No puzzle photo")
+    private func completionSummary(_ completion: PuzzleCompletion) -> String {
+        var parts = [completion.completedAt.formatted(date: .abbreviated, time: .omitted)]
+        if let timeLabel = completion.timeSpentLabel {
+            parts.append(timeLabel)
         }
+        return parts.joined(separator: " · ")
     }
 
     @ViewBuilder

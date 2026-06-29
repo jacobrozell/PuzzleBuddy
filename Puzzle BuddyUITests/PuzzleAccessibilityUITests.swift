@@ -301,7 +301,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
     }
 
-    func testSettingsCollectionImportExportHiddenInOnePointZero() throws {
+    func testSettingsCollectionImportExportVisibleByDefault() throws {
         let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
@@ -310,10 +310,8 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
         let importControl = app.descendants(matching: .any)[UITestA11yID.settingsImportIPDbButton]
         let exportControl = app.descendants(matching: .any)[UITestA11yID.settingsExportCollectionButton]
-        XCTAssertFalse(importControl.waitForExistence(timeout: 2))
-        XCTAssertFalse(exportControl.waitForExistence(timeout: 1))
-        XCTAssertFalse(app.buttons["Import from IPDb CSV"].waitForExistence(timeout: 1))
-        XCTAssertFalse(app.buttons["Export collection"].waitForExistence(timeout: 1))
+        XCTAssertTrue(importControl.waitForExistence(timeout: 3))
+        XCTAssertTrue(exportControl.waitForExistence(timeout: 2))
     }
 
     func testPuzzleListDynamicTypeAudit() throws {

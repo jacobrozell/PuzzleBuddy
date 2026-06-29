@@ -17,7 +17,7 @@ enum PuzzleModelContainer {
     }
 
     static func makePersistent() -> ModelContainer {
-        let schema = Schema([PuzzleRecord.self])
+        let schema = Schema([PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self])
 
         if UITestSupport.isRunningUnderTest {
             return makeInMemory(schema: schema)

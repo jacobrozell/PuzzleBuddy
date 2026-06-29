@@ -3,7 +3,7 @@
 **What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md). For competitor gaps see [competitive-gap-analysis.md](competitive-gap-analysis.md).
 
 **Last updated:** 2026-06-29  
-**Target v1.0.0:** Inaugural App Store release — local-first catalog, no account. Import/export gated off.
+**Target v1.0.0:** Inaugural App Store release — expanded sprint in progress (build 3).
 
 ---
 
@@ -14,7 +14,10 @@
 | Launch | Splash → onboarding → main tabs | `SplashView`, `RootView`, `OnboardingView` |
 | Catalog | Add / edit / delete puzzle | `PuzzleForm`, `PuzzleStore`, `PuzzleRecord` |
 | Catalog | Status: Wishlist, To-Do, In-Progress, Completed, **Abandoned** | `Puzzle.Status`, list filters |
-| Catalog | Tags, notes, brand, **purchase location, year, type, material, disposition** | `PuzzleForm`, `PuzzleDetail`, `PuzzleMetadataEnums` |
+| Catalog | Tags, notes, brand, purchase location, year, type, material, disposition, **shape, cut type, dimensions, price** | `PuzzleForm`, `PuzzleDetail`, `PuzzleMetadataEnums` |
+| Catalog | **Multi-photo gallery** (max 5, cover = first) | `PuzzlePhotoGalleryEditor`, `PuzzlePhotoRecord` |
+| Catalog | **Redo + completion history** | `PuzzleCompletionRecord`, `PuzzleStore.startRedo` |
+| Settings | **IPDb import + JSON/CSV export** (default on) | `SettingsView`, `ProductService` |
 | Catalog | **Manual start date** on In-Progress / Completed | `PuzzleForm`, `PuzzleDateSemantics` |
 | Catalog | Search, status tabs, sort, filters (incl. **type / material / disposition**) | `PuzzleList`, `PuzzleListFilter` |
 | Catalog | Half-star ratings on form + list | `RatingsView`, `PuzzleCell` |
@@ -34,10 +37,7 @@
 
 ## Gated off (1.0.0)
 
-| Feature | Flag | Dogfood |
-|---------|------|---------|
-| IPDb CSV import | `isCollectionImportExportEnabled` | `-enable_collection_import_export` |
-| JSON / CSV export | same | same |
+_None — import/export enabled by default. UI tests may pass `-disable_collection_import_export`._
 
 ---
 
@@ -61,7 +61,7 @@ See [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and `specs/planned/`.
 | Decision | Choice |
 |----------|--------|
 | Account required | **No** |
-| Import/export | **Off** until 1.1 |
+| Import/export | **On** (disable in UI tests: `-disable_collection_import_export`) |
 | Pick-next | **On** |
 | Min iOS | 17.0 |
 | Locales | English only |

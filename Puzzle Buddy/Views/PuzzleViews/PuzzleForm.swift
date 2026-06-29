@@ -11,19 +11,17 @@ import SwiftUI
 
 class PuzzleFormViewModel: ObservableObject {
     @Published var puzzle: Puzzle
-    @Published var image: UIImage = UIImage() {
-        didSet {
-            puzzle.image = image
-        }
-    }
 
     init() {
         self.puzzle = .fixture()
     }
 
     init(puzzle: Puzzle) {
+        var puzzle = puzzle
+        if puzzle.photos.isEmpty, let image = puzzle.image {
+            puzzle.photos = [PuzzlePhoto(sortOrder: 0, image: image)]
+        }
         self.puzzle = puzzle
-        self.image = puzzle.image ?? UIImage()
     }
 }
 
@@ -87,8 +85,13 @@ struct PuzzleFormInternal: View {
 
     var body: some View {
         Form {
-            ImagePickerView(image: $formVm.image)
-                .frame(maxWidth: .infinity, maxHeight: 300, alignment: .center)
+            Section {
+                PuzzlePhotoGalleryEditor(photos: $formVm.puzzle.photos)
+            } header: {
+                Text("Photos")
+            } footer: {
+                Text("Add up to \(PuzzlePhotoLimits.maxCount) photos — box art, progress, or finished puzzle. The first photo is the cover.")
+            }
 
             Section {
                 TextField("Name", text: $formVm.puzzle.name, prompt: Text("Puzzle Name"))
@@ -135,6 +138,14 @@ struct PuzzleFormInternal: View {
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormPurchaseLocationField)
                 .accessibilityLabel("Where you bought this puzzle")
 
+                TextField(
+                    "Purchase price",
+                    text: purchasePriceBinding,
+                    prompt: Text("Optional")
+                )
+                .keyboardType(.decimalPad)
+                .accessibilityLabel("Purchase price")
+
                 Picker("Release year", selection: releaseYearBinding) {
                     Text("Unknown").tag(Optional<Int>.none)
                     ForEach(releaseYearOptions, id: \.self) { year in
@@ -156,6 +167,27 @@ struct PuzzleFormInternal: View {
                     }
                 }
                 .accessibilityValue(formVm.puzzle.material.accessibilityDescription)
+
+                Picker("Shape", selection: $formVm.puzzle.puzzleShape) {
+                    ForEach(PuzzleShape.allCases) { shape in
+                        Text(shape.displayLabel).tag(shape)
+                    }
+                }
+                .accessibilityValue(formVm.puzzle.puzzleShape.accessibilityDescription)
+
+                Picker("Cut type", selection: $formVm.puzzle.cutType) {
+                    ForEach(PuzzleCutType.allCases) { cutType in
+                        Text(cutType.displayLabel).tag(cutType)
+                    }
+                }
+                .accessibilityValue(formVm.puzzle.cutType.accessibilityDescription)
+
+                TextField(
+                    "Dimensions",
+                    text: dimensionsBinding,
+                    prompt: Text("e.g. 68 × 49 cm")
+                )
+                .accessibilityLabel("Finished puzzle dimensions")
             } header: {
                 Text("About this puzzle")
             }
@@ -453,6 +485,28 @@ struct PuzzleFormInternal: View {
             set: { newValue in
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 formVm.puzzle.purchaseLocation = trimmed.isEmpty ? nil : String(trimmed.prefix(200))
+            }
+        )
+    }
+
+    private var purchasePriceBinding: Binding<String> {
+        Binding(
+            get: {
+                guard let price = formVm.puzzle.purchasePrice else { return "" }
+                return String(format: "%.2f", price)
+            },
+            set: { newValue in
+                formVm.puzzle.purchasePrice = PurchasePriceFormatting.parse(newValue)
+            }
+        )
+    }
+
+    private var dimensionsBinding: Binding<String> {
+        Binding(
+            get: { formVm.puzzle.dimensionsText ?? "" },
+            set: { newValue in
+                let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                formVm.puzzle.dimensionsText = trimmed.isEmpty ? nil : String(trimmed.prefix(80))
             }
         )
     }

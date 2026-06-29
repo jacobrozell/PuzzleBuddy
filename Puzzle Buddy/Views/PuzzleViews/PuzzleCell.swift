@@ -112,7 +112,7 @@ private struct PuzzleCellView: View {
 
     private var puzzleThumbnail: some View {
         Group {
-            if let image = puzzle.image {
+            if let image = puzzle.coverImage {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
@@ -180,6 +180,17 @@ private struct PuzzleCellView: View {
 
             HStack(spacing: DS.Spacing.s2) {
                 PuzzleStatusPill(status: puzzle.status)
+
+                if puzzle.timesCompleted > 1 {
+                    Text("×\(puzzle.timesCompleted)")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Brand.textSecondary)
+                        .padding(.horizontal, DS.Spacing.s2)
+                        .padding(.vertical, 2)
+                        .background(Brand.cardElevated)
+                        .clipShape(Capsule())
+                        .accessibilityLabel("Completed \(puzzle.timesCompleted) times")
+                }
 
                 if puzzle.hasMissingPieces {
                     Label("Missing pieces", systemImage: "exclamationmark.triangle.fill")

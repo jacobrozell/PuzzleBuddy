@@ -109,6 +109,8 @@ enum PuzzleAnalyticsEventMapping {
         "puzzle_deleted",
         "puzzle_import_completed",
         "puzzle_load_failed",
+        "puzzle_redo_started",
+        "puzzle_completion_recorded",
         "settings_collection_exported",
         "shopping_scan_match",
         "shopping_scan_no_match"
@@ -119,6 +121,8 @@ enum PuzzleAnalyticsEventMapping {
         "log_category",
         "puzzle_count",
         "puzzle_status",
+        "completion_number",
+        "completion_count",
         "format"
     ]
 
