@@ -458,9 +458,10 @@ Current implementation: [telemetry.md](telemetry.md) (Dart Buddy–aligned allow
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Screen-level UI analytics | Optional | Add allowlisted `LogCategory.ui` events as needed |
+| GA4 reports & event roadmap | **Spec ready** | [ga4-analytics-spec.md](ga4-analytics-spec.md) — Phase A console setup; Phase B+ events |
+| Screen-level UI analytics | Planned (Phase 2) | `tab_selected`, search/filter/sort events in spec |
+| User-scoped dimensions | Planned (Phase D) | `app_locale`, `appearance_mode`, collection bucket — see spec §5.3 |
 | Remote Config for feature flags | Future | Replace static `ProductService` flags |
-| Custom GA4 dimensions | Future | Mirror Dart Buddy release checklist pattern if funnels grow |
 
 No push notification telemetry — FCM removed from app.
 

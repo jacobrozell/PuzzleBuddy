@@ -39,5 +39,6 @@ Not in the app unless noted otherwise in [feature-inventory.md](../docs/feature-
 | Doc | Topic |
 |-----|-------|
 | [docs/telemetry.md](../docs/telemetry.md) | Logging, Analytics, Crashlytics |
+| [docs/ga4-analytics-spec.md](../docs/ga4-analytics-spec.md) | GA4 reports, funnels, custom dimensions, future events |
 | [docs/architecture.md](../docs/architecture.md) | App structure |
 | [docs/firebase-setup.md](../docs/firebase-setup.md) | Firebase Console |
