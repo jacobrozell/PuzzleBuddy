@@ -56,6 +56,7 @@ struct PuzzleExportRecord: Codable, Equatable {
     let hasMissingPieces: Bool
     let hasImage: Bool
     let photoCount: Int
+    let photos: [PuzzleExportPhotoRecord]
     let completions: [PuzzleExportCompletionRecord]
 }
 
@@ -75,6 +76,7 @@ enum PuzzleCollectionExporter {
 
     static func jsonData(from puzzles: [Puzzle]) throws -> Data {
         let payload = ExportPayload(
+            backupFormatVersion: PuzzleCollectionBackupFormat.currentVersion,
             exportedAt: Date(),
             appVersion: Puzzle_BuddyApp.version,
             puzzleCount: puzzles.count,
@@ -140,6 +142,7 @@ enum PuzzleCollectionExporter {
             hasMissingPieces: puzzle.hasMissingPieces,
             hasImage: puzzle.coverImage != nil,
             photoCount: puzzle.photos.filter { $0.image != nil }.count,
+            photos: exportPhotos(from: puzzle.photos),
             completions: puzzle.completions.map {
                 PuzzleExportCompletionRecord(
                     completionNumber: $0.completionNumber,
@@ -153,6 +156,18 @@ enum PuzzleCollectionExporter {
         )
     }
 
+    private static func exportPhotos(from photos: [PuzzlePhoto]) -> [PuzzleExportPhotoRecord] {
+        PuzzlePhotoSemantics.sorted(photos).compactMap { photo in
+            guard let jpeg = photo.image?.jpegData(compressionQuality: 0.30) else { return nil }
+            return PuzzleExportPhotoRecord(
+                id: photo.id.uuidString,
+                sortOrder: photo.sortOrder,
+                imageDataBase64: jpeg.base64EncodedString(),
+                createdAt: photo.createdAt
+            )
+        }
+    }
+
     private static func exportStamp() -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -161,6 +176,7 @@ enum PuzzleCollectionExporter {
     }
 
     private struct ExportPayload: Codable {
+        let backupFormatVersion: Int
         let exportedAt: Date
         let appVersion: String
         let puzzleCount: Int

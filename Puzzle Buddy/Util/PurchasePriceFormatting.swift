@@ -17,7 +17,7 @@ enum PurchasePriceFormatting {
 
     static func parse(_ text: String) -> Double? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
+        guard !trimmed.isEmpty, !trimmed.contains("-") else { return nil }
         let sanitized = trimmed
             .replacingOccurrences(of: "[^0-9.,]", with: "", options: .regularExpression)
             .replacingOccurrences(of: ",", with: ".")

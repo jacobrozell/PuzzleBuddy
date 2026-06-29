@@ -7,12 +7,92 @@ Use this when creating the app record and submitting build **1.0.0 (1)**. Aligns
 | Field | Value |
 |-------|-------|
 | **Name** | Puzzle Buddy |
-| **Subtitle** | Track your jigsaw collection |
+| **Subtitle** | Jigsaw Puzzle Tracker App |
 | **Primary category** | Lifestyle (or Entertainment) |
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
 | **SKU** | `puzzle-buddy-ios` (suggested) |
 | **Version** | 1.0.0 |
 | **Build** | 1 |
+| **Keywords** | See [ASO](#app-store-optimization-aso) below |
+
+## App name (confirmed)
+
+Ship as **Puzzle Buddy** (spaced display name). Matches the personal “Buddy” app family (Dart Buddy, etc.). Brand-forward vs. keyword-heavy competitor [**Puzzle Tracker**](https://apps.apple.com/us/app/puzzle-tracker/id1561473799).
+
+**Before submit:** create the App Store Connect app record and confirm Apple accepts the exact name **Puzzle Buddy** (globally unique — reserved or deleted-app names also block).
+
+## Naming & trademark hygiene
+
+Not legal advice. Informal pre-ship review (June 2026):
+
+| Check | Finding |
+|-------|---------|
+| Exact App Store name | No jigsaw **catalog** app titled exactly “Puzzle Buddy”; nearest collision is kids game **Puzzles for Kids: PuzzleBuddy** (different name and category) |
+| Primary competitor | **Puzzle Tracker** — different name; owns the “puzzle tracker” head term |
+| Physical goods | [The Puzzle Buddy](https://puzzlebuddy.com/) — puzzle roll-up mats; same hobby, different product class. Revisit if trademarking or expanding brand |
+| USPTO (informal) | No strong registered software mark for “Puzzle Buddy” found; descriptive phrase → lower infringement risk, harder to register ourselves |
+| Puzzle manufacturers | [`../spec-brand-disclaimer.md`](../spec-brand-disclaimer.md) — separate from app name |
+
+Legacy internal name **PuzzlePal** (`PuzzlePal_Onboarding_Complete` in onboarding) — retired; do not use on the storefront.
+
+## App Store optimization (ASO)
+
+### Name + subtitle
+
+| Field | Value | Rationale |
+|-------|-------|-----------|
+| **Name** (30 chars) | Puzzle Buddy | Brand identity; 12/30 chars used |
+| **Subtitle** (30 chars) | Jigsaw Puzzle Tracker App | Discoverability-first: covers jigsaw + puzzle + tracker + app |
+
+We do **not** chase “Puzzle Tracker” in the title. Compete on positioning: local-first, accessibility, simplicity — see [`../roadmap.md`](../roadmap.md#competitive-positioning--puzzle-tracker).
+
+### Keywords (100 characters)
+
+Apple: for max discoverability, prioritize adjacent search terms not already in **name** or **subtitle** (`puzzle`, `buddy`, `jigsaw`, `tracker`, `app`).
+
+```text
+collection,catalog,inventory,organizer,library,wishlist,barcode,scanner,stats,pieces,completed,puzzler
+```
+
+Character count: **99/100**
+
+After launch, tune using App Store Connect → **Analytics → Acquisition → App Store Search**.
+
+### Promotional text (170 chars, optional)
+
+> Jigsaw puzzle tracker for collectors: catalog your collection, organize wishlist and completed puzzles, run duplicate barcode checks, and view stats. Offline, private, no account.
+
+### Description (opening — visible before “more”)
+
+Lead with the **catalog/organizer** job, not puzzle gameplay.
+
+Recommended opening:
+
+> Puzzle Buddy is a jigsaw puzzle tracker app for collectors. Catalog puzzles with photos, piece counts, and status from wishlist to completed. Search your library fast, check duplicates before you buy, and view collection stats. No account required—your data stays on your device.
+
+Suggested body bullets (paste into Description after the opening):
+
+- Catalog your shelf with photos, piece counts, ratings, tags, and notes
+- Organize puzzles by status: Wishlist, To-Do, In Progress, Completed, Abandoned
+- Check duplicates quickly with barcode matching and search
+- Track milestones and collection stats to see your progress over time
+- Pick your next puzzle from your backlog when you are undecided
+- Built for accessibility: Dynamic Type, VoiceOver labels, reduced-motion friendly
+- Local-first by default: no login, no cloud account required for core use
+
+### Screenshot messaging
+
+First screenshots should read as a **collection app**, not a kids’ puzzle game. Use short, high-contrast headline copy:
+
+1. Jigsaw Puzzle Tracker
+2. Catalog your puzzle collection
+3. Barcode duplicate check
+4. Wishlist to completed
+5. Search and filter your library
+6. Collection stats and milestones
+7. Private and offline by default
+
+See [`../../marketing-screenshots/README.md`](../../marketing-screenshots/README.md).
 
 ## URLs (GitHub Pages)
 
@@ -102,6 +182,9 @@ No login or account pitch in 1.0 marketing.
 
 ## Pre-upload verification
 
+- [ ] App Store Connect accepts exact name **Puzzle Buddy**
+- [ ] Subtitle, keywords, promotional text, and description pasted per [ASO](#app-store-optimization-aso)
+- [ ] First screenshot clearly signals catalog/organizer (not kids’ game)
 - [ ] Release build: no login UI; puzzle data local-only (SwiftData)
 - [ ] Fresh install: no push permission prompt on launch
 - [ ] Privacy + Support links load in Safari

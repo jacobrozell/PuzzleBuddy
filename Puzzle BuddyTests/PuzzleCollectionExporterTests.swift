@@ -3,6 +3,7 @@
 //  Puzzle BuddyTests
 //
 
+import UIKit
 import XCTest
 @testable import Puzzle_Buddy
 
@@ -101,10 +102,49 @@ final class PuzzleCollectionExporterTests: XCTestCase {
         XCTAssertTrue(csv.contains("Wishlist"))
     }
 
+    func testExportsExpandedMetadataInJSON() throws {
+        var puzzle = Puzzle.fixture(name: "Expanded", pieces: 1000)
+        puzzle.puzzleShape = .round
+        puzzle.cutType = .grid
+        puzzle.dimensionsText = "68 × 49 cm"
+        puzzle.purchasePrice = 19.99
+        puzzle.purchaseCurrencyCode = "USD"
+        puzzle.timesCompleted = 2
+        puzzle.photos = [PuzzlePhoto(sortOrder: 0, image: testImage())]
+        puzzle.completions = [
+            PuzzleCompletion(completionNumber: 1, completedAt: Date()),
+            PuzzleCompletion(completionNumber: 2, completedAt: Date())
+        ]
+
+        let data = try PuzzleCollectionExporter.jsonData(from: [puzzle])
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let puzzles = try XCTUnwrap(json?["puzzles"] as? [[String: Any]])
+        let record = try XCTUnwrap(puzzles.first)
+
+        XCTAssertEqual(json?["backupFormatVersion"] as? Int, PuzzleCollectionBackupFormat.currentVersion)
+        XCTAssertEqual(record["puzzleShape"] as? String, PuzzleShape.round.rawValue)
+        XCTAssertEqual(record["cutType"] as? String, PuzzleCutType.grid.rawValue)
+        XCTAssertEqual(record["dimensionsText"] as? String, "68 × 49 cm")
+        XCTAssertEqual(record["purchasePrice"] as? Double, 19.99)
+        XCTAssertEqual(record["timesCompleted"] as? Int, 2)
+        XCTAssertEqual(record["photoCount"] as? Int, 1)
+        let photos = try XCTUnwrap(record["photos"] as? [[String: Any]])
+        XCTAssertEqual(photos.count, 1)
+        let completions = try XCTUnwrap(record["completions"] as? [[String: Any]])
+        XCTAssertEqual(completions.count, 2)
+    }
+
     func testWriteTemporaryFileUsesRequestedExtension() throws {
         let puzzle = Puzzle.fixture(name: "Export Me", pieces: 300)
         let url = try PuzzleCollectionExporter.writeTemporaryFile(from: [puzzle], format: .json)
         XCTAssertEqual(url.pathExtension, "json")
         XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
+    }
+
+    private func testImage() -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 4, height: 4)).image { ctx in
+            UIColor.systemTeal.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 4, height: 4))
+        }
     }
 }

@@ -55,6 +55,8 @@ brew install imagemagick   # once
 
 Upload from **`iphone/`** and **`ipad/`** subfolders only — no device frames.
 
+**ASO:** Order uploads so the first screenshot reads as a **jigsaw collection catalog** (list or stats), not a puzzle game. Suggested Connect overlay copy: “Your jigsaw collection,” “Catalog your shelf,” “Duplicate check while you shop.” Full metadata: [`docs/release/app-store-connect.md`](../docs/release/app-store-connect.md#app-store-optimization-aso).
+
 | Slot | Portrait | Landscape |
 |------|----------|-----------|
 | iPhone 6.5" | 1284 × 2778 | 2778 × 1284 |

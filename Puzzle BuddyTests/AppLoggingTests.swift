@@ -79,6 +79,37 @@ final class AppLoggingTests: XCTestCase {
         XCTAssertNil(error)
     }
 
+    func testAnalyticsAllowlistsBackupRestore() {
+        let restored = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_backup_restored",
+            category: .puzzles,
+            metadata: ["puzzle_count": "3", "import_policy": "merge"],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(restored?.name, "puzzle_backup_restored")
+        XCTAssertEqual(restored?.parameters["import_policy"] as? String, "merge")
+    }
+
+    func testAnalyticsAllowlistsRedoAndCompletionEvents() {
+        let redo = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_redo_started",
+            category: .puzzles,
+            metadata: ["completion_count": "2"],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(redo?.name, "puzzle_redo_started")
+        XCTAssertEqual(redo?.parameters["completion_count"] as? String, "2")
+
+        let recorded = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_recorded",
+            category: .puzzles,
+            metadata: ["completion_number": "3"],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(recorded?.name, "puzzle_completion_recorded")
+        XCTAssertEqual(recorded?.parameters["completion_number"] as? String, "3")
+    }
+
     func testAnalyticsAllowlistsOnboardingCompleted() {
         let mapped = PuzzleAnalyticsEventMapping.map(
             eventName: "onboarding_completed",

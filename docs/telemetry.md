@@ -1,10 +1,14 @@
 # Telemetry specification
 
-Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytics in Puzzle Buddy.
+Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytics in **Puzzle Buddy (iOS + Android)**.
 
-**Implementation:** `Puzzle Buddy/Util/AppLogging.swift`, `Puzzle Buddy/Util/FirebaseCrashlyticsEventMapping.swift`, `Puzzle Buddy/AppDelegate.swift`
+**iOS implementation:** `Puzzle Buddy/Util/AppLogging.swift`, `Puzzle Buddy/Util/FirebaseCrashlyticsEventMapping.swift`, `Puzzle Buddy/AppDelegate.swift`
 
-**Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` API, allowlisted remote events, Release-only collection by default.
+**Android implementation:** `PuzzleBuddy-Android/.../support/logging/` (`AppLogger.kt`, `FirebaseAnalyticsEventMapping.kt`, `FirebaseCrashlyticsEventMapping.kt`, `LogSinks.kt`), `FirebaseBootstrap.kt`, `PuzzleBuddyDatabaseFactory.kt`
+
+**Cross-platform parity:** [`workspace/firebase-cross-platform-parity.md`](../../workspace/firebase-cross-platform-parity.md) · verify with `~/Desktop/personal/scripts/check-firebase-parity.sh`
+
+**Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
 **Last updated:** 2026-06-29
 
@@ -102,7 +106,10 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_updated` | same | `PuzzleStore.update` | |
 | `puzzle_deleted` | same | `PuzzleStore.delete` | |
 | `puzzle_import_completed` | same | `PuzzleStore.importPuzzles` | IPDb/import path |
+| `puzzle_backup_restored` | same | `PuzzleStore.restoreFromBackup` | JSON backup restore |
 | `puzzle_load_failed` | same | `PuzzleStore` SwiftData fetch errors | Local-only |
+| `puzzle_redo_started` | same | `PuzzleStore.startRedo` | User confirms redo |
+| `puzzle_completion_recorded` | same | `PuzzleStore.recordCompletion` | New completion appended |
 | `settings_collection_exported` | same | `SettingsView` | Gated by import/export flag |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |
@@ -119,6 +126,8 @@ Only these metadata keys are forwarded (max 100 chars each):
 | `log_category` | Auto-injected from `LogCategory` |
 | `puzzle_count` | Call site |
 | `puzzle_status` | Call site |
+| `completion_number` | `puzzle_completion_recorded` |
+| `completion_count` | `puzzle_redo_started` |
 | `format` | Export format (`json`, `csv`, etc.) |
 
 ---
@@ -192,6 +201,7 @@ Do not rely on redaction as a safety net — never pass PII intentionally.
 5. Document in this file (Analytics table)
 6. Add/adjust test in `AppLoggingTests` or `Puzzle_BuddyTests`
 7. If `.error` should be a Crashlytics non-fatal, add to `FirebaseCrashlyticsEventMapping` with new stable code
+8. **Android parity** — update `PuzzleBuddy-Android/.../FirebaseAnalyticsEventMapping.kt` (and Crashlytics mapping) in the same change; run `~/Desktop/personal/scripts/check-firebase-parity.sh`
 
 ---
 

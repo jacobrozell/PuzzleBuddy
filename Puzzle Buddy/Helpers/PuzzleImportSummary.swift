@@ -5,11 +5,18 @@
 
 import Foundation
 
+enum PuzzleImportSource: Equatable {
+    case ipdbCSV
+    case jsonBackup
+}
+
 struct PuzzleImportSummary: Equatable {
     var imported = 0
     var skippedDuplicates = 0
     var skippedInvalid = 0
+    var skippedExisting = 0
     var errors: [String] = []
+    var source: PuzzleImportSource = .ipdbCSV
 
     var hasErrors: Bool { !errors.isEmpty }
 
@@ -18,14 +25,18 @@ struct PuzzleImportSummary: Equatable {
         if imported > 0 {
             parts.append("\(imported) puzzle\(imported == 1 ? "" : "s") imported")
         }
+        if skippedExisting > 0 {
+            parts.append("\(skippedExisting) already in collection")
+        }
         if skippedDuplicates > 0 {
             parts.append("\(skippedDuplicates) duplicate\(skippedDuplicates == 1 ? "" : "s") skipped")
         }
         if skippedInvalid > 0 {
-            parts.append("\(skippedInvalid) row\(skippedInvalid == 1 ? "" : "s") skipped (missing name)")
+            let reason = source == .jsonBackup ? "invalid entries" : "rows skipped (missing name)"
+            parts.append("\(skippedInvalid) \(reason)")
         }
         if parts.isEmpty {
-            return "No puzzles were imported."
+            return source == .jsonBackup ? "No puzzles were restored." : "No puzzles were imported."
         }
         return parts.joined(separator: ". ") + "."
     }
@@ -33,7 +44,7 @@ struct PuzzleImportSummary: Equatable {
 
 extension PuzzleImportSummary: Identifiable {
     var id: String {
-        "\(imported)-\(skippedDuplicates)-\(skippedInvalid)-\(errors.count)"
+        "\(imported)-\(skippedDuplicates)-\(skippedInvalid)-\(skippedExisting)-\(errors.count)-\(source)"
     }
 }
 

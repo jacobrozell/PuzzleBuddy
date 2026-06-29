@@ -188,6 +188,8 @@ enum A11yID {
     static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
     static let settingsRemoveDemoButton = "settings_remove_demo_button"
     static let settingsImportIPDbButton = "settings_import_ipdb_button"
+    static let settingsImportBackupButton = "settings_import_backup_button"
+    static let settingsRestoreBackupButton = "settings_restore_backup_button"
     static let settingsExportCollectionButton = "settings_export_collection_button"
     static let settingsBrandDisclaimerFooter = "settings_brand_disclaimer_footer"
     static let ipdbImportSummarySheet = "ipdb_import_summary_sheet"

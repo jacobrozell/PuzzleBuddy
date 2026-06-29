@@ -96,6 +96,61 @@ class PuzzleStore: ObservableObject {
         return summary
     }
 
+    @discardableResult
+    func importBackup(_ incoming: [Puzzle], policy: PuzzleBackupImportPolicy) throws -> PuzzleImportSummary {
+        var summary = PuzzleImportSummary(source: .jsonBackup)
+
+        if policy == .replaceAll {
+            try clearAllPuzzles()
+        }
+
+        let existingIDs = Set(puzzles.map(\.id))
+        var seenIDs = existingIDs
+
+        for var puzzle in incoming {
+            let trimmedName = puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedName.isEmpty else {
+                summary.skippedInvalid += 1
+                continue
+            }
+            puzzle.name = trimmedName
+
+            if policy == .mergeSkipExistingIDs, seenIDs.contains(puzzle.id) {
+                summary.skippedExisting += 1
+                continue
+            }
+
+            do {
+                try addFromBackup(puzzle: puzzle)
+                seenIDs.insert(puzzle.id)
+                summary.imported += 1
+            } catch {
+                if case PuzzleStoreError.duplicateBarcode = error {
+                    summary.skippedDuplicates += 1
+                } else {
+                    summary.skippedInvalid += 1
+                    if summary.errors.count < 5 {
+                        summary.errors.append(error.localizedDescription)
+                    }
+                }
+            }
+        }
+
+        if summary.imported > 0 {
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_backup_restored",
+                message: "Restored puzzles from JSON backup.",
+                metadata: [
+                    "puzzle_count": "\(summary.imported)",
+                    "import_policy": policy == .replaceAll ? "replace_all" : "merge"
+                ]
+            )
+        }
+
+        return summary
+    }
+
     func add(puzzle: Puzzle) throws {
         try addLocally(puzzle: puzzle)
     }
@@ -119,6 +174,19 @@ class PuzzleStore: ObservableObject {
             message: "Puzzle saved.",
             metadata: ["puzzle_status": puzzle.status.rawValue]
         )
+    }
+
+    private func addFromBackup(puzzle: Puzzle) throws {
+        try validateBarcodeUniqueness(for: puzzle)
+        var puzzle = puzzle
+        puzzle.prepareForPersistence()
+        let record = PuzzleRecord(from: puzzle)
+        modelContext.insert(record)
+        try syncPhotos(for: puzzle)
+        try syncCompletions(for: puzzle)
+        try modelContext.save()
+        puzzles.append(puzzleFromRecord(record))
+        BarcodeMetadataCache.store(from: puzzle)
     }
 
     func delete(at offsets: IndexSet) {
@@ -295,6 +363,19 @@ class PuzzleStore: ObservableObject {
             } else {
                 record.imageData = normalized.first?.image?.jpegData(compressionQuality: 0.30)
             }
+        }
+    }
+
+    private func syncCompletions(for puzzle: Puzzle) throws {
+        let existing = fetchCompletionRecords(puzzleID: puzzle.id)
+        existing.forEach { modelContext.delete($0) }
+
+        for completion in puzzle.completions {
+            modelContext.insert(PuzzleCompletionRecord(from: completion, puzzleID: puzzle.id))
+        }
+
+        if let record = fetchRecord(id: puzzle.id) {
+            record.timesCompleted = max(puzzle.timesCompleted, puzzle.completions.count)
         }
     }
 

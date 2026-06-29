@@ -59,19 +59,28 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     private func tapAddPuzzle(in app: XCUIApplication) {
-        let addByID = app.buttons[UITestA11yID.addPuzzleButton]
-        let addByLabel = app.buttons["Add puzzle"]
-        guard addByID.waitForExistence(timeout: 8) || addByLabel.waitForExistence(timeout: 3) else {
-            XCTFail("Add puzzle button not found")
+        let menuItem = app.buttons[UITestA11yID.addPuzzleButton]
+        if menuItem.waitForExistence(timeout: 2), menuItem.isHittable {
+            menuItem.tap()
             return
         }
 
-        let button = addByID.exists ? addByID : addByLabel
-        if button.isHittable {
-            button.tap()
-        } else {
-            button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let menuTrigger = app.buttons.matching(
+            NSPredicate(format: "label == 'Add puzzle' AND identifier != %@", UITestA11yID.addPuzzleButton)
+        ).firstMatch
+        let fallbackTrigger = app.buttons["Add puzzle"].firstMatch
+        let trigger = menuTrigger.exists ? menuTrigger : fallbackTrigger
+        guard trigger.waitForExistence(timeout: 8) else {
+            XCTFail("Add puzzle menu not found")
+            return
         }
+        trigger.tap()
+
+        guard menuItem.waitForExistence(timeout: 4) else {
+            XCTFail("Add puzzle menu item not found")
+            return
+        }
+        menuItem.tap()
     }
 
     private func waitForPuzzleForm(in app: XCUIApplication, timeout: TimeInterval = 12) {
@@ -79,6 +88,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
             app.textFields[UITestA11yID.puzzleFormNameField],
             app.textFields["Puzzle name"],
             app.navigationBars["Add Puzzle"],
+            app.staticTexts["Photos"],
             app.buttons[UITestA11yID.puzzleFormSubmitButton],
             app.descendants(matching: .any)[UITestA11yID.puzzleFormRatingControl]
         ]
@@ -310,8 +320,58 @@ final class PuzzleAccessibilityUITests: XCTestCase {
 
         let importControl = app.descendants(matching: .any)[UITestA11yID.settingsImportIPDbButton]
         let exportControl = app.descendants(matching: .any)[UITestA11yID.settingsExportCollectionButton]
-        XCTAssertTrue(importControl.waitForExistence(timeout: 3))
-        XCTAssertTrue(exportControl.waitForExistence(timeout: 2))
+        let importByLabel = app.buttons["Import from IPDb CSV"]
+        let exportByLabel = app.buttons["Export collection"]
+
+        for _ in 0..<4 where !(importControl.exists || importByLabel.exists) {
+            app.swipeUp()
+        }
+
+        XCTAssertTrue(
+            importControl.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 2),
+            "Import from IPDb CSV should be visible when import/export is enabled"
+        )
+        XCTAssertTrue(
+            exportControl.waitForExistence(timeout: 2) || exportByLabel.waitForExistence(timeout: 2),
+            "Export collection should be visible when import/export is enabled"
+        )
+    }
+
+    func testAddPuzzleFormShowsPhotoGalleryControls() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        tapAddPuzzle(in: app)
+        waitForPuzzleForm(in: app)
+
+        let addPhoto = app.descendants(matching: .any)[UITestA11yID.puzzleFormChoosePhotoButton]
+        let addPhotoButton = app.buttons[UITestA11yID.puzzleFormChoosePhotoButton]
+        let addPhotoByLabel = app.buttons["Add photo"]
+        XCTAssertTrue(
+            addPhoto.waitForExistence(timeout: 3)
+                || addPhotoButton.waitForExistence(timeout: 2)
+                || addPhotoByLabel.waitForExistence(timeout: 2),
+            "Photo gallery add control should be visible on the add form"
+        )
+    }
+
+    func testCompletedPuzzleShowsPuzzleAgainAction() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        let row = puzzleRow(named: "Harbor Lights", in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "Demo completed puzzle should be seeded")
+        row.tap()
+
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+        let redo = app.buttons[UITestA11yID.puzzleDetailRedoButton]
+        let redoByLabel = app.buttons["Puzzle again"]
+        XCTAssertTrue(
+            redo.waitForExistence(timeout: 3) || redoByLabel.waitForExistence(timeout: 2),
+            "Completed puzzles should offer Puzzle again"
+        )
     }
 
     func testPuzzleListDynamicTypeAudit() throws {

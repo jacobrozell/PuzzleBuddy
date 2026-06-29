@@ -108,6 +108,7 @@ enum PuzzleAnalyticsEventMapping {
         "puzzle_updated",
         "puzzle_deleted",
         "puzzle_import_completed",
+        "puzzle_backup_restored",
         "puzzle_load_failed",
         "puzzle_redo_started",
         "puzzle_completion_recorded",
@@ -123,6 +124,7 @@ enum PuzzleAnalyticsEventMapping {
         "puzzle_status",
         "completion_number",
         "completion_count",
+        "import_policy",
         "format"
     ]
 

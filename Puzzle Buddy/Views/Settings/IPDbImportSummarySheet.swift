@@ -23,23 +23,31 @@ struct IPDbImportSummarySheet: View {
                 if summary.imported > 0 {
                     Section("Imported") {
                         LabeledContent("New puzzles", value: "\(summary.imported)")
+                        if summary.skippedExisting > 0 {
+                            LabeledContent("Already in collection", value: "\(summary.skippedExisting)")
+                        }
                     }
 
-                    Section {
-                        Label("Add box photos", systemImage: "photo.on.rectangle.angled")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Brand.textPrimary)
-                        Text("CSV exports do not include images. Open each imported puzzle and add a photo from your camera or library.")
-                            .font(.footnote)
-                            .foregroundStyle(Brand.textSecondary)
-                        Text("Tip: use the Needs photo filter on your collection list to find puzzles still missing a box image.")
-                            .font(.footnote)
-                            .foregroundStyle(Brand.textSecondary)
+                    if summary.source == .ipdbCSV {
+                        Section {
+                            Label("Add box photos", systemImage: "photo.on.rectangle.angled")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Brand.textPrimary)
+                            Text("CSV exports do not include images. Open each imported puzzle and add a photo from your camera or library.")
+                                .font(.footnote)
+                                .foregroundStyle(Brand.textSecondary)
+                            Text("Tip: use the Needs photo filter on your collection list to find puzzles still missing a box image.")
+                                .font(.footnote)
+                                .foregroundStyle(Brand.textSecondary)
+                        }
                     }
                 }
 
-                if summary.skippedDuplicates > 0 || summary.skippedInvalid > 0 {
+                if summary.skippedDuplicates > 0 || summary.skippedInvalid > 0 || summary.skippedExisting > 0 {
                     Section("Skipped") {
+                        if summary.skippedExisting > 0 && summary.imported == 0 {
+                            LabeledContent("Already in collection", value: "\(summary.skippedExisting)")
+                        }
                         if summary.skippedDuplicates > 0 {
                             LabeledContent("Duplicates", value: "\(summary.skippedDuplicates)")
                         }
@@ -66,7 +74,7 @@ struct IPDbImportSummarySheet: View {
                     )
                 }
             }
-            .navigationTitle("Import results")
+            .navigationTitle(summary.source == .jsonBackup ? "Restore results" : "Import results")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

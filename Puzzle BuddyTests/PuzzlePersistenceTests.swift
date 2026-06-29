@@ -114,6 +114,27 @@ final class PuzzlePersistenceTests: XCTestCase {
         XCTAssertEqual(record.status, Puzzle.Status.completed.rawValue)
     }
 
+    func testPuzzleRecordPersistsExpandedMetadata() throws {
+        var puzzle = Puzzle.fixture(name: "Physical", pieces: 500)
+        puzzle.puzzleShape = .irregular
+        puzzle.cutType = .unknown
+        puzzle.dimensionsText = "20 × 30 in"
+        puzzle.purchasePrice = 22.0
+        puzzle.purchaseCurrencyCode = "USD"
+        puzzle.timesCompleted = 3
+
+        let record = PuzzleRecord(from: puzzle)
+        context.insert(record)
+        try context.save()
+
+        let restored = record.toPuzzle()
+        XCTAssertEqual(restored.puzzleShape, .irregular)
+        XCTAssertEqual(restored.cutType, .unknown)
+        XCTAssertEqual(restored.dimensionsText, "20 × 30 in")
+        XCTAssertEqual(restored.purchasePrice, 22.0)
+        XCTAssertEqual(restored.timesCompleted, 3)
+    }
+
     func testPuzzleRecordImageRoundTrip() {
         let puzzle = Puzzle.fixture(name: "Photo", pieces: 250)
         puzzle.image = makeTestImage()
