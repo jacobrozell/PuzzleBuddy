@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LaunchViewController">
-    <device id="retina6_12" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LaunchViewController">
+    <device id="retina6_12" orientation="portrait" appearance="dark"/>
     <dependencies>
-        <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--View Controller-->
         <scene sceneID="LaunchScene">
             <objects>
                 <viewController id="LaunchViewController" sceneMemberID="viewController">
@@ -17,38 +17,32 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="28" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchBrandingStack">
-                                <rect key="frame" x="32" y="286.5" width="329" height="279"/>
+                                <rect key="frame" x="89.666666666666671" y="300" width="213.66666666666663" height="254.33333333333337"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchCrestHero" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchCrestImage">
-                                        <rect key="frame" x="98.5" y="0.0" width="132" height="132"/>
+                                        <rect key="frame" x="40.999999999999986" y="0.0" width="132" height="132"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="132" id="LaunchCrestWidth"/>
                                             <constraint firstAttribute="height" constant="132" id="LaunchCrestHeight"/>
+                                            <constraint firstAttribute="width" constant="132" id="LaunchCrestWidth"/>
                                         </constraints>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <real key="value" value="29"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
                                     </imageView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTextStack">
-                                        <rect key="frame" x="0.0" y="160" width="329" height="119"/>
+                                        <rect key="frame" x="0.0" y="160" width="213.66666666666666" height="94.333333333333314"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Puzzle Buddy" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTitleLabel">
-                                                <rect key="frame" x="77.5" y="0.0" width="174" height="41"/>
-                                                <fontDescription key="fontDescription" type="system" weight="bold" pointSize="34"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="213.66666666666666" height="40.666666666666664"/>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="34"/>
                                                 <color key="textColor" name="BrandInk"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Log · Track · Complete" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTaglineLabel">
-                                                <rect key="frame" x="74.5" y="51" width="180" height="20.5"/>
+                                                <rect key="frame" x="27" y="50.666666666666686" width="159.66666666666666" height="18"/>
                                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="15"/>
                                                 <color key="textColor" name="BrandAccentLaunch"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your puzzle collection companion" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchSubtitleLabel">
-                                                <rect key="frame" x="57" y="81.5" width="215" height="18"/>
+                                                <rect key="frame" x="5" y="78.666666666666629" width="203.66666666666666" height="15.666666666666671"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <color key="textColor" name="BrandInkSecondary"/>
                                                 <nil key="highlightedColor"/>
@@ -76,16 +70,16 @@
     <resources>
         <image name="LaunchCrestHero" width="132" height="132"/>
         <namedColor name="BrandAccentLaunch">
-            <color red="0.050" green="0.550" blue="0.620" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.05000000074505806" green="0.55000001192092896" blue="0.62000000476837158" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="BrandInk">
-            <color red="0.080" green="0.090" blue="0.110" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.079999998211860657" green="0.090000003576278687" blue="0.10999999940395355" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="BrandInkSecondary">
-            <color red="0.350" green="0.380" blue="0.420" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.34999999403953552" green="0.37999999523162842" blue="0.41999998688697815" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="LaunchBackground">
-            <color red="0.949" green="0.969" blue="0.980" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94900000095367432" green="0.96899998188018799" blue="0.98000001907348633" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
