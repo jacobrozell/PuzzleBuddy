@@ -45,7 +45,7 @@ Check off in `roadmap.md` as each ships. Suggested build order:
 | 21 | `heatmap` | Completion activity heatmap | Phase D | No |
 | 22 | `share-collage` | Completed puzzle grid share image | Phase D | No |
 | 23 | `progress-photos` | Optional progress photos (2–3 per puzzle) | Model extensions | Yes |
-| 24 | `login-ship` | Enable login + cloud sync (separate release track) | Release 1.x | N/A |
+| 24 | `login-ship` | Auth + cloud sync | **Removed** — see [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md) |
 
 \* `pick-next` needs status tabs; tag filters need `field-tags`. `status-in-progress` uses the existing `PuzzleRecord.status` string — no SwiftData migration. Per [find & organize strategy](roadmap.md#find--organize--user-driven-product-strategy), ship `list-search-sort` + `list-status-tabs` before or with `field-tags`; bundle tags with pick-next for maximum impact.
 
@@ -97,7 +97,7 @@ Implement one roadmap feature for Puzzle Buddy.
 7. Build and run tests via XcodeBuildMCP when done
 
 ## Out of scope this session
-Login/cloud sync (unless FEATURE_ID=login-ship), friend sharing, IAP, deferred items in roadmap
+Auth/cloud sync (future spec only — not in app), friend sharing, IAP, deferred items in roadmap
 
 When finished, summarize: what shipped, how to try it in the simulator, what's next in the backlog, and any 1.0.0 vs later release note.
 ```

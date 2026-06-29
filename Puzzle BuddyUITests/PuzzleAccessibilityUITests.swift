@@ -43,7 +43,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     private func waitForSeededPuzzles(in app: XCUIApplication, timeout: TimeInterval = 30) {
         _ = app
         _ = timeout
-        // Demo puzzles are verified in launchForBypassAuth().
+        // Demo puzzles are verified in launchForBypassOnboarding().
     }
 
     private func puzzleRow(named name: String, in app: XCUIApplication) -> XCUIElement {
@@ -105,7 +105,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleListLandscapeLayout() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -117,7 +117,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleListAccessibilityAudit() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -126,7 +126,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleListStatusFilter() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -159,7 +159,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleListSearch() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -178,7 +178,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleListShowsRatingsOnRows() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -192,7 +192,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testSettingsAccessibilityAudit() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -202,7 +202,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testCollectionStatsAccessibilityAudit() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -224,7 +224,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testAddPuzzleFormAccessibilityAudit() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -236,7 +236,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testAddPuzzleFormLandscapeLayout() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -256,7 +256,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleDetailAccessibilityAudit() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -270,7 +270,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleDetailDynamicTypeAudit() throws {
-        let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
+        let app = launchForBypassOnboarding(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -281,7 +281,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testSettingsDynamicTypeAudit() throws {
-        let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
+        let app = launchForBypassOnboarding(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -291,7 +291,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testAddPuzzleFormDynamicTypeAudit() throws {
-        let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
+        let app = launchForBypassOnboarding(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -302,7 +302,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testSettingsCollectionImportExportHiddenInOnePointZero() throws {
-        let app = launchForBypassAuth()
+        let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
@@ -317,7 +317,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     func testPuzzleListDynamicTypeAudit() throws {
-        let app = launchForBypassAuth(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
+        let app = launchForBypassOnboarding(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 

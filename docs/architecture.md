@@ -105,8 +105,6 @@ No push notification registration.
 | Flag | Default | Launch argument |
 |------|---------|-----------------|
 | `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
-| `isIPDbImportEnabled` | follows export flag | same |
-| `isCollectionExportEnabled` | follows export flag | same |
 | `isBarcodeScanEnabled` | device has scanner | — |
 | `isShoppingModeEnabled` | `true` | — |
 | `isPickNextEnabled` | `true` | — |
@@ -207,7 +205,7 @@ Full allowlists and behavior: [telemetry.md](telemetry.md).
 |-------|---------|
 | `isRunningUnderTest` | Skips Firebase configure; skips splash |
 | `shouldSeedPuzzles` | Loads demo puzzles |
-| `isBypassAuthEnabled` | Skips onboarding (legacy arg name) |
+| `isBypassOnboardingEnabled` | Skips onboarding (`-ui_testing_bypass_onboarding`) |
 
 Launch args documented in [testing.md](testing.md) and [AGENTS.md](../AGENTS.md).
 

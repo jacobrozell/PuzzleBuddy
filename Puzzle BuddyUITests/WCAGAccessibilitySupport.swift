@@ -36,7 +36,7 @@ extension XCTestCase {
         return app
     }
 
-    func launchForBypassAuth(
+    func launchForBypassOnboarding(
         extraArguments: [String] = [],
         contentSizeCategory: String? = nil
     ) -> XCUIApplication {
@@ -46,7 +46,7 @@ extension XCTestCase {
         }
         app.launchArguments = UITestLaunch.bypassArguments + extraArguments
         app.launchEnvironment = [
-            "UI_TESTING_BYPASS_AUTH": "1",
+            "UI_TESTING_BYPASS_ONBOARDING": "1",
             "UI_TESTING_SEED_PUZZLES": "1"
         ]
         if let contentSizeCategory {

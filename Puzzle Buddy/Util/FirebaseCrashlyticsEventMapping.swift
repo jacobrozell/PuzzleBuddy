@@ -9,7 +9,7 @@ enum FirebaseCrashlyticsEventMapping {
     private static let errorDomain = "com.jacobrozell.Puzzle-Buddy.logger"
 
     private static let allowlistedLogEvents: Set<String> = [
-        "puzzle_sync_failed",
+        "puzzle_load_failed",
         "model_container_load_failed",
         "model_container_reset_failed",
         "demo_data_seed_failed"
@@ -17,7 +17,7 @@ enum FirebaseCrashlyticsEventMapping {
 
     /// Stable NSError codes for Crashlytics grouping (documented in unit tests).
     static let eventCodes: [String: Int] = [
-        "puzzle_sync_failed": 2001,
+        "puzzle_load_failed": 2001,
         "model_container_load_failed": 2002,
         "model_container_reset_failed": 2003,
         "demo_data_seed_failed": 2004

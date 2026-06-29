@@ -56,14 +56,14 @@ final class AppLoggingTests: XCTestCase {
         let error = FirebaseCrashlyticsEventMapping.nonFatalError(
             level: .error,
             category: .puzzles,
-            eventName: "puzzle_sync_failed",
+            eventName: "puzzle_load_failed",
             metadata: ["puzzle_status": "To-Do", "email": "secret@example.com"],
             appVersion: "1.0.0"
         )
 
         XCTAssertEqual(error?.domain, "com.jacobrozell.Puzzle-Buddy.logger")
         XCTAssertEqual(error?.code, 2001)
-        XCTAssertEqual(error?.userInfo["event_name"] as? String, "puzzle_sync_failed")
+        XCTAssertEqual(error?.userInfo["event_name"] as? String, "puzzle_load_failed")
         XCTAssertEqual(error?.userInfo["puzzle_status"] as? String, "To-Do")
         XCTAssertNil(error?.userInfo["email"])
     }

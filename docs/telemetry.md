@@ -30,8 +30,8 @@ AppLog.shared.info(
     metadata: ["puzzle_status": puzzle.status.rawValue]
 )
 
-AppLog.shared.warning(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
-AppLog.shared.error(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
+AppLog.shared.warning(.puzzles, eventName: "puzzle_load_failed", message: error.localizedDescription)
+AppLog.shared.error(.puzzles, eventName: "puzzle_load_failed", message: error.localizedDescription)
 AppLog.shared.debug(.ui, eventName: "screen_appeared", message: "Detail opened.")
 ```
 
@@ -53,7 +53,6 @@ Release builds use minimum level `.info`; Debug builds use `.debug`.
 | `.app` | Launch, bootstrap, onboarding |
 | `.puzzles` | CRUD, import, demo data, local load failures |
 | `.ui` | Settings export, screen-level events |
-| `.auth` | Reserved (unused — auth removed from app) |
 
 ---
 
@@ -103,7 +102,7 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_updated` | same | `PuzzleStore.update` | |
 | `puzzle_deleted` | same | `PuzzleStore.delete` | |
 | `puzzle_import_completed` | same | `PuzzleStore.importPuzzles` | IPDb/import path |
-| `puzzle_sync_failed` | same | `PuzzleStore` local load errors | Name retained; local-only now |
+| `puzzle_load_failed` | same | `PuzzleStore` SwiftData fetch errors | Local-only |
 | `settings_collection_exported` | same | `SettingsView` | Gated by import/export flag |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |
@@ -159,7 +158,7 @@ Only allowlisted `.error` events become `Crashlytics.record(error:)` via `Fireba
 
 | Event name | Code | Typical cause |
 |------------|------|---------------|
-| `puzzle_sync_failed` | 2001 | SwiftData fetch/save failure |
+| `puzzle_load_failed` | 2001 | SwiftData fetch/save failure |
 | `model_container_load_failed` | 2002 | ModelContainer creation failed |
 | `model_container_reset_failed` | 2003 | Store recovery failed |
 | `demo_data_seed_failed` | 2004 | UI test demo seed failed |

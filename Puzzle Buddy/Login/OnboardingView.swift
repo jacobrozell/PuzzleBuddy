@@ -13,8 +13,7 @@ enum OnboardingStorage {
 
     static var isComplete: Bool {
         if MarketingSnapshotBootstrap.shouldShowOnboarding { return false }
-        if ProcessInfo.processInfo.environment["UI_TESTING_BYPASS_AUTH"] == "1" { return true }
-        if ProcessInfo.processInfo.arguments.contains(UITestSupport.bypassAuth) { return true }
+        if UITestSupport.isBypassOnboardingEnabled { return true }
         if UITestSupport.isRunningUnderTest { return true }
         return UserDefaults.standard.bool(forKey: key)
             || UserDefaults.standard.bool(forKey: legacyKey)

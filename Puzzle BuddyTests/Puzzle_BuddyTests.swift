@@ -38,8 +38,6 @@ final class Puzzle_BuddyTests: XCTestCase {
 
     func testCollectionImportExportDisabledForOnePointZero() {
         XCTAssertFalse(ProductService.isCollectionImportExportEnabled)
-        XCTAssertFalse(ProductService.isIPDbImportEnabled)
-        XCTAssertFalse(ProductService.isCollectionExportEnabled)
     }
 
     func testAppInfoDisplayName() {

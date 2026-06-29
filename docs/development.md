@@ -147,7 +147,7 @@ Use `PreviewSupport.puzzleStore` or `PreviewSupport.modelContext`.
 
 ```
 -disable_firebase_analytics
--ui_testing_bypass_auth
+-ui_testing_bypass_onboarding
 -ui_testing_seed_puzzles
 ```
 

@@ -157,7 +157,7 @@ class PuzzleStore: ObservableObject {
             )
         } catch {
             state = .idle
-            AppLog.shared.warning(.puzzles, eventName: "puzzle_sync_failed", message: error.localizedDescription)
+            AppLog.shared.warning(.puzzles, eventName: "puzzle_load_failed", message: error.localizedDescription)
         }
     }
 

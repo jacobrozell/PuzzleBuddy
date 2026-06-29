@@ -31,17 +31,4 @@ enum AppearancePreference: String, CaseIterable, Identifiable {
 
 enum UserPreferences {
     static let appearanceStorageKey = "PuzzleBuddy.AppearancePreference"
-
-    static var appearance: AppearancePreference {
-        get {
-            guard let raw = UserDefaults.standard.string(forKey: appearanceStorageKey),
-                  let value = AppearancePreference(rawValue: raw) else {
-                return .system
-            }
-            return value
-        }
-        set {
-            UserDefaults.standard.set(newValue.rawValue, forKey: appearanceStorageKey)
-        }
-    }
 }

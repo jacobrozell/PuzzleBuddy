@@ -61,7 +61,7 @@ Per-criterion status for Puzzle Buddy iOS app. Updated as audits complete.
 | 2.4.7 | Focus Visible | AA | Supports | iOS system focus |
 | 2.5.1 | Pointer Gestures | A | Supports | Tap; swipe delete with VO action |
 | 2.5.2 | Pointer Cancellation | A | Supports | System controls |
-| 2.5.3 | Label in Name | A | Supports | Visible labels match a11y names on login |
+| 2.5.3 | Label in Name | A | Supports | Visible labels match a11y names on primary actions |
 | 2.5.4 | Motion Actuation | A | Supports | No motion-triggered actions |
 
 ---

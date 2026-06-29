@@ -342,7 +342,9 @@ var barcodeSymbology: String?
 #Index<PuzzleRecord>([\.barcode])  // when non-nil queries are hot path
 ```
 
-### 8.3 Firestore sync (`getDataFields` / `fromData`)
+### 8.3 Export serialization (`getDataFields` / `fromData`)
+
+> **Note:** Auth and Firestore were removed June 2026. These keys support JSON/CSV export round-trip tests and future import/export — not cloud sync.
 
 Add keys:
 
@@ -418,12 +420,14 @@ Steps:
 
 Benchmark in `PuzzleStoreTests` with in-memory SwiftData.
 
-### 9.3 Cloud sync edge cases
+### 9.3 Multi-device edge cases (future)
 
-| Case | Behavior |
-|------|----------|
-| Two devices add same barcode offline | Last-write-wins on sync; show conflict toast (future) |
-| User A and B share account (unlikely) | Firestore rules scope per email path — same as today |
+> **Historical:** Cloud sync was removed from the app. If account sync returns per [auth-cloud-sync spec](../specs/planned/auth-cloud-sync.md), revisit conflict handling.
+
+| Case | Behavior (future) |
+|------|-------------------|
+| Two devices add same barcode offline | Conflict resolution TBD |
+| Shared account | N/A — no accounts in 1.0 |
 
 ---
 
@@ -748,7 +752,7 @@ Scanner chrome uses **black** background (camera standard), not brand gradient.
 |------|----------------|-----------------|
 | Barcode digits | Yes | No |
 | Camera frames | No persistence | Processed on-device only |
-| Puzzle metadata | Yes | Firestore when sync on |
+| Puzzle metadata | Yes | Analytics/Crashlytics only (allowlisted events) |
 
 ### 16.2 Privacy policy
 
@@ -766,17 +770,16 @@ Scanner chrome uses **black** background (camera standard), not brand gradient.
 
 ---
 
-## 17. Offline & sync behavior
+## 17. Offline behavior
 
 | Feature | Offline | Online |
 |---------|---------|--------|
 | Scan barcode | ✅ | ✅ |
 | Duplicate check | ✅ | ✅ |
 | Quick Add save | ✅ | ✅ |
-| UPC enrichment | ❌ (skip) | ✅ if flag on |
-| Firestore sync | Queued when login enabled | ✅ |
+| UPC enrichment | ❌ (not shipped) | ❌ (not shipped) |
 
-**Shopping mode must work in airplane mode** — core product promise.
+**Shopping mode must work in airplane mode** — core product promise. No cloud sync in 1.0.
 
 ---
 
@@ -858,7 +861,7 @@ Use Apple-documented **synthetic** codes for simulator/manual QA; never use real
 
 **Scope:**
 
-- `barcode` on model + SwiftData + Firestore serialization
+- `barcode` on model + SwiftData + export serialization (`getDataFields`)
 - Manual field on `PuzzleForm` / `PuzzleDetail`
 - `PuzzleDuplicateChecker` on `add` / `update`
 - Settings: no change

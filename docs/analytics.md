@@ -24,7 +24,7 @@ AppLog.shared.info(
 
 See the full table in [telemetry.md § Analytics allowlist](telemetry.md#analytics-allowlist).
 
-Summary: `app_bootstrap_ready` → Firebase `app_open`; plus onboarding, puzzle CRUD, import, export, shopping scan, and local load failure (`puzzle_sync_failed`).
+Summary: `app_bootstrap_ready` → Firebase `app_open`; plus onboarding, puzzle CRUD, import, export, shopping scan, and local load failure (`puzzle_load_failed`).
 
 ## Crashlytics
 

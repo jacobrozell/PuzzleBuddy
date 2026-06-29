@@ -173,9 +173,9 @@ New interactive controls should include:
 - **`accessibilityIdentifier`** — use constants from `A11yID` in `DesignTokens.swift` for UI tests
 
 ```swift
-TextField("Email", text: $email)
-    .accessibilityLabel("Email address")
-    .optionalAccessibilityIdentifier(A11yID.loginEmailField)
+Button("Add puzzle") { ... }
+    .accessibilityLabel("Add puzzle")
+    .optionalAccessibilityIdentifier(A11yID.addPuzzleButton)
 ```
 
 Respect `@Environment(\.accessibilityReduceMotion)` for animations (see `BrandBackground`).
@@ -201,7 +201,7 @@ Track broader WCAG work in [accessibility/accessibility_todo.md](accessibility/a
 |-------------|----------------|
 | New `Puzzle` field | Serialization round-trip in `PuzzleSerializationTests` |
 | New a11y label contract | `AccessibilityLabelTests` or UI test identifier |
-| Auth or store behavior | Unit test with mocks or documented manual test plan in PR |
+| Store behavior | Unit test with fixtures or documented manual test plan in PR |
 
 More detail: [docs/testing.md](docs/testing.md).
 
@@ -210,7 +210,7 @@ More detail: [docs/testing.md](docs/testing.md).
 - **Never** commit `GoogleService-Info.plist`. The pre-commit hook rejects staged real plists.
 - **Never** commit API keys, service account JSON, or APNs certificates.
 - Use `GoogleService-Info.plist.example` as the template; CI copies it automatically.
-- Deploy rule changes with `firebase deploy --only firestore:rules` and include rule updates in the same PR when schema or access patterns change.
+- Firebase in this app is **Analytics + Crashlytics only** — no Firestore rules or Auth setup. See [docs/firebase-setup.md](docs/firebase-setup.md).
 
 Firebase setup guide: [docs/firebase-setup.md](docs/firebase-setup.md).
 

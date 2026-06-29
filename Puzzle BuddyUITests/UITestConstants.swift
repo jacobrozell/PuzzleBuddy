@@ -33,7 +33,7 @@ enum UITestA11yID {
 
 enum UITestLaunch {
     static let disableFirebaseAnalytics = "-disable_firebase_analytics"
-    static let bypassOnboarding = "-ui_testing_bypass_auth"
+    static let bypassOnboarding = "-ui_testing_bypass_onboarding"
     static let seedPuzzles = "-ui_testing_seed_puzzles"
 
     static let bypassArguments = [disableFirebaseAnalytics, bypassOnboarding, seedPuzzles]

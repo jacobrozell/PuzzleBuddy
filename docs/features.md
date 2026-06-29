@@ -369,7 +369,7 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 | Hook | Purpose |
 |------|---------|
 | `-enable_collection_import_export` | Settings import/export UI |
-| `-ui_testing_bypass_auth` | Skip onboarding (legacy arg name) |
+| `-ui_testing_bypass_onboarding` | Skip onboarding in UI tests |
 | `-ui_testing_seed_puzzles` | Seed demo puzzles |
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics |
 | `UITestSupport` | Centralized UI test detection |
@@ -383,7 +383,7 @@ See [testing.md](testing.md) for CI and test suite details.
 
 | Document | Topic |
 |----------|-------|
-| [architecture.md](architecture.md) | Layers, dependencies, Firestore schema |
+| [architecture.md](architecture.md) | Layers, dependencies, SwiftData schema |
 | [roadmap.md](roadmap.md) | Future releases and planned features |
 | [firebase-setup.md](firebase-setup.md) | Firebase Console configuration |
 | [analytics.md](analytics.md) | Logging and privacy rules |

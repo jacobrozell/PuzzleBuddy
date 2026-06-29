@@ -142,7 +142,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 ## Phase 4 — Persistence & repositories
 
 - [ ] **4.1** Versioned schema (`SchemaV1`, `SchemaV2`, …) — single `PuzzleRecord` today
-- [ ] **4.2** **Repository protocols** — `PuzzleRemoteStore` extraction WIP; `PuzzleStore` is concrete
+- [x] **4.2** **Repository** — `PuzzleStore` is concrete SwiftData store (no remote layer)
 - [x] **4.3** **Dependency bootstrap** — `ModelContainer` + `@EnvironmentObject` at app root
 - [ ] **4.4** Migration tests in CI
 - [x] **4.5** Bootstrap failure policy — Firebase skipped when plist placeholder; SwiftData always runs
@@ -154,10 +154,10 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 - [x] **5.1** `@main` app struct + dependency bootstrap (`Puzzle_BuddyApp`)
 - [x] **5.2** Root navigation — tabs: Puzzles, Stats, Settings (`PuzzleTabbar`)
-- [ ] **5.3** **Router** for deep links and push notifications
+- [ ] **5.3** **Router** for deep links — not implemented (no push)
 - [x] **5.4** First-run **onboarding** (`OnboardingView`, UserDefaults flag)
-- [x] **5.5** Central **feature flags** — `ProductService` (`-enable_login`)
-- [ ] **5.6** **Release surface gate** — login only; expand to `ReleaseSurface` for tabs/features
+- [x] **5.5** Central **feature flags** — `ProductService` (import/export, barcode, pick-next)
+- [x] **5.6** **Release surface** — `ProductService` gates import/export; no login surface
 
 ---
 
@@ -190,11 +190,11 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 - [x] **8.1** CRUD for puzzles — add, edit, delete with swipe
 - [ ] **8.2** Identity presentation — N/A (no avatars)
-- [x] **8.3** **Settings screen** — legal links, version, sign-out when login on
-- [x] **8.4** Settings / store tests — persistence and auth tests exist
+- [x] **8.3** **Settings screen** — legal links, version, demo data, appearance
+- [x] **8.4** Settings / store tests — persistence tests exist
 - [ ] **8.5** **AppLinks** registry — URLs hardcoded in `SettingsView`
 - [ ] **8.6** Tip/donate row — not applicable (nil = hidden pattern not wired)
-- [ ] **8.7** **Delete all local data** — not implemented
+- [ ] **8.7** **Delete all local data** — `Delete All Puzzles` in Settings (verify ship checklist)
 
 ---
 
@@ -239,8 +239,8 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 - [x] **12.1** PR CI — unit + UI tests on `Puzzle Buddy` scheme
 - [ ] **12.2** **Split UI tests** into parallel targets by concern
 - [ ] **12.3** Nightly full UI matrix
-- [x] **12.4** **Launch arguments** — `-enable_login`, `UITestSupport`, bypass auth
-- [x] **12.5** Shared **test doubles** — preview fixtures, cloud sync test mocks
+- [x] **12.4** **Launch arguments** — `UITestSupport`, `-ui_testing_bypass_onboarding`, seed puzzles
+- [x] **12.5** Shared **test doubles** — preview fixtures, demo data seeding
 - [ ] **12.6** Spec/code drift script in CI
 - [x] **12.7** Block tracked secrets in CI — plist guard in workflow + pre-commit
 
@@ -248,9 +248,9 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 ## Phase 13 — Release surface & lean ship strategy
 
-- [x] **13.1** Feature gate — `ProductService` (login/cloud); expand to full surface module
+- [x] **13.1** Feature gate — `ProductService` (no auth/cloud flags)
 - [ ] **13.2** One place controls tabs, deep links, locales, experimental features
-- [x] **13.3** Launch argument `-enable_login` for dogfood — not in App Store builds
+- [x] **13.3** Dogfood launch args — `-enable_collection_import_export` only (not in App Store builds)
 - [x] **13.4** Written **lean v1 plan** — README, roadmap, [feature-inventory.md](feature-inventory.md)
 - [ ] **13.5** **Test-confidence matrix** — device QA evidence not documented
 - [ ] **13.6** Branch model `dev` vs `release/*` — single-branch flow today
@@ -300,10 +300,10 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 See [roadmap.md](roadmap.md) and [implementation-playbook.md](implementation-playbook.md) backlog. Next slices after 1.0:
 
-1. Tags + pick-next (find & organize)
-2. Login + cloud sync (`login-ship`)
-3. Timer + richer metadata
-4. Widget / year-in-review
+1. Collection import/export (1.1)
+2. Timer + richer metadata
+3. Widget / year-in-review
+4. Auth + cloud sync — future spec only ([auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md))
 
 ---
 
@@ -328,7 +328,7 @@ See [roadmap.md](roadmap.md) and [implementation-playbook.md](implementation-pla
 | How do I build and test? | [README.md](../README.md), [development.md](development.md) |
 | What ships this sprint? | [implementation-playbook.md](implementation-playbook.md) |
 | Accessibility requirements? | [wcag.md](wcag.md), `accessibility/` |
-| Lean vs full UI? | `ProductService` (+ future `ReleaseSurface`) |
+| Lean vs full UI? | `ProductService` feature flags |
 | Legal / support URLs? | `docs/*.html` → wire via `AppLinks` (TODO) |
 | Ideas not yet spec'd? | [roadmap.md](roadmap.md) backlog |
 | This checklist | `docs/agent-build-checklist.md` |

@@ -65,7 +65,7 @@ Information and UI components must be presentable to users in ways they can perc
 | Forms | SwiftUI `Form` + `Section` group related fields | Supports |
 | Lists | `List` with identifiable rows | Supports |
 | Headings | Navigation titles on each screen | Supports |
-| Login flow | Top-to-bottom: email → password → actions | Supports |
+| Login flow | N/A — auth removed June 2026 | N/A |
 | Color-only state | Status uses text labels ("To-Do", "Completed"), not color alone | Supports |
 
 **Verification:** VoiceOver rotor → Headings; swipe through puzzle form in logical order.
@@ -95,7 +95,7 @@ Information and UI components must be presentable to users in ways they can perc
 | `Brand.background` | Off-white | Near-black | Screen background |
 | `Brand.card` | White | Dark gray | Elevated surfaces |
 
-**Verification:** Settings → Accessibility → Display & Text Size → Largest; Xcode Accessibility Inspector contrast check on login and list screens.
+**Verification:** Settings → Accessibility → Display & Text Size → Largest; Xcode Accessibility Inspector contrast check on list and form screens.
 
 ---
 
@@ -111,11 +111,11 @@ On iOS, **VoiceOver** and **Voice Control** are the primary alternatives to touc
 
 | Area | Status |
 |------|--------|
-| Text fields (login, puzzle name, pieces) | Supports — system keyboard |
+| Text fields (puzzle name, pieces, search) | Supports — system keyboard |
 | Custom star/difficulty pickers | Partial — may need accessibility actions |
 | Tab navigation | Supports — tab bar |
 
-**Verification:** Connect hardware keyboard; Tab through login fields. Voice Control: "Show names" and speak button labels.
+**Verification:** Connect hardware keyboard; Tab through puzzle form fields. Voice Control: "Show names" and speak button labels.
 
 #### 2.2 Enough time (2.2.1, 2.2.2)
 
@@ -141,9 +141,9 @@ Brand gradient and splash animations are low-frequency. No strobe content.
 | **2.4.1 Bypass Blocks** | Tab bar provides direct section access | Supports |
 | **2.4.2 Page Titled** | `.navigationTitle` on major screens | Supports |
 | **2.4.3 Focus Order** | Matches visual order in forms and lists | Partial — audit puzzle form |
-| **2.4.4 Link Purpose** | "Forgot password", Settings links have clear labels | Supports |
+| **2.4.4 Link Purpose** | Settings legal links and in-app buttons have clear labels | Supports |
 | **2.4.5 Multiple Ways** | Tab bar + list navigation to puzzles | Supports |
-| **2.4.6 Headings and Labels** | Field labels + `accessibilityLabel` on login/settings | Partial |
+| **2.4.6 Headings and Labels** | Field labels + `accessibilityLabel` on settings and forms | Partial |
 | **2.4.7 Focus Visible** | iOS focus ring for external keyboard / Switch Control | Supports (platform) |
 
 #### 2.5 Input modalities (2.5.1–2.5.4)
@@ -152,7 +152,7 @@ Brand gradient and splash animations are low-frequency. No strobe content.
 |-----------|--------|-------|
 | **2.5.1 Pointer Gestures** | Supports | Tap-based; swipe-to-delete is standard list pattern with VoiceOver delete action |
 | **2.5.2 Pointer Cancellation** | Supports | System button behavior |
-| **2.5.3 Label in Name** | Supports | Visible "Log in" matches `accessibilityLabel` |
+| **2.5.3 Label in Name** | Supports | Visible button text matches `accessibilityLabel` |
 | **2.5.4 Motion Actuation** | Supports | No shake-to-activate features |
 
 ---
@@ -184,11 +184,11 @@ Localization is planned (Phase 3).
 | Criterion | Implementation | Status |
 |-----------|----------------|--------|
 | **3.3.1 Error Identification** | `ErrorHandling` alerts with title + message | Supports |
-| **3.3.2 Labels or Instructions** | Field labels in forms; login placeholders | Partial — puzzle form hints |
-| **3.3.3 Error Suggestion** | Auth errors show localized Firebase messages | Partial |
+| **3.3.2 Labels or Instructions** | Field labels in puzzle form | Partial — optional hints on advanced fields |
+| **3.3.3 Error Suggestion** | `ErrorHandling` alerts describe validation failures | Supports |
 | **3.3.4 Error Prevention** | Delete via swipe; no destructive one-tap on critical data | Supports |
 
-**Verification:** Submit login with empty fields; confirm alert describes the problem.
+**Verification:** Submit puzzle form with invalid data; confirm alert describes the problem.
 
 ---
 
@@ -210,16 +210,12 @@ Content must be robust enough for assistive technologies.
 
 ## Screen-by-screen conformance
 
-### Login (`LoginView`)
+### Onboarding (`OnboardingView`)
 
 | Control | Label | Identifier | Status |
 |---------|-------|------------|--------|
-| Email field | "Email" | `login_email_field` | Done |
-| Password field | "Password" | `login_password_field` | Done |
-| Log in button | "Log in" | `login_submit_button` | Done |
-| Forgot password | "Forgot password" | `forgot_password_button` | Done |
-| Sign in with Apple | System button | — | Platform |
-| Brand background | Decorative | — | Reduce Motion OK |
+| Welcome / barcode steps | Visible copy + system buttons | — | Partial — full VO audit pending |
+| Continue / Get started | Button text | — | Supports |
 
 ### Puzzle list (`PuzzleList`)
 
@@ -244,7 +240,7 @@ Content must be robust enough for assistive technologies.
 
 | Control | Label | Identifier | Status |
 |---------|-------|------------|--------|
-| Sign out | "Sign out" | `settings_sign_out_button` | Done |
+| Demo data / export (dogfood) | Visible row text | `settings_*` | Partial |
 | Accessibility link | Link text | — | Done |
 
 ### Tab bar (`PuzzleTabbar`)
@@ -273,16 +269,16 @@ Puzzle Buddy is tested with these system features:
 ### VoiceOver testing procedure
 
 1. Enable VoiceOver (triple-click side button if configured, or Settings)
-2. Login screen: verify all fields and buttons are reachable in logical order
-3. Sign in → Puzzles tab: hear list label and add button
+2. Launch app → onboarding: verify buttons are reachable in logical order
+3. Puzzles tab: hear list label and add button
 4. Open puzzle form: verify each field is announced
-5. Settings → Sign out: confirm button label
+5. Settings: confirm legal links and version row labels
 
 ### Dynamic Type testing procedure
 
 1. Settings → Accessibility → Display & Text Size → Larger Text → enable **Larger Accessibility Sizes**
 2. Drag slider to maximum
-3. Open Puzzle Buddy → verify no clipped text on login, list rows, and form
+3. Open Puzzle Buddy → verify no clipped text on list rows and form
 4. Document issues in GitHub with screenshots
 
 ### Reduce Motion testing procedure
@@ -300,23 +296,27 @@ Puzzle Buddy is tested with these system features:
 
 ### UI tests
 
-`Puzzle_BuddyUITests` queries elements by `A11yID` on login screen.
+`Puzzle_BuddyUITests` queries elements by `A11yID` on the puzzle list and settings (seeded data; no login screen).
 
-### Planned: XCUIAccessibilityAudit
+### XCUIAccessibilityAudit
 
 ```swift
-// Future — Puzzle BuddyUITests
-func testLoginAccessibilityAudit() throws {
+// Puzzle BuddyUITests — puzzle list with seeded fixtures
+func testPuzzleListAccessibilityAudit() throws {
     let app = XCUIApplication()
+    app.launchArguments += [
+        "-disable_firebase_analytics",
+        "-ui_testing_bypass_onboarding",
+        "-ui_testing_seed_puzzles"
+    ]
     app.launch()
     try app.performAccessibilityAudit(for: .all) { issue in
-        // Filter known false positives if needed
         return false
     }
 }
 ```
 
-Run audit targets: login, puzzle list, puzzle form, settings. See [testing.md](testing.md).
+Run audit targets: onboarding, puzzle list, puzzle form, settings. See [testing.md](testing.md).
 
 ---
 
@@ -342,7 +342,7 @@ Web pages use semantic HTML, viewport meta, and CSS variables for light/dark. Th
 | No localization | 3.1.1 (future locales) | 3 | `Localizable.strings` |
 | Dynamic Type clipping on cells | 1.4.4 | 2 | Layout audit at AX5 |
 | Full contrast audit incomplete | 1.4.3, 1.4.11 | 2 | Accessibility Inspector measurements |
-| Status messages (sync complete) not announced | 4.1.3 | 2 | `AccessibilityNotification` on fetch |
+| Status messages (local load complete) not announced | 4.1.3 | 2 | `AccessibilityNotification` on fetch |
 
 Track progress in [accessibility_todo.md](../accessibility/accessibility_todo.md).
 
@@ -353,9 +353,9 @@ Track progress in [accessibility_todo.md](../accessibility/accessibility_todo.md
 ### Labels and identifiers
 
 ```swift
-TextField("Email", text: $email)
-    .accessibilityLabel("Email address")
-    .optionalAccessibilityIdentifier(A11yID.loginEmailField)
+Button("Add puzzle") { ... }
+    .accessibilityLabel("Add puzzle")
+    .optionalAccessibilityIdentifier(A11yID.addPuzzleButton)
 ```
 
 ### Custom control value

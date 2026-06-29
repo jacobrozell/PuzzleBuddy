@@ -26,8 +26,8 @@ Apple HIG: [Accessibility](https://developer.apple.com/design/human-interface-gu
 
 ### VoiceOver
 
-- Login email, password, submit, and forgot-password controls have labels
-- Primary navigation uses standard SwiftUI tab bar semantics
+- Puzzle list, add puzzle, settings, and tab bar use labels and system semantics
+- Onboarding screens use standard SwiftUI control semantics
 
 ### Identifiers (`A11yID`)
 
@@ -35,15 +35,10 @@ Centralized in `DesignTokens.swift`:
 
 | Constant | Element |
 |----------|---------|
-| `loginEmailField` | Email text field |
-| `loginPasswordField` | Password secure field |
-| `loginSubmitButton` | Sign-in button |
-| `forgotPasswordButton` | Password reset link |
 | `puzzleList` | Main puzzle list |
 | `addPuzzleButton` | Add puzzle FAB/button |
 | `puzzlesTab` | Puzzles tab |
 | `settingsTab` | Settings tab |
-| `settingsSignOutButton` | Sign out |
 
 Apply via `.optionalAccessibilityIdentifier(A11yID.*)` or `.accessibilityIdentifier`.
 
@@ -58,7 +53,7 @@ Apply via `.optionalAccessibilityIdentifier(A11yID.*)` or `.accessibilityIdentif
 
 ## Phase 1 — Done
 
-- [x] VoiceOver labels on login fields and primary actions
+- [x] VoiceOver labels on puzzle list, settings, and primary actions
 - [x] Accessibility identifiers for UI tests (`A11yID`)
 - [x] Reduce Motion support for brand gradient background
 - [x] GitHub Pages accessibility statement
@@ -87,10 +82,9 @@ Apply via `.optionalAccessibilityIdentifier(A11yID.*)` or `.accessibilityIdentif
 ### Automated audits
 
 - [x] Add `XCUIAccessibilityAudit` UI test suite in `Puzzle BuddyUITests`
-- [x] Run audit on login screen
-- [x] Run audit on puzzle list (bypass auth + seeded fixtures)
+- [x] Run audit on onboarding and puzzle list (seeded fixtures)
 - [x] Run audit on settings and add-puzzle form
-- [x] Landscape layout checks for login and puzzle list
+- [x] Landscape layout checks for puzzle list and detail
 
 ## Phase 3 — Polish
 

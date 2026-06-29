@@ -64,7 +64,7 @@ When changing telemetry allowlists: update `AppLoggingTests` and [telemetry.md](
 | Argument | Purpose |
 |----------|---------|
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics |
-| `-ui_testing_bypass_auth` | Skip onboarding (legacy name) |
+| `-ui_testing_bypass_onboarding` | Skip onboarding |
 | `-ui_testing_seed_puzzles` | Insert demo puzzles |
 
 Default UI test flow: puzzle list with seeded data — **no login screen** (auth removed from app).
@@ -74,7 +74,7 @@ Default UI test flow: puzzle list with seeded data — **no login screen** (auth
 | File | Purpose |
 |------|---------|
 | `PuzzleAccessibilityUITests` | WCAG audits on list, form, settings |
-| `WCAGAccessibilitySupport` | `launchForBypassAuth`, audit helpers |
+| `WCAGAccessibilitySupport` | `launchForBypassOnboarding`, audit helpers |
 
 Login-screen UI tests were removed with auth code. VoiceOver script for login archived in [accessibility/wcag-2.1-aa/voiceover-scripts/login.md](../accessibility/wcag-2.1-aa/voiceover-scripts/login.md).
 

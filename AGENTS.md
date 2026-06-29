@@ -135,7 +135,7 @@ Personal git push: use `git@github.com-personal:jacobrozell/PuzzleBuddy.git` (se
 | Argument | Purpose |
 |----------|---------|
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics collection |
-| `-ui_testing_bypass_auth` | Skip onboarding (legacy name; no auth in app) |
+| `-ui_testing_bypass_onboarding` | Skip onboarding in UI tests |
 | `-ui_testing_seed_puzzles` | Load demo puzzles into SwiftData |
 | `-enable_collection_import_export` | Enable Settings import/export UI |
 

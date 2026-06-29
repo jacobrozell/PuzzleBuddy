@@ -25,7 +25,6 @@ enum LogLevel: Int, Comparable, Sendable {
 
 enum LogCategory: String, Sendable {
     case app
-    case auth
     case puzzles
     case ui
 }
@@ -109,7 +108,7 @@ enum PuzzleAnalyticsEventMapping {
         "puzzle_updated",
         "puzzle_deleted",
         "puzzle_import_completed",
-        "puzzle_sync_failed",
+        "puzzle_load_failed",
         "settings_collection_exported",
         "shopping_scan_match",
         "shopping_scan_no_match"

@@ -30,14 +30,4 @@ enum ProductService {
     static var isCollectionImportExportEnabled: Bool {
         ProcessInfo.processInfo.arguments.contains(enableCollectionImportExportArgument)
     }
-
-    /// Import puzzles from an IPDb CSV export (Settings → Collection).
-    static var isIPDbImportEnabled: Bool {
-        isCollectionImportExportEnabled
-    }
-
-    /// Export collection as JSON or IPDb-compatible CSV.
-    static var isCollectionExportEnabled: Bool {
-        isCollectionImportExportEnabled
-    }
 }

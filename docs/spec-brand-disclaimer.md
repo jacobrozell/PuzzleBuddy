@@ -25,7 +25,7 @@ Inspired by [IPDb](https://www.ipdb.plus/)’s footer: clear, always visible, an
 | Location | Component | When shown |
 |----------|-----------|------------|
 | **Settings → Help & Legal** | `LegalDisclaimerFooter` | Always (primary home for full disclaimer) |
-| **Settings → Collection** | Section footer note | Only when `isIPDbImportEnabled` |
+| **Settings → Collection** | Section footer note | Only when `isCollectionImportExportEnabled` |
 | **Add / edit form → Source** | Form section footer | When source presets or brand field visible |
 | **Quick add from scan** | Section footer | When suggested brand from lookup/cache |
 | **IPDb import results** | Section footer | Only when import flag on |

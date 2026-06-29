@@ -11,7 +11,7 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 - [x] **Pick my next puzzle** — shipped; dice on collection list
 - [x] **Wishlist + progress over days** — shipped
 - [x] **GitHub Pages** — privacy + support URLs live
-- [ ] **Marketing screenshots** — local-first, barcode shopping, pick-next, stats
+- [x] **Marketing screenshots** — captured in `marketing-screenshots/` (Connect upload still required)
 - [ ] **Device smoke** — add puzzle → filters → pick-next → detail → stats
 - [ ] **WCAG core journey** — VoiceOver manual audit ([`../accessibility/accessibility_todo.md`](../accessibility/accessibility_todo.md))
 - [ ] **App Store Connect** — see [`app-store-connect.md`](app-store-connect.md)
@@ -21,7 +21,7 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 - [ ] **Landscape + iPad** — Phase 2 layout sign-off
 - [x] **Generic UPC API lookup** — evaluated and removed; barcode enrichment is on-device only
 - [x] **Onboarding** — no IPDb/import claims in 1.0 copy
-- [x] **Unit tests** — 174+ passing
+- [x] **Unit tests** — 163+ passing
 
 ## Removed from 1.0 scope
 

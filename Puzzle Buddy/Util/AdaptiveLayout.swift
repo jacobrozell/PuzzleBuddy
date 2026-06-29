@@ -94,7 +94,7 @@ private struct AdaptiveScrollChrome: ViewModifier {
 }
 
 extension View {
-    /// Scrollable chrome for login and compact-height layouts.
+    /// Scrollable chrome for compact-height layouts.
     func adaptiveScrollChrome() -> some View {
         modifier(AdaptiveScrollChrome())
     }
