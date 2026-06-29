@@ -2,29 +2,13 @@
 //  ProductService.swift
 //  Puzzle Buddy
 //
-//  Feature flags for staged releases. Login/cloud sync ships after 1.0.
+//  Feature flags for staged releases.
 //
 
 import Foundation
 
 enum ProductService {
-    private static let enableLoginArgument = "-enable_login"
     private static let enableCollectionImportExportArgument = "-enable_collection_import_export"
-
-    /// Account sign-in and Firestore sync. Off for 1.0.0 local-only release.
-    static var isLoginEnabled: Bool {
-        if ProcessInfo.processInfo.arguments.contains(enableLoginArgument) {
-            return true
-        }
-        if UITestSupport.isBypassAuthEnabled {
-            return false
-        }
-        return false
-    }
-
-    static var isCloudSyncEnabled: Bool {
-        isLoginEnabled && FirebaseBootstrap.shouldConfigure
-    }
 
     /// Live barcode scanner (VisionKit). Requires camera hardware.
     @MainActor

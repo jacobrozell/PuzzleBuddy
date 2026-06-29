@@ -50,26 +50,28 @@ Point Privacy Policy URL, Support URL, and Marketing URL fields to the Pages URL
 
 ## Technical documentation index
 
-These Markdown files are for developers (linked from the root [README.md](../README.md)):
+These Markdown files are for developers and agents (linked from [README.md](../README.md)):
 
 | Document | Description |
 |----------|-------------|
-| [agent-build-checklist.md](agent-build-checklist.md) | **Agent build checklist** — phased 0→Ship status, progress log, agent query template |
-| [feature-inventory.md](feature-inventory.md) | **What ships today** — shipped / partial / planned / stub register |
-| [features.md](features.md) | Core features — user flows, fields, persistence, stats (1.0), and observability |
-| [roadmap.md](roadmap.md) | Future releases, cloud sync, **find & organize** (tags, search, filters), **stats & collection insights**, **competitive positioning**, accessibility phases, model extensions |
-| [implementation-playbook.md](implementation-playbook.md) | **Build-all-then-cut** workflow, feature backlog IDs, copy-paste agent queries for implementation sessions |
-| [architecture.md](architecture.md) | App structure, data model, navigation, dependencies |
-| [development.md](development.md) | Local setup, XcodeGen, debugging, troubleshooting |
-| [firebase-setup.md](firebase-setup.md) | Firebase Console, Analytics, Crashlytics; Auth/Firestore for login release |
-| [analytics.md](analytics.md) | AppLog, Analytics allowlist, privacy rules |
-| [testing.md](testing.md) | Unit tests, UI tests, CI test runner |
+| [../AGENTS.md](../AGENTS.md) | **Agent onboarding** — product snapshot, read order, anti-patterns |
+| [agent-build-checklist.md](agent-build-checklist.md) | Phased 0→Ship status, progress log, agent query template |
+| [feature-inventory.md](feature-inventory.md) | What ships today — shipped / gated / planned |
+| [telemetry.md](telemetry.md) | **Logging, Analytics, Crashlytics** — full allowlists and bootstrap |
+| [features.md](features.md) | Core features — user flows, fields, persistence |
+| [roadmap.md](roadmap.md) | Future releases and backlog |
+| [implementation-playbook.md](implementation-playbook.md) | Build-all-then-cut workflow, agent queries |
+| [architecture.md](architecture.md) | App structure, data model, navigation |
+| [development.md](development.md) | Local setup, XcodeGen, debugging |
+| [firebase-setup.md](firebase-setup.md) | Firebase Console — Analytics + Crashlytics only |
+| [analytics.md](analytics.md) | AppLog quick reference (see telemetry.md for full spec) |
+| [testing.md](testing.md) | Unit tests, UI tests, CI |
 | [wcag.md](wcag.md) | WCAG 2.1 AA conformance guide |
 
 ## Contributing to docs
 
 - Keep the root README as the entry point with links into `docs/`
-- Update technical docs when changing architecture, Firebase schema, CI, or analytics allowlist
+- Update technical docs when changing architecture, telemetry allowlists, CI, or feature flags
 - Update HTML legal pages when privacy practices or support contact changes
 - Follow the same PR process as code — see [CONTRIBUTING.md](../CONTRIBUTING.md)
 

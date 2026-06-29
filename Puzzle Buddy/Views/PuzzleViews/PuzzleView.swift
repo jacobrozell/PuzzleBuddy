@@ -12,13 +12,16 @@ import SwiftUI
 struct PuzzleView: View {
     @StateObject var ps: PuzzleStore
 
-    init(modelContext: ModelContext, user: PuzzleUser? = nil) {
-        _ps = StateObject(wrappedValue: PuzzleStore(modelContext: modelContext, user: user))
+    init(modelContext: ModelContext) {
+        _ps = StateObject(wrappedValue: PuzzleStore(modelContext: modelContext))
     }
 
     var body: some View {
         PuzzleTabbar(ps: ps)
             .task {
+                if MarketingSnapshotBootstrap.shouldResetCollection {
+                    try? ps.clearAllPuzzles()
+                }
                 if UITestSupport.shouldSeedPuzzles, ps.puzzles.isEmpty {
                     try? ps.loadDemoPuzzles()
                 } else if ps.puzzles.isEmpty {

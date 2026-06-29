@@ -2,8 +2,8 @@
 
 **What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md).
 
-**Last updated:** 2026-06-27  
-**Target v1.0.0:** Inaugural App Store release — local-first catalog, no account. Import/export gated off. **Not yet submitted.**
+**Last updated:** 2026-06-29  
+**Target v1.0.0:** Inaugural App Store release — local-first catalog, no account. Import/export gated off.
 
 ---
 
@@ -27,7 +27,7 @@
 | Stats | Per-puzzle pace metrics | `PuzzleDetailMetrics` |
 | Stats | Share collage | `PuzzleShareMenu` |
 | Settings | Appearance, demo data, legal links | `SettingsView` |
-| Observability | Allowlisted Analytics + Crashlytics | `AppLog` |
+| Observability | Allowlisted Analytics + Crashlytics | `AppLog`, [telemetry.md](telemetry.md) |
 | A11y | Phase 1 + automated audits | `A11yID`, `PuzzleAccessibilityUITests` |
 
 ---
@@ -38,7 +38,15 @@
 |---------|------|---------|
 | IPDb CSV import | `isCollectionImportExportEnabled` | `-enable_collection_import_export` |
 | JSON / CSV export | same | same |
-| Login + Firestore sync | `isLoginEnabled` | `-enable_login` |
+
+---
+
+## Removed from app (not gated)
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Login + Firestore sync | **Removed** June 2026 | Future: [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md) |
+| Push / FCM | **Removed** | No Messaging SDK |
 
 ---
 
@@ -64,4 +72,4 @@ See [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and `specs/planned/`.
 
 | Release | Last verified | Tests |
 |---------|---------------|-------|
-| 1.0.0 pre-ship | 2026-06-27 | 180 unit tests green |
+| 1.0.0 pre-ship | 2026-06-29 | 163+ unit tests green |

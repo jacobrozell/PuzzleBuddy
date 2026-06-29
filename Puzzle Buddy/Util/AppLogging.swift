@@ -74,7 +74,27 @@ enum FirebaseBootstrap {
     }
 
     static var isAnalyticsCollectionEnabled: Bool {
-        shouldConfigure && !ProcessInfo.processInfo.arguments.contains("-disable_firebase_analytics")
+        shouldConfigure && isRemoteTelemetryCollectionEnabled
+    }
+
+    static var isCrashlyticsCollectionEnabled: Bool {
+        shouldConfigure && isRemoteTelemetryCollectionEnabled
+    }
+
+    /// Matches Dart Buddy: off in Debug unless `-firebase_analytics_debug`; off when `-disable_firebase_analytics`.
+    private static var isRemoteTelemetryCollectionEnabled: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains(UITestSupport.disableFirebaseAnalytics) {
+            return false
+        }
+        if arguments.contains("-firebase_analytics_debug") {
+            return true
+        }
+        #if DEBUG
+        return false
+        #else
+        return true
+        #endif
     }
 }
 
@@ -83,24 +103,24 @@ enum FirebaseBootstrap {
 enum PuzzleAnalyticsEventMapping {
     private static let allowlistedEvents: Set<String> = [
         "app_bootstrap_ready",
-        "user_signed_in",
-        "user_signed_out",
-        "user_account_created",
-        "user_profile_updated",
+        "onboarding_completed",
         "puzzle_list_refreshed",
         "puzzle_added",
         "puzzle_updated",
         "puzzle_deleted",
+        "puzzle_import_completed",
         "puzzle_sync_failed",
-        "auth_failed"
+        "settings_collection_exported",
+        "shopping_scan_match",
+        "shopping_scan_no_match"
     ]
 
     private static let allowlistedParameterKeys: Set<String> = [
         "app_version",
         "log_category",
-        "auth_provider",
         "puzzle_count",
-        "puzzle_status"
+        "puzzle_status",
+        "format"
     ]
 
     static func map(
@@ -161,41 +181,46 @@ struct DefaultAppLogger: AppLogger {
         let metadataSummary = redacted.isEmpty ? "" : " \(redacted)"
         osLog.log(level: level.osLogType, "[\(category.rawValue)] \(eventName): \(message)\(metadataSummary)")
 
-        guard level >= .info,
-              FirebaseBootstrap.isAnalyticsCollectionEnabled,
-              let mapped = PuzzleAnalyticsEventMapping.map(
-                eventName: eventName,
-                category: category,
-                metadata: redacted,
-                appVersion: appVersion
-              )
-        else {
-            recordCrashlyticsLog(level: level, category: category, eventName: eventName, message: message)
-            return
+        if level >= .info,
+           FirebaseBootstrap.isAnalyticsCollectionEnabled,
+           let mapped = PuzzleAnalyticsEventMapping.map(
+               eventName: eventName,
+               category: category,
+               metadata: redacted,
+               appVersion: appVersion
+           ) {
+            Analytics.logEvent(mapped.name, parameters: mapped.parameters)
         }
 
-        Analytics.logEvent(mapped.name, parameters: mapped.parameters)
-        recordCrashlyticsLog(level: level, category: category, eventName: eventName, message: message)
+        recordCrashlyticsLog(
+            level: level,
+            category: category,
+            eventName: eventName,
+            metadata: redacted
+        )
     }
 
     private func recordCrashlyticsLog(
         level: LogLevel,
         category: LogCategory,
         eventName: String,
-        message: String
+        metadata: [String: String]
     ) {
-        guard level >= .warning,
-              FirebaseBootstrap.shouldConfigure,
+        guard FirebaseBootstrap.isCrashlyticsCollectionEnabled,
               !UITestSupport.isRunningUnderTest
         else { return }
 
-        Crashlytics.crashlytics().log("[\(category.rawValue)] \(eventName): \(message)")
-        if level >= .error {
-            let error = NSError(
-                domain: "com.jacobrozell.Puzzle-Buddy",
-                code: level.rawValue,
-                userInfo: [NSLocalizedDescriptionKey: message]
-            )
+        if level >= .info {
+            Crashlytics.crashlytics().log("[\(category.rawValue)] \(eventName)")
+        }
+
+        if let error = FirebaseCrashlyticsEventMapping.nonFatalError(
+            level: level,
+            category: category,
+            eventName: eventName,
+            metadata: metadata,
+            appVersion: appVersion
+        ) {
             Crashlytics.crashlytics().record(error: error)
         }
     }

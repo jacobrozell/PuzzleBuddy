@@ -2,18 +2,20 @@
 
 This document consolidates planned work across releases, accessibility phases, and model extensions. It is the single reference for what ships in **1.0.0** (inaugural App Store release) versus what comes next.
 
-For current shipped behavior, see [features.md](features.md). For architecture of implemented-but-disabled features, see [architecture.md](architecture.md).
+For **current shipped behavior**, see [features.md](features.md) and [feature-inventory.md](feature-inventory.md). For agents: [AGENTS.md](../AGENTS.md).
 
-**Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `Puzzle_BuddyApp.version`). Follow-on releases use semver: **1.1.0** (login + sync), **1.2.0**, etc.
+**Last updated:** 2026-06-29
+
+**Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `Puzzle_BuddyApp.version`). Follow-on releases use semver: **1.1.0** (import/export, polish), **1.2.0+**, etc. Account sync is **not** scheduled for 1.1 — see [Future: auth + cloud sync](#future-auth--cloud-sync).
 
 ### Contents
 
 - [Release strategy](#release-strategy)
-- [Release 1.1.0+ — Authentication and cloud sync](#release-110--authentication-and-cloud-sync)
+- [Future: auth + cloud sync](#future-auth--cloud-sync)
 - [Puzzle model extensions](#puzzle-model-extensions)
-- [Find & organize — user-driven product strategy](#find--organize--user-driven-product-strategy)
+- [Find & organize](#find--organize--user-driven-product-strategy)
 - [Stats and collection insights](#stats-and-collection-insights)
-- [Competitive positioning — Puzzle Tracker](#competitive-positioning--puzzle-tracker)
+- [Competitive positioning](#competitive-positioning--puzzle-tracker)
 - [Accessibility roadmap](#accessibility-roadmap)
 - [Testing and infrastructure roadmap](#testing-and-infrastructure-roadmap)
 - [Observability roadmap](#observability-roadmap)
@@ -23,172 +25,88 @@ For current shipped behavior, see [features.md](features.md). For architecture o
 
 ## Release strategy
 
-Puzzle Buddy uses **staged releases** controlled by `ProductService` feature flags rather than separate code branches.
+Puzzle Buddy uses **staged releases** controlled by `ProductService` feature flags (not separate product branches).
 
-| Release | Theme | Feature flags | Data store |
-|---------|-------|---------------|------------|
-| **1.0.0** (inaugural) | Local-first catalog | `isLoginEnabled = false` | SwiftData on device |
-| **1.1.0+** | Accounts and cloud sync | `isLoginEnabled = true` | SwiftData + Firestore |
-| **Future** | Richer puzzle metadata, stats, competitive polish | TBD | Possibly Cloud Storage for images |
+| Release | Theme | Gated features | Data store |
+|---------|-------|----------------|------------|
+| **1.0.0** (inaugural) | Local-first catalog | Import/export off | SwiftData on device |
+| **1.1.0** (target) | Import/export + polish | `isCollectionImportExportEnabled` | SwiftData on device |
+| **Future** | Richer metadata, widgets, optional accounts | TBD | SwiftData; cloud TBD |
+
+Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telemetry.md)). No Auth, Firestore, or push in the app today.
 
 ### Enabling features during development
 
 | Flag | Default | Override |
 |------|---------|----------|
-| `isLoginEnabled` | `false` | Launch argument `-enable_login`, or change `ProductService.swift` |
-| `isCloudSyncEnabled` | `false` | Automatically `true` when login is enabled and Firebase is configured |
+| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
+| `isBarcodeScanEnabled` | device capability | — |
+| `isPickNextEnabled` | `true` | — |
 
-When login ships to production, the flag will likely move to **Firebase Remote Config** so it can be rolled out gradually without an app update.
+Remote Config for flags is a future option — not implemented.
 
 ---
 
-## Release 1.1.0+ — Authentication and cloud sync
+## Future: auth + cloud sync
 
-Login and Firestore sync are **fully implemented** but disabled for 1.0.0. This section describes what exists and what remains before shipping.
+**Not in the app.** Login, Firestore sync, FCM push, and related code were **removed June 2026**. Firebase Console Auth/Firestore were decommissioned for this project.
 
-### Ready for release
+If accounts return, treat it as a **new implementation** guided by [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md), not a flag flip on old code.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Email/password sign-in | ✅ Implemented | `FirebaseAuthProvider.login()` |
-| Email/password registration | ✅ Implemented | Creates Auth user + `/users/{email}` doc |
-| Sign in with Apple | ✅ Implemented | Nonce-based OAuth via `AuthenticationServices` |
-| Forgot password | ✅ Implemented | `ForgotPasswordView` |
-| Firestore puzzle CRUD | ✅ Implemented | `PuzzleStore` dual-path local + cloud |
-| Security rules | ✅ Implemented | `firestore.rules` — email must match `userId` |
-| Sign out | ✅ Implemented | `SettingsView` when login enabled |
-| Profile management | ✅ Partial | `ProfileView` — password reset, username change |
+High-level requirements if revisited:
 
-### Work remaining before shipping login
+| Area | Notes |
+|------|-------|
+| Product | Optional account; full offline catalog without sign-in |
+| Migration | Upload SwiftData puzzles on first sign-in; conflict UI TBD |
+| Backend | Re-create Firestore + rules; Cloud Storage for images (not Base64 in docs) |
+| Telemetry | New allowlisted auth funnel events; same PII rules as [telemetry.md](telemetry.md) |
+| Testing | Firebase Emulator, login UI tests, multi-device QA |
 
-| Item | Priority | Description |
-|------|----------|-------------|
-| **Local-to-cloud migration** | High | On first sign-in, upload existing SwiftData puzzles to Firestore. Not yet implemented. |
-| **Remote Config flag** | High | Replace static `isLoginEnabled` with Remote Config for gradual rollout |
-| **`createAccountWithApple` stub** | Medium | Apple OAuth creates Auth user but dedicated account-creation helper is commented out; verify Firestore user doc is created for Apple-only sign-ups |
-| **`ProfileView` integration** | Medium | Wire profile into navigation (tab or settings section); handle `// TODO else` when no user |
-| **Firebase Emulator tests** | Medium | Isolated integration tests for Firestore paths and rules |
-| **Manual QA checklist** | High | Full auth flow with `-enable_login`, multi-device sync, offline behavior |
-| **App Store metadata** | Medium | Update privacy policy if cloud storage is described; enable Auth providers in Firebase Console |
-| **Deploy Firestore rules** | High | `firebase deploy --only firestore:rules` before enabling sync |
-
-### Firestore data model (cloud sync)
-
-**User document:** `/users/{email}`
-
-| Field | Type | When set |
-|-------|------|----------|
-| `username` | string | Account creation |
-| `currentVersion` | string | Every login (`updateUser()`) |
-| `lastLoggedIn` | timestamp | Every login |
-
-**Puzzle subcollection:** `/users/{email}/puzzles/{puzzleId}`
-
-| Field | Type | Notes |
-|-------|------|-------|
-| `id` | string | UUID string |
-| `name` | string | |
-| `pieces` | int or `"nil"` | |
-| `rating` | double | |
-| `difficulty` | string | |
-| `estimatedTimeSpent` | string | e.g. `"2hr:30min"` |
-| `completionDate` | timestamp | |
-| `status` | string | `To-Do` or `Completed` |
-| `imageData` | string | Base64 JPEG or `"nil"` |
-
-### Known cloud sync limitations
-
-| Limitation | Impact | Future mitigation |
-|------------|--------|-------------------|
-| Images as Base64 in Firestore docs | 1 MB document size limit; slow sync for large photos | Migrate to **Firebase Cloud Storage** with URL reference in puzzle doc |
-| No offline conflict resolution | Last write wins | Consider Firestore offline persistence + merge strategy |
-| Email as document ID | Email change breaks path | Consider UID-based paths with email as a field |
-| No bidirectional merge on login | Local and cloud data may diverge | Implement migration + conflict UI |
-
-### Testing login locally
-
-```bash
-# In Xcode: Edit Scheme → Run → Arguments → add -enable_login
-# Or from CLI with xcodebuild, pass the launch argument to the simulator
-```
-
-Prerequisites:
-
-1. Real `GoogleService-Info.plist` (not the example placeholder)
-2. Email/Password and Apple providers enabled in Firebase Console
-3. Firestore rules deployed
-
-See [firebase-setup.md](firebase-setup.md).
+Historical implementation notes (pre-removal) live in git history and the spec doc — do not assume `-enable_login` or `isLoginEnabled` still exist.
 
 ---
 
 ## Puzzle model extensions
 
-Commented fields in `PuzzleObject.swift` indicate planned metadata. None are implemented yet. Additional fields below come from [stats planning](#stats-and-collection-insights) and [competitive analysis](#competitive-positioning--puzzle-tracker).
+Many fields below **shipped in 1.0** — see [feature-inventory.md](feature-inventory.md). This section tracks remaining gaps vs. competitor and backlog.
 
-### Existing planned fields (`PuzzleObject.swift`)
+### Shipped in 1.0 (reference)
 
-| Field | Description | Complexity |
-|-------|-------------|------------|
-| `category` | Puzzle type (landscape, mystery, etc.) | Low — new enum + picker |
-| `barcode` | Scan UPC on puzzle box | Medium — VisionKit scanner | See [spec-barcode-scanner.md](spec-barcode-scanner.md); metadata strategy in [barcode-metadata-strategy.md](barcode-metadata-strategy.md) |
-| `timer` | In-app puzzle timer | Medium — background timer, Live Activity |
-| `price` | Purchase price tracking | Low — currency field |
-| `notes` | Free-text notes | Low — text area |
-| `urlLink` | Link to manufacturer or review | Low — URL field |
-| Reverse image search | Auto-fill puzzle info from photo | High — ML or external API |
+Tags, barcode, notes, brand (`source`), start date, wishlist/abandoned/in-progress statuses, missing pieces, material, disposition, purchase location, release year, puzzle type, progress percent — all on `Puzzle` / `PuzzleRecord`.
 
-### Additional planned fields (product strategy)
+### Still planned / backlog
 
-| Field | Description | Complexity | Driver |
-|-------|-------------|------------|--------|
-| `tags` | User-defined labels (e.g. "winter", "Wysocki") | Medium — tag list + filter UI | Competitor; random-pick filters |
-| `brand` / `manufacturer` | Puzzle brand or artist | Low | Duplicate check; favorites |
-| `startDate` | When puzzling began | Low | Days-to-complete; progress tracking |
-| `disposition` | Post-completion fate: Kept, Donated, Sold, Gifted, Trashed | Low | Competitor review requests |
-| `hasMissingPieces` | Boolean flag | Low | Thrift-store finds; competitor filter |
-| `material` | Cardboard, wood, etc. | Low | Competitor review requests |
-| `purchaseLocation` | Where the puzzle was bought | Low | Competitor metadata |
-| `progressPhotos` | Additional photos beyond cover image | Medium | Progress-over-days without full re-do model |
+| Field / feature | Description | Complexity |
+|-----------------|-------------|------------|
+| In-app timer | Background timer, optional Live Activity | Medium |
+| `price` | Purchase price tracking | Low |
+| `urlLink` | Link to manufacturer or review | Low |
+| Reverse image search | Auto-fill from photo | High — ML or external API |
+| `progressPhotos` | Gallery beyond cover image | Medium |
+| Multi-photo gallery | Several photos per puzzle | Medium |
 
-### Status enum extension
+### Status enum
 
-`In-Progress` status is shipped in `Puzzle.Status`:
+**Shipped:** Wishlist, To-Do, In-Progress, Completed, Abandoned.
 
-```swift
-case inProgress = "In-Progress"
-```
-
-**Target lifecycle** (aligned with competitor folders, simplified for Puzzle Buddy):
-
-| Status | Meaning | Priority |
-|--------|---------|----------|
-| `Wishlist` | Want to buy / don't own yet | P2 — new enum case + migration |
-| `To-Do` | Owned, not started | ✅ Shipped |
-| `In-Progress` | On the table now | ✅ Shipped |
-| `Completed` | Finished | ✅ Shipped |
-| `Abandoned` | Will not finish | P2 — competitor has this |
-
-Adding new statuses requires:
-
-- Migration of existing `PuzzleRecord` rows (default unchanged)
-- Updated pickers in form and detail
-- Status tabs / filters on `PuzzleList`
-- Analytics metadata already supports arbitrary `puzzle_status` strings
+New statuses in the future require SwiftData migration planning (none implemented yet).
 
 ### UI improvements (near-term)
 
-| Item | Location | Description |
-|------|----------|-------------|
-| Editable `RatingsView` on form | `PuzzleForm.swift` | ✅ Visual half-star control with tap + VoiceOver adjustable |
-| Search / filter | `PuzzleList` | ✅ Search by name, brand (`source`), barcode; piece-count, needs-photo, and missing-pieces filters |
-| Profile tab or settings section | Navigation | Surface `ProfileView` for account management |
+| Item | Status |
+|------|--------|
+| Editable `RatingsView` on form | ✅ Shipped |
+| Search / filter / sort on list | ✅ Shipped |
+| Pick my next puzzle | ✅ Shipped |
+| JSON backup / restore | Planned — [specs/planned/json-backup-restore.md](../specs/planned/json-backup-restore.md) |
+| Home screen widget | Planned — [specs/planned/home-screen-widget.md](../specs/planned/home-screen-widget.md) |
 
 ---
 
 ## Find & organize — user-driven product strategy
 
-Product thinking for collectors with growing libraries (roughly 20–200 puzzles). The core problem today: the list is a single chronological log — fine for a dozen puzzles, frustrating at scale. Users need to answer *"Where is that winter cabin puzzle?"* and *"What should I work on next?"*
+Product thinking for collectors with growing libraries. **Steps 1–3 below shipped in 1.0** (search, status tabs, sort, tags, pick-next). Remaining polish: tag cloud in stats, favorites on brands/tags, exclude-mode filters.
 
 ### Custom tags — recommendation
 
@@ -211,19 +129,19 @@ Product thinking for collectors with growing libraries (roughly 20–200 puzzles
 
 | Approach | User mental model | Example | When to ship |
 |----------|-------------------|---------|--------------|
-| **Tags** (multi, user-defined) | "How I think about my collection" | `cozy`, `Wysocki`, `2024` | P1 — with find & organize bundle |
-| **Category** (single, preset enum) | "What kind of puzzle is this?" | Landscape, Mystery, Gradient | P2 — after tags prove useful |
-| **Brand** (structured field) | "Who made it?" | Ravensburger, Galison | P2 — duplicate check, favorites, stats by brand |
+| **Tags** (multi, user-defined) | "How I think about my collection" | `cozy`, `Wysocki`, `2024` | ✅ Shipped |
+| **Category** (single, preset enum) | "What kind of puzzle is this?" | Landscape, Mystery, Gradient | ✅ `puzzleType` enum |
+| **Brand** (structured field) | "Who made it?" | Ravensburger, Galison | ✅ `source` field |
 
 ### Recommended build order (find & organize)
 
 Ship in this order so each layer makes the next feel valuable:
 
-| Step | Features | Rationale |
-|------|----------|-----------|
-| 1 | **Search by name, brand, barcode** + **status tabs** (All / To-Do / Completed) + **sort** (name, rating, pieces, date) | Table stakes; status is already stored but not used to segment the list |
-| 2 | **Custom tags** — add/edit chips, filter by tag on list, tag counts in stats | Flexible organization; enables pick-next filters |
-| 3 | **"Pick my next puzzle"** — random from backlog, optional tag and piece-count filters | Delight + practical; low cost once filters exist |
+| Step | Features | Status |
+|------|----------|--------|
+| 1 | Search, status tabs, sort | ✅ Shipped |
+| 2 | Custom tags + filter by tag | ✅ Shipped |
+| 3 | Pick my next puzzle | ✅ Shipped |
 
 Backlog IDs: `list-search-sort`, `list-status-tabs`, `field-tags`, `pick-next` in [implementation-playbook.md](implementation-playbook.md).
 
@@ -233,21 +151,21 @@ Backlog IDs: `list-search-sort`, `list-status-tabs`, `field-tags`, `pick-next` i
 
 | Feature | User need | Backlog ID / field |
 |---------|-----------|-------------------|
-| In Progress status | Puzzle on the table right now | `status-in-progress` |
-| Notes | Missing pieces, lent to someone, thrift price | `field-notes` |
-| Pick my next puzzle | Random from backlog, filtered | `pick-next` |
-| Duplicate check | "Do I already own this?" while shopping | `list-search-sort`, `barcode-scan` |
-| Wishlist | Want to buy, don't own yet | `status-wishlist-abandoned` |
+| In Progress status | Puzzle on the table right now | ✅ Shipped |
+| Notes | Missing pieces, lent to someone, thrift price | ✅ Shipped |
+| Pick my next puzzle | Random from backlog, filtered | ✅ Shipped |
+| Duplicate check | "Do I already own this?" while shopping | ✅ Barcode + search |
+| Wishlist | Want to buy, don't own yet | ✅ Shipped |
 
 **Medium value — deep collectors**
 
 | Feature | User need | Backlog ID / field |
 |---------|-----------|-------------------|
-| Brand / manufacturer | Search, favorites, stats by brand | `field-brand` |
-| Barcode scan | Fast add + duplicate prevention | `barcode-scan` |
-| Missing pieces flag | Common for thrift finds; filterable | `field-missing-material` |
-| Start date + timer | Actual time vs manual estimate | `field-start-date`, `timer` |
-| Progress photos | WIP shots, not just finished box | `progress-photos` |
+| Brand / manufacturer | Search, favorites, stats by brand | ✅ `source`; favorites list optional |
+| Barcode scan | Fast add + duplicate prevention | ✅ Shipped |
+| Missing pieces flag | Common for thrift finds; filterable | ✅ Shipped |
+| Start date + timer | Actual time vs manual estimate | ✅ Start date; timer planned |
+| Progress photos | WIP shots, not just finished box | Planned |
 
 **Delight — retention, not core loop**
 
@@ -255,7 +173,7 @@ Backlog IDs: `list-search-sort`, `list-status-tabs`, `field-tags`, `pick-next` i
 |---------|-----------|------------|
 | Widgets | In-progress or random To-Do on home screen | `widget` |
 | Milestones | "50th puzzle completed" | `milestones` |
-| Share card | Finished puzzle image + stats for social | `year-in-review`, `share-collage` |
+| Share card | Finished puzzle image + stats for social | ✅ Share collage; year-in-review planned |
 
 ### What not to chase (yet)
 
@@ -265,13 +183,13 @@ Backlog IDs: `list-search-sort`, `list-status-tabs`, `field-tags`, `pick-next` i
 
 ### Smallest high-impact slice
 
-If shipping one cohesive increment: **status tabs + search + sort + tags**. That is the point where the app feels like a collection tool rather than a chronological log.
+Steps 1–3 above are **done**. Next incremental wins: milestones banner polish, tag cloud on stats, import/export in 1.1.
 
 ---
 
 ## Stats and collection insights
 
-Today the only derived stat on puzzle detail is **pieces per minute**, which is niche (speed puzzlers) and weak when time is a rough estimate. Collection-level stats do not exist yet. Planned work is phased by data-model cost.
+Collection Stats tab and per-puzzle pace metrics **shipped in 1.0**. Pieces-per-minute was removed. Remaining work is phased below.
 
 ### Phase A — Aggregate from existing fields (no schema change) ✅ Shipped
 
@@ -347,28 +265,28 @@ Reference: [Puzzle Tracker on the App Store](https://apps.apple.com/us/app/puzzl
 
 | Capability | Puzzle Tracker | Puzzle Buddy (1.0) | Opportunity |
 |------------|----------------|---------------------|-------------|
-| Photo gallery per puzzle | ✅ | ✅ Single photo | Multi-photo progress shots |
-| Status folders | Wishlist, Waiting list, Completed, Abandoned, In progress | To-Do, Completed | Add In-Progress + Wishlist; consider Abandoned |
+| Photo gallery per puzzle | ✅ | Single cover photo | Multi-photo progress shots |
+| Status folders | Wishlist, Waiting, Completed, Abandoned, In progress | ✅ Wishlist, To-Do, In-Progress, Completed, Abandoned | — |
 | Built-in timer (pause) | ✅ Core feature | ❌ Manual time only | High-value match; pairs with In-Progress |
-| Progress by photos + days | ✅ | ❌ | Start date + optional progress photos |
-| Filtering and sorting | ✅ Extensive (tags, brand, year, type, purchase location, missing pieces, exclude mode) | ✅ Search, status tabs, sort, piece-count / photo / missing-pieces filters | Custom tags next; then incremental filters |
-| Barcode scan | ✅ Bulk + manual entry | ❌ Planned (`barcode` field) | Duplicate-check while shopping — top user request in reviews |
-| Tags | ✅ (e.g. seasonal) | ❌ | Tags or categories for Wheel-style picks |
-| Custom fields / folders | ✅ Premium | ❌ | Lower priority unless power users ask |
-| Brand, artist, manufacturer | ✅ | ❌ | Brand field unlocks favorites + duplicate check |
-| Purchase location / price | ✅ | `price` planned | Thrift-store hunters care about this |
-| Disposition after complete | ✅ Kept, donated, sold, trashed | ❌ | Review-requested; distinct from status |
-| Puzzle material (cardboard, wood) | ✅ Requested in reviews | ❌ | Nice-to-have metadata |
-| Missing pieces flag | ✅ Filterable | ❌ | Practical for thrift finds |
-| Wheel of Fortune (random pick) | ✅ Filterable by list/tags | ❌ | Fun differentiator; low build cost |
-| Re-do / multiple attempts | ✅ Separate attempts with summary table | ❌ | Niche; defer unless speed puzzlers |
-| Share results / collages | ✅ | ❌ | Year-in-review + share card |
-| Friend sharing / social | ✅ v7.3+ | ❌ | Could differentiate via privacy-first local sync later |
-| Statistics screen | ✅ Improved over time | ✅ Collection Stats tab | Milestones, year-in-review still planned |
-| Favorites on metadata lists | ✅ Brands, tags, artists | ❌ | After brand/tags exist |
-| Accessibility statement | Not indicated | ✅ WCAG work in progress | **Differentiator** — lean into a11y |
-| Account required | Premium cloud features | ❌ Local-first, optional sync | **Differentiator** — no account for core use |
-| Privacy / no tracking pitch | Collects linked data | Analytics allowlist only | **Differentiator** — document clearly |
+| Progress by photos + days | ✅ | Start date + days on detail ✅ | Progress photos |
+| Filtering and sorting | ✅ Extensive | ✅ Search, status tabs, sort, filters, tags | Incremental polish |
+| Barcode scan | ✅ Bulk + manual | ✅ Scan + shopping duplicate-check | Bulk scan optional |
+| Tags | ✅ | ✅ User tags + filters | Tag cloud / favorites |
+| Custom fields / folders | ✅ Premium | ❌ | Defer |
+| Brand, artist, manufacturer | ✅ | ✅ `source` field | Favorites list optional |
+| Purchase location / price | ✅ | ✅ Location; price not shipped | Price field |
+| Disposition after complete | ✅ | ✅ Shipped | — |
+| Puzzle material | ✅ | ✅ Shipped | — |
+| Missing pieces flag | ✅ | ✅ Shipped | — |
+| Wheel / random pick | ✅ | ✅ Pick my next puzzle | — |
+| Re-do / multiple attempts | ✅ | ❌ | Defer |
+| Share results / collages | ✅ | ✅ Share collage | Year-in-review |
+| Friend sharing / social | ✅ v7.3+ | ❌ | Defer; optional cloud later |
+| Statistics screen | ✅ | ✅ Collection Stats tab | Milestones, year-in-review |
+| Favorites on metadata lists | ✅ | ❌ | After tag/brand polish |
+| Accessibility statement | Not indicated | ✅ WCAG work in progress | **Differentiator** |
+| Account required | Premium cloud | ❌ Local-only | **Differentiator** |
+| Privacy pitch | Collects linked data | Allowlisted analytics only | **Differentiator** |
 
 ### Brainstorm — how Puzzle Buddy can win
 
@@ -392,7 +310,7 @@ Puzzle Tracker leans timer-heavy; Puzzle Buddy can lean **collection pride**:
 
 | Angle | Puzzle Buddy play |
 |-------|-------------------|
-| Local-first, no account | Core catalog works offline forever; cloud is opt-in |
+| Local-first, no account | Core catalog works offline forever; cloud is a future spec only |
 | Accessibility | WCAG 2.1 AA target; VoiceOver, Dynamic Type, Reduce Motion — market this |
 | Native SwiftUI polish | Fast, simple flows vs feature-bloated competitor |
 | Privacy-safe analytics | Allowlisted events only; no PII — contrast in App Store copy |
@@ -401,12 +319,12 @@ Puzzle Tracker leans timer-heavy; Puzzle Buddy can lean **collection pride**:
 
 | Priority | Feature | Rationale |
 |----------|---------|-----------|
-| P0 | Collection stats screen | Quick win; competitor has this; we have the data |
-| P0 | Status tabs + search | Table stakes for any catalog app |
-| P1 | In-Progress + timer | Matches competitor core loop; unlocks real time stats |
-| P1 | Barcode scan | Top review theme: duplicate prevention |
-| P1 | Tags or categories | Enables seasonal stash + random pick filters |
-| P2 | Wheel of Fortune | Delight feature; cheap once filters exist |
+| P0 | Collection stats screen | ✅ Shipped |
+| P0 | Status tabs + search | ✅ Shipped |
+| P1 | In-Progress + timer | In-Progress ✅; timer planned |
+| P1 | Barcode scan | ✅ Shipped |
+| P1 | Tags or categories | ✅ Shipped |
+| P2 | Wheel / pick next | ✅ Shipped |
 | P2 | Brand / manufacturer field | Search + favorites + duplicate check |
 | P2 | Notes + disposition | Journaling and "what happened to this puzzle" |
 | P3 | Multi-photo progress | Progress-over-days without full attempt model |
@@ -417,7 +335,7 @@ Puzzle Tracker leans timer-heavy; Puzzle Buddy can lean **collection pride**:
 
 - Feature parity with Puzzle Tracker's entire filter matrix — overwhelming for v1.x
 - Premium tier / IAP until core loop beats free competitor on simplicity + a11y
-- Social graph before local-to-cloud migration is solid
+- Social graph before core import/export and backup story is solid
 
 ### Competitor user research themes
 
@@ -443,7 +361,7 @@ Recurring themes from [Puzzle Tracker App Store reviews](https://apps.apple.com/
 | Abandoned folder | `Abandoned` status for puzzles you'll never finish |
 | Missing pieces filter | Single `hasMissingPieces` toggle on puzzle |
 | Statistics + collages | Collection stats screen (Phase A) + year-in-review share card (Phase D) |
-| Friend sharing (v7.3+) | Defer; differentiate with privacy-first optional cloud sync later |
+| Friend sharing (v7.3+) | Defer; optional cloud sync only if [auth spec](../specs/planned/auth-cloud-sync.md) ships |
 | Custom fields / folders | Skip for v1.x — power-user complexity |
 | Bulk AI barcode scan | Start with single scan + manual entry; bulk later |
 
@@ -454,7 +372,7 @@ Puzzle Buddy competes on **simplicity, local-first trust, accessibility, and col
 | Pillar | Message |
 |--------|---------|
 | Simplicity | Fewer taps to log a puzzle; no premium wall for core catalog |
-| Local-first | Full catalog offline with no account; cloud sync opt-in when ready |
+| Local-first | Full catalog offline; no account; Firebase telemetry only |
 | Accessibility | WCAG 2.1 AA — market VoiceOver, Dynamic Type, Reduce Motion |
 | Collection pride | Total puzzles, pieces, hours — not speed metrics |
 | Privacy | Allowlisted analytics only; no PII in telemetry |
@@ -467,11 +385,11 @@ Tracked in detail in [../accessibility/accessibility_todo.md](../accessibility/a
 
 ### Phase 1 — Done ✅
 
-- VoiceOver labels on login and primary actions
+- VoiceOver labels on primary actions (puzzle form, list, detail, settings)
 - `A11yID` identifiers for UI tests
-- Reduce Motion on brand gradient
+- Reduce Motion on brand gradient and splash
 - GitHub Pages accessibility statement
-- `XCUIAccessibilityAudit` suite on key screens
+- `XCUIAccessibilityAudit` suite on list, form, settings, stats, detail
 
 ### Phase 2 — Next
 
@@ -483,7 +401,7 @@ Tracked in detail in [../accessibility/accessibility_todo.md](../accessibility/a
 | Delete confirmation labels | 4.1.2 | List swipe delete |
 | Dynamic Type audit | 1.4.4 Resize Text | `PuzzleCell`, form, tab bar |
 | Contrast verification | 1.4.3, 1.4.11 | Accent on card, star inactive states, placeholders |
-| Sync status announcement | 4.1.3 Status Messages | When cloud sync ships |
+| Import/export sheet audit | 4.1.2 | When `-enable_collection_import_export` ships to production |
 
 ### Phase 3 — Polish
 
@@ -507,21 +425,24 @@ From [testing.md](testing.md) and engineering notes:
 | Item | Status | Benefit |
 |------|--------|---------|
 | `XCUIAccessibilityAudit` suite | ✅ Done | Automated WCAG checks on key screens |
-| Firebase Emulator integration tests | Planned | Isolated Firestore rules and sync testing |
+| Firebase Emulator tests | Future | Only if auth/cloud sync spec is approved |
 | Snapshot tests | Optional | Visual regression for key screens |
-| Landscape layout tests | ✅ Done | Login and puzzle list |
+| Landscape layout tests | ✅ Done | Puzzle list and form |
 | Codemagic CI | Config present | Additional CI path via `codemagic.yaml` |
 
 ---
 
 ## Observability roadmap
 
+Current implementation: [telemetry.md](telemetry.md) (Dart Buddy–aligned allowlists, Release-only collection, Crashlytics breadcrumbs).
+
 | Item | Status | Notes |
 |------|--------|-------|
-| Remote Config for feature flags | Planned | Replace static `ProductService` flags |
-| Screen-level UI analytics | Optional | `LogCategory.ui` exists; few events today |
-| Push notification use cases | Exploratory | FCM wired but unused — could notify on shared puzzle lists in a social feature |
-| `password_reset_sent` analytics | Implemented | Verify allowlist includes this event if funnels are needed |
+| Screen-level UI analytics | Optional | Add allowlisted `LogCategory.ui` events as needed |
+| Remote Config for feature flags | Future | Replace static `ProductService` flags |
+| Custom GA4 dimensions | Future | Mirror Dart Buddy release checklist pattern if funnels grow |
+
+No push notification telemetry — FCM removed from app.
 
 ---
 
@@ -529,12 +450,12 @@ From [testing.md](testing.md) and engineering notes:
 
 | Item | Notes |
 |------|-------|
-| **Cloud Storage for images** | Recommended before large photo libraries sync to Firestore |
-| **iPad-optimized navigation** | Adaptive layouts exist; consider sidebar navigation on regular size class |
-| **Widgets / Live Activities** | Puzzle timer or "puzzle in progress" widget |
+| **Cloud Storage for images** | Only relevant if [auth + cloud sync](../specs/planned/auth-cloud-sync.md) returns |
+| **iPad-optimized navigation** | Adaptive layouts exist; consider sidebar on regular size class |
+| **Widgets / Live Activities** | Puzzle timer or backlog widget — [spec](../specs/planned/home-screen-widget.md) |
 | **Share extension** | Add puzzle from Safari or Photos share sheet |
 | **macOS / visionOS** | Not planned; iOS 17+ iPhone and iPad only |
-| **Android** | Out of scope; separate codebase if ever pursued |
+| **Android** | Out of scope |
 
 ---
 
@@ -542,7 +463,7 @@ From [testing.md](testing.md) and engineering notes:
 
 1. **Accessibility** — update [accessibility/accessibility_todo.md](../accessibility/accessibility_todo.md) and the [conformance matrix](../accessibility/wcag-2.1-aa/conformance-matrix.md)
 2. **Features** — add to this document under the appropriate release section
-3. **Architecture changes** — update [architecture.md](architecture.md)
+3. **Architecture / telemetry changes** — update [architecture.md](architecture.md) and [telemetry.md](telemetry.md)
 4. **Shipped features** — update [features.md](features.md) when behavior changes
 
 When closing a roadmap item, remove or mark it done here and reflect the change in the relevant technical doc.
@@ -559,5 +480,7 @@ For **implementation sessions** (build all features, cut 1.0.0 later), see [impl
 | [architecture.md](architecture.md) | System design and data flow |
 | [accessibility/accessibility_todo.md](../accessibility/accessibility_todo.md) | WCAG engineering phases |
 | [wcag.md](wcag.md) | WCAG 2.1 AA criteria mapping |
-| [firebase-setup.md](firebase-setup.md) | Firebase project setup for login release |
+| [telemetry.md](telemetry.md) | Logging, Analytics, Crashlytics allowlists |
+| [firebase-setup.md](firebase-setup.md) | Firebase Console — Analytics + Crashlytics only |
+| [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md) | Future accounts (not in app) |
 | [testing.md](testing.md) | Test strategy and CI |

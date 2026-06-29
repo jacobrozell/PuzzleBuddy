@@ -1,41 +1,57 @@
 # Firebase setup
 
-Step-by-step guide to configuring Firebase for local development and production for Puzzle Buddy.
+Configure Firebase for Puzzle Buddy local development and production.
 
-## What Firebase powers in 1.0
+**Scope:** Analytics and Crashlytics only. The app does **not** use Firebase Auth, Firestore, or Cloud Messaging.
 
-| Service | 1.0 status | Purpose |
-|---------|------------|---------|
-| **Analytics** | Active | Allowlisted events via `AppLog` |
-| **Crashlytics** | Active | Warnings and non-fatal errors |
-| **Authentication** | Configured, UI gated | Ships when `ProductService.isLoginEnabled` is true |
-| **Firestore** | Configured, unused in 1.0 | Cloud sync when login ships |
-| **Cloud Messaging** | Optional | Push notifications |
+**Last updated:** 2026-06-29
 
-Puzzle data in **1.0** is stored locally with **SwiftData**. Firebase Auth and Firestore setup below prepares for the login release.
+See also: [telemetry.md](telemetry.md) (allowlists, bootstrap logic), [AGENTS.md](../AGENTS.md) (agent quick reference).
 
-- Apple Developer account (for Sign in with Apple and push notifications)
-- Firebase project (create at [console.firebase.google.com](https://console.firebase.google.com))
-- Firebase CLI optional but recommended: `npm install -g firebase-tools`
+---
+
+## What Firebase powers
+
+| Service | Status | Purpose |
+|---------|--------|---------|
+| **Analytics** | Active (Release) | Allowlisted product events via `AppLog` |
+| **Crashlytics** | Active (Release) | Breadcrumbs + allowlisted non-fatals |
+| **Authentication** | Not in app | Removed — future work in [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md) |
+| **Firestore** | Not in app | Removed from app and Firebase Console |
+| **Cloud Messaging** | Not in app | Removed — no push registration |
+
+Puzzle data is stored **only on device** via SwiftData (`PuzzleRecord`).
+
+---
+
+## Prerequisites
+
+- Firebase project at [console.firebase.google.com](https://console.firebase.google.com/)
+- Xcode 16+, iOS 17 deployment target
+- Optional: real `GoogleService-Info.plist` for local Analytics/Crashlytics verification (not required for builds/tests)
+
+---
 
 ## 1. Create or select a Firebase project
 
-1. Open the [Firebase Console](https://console.firebase.google.com/)
-2. Click **Add project** (or select an existing project)
-3. Follow the wizard (Google Analytics optional — Puzzle Buddy uses a custom allowlisted Analytics wrapper)
+1. Open [Firebase Console](https://console.firebase.google.com/)
+2. Add project or select existing Puzzle Buddy project
+3. Google Analytics in the Firebase wizard is optional — the app uses a custom allowlisted wrapper
+
+---
 
 ## 2. Register the iOS app
 
-1. In Project settings, click **Add app** → **iOS**
+1. Project settings → **Add app** → **iOS**
 2. **Bundle ID:** `com.jacobrozell.Puzzle-Buddy` (must match `project.yml`)
 3. Download `GoogleService-Info.plist`
-4. Place it at the repo root (same level as `project.yml`):
+4. Place at repo root (same level as `project.yml`):
 
 ```bash
-cp ~/Downloads/GoogleService-Info.plist /path/to/PuzzleBuddy/
+cp ~/Downloads/GoogleService-Info.plist /path/to/Puzzle-Buddy/
 ```
 
-5. Regenerate the Xcode project so the plist is included as a resource:
+5. Regenerate Xcode project:
 
 ```bash
 xcodegen generate
@@ -45,143 +61,103 @@ xcodegen generate
 
 ### Placeholder config for CI
 
-`GoogleService-Info.plist.example` contains `REPLACE_WITH_*` values. CI copies this file before building. `FirebaseBootstrap.shouldConfigure` returns `false` for placeholders, so Firebase does not initialize in CI — builds still compile and tests run without a live backend.
-
-## 3. Enable Authentication providers (login release)
-
-Required before enabling `ProductService.isLoginEnabled`. Safe to configure early; the 1.0 app does not present login UI.
-
-In Firebase Console → **Authentication** → **Sign-in method**:
-
-### Email/Password
-
-1. Enable **Email/Password**
-2. Save
-
-### Sign in with Apple
-
-1. Enable **Apple**
-2. In [Apple Developer](https://developer.apple.com/account/resources/identifiers/list/serviceId):
-   - Ensure the App ID has **Sign in with Apple** capability
-   - Create a Services ID if required by your Firebase Apple provider setup
-   - Configure return URLs per [Firebase Apple auth docs](https://firebase.google.com/docs/auth/ios/apple)
-3. Add the Apple team ID, key ID, and private key in Firebase if using the full OAuth flow for web; native iOS Sign in with Apple uses the app's entitlements
-
-The app entitlements file is `Puzzle Buddy/Puzzle Buddy.entitlements` with the Sign in with Apple capability.
-
-## 4. Create Firestore database (login release)
-
-Required for cloud sync when login ships. Not used for puzzle storage in 1.0.
-
-1. Firebase Console → **Firestore Database** → **Create database**
-2. Start in **production mode** (we deploy custom rules from the repo)
-3. Choose a region close to your users
-
-### Deploy security rules
-
-From the repo root (after `firebase login` and `firebase use <project-id>`):
+`GoogleService-Info.plist.example` contains `REPLACE_WITH_*` values. CI copies this before building:
 
 ```bash
-firebase deploy --only firestore:rules
+cp GoogleService-Info.plist.example GoogleService-Info.plist
 ```
 
-Rules in `firestore.rules`:
+`FirebaseBootstrap.shouldConfigure` returns `false` for placeholders — Firebase does not initialize, but the app and tests run normally with SwiftData-only persistence.
 
-```
-match /users/{userId} {
-  allow read, write: if request.auth != null && request.auth.token.email == userId;
+---
 
-  match /puzzles/{puzzleId} {
-    allow read, write: if request.auth != null && request.auth.token.email == userId;
-  }
-}
-```
+## 3. Enable Crashlytics in Console
 
-**Important:** User document IDs and the Firestore path use the user's **email address** as `userId`. Auth tokens must include `email` (email/password and Apple with email scope).
+1. Firebase Console → **Build** → **Crashlytics**
+2. Follow first-run setup if prompted (dSYM upload is handled by the Xcode build phase in `project.yml`)
 
-### Data layout
+No Auth, Firestore, or Cloud Messaging setup is required.
 
-```
-users/
-  {userEmail}/
-    username: string
-    currentVersion: string
-    lastLoggedIn: timestamp
-    puzzles/
-      {puzzleUUID}/
-        id, name, pieces, rating, difficulty, ...
-```
+---
 
-## 5. Firebase CLI configuration
+## 4. SDK packages (reference)
 
-`firebase.json` points to `firestore.rules`:
+Declared in `project.yml`:
 
-```json
-{
-  "firestore": {
-    "rules": "firestore.rules"
-  }
-}
-```
+| Product | Purpose |
+|---------|---------|
+| `FirebaseCore` | Bootstrap |
+| `FirebaseAnalytics` | GA4 events |
+| `FirebaseCrashlytics` | Crashes + non-fatals |
 
-Initialize CLI in the repo (one time):
+Regenerate after package changes: `xcodegen generate`.
 
-```bash
-firebase login
-firebase use --add   # select your project
-```
+---
 
-## 6. Analytics and Crashlytics
+## 5. Local debugging
 
-Firebase Analytics and Crashlytics are included via the iOS SDK. Puzzle Buddy only logs **allowlisted** Analytics events through `AppLog`. Crashlytics receives warning/error log lines and non-fatal error records — no PII. See [analytics.md](analytics.md).
+### Disable remote telemetry
 
-To disable Analytics during local debugging, launch with argument:
+Xcode → Edit Scheme → Run → Arguments:
 
 ```
 -disable_firebase_analytics
 ```
 
-In Xcode: Edit Scheme → Run → Arguments → Arguments Passed On Launch.
+Disables both Analytics and Crashlytics collection.
 
-## 7. Cloud Messaging (optional)
+### Force telemetry in Debug
 
-The app registers for push notifications in `AppDelegate`. For production push:
+```
+-firebase_analytics_debug
+```
 
-1. Upload your APNs authentication key or certificate in Firebase Console → Project settings → Cloud Messaging
-2. Enable **Push Notifications** capability in Xcode for the app target
-3. Test on a physical device (simulator push is limited)
+Also add `-FIRAnalyticsDebugEnabled` for Firebase DebugView.
 
-FCM tokens are posted to `NotificationCenter` (`FCMToken`) but are not required for core puzzle functionality.
+### Verify Analytics
 
-## 8. Verify the setup
+1. Run on simulator/device with real plist + debug flags above
+2. Firebase Console → Analytics → **DebugView**
+3. Trigger allowlisted actions (add puzzle, complete onboarding, etc.)
 
-### Local smoke test (1.0)
+### Verify Crashlytics
 
-1. `xcodegen generate` && open in Xcode
-2. Run on Simulator — app opens to puzzle list (no login)
-3. Add a puzzle — quit and relaunch; puzzle should still be present (SwiftData)
-4. Check Firebase Console → Analytics DebugView (with `-FIRAnalyticsDebugEnabled`) and Crashlytics after triggering a logged error
+1. Release build or `-firebase_analytics_debug` on device/simulator
+2. Trigger allowlisted error (e.g. force SwiftData failure in dev only)
+3. Firebase Console → Crashlytics → non-fatals and breadcrumbs
 
-### Login + Firestore smoke test (when login enabled)
+---
 
-1. Launch with `-enable_login` or set `ProductService.isLoginEnabled` to `true`
-2. Create an account with email/password
-3. Add a puzzle — check Firestore Console for a new document under `users/{email}/puzzles`
+## 6. Smoke test checklist
 
-### Common issues
+- [ ] `xcodegen generate` && open in Xcode
+- [ ] Run on Simulator — onboarding → puzzle list (no login)
+- [ ] Add puzzle — quit and relaunch; puzzle persists (SwiftData)
+- [ ] With real plist + DebugView flags: see `app_open` / `puzzle_added` in DebugView
+- [ ] CI passes with example plist (Firebase inactive)
+
+---
+
+## 7. Common issues
 
 | Symptom | Likely cause | Fix |
 |---------|--------------|-----|
-| Firebase not configuring | Placeholder plist or missing file | Copy real `GoogleService-Info.plist` |
-| Permission denied on Firestore | Rules not deployed or email mismatch | `firebase deploy --only firestore:rules`; ensure signed-in email matches path |
-| Apple Sign In fails | Entitlements or Firebase Apple provider | Check capability, bundle ID, Firebase Apple config |
-| `KeyError` logs in console | Legacy documents missing fields | `fromData` logs missing keys; add defaults or migrate data |
+| Firebase not configuring | Placeholder or missing plist | Copy real plist or use example for CI |
+| No DebugView events | Debug collection off | Add `-firebase_analytics_debug` and `-FIRAnalyticsDebugEnabled` |
+| No Crashlytics symbols | dSYM not uploaded | Check Crashlytics run script in build log |
+| `KeyError` in console from `fromData` | Legacy test dict missing keys | Used for export serialization tests only |
 
-## 9. Production checklist
+---
 
-- [ ] Real `GoogleService-Info.plist` on build machines only (not in git)
-- [ ] Analytics and Crashlytics receiving events in Firebase Console
+## 8. Production checklist
+
+- [ ] Real `GoogleService-Info.plist` on release build machines only (not in git)
+- [ ] Analytics and Crashlytics receiving events in Console (Release build)
 - [ ] App Store Connect bundle ID matches `com.jacobrozell.Puzzle-Buddy`
-- [ ] When login ships: Firestore rules deployed from `firestore.rules`
-- [ ] When login ships: Email/Password and Apple providers enabled
-- [ ] APNs configured if using push
+- [ ] Privacy policy mentions Analytics/Crashlytics ([privacy.html](privacy.html))
+
+---
+
+## Removed services (historical)
+
+Prior to June 2026 the repo included Auth, Firestore sync, FCM push, `firestore.rules`, and `firebase.json`. Those were removed from the app and Firebase Console. Do not re-enable without [auth-cloud-sync spec](../specs/planned/auth-cloud-sync.md) approval.

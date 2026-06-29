@@ -13,7 +13,6 @@ struct Puzzle_BuddyApp: App {
     public static let version = "1.0.0" // Keep in sync with MARKETING_VERSION in project.yml
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-    @StateObject var authProvider = FirebaseAuthProvider()
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
 
     private var preferredColorScheme: ColorScheme? {
@@ -24,8 +23,10 @@ struct Puzzle_BuddyApp: App {
         WindowGroup {
             AppShell(modelContext: sharedModelContainer.mainContext)
                 .withErrorHandling()
-                .environmentObject(authProvider)
                 .preferredColorScheme(preferredColorScheme)
+                .task {
+                    SnapshotOrientationLock.applyIfNeeded()
+                }
         }
         .modelContainer(sharedModelContainer)
     }

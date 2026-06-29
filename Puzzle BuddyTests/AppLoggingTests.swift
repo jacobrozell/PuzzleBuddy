@@ -51,4 +51,41 @@ final class AppLoggingTests: XCTestCase {
         let redacted = LogRedaction.redact(["Email": "user@example.com", "UID": "uid-1"])
         XCTAssertTrue(redacted.isEmpty)
     }
+
+    func testCrashlyticsMapsAllowlistedSyncFailure() {
+        let error = FirebaseCrashlyticsEventMapping.nonFatalError(
+            level: .error,
+            category: .puzzles,
+            eventName: "puzzle_sync_failed",
+            metadata: ["puzzle_status": "To-Do", "email": "secret@example.com"],
+            appVersion: "1.0.0"
+        )
+
+        XCTAssertEqual(error?.domain, "com.jacobrozell.Puzzle-Buddy.logger")
+        XCTAssertEqual(error?.code, 2001)
+        XCTAssertEqual(error?.userInfo["event_name"] as? String, "puzzle_sync_failed")
+        XCTAssertEqual(error?.userInfo["puzzle_status"] as? String, "To-Do")
+        XCTAssertNil(error?.userInfo["email"])
+    }
+
+    func testCrashlyticsDropsNonAllowlistedErrors() {
+        let error = FirebaseCrashlyticsEventMapping.nonFatalError(
+            level: .error,
+            category: .puzzles,
+            eventName: "puzzle_added",
+            metadata: [:],
+            appVersion: "1.0.0"
+        )
+        XCTAssertNil(error)
+    }
+
+    func testAnalyticsAllowlistsOnboardingCompleted() {
+        let mapped = PuzzleAnalyticsEventMapping.map(
+            eventName: "onboarding_completed",
+            category: .app,
+            metadata: [:],
+            appVersion: "1.0.0"
+        )
+        XCTAssertEqual(mapped?.name, "onboarding_completed")
+    }
 }

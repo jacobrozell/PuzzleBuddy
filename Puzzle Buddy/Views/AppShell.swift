@@ -8,7 +8,6 @@ import SwiftUI
 
 /// Root shell: branded splash → main app content.
 struct AppShell: View {
-    @EnvironmentObject var auth: FirebaseAuthProvider
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showSplash = !AppInfo.isUITesting
 
@@ -16,7 +15,7 @@ struct AppShell: View {
 
     var body: some View {
         Group {
-            if UITestSupport.isRunningUnderTest || UITestSupport.isBypassAuthEnabled {
+            if UITestSupport.isRunningUnderTest {
                 RootView(modelContext: modelContext)
             } else {
                 ZStack {
@@ -47,5 +46,4 @@ struct AppShell: View {
 
 #Preview {
     AppShell(modelContext: PreviewSupport.modelContext)
-        .environmentObject(FirebaseAuthProvider())
 }

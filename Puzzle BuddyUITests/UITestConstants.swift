@@ -8,9 +8,6 @@
 import XCTest
 
 enum UITestA11yID {
-    static let loginEmailField = "login_email_field"
-    static let loginPasswordField = "login_password_field"
-    static let loginSubmitButton = "login_submit_button"
     static let puzzleList = "puzzle_list"
     static let puzzleListStatusFilter = "puzzle_list_status_filter"
     static let puzzleListEmptyState = "puzzle_list_empty_state"
@@ -36,22 +33,9 @@ enum UITestA11yID {
 
 enum UITestLaunch {
     static let disableFirebaseAnalytics = "-disable_firebase_analytics"
-    static let bypassAuth = "-ui_testing_bypass_auth"
+    static let bypassOnboarding = "-ui_testing_bypass_auth"
     static let seedPuzzles = "-ui_testing_seed_puzzles"
-    static let enableLogin = "-enable_login"
 
-    static let loginArguments = [disableFirebaseAnalytics, enableLogin]
-    static let bypassArguments = [disableFirebaseAnalytics, bypassAuth, seedPuzzles]
+    static let bypassArguments = [disableFirebaseAnalytics, bypassOnboarding, seedPuzzles]
     static let defaultArguments = [disableFirebaseAnalytics, seedPuzzles]
-}
-
-enum LoginUITestGate {
-    /// Login UI is built but gated off for 1.0; full login UI tests run in Release 1.x QA with Firebase configured.
-    static func skipForLocalFirstRelease(file: StaticString = #filePath, line: UInt = #line) throws {
-        throw XCTSkip(
-            "Login UI tests are deferred to Release 1.x QA (Firebase + -enable_login).",
-            file: file,
-            line: line
-        )
-    }
 }

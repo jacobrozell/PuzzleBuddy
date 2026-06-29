@@ -6,7 +6,7 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 
 ## 1.0.0 App Store
 
-- [x] **`isLoginEnabled = false`** — verified in Release (no login surfaces)
+- [x] **No login / cloud sync** — Auth, Firestore, FCM removed from app (June 2026)
 - [x] **`isCollectionImportExportEnabled = false`** — IPDb import + JSON/CSV export hidden (dogfood: `-enable_collection_import_export`)
 - [x] **Pick my next puzzle** — shipped; dice on collection list
 - [x] **Wishlist + progress over days** — shipped

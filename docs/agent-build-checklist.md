@@ -14,22 +14,17 @@ Ordered checklist for building Puzzle Buddy from brainstorm to App Store. Focuse
 ## Agent query template (paste to start a new session)
 
 ```text
-You are building Puzzle Buddy from the brainstorm and roadmap. Follow docs/agent-build-checklist.md.
+You are building Puzzle Buddy. Read AGENTS.md first, then docs/agent-build-checklist.md.
 
 Rules:
-1. Spec-first: no user-visible behavior without an authoritative spec. One source of truth per concern.
-2. Test-first for domain: pure logic and store/filter helpers get unit tests before UI polish.
-3. Layered architecture: Features → Domain / Data interfaces → Persistence. Domain never imports SwiftUI.
-4. XcodeGen — regenerate the Xcode project; do not commit .xcodeproj.
-5. Accessibility is a release gate (target WCAG 2.1 AA): VoiceOver, 44pt targets, Dynamic Type, contrast.
-6. Use XcodeBuildMCP (or xcodebuild) for build/test.
-7. Ship lean: gate unfinished UI via ProductService / future ReleaseSurface — hide, don't delete.
-8. Update this checklist, feature-inventory.md, and spec Verification blocks as phases complete.
+1. Local-first — SwiftData only; no Auth/Firestore unless auth-cloud-sync spec is approved
+2. Telemetry — AppLog allowlists in AppLogging.swift; document in docs/telemetry.md
+3. Test-first for domain logic
+4. XcodeGen — regenerate project; do not commit .xcodeproj
+5. Accessibility is a release gate (WCAG 2.1 AA)
+6. Update feature-inventory.md and telemetry.md when shipping behavior changes
 
-Brainstorm / roadmap: docs/roadmap.md, docs/implementation-playbook.md
-App name / bundle ID: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy
-MVP scope (v1.0): Local-first catalog — add, list, detail, edit, stats, settings; no account
-Owner decisions: en only, Analytics+Crashlytics on, no tip link, iOS 17+
+App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytics+Crashlytics only
 ```
 
 ---
@@ -55,7 +50,7 @@ Owner decisions: en only, Analytics+Crashlytics on, no tip link, iOS 17+
 | 1 | — | — | Informal docs; no `specs/` folder yet |
 | 2 | partial | WIP | Design tokens + a11y Phase 1 |
 | 3 | partial | WIP | `CollectionStats`, `PuzzleListFilter`, `PuzzleDetailMetrics` + tests |
-| 4 | partial | `ff261ee` | SwiftData + gated Firestore; no migrations |
+| 4 | partial | 2026-06-29 | SwiftData only; Auth/Firestore removed from app |
 | 5 | partial | WIP | Tabs, onboarding, `ProductService`; no deep links |
 | 6 | 2026-06-16 | WIP | Core catalog journey + stats/filter polish uncommitted |
 | 7 | partial | WIP | `AdaptiveLayout`; app shell refresh uncommitted |
@@ -64,8 +59,8 @@ Owner decisions: en only, Analytics+Crashlytics on, no tip link, iOS 17+
 | 10 | — | — | English only |
 | 11 | partial | — | Phase 1 a11y done; Phase 2 open |
 | 12 | partial | `ff261ee` | Single CI scheme; no split UI targets |
-| 13 | partial | `ff261ee` | Login gated; no full `ReleaseSurface` |
-| 14 | partial | `ff261ee` | AppLog, Crashlytics; no deep links |
+| 13 | N/A | 2026-06-29 | Login removed — future: specs/planned/auth-cloud-sync.md |
+| 14 | partial | 2026-06-29 | AppLog + Crashlytics; docs/telemetry.md |
 | 15 | partial | — | GitHub Pages HTML; TestFlight informal |
 | 16 | — | — | Pre-ship; large WIP on disk |
 | 17+ | — | — | Roadmap only |

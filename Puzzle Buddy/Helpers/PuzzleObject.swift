@@ -5,12 +5,7 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
-import FirebaseFirestore
-import FirebaseAuth
 import SwiftUI
-
-// MARK: - PuzzleUser
-public typealias PuzzleUser = FirebaseAuth.User
 
 // MARK: - Puzzle
 class Puzzle: ObservableObject {
@@ -280,17 +275,13 @@ extension Puzzle {
             print("KeyError: estimatedTimeSpent not found")
         }
 
-        if let completionDate = data["completionDate"] as? Timestamp {
-            p.completionDate = completionDate.dateValue()
-        } else if let completionDate = data["completionDate"] as? Date {
+        if let completionDate = data["completionDate"] as? Date {
             p.completionDate = completionDate
         } else {
             print("KeyError: completionDate not found")
         }
 
-        if let startDate = data["startDate"] as? Timestamp {
-            p.startDate = startDate.dateValue()
-        } else if let startDate = data["startDate"] as? Date {
+        if let startDate = data["startDate"] as? Date {
             p.startDate = startDate
         }
 

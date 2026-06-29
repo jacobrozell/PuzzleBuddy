@@ -12,6 +12,7 @@ enum OnboardingStorage {
     private static let legacyKey = "PuzzlePal_Onboarding_Complete"
 
     static var isComplete: Bool {
+        if MarketingSnapshotBootstrap.shouldShowOnboarding { return false }
         if ProcessInfo.processInfo.environment["UI_TESTING_BYPASS_AUTH"] == "1" { return true }
         if ProcessInfo.processInfo.arguments.contains(UITestSupport.bypassAuth) { return true }
         if UITestSupport.isRunningUnderTest { return true }
@@ -22,11 +23,16 @@ enum OnboardingStorage {
     static func markComplete() {
         UserDefaults.standard.set(true, forKey: key)
     }
+
+    static func reset() {
+        UserDefaults.standard.removeObject(forKey: key)
+        UserDefaults.standard.removeObject(forKey: legacyKey)
+    }
 }
 
 struct OnboardingView: View {
     @Binding var isPresented: Bool
-    @State private var pageIndex = 0
+    @State private var pageIndex = MarketingSnapshotBootstrap.initialOnboardingPage
 
     private let pages: [OnboardingPage] = [
         OnboardingPage(

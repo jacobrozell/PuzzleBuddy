@@ -10,7 +10,6 @@ import SwiftUI
 
 // MARK: - PuzzleList
 struct PuzzleList: View {
-    @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -224,6 +223,12 @@ struct PuzzleList: View {
         }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
+        }
+        .onChange(of: ps.puzzles.count) { _, _ in
+            applyMarketingSnapshotNavigation()
+        }
+        .onAppear {
+            applyMarketingSnapshotNavigation()
         }
         .confirmationDialog(
             "Delete puzzle?",
@@ -667,6 +672,24 @@ struct PuzzleList: View {
             return ps.puzzles.firstIndex(where: { $0.id == puzzleID })
         }
         ps.delete(at: IndexSet(storeIndices))
+    }
+
+    private func applyMarketingSnapshotNavigation() {
+        guard MarketingSnapshotBootstrap.isMarketingCapture else { return }
+
+        if MarketingSnapshotBootstrap.shouldShowAddPuzzle {
+            present = true
+        }
+
+        guard !ps.puzzles.isEmpty else { return }
+
+        if let id = MarketingSnapshotBootstrap.puzzleDetailID(in: ps.puzzles) {
+            openPuzzleRequest = OpenPuzzleRequest(id: id)
+        }
+
+        if let puzzle = MarketingSnapshotBootstrap.duplicateCheckPuzzle(in: ps.puzzles) {
+            listScanDuplicate = ListScanDuplicateRequest(puzzle: puzzle)
+        }
     }
 
     private func handleScannedBarcode(_ raw: String) {

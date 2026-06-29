@@ -8,10 +8,8 @@ import XCTest
 
 final class AccessibilityLabelTests: XCTestCase {
     func testAccessibilityIdentifierContract() {
-        XCTAssertFalse(A11yID.loginSubmitButton.isEmpty)
         XCTAssertFalse(A11yID.addPuzzleButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleList.isEmpty)
-        XCTAssertTrue(A11yID.loginEmailField.hasPrefix("login_"))
         XCTAssertFalse(A11yID.puzzleFormSubmitButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleFormNameField.isEmpty)
         XCTAssertFalse(A11yID.puzzleFormRatingControl.isEmpty)

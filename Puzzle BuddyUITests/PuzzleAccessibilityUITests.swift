@@ -104,18 +104,6 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         XCTFail("Seeded puzzle row not found")
     }
 
-    func testLoginScreenAccessibilityAudit() throws {
-        try LoginUITestGate.skipForLocalFirstRelease()
-    }
-
-    func testLoginScreenDynamicTypeAudit() throws {
-        try LoginUITestGate.skipForLocalFirstRelease()
-    }
-
-    func testLoginScreenLandscapeLayout() throws {
-        try LoginUITestGate.skipForLocalFirstRelease()
-    }
-
     func testPuzzleListLandscapeLayout() throws {
         let app = launchForBypassAuth()
         _ = waitForMainApp(in: app)

@@ -16,53 +16,75 @@ private enum PuzzleBuddyTab: String {
 
 // MARK: - PuzzleTabbar
 struct PuzzleTabbar: View {
-    @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var ps: PuzzleStore
 
-    @State private var tab: PuzzleBuddyTab = .puzzles
+    @State private var tab: PuzzleBuddyTab = {
+        switch MarketingSnapshotBootstrap.forcedTab {
+        case .stats: .stats
+        case .settings: .settings
+        default: .puzzles
+        }
+    }()
 
     var body: some View {
-        NavigationStack {
-            TabView(selection: $tab) {
+        TabView(selection: $tab) {
+            NavigationStack {
                 PuzzleList(ps: ps)
-                    .tag(PuzzleBuddyTab.puzzles)
-                    .tabItem {
-                        Label {
-                            Text("Puzzles")
-                        } icon: {
-                            Image(systemName: "list.bullet.circle.fill")
-                        }
-                    }
-                    .accessibilityIdentifier(A11yID.puzzlesTab)
-
-                CollectionStatsView(ps: ps)
-                    .tag(PuzzleBuddyTab.stats)
-                    .tabItem {
-                        Label {
-                            Text("Stats")
-                        } icon: {
-                            Image(systemName: "chart.bar.fill")
-                        }
-                    }
-                    .accessibilityIdentifier(A11yID.statsTab)
-
-                SettingsView(ps: ps)
-                    .tag(PuzzleBuddyTab.settings)
-                    .tabItem {
-                        Label {
-                            Text("Settings")
-                        } icon: {
-                            Image(systemName: "gearshape")
-                        }
-                    }
-                    .accessibilityIdentifier(A11yID.settingsTab)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(PuzzleBuddyTab.puzzles.rawValue)
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(tab.rawValue)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .brandBackground()
-            .tint(Brand.accent)
+            .tag(PuzzleBuddyTab.puzzles)
+            .tabItem {
+                Label {
+                    Text("Puzzles")
+                } icon: {
+                    Image(systemName: "list.bullet.circle.fill")
+                }
+            }
+            .accessibilityIdentifier(A11yID.puzzlesTab)
+
+            NavigationStack {
+                CollectionStatsView(ps: ps)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(PuzzleBuddyTab.stats.rawValue)
+            }
+            .tag(PuzzleBuddyTab.stats)
+            .tabItem {
+                Label {
+                    Text("Stats")
+                } icon: {
+                    Image(systemName: "chart.bar.fill")
+                }
+            }
+            .accessibilityIdentifier(A11yID.statsTab)
+
+            NavigationStack {
+                SettingsView(ps: ps)
+                    .navigationBarTitleDisplayMode(.inline)
+                    .navigationTitle(PuzzleBuddyTab.settings.rawValue)
+            }
+            .tag(PuzzleBuddyTab.settings)
+            .tabItem {
+                Label {
+                    Text("Settings")
+                } icon: {
+                    Image(systemName: "gearshape")
+                }
+            }
+            .accessibilityIdentifier(A11yID.settingsTab)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .brandBackground()
+        .tint(Brand.accent)
+        .onAppear {
+            MarketingSnapshotBootstrap.reinforceTabSelection { snapshotTab in
+                switch snapshotTab {
+                case .puzzles: tab = .puzzles
+                case .stats: tab = .stats
+                case .settings: tab = .settings
+                }
+            }
         }
     }
 }

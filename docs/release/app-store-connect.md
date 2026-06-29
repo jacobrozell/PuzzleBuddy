@@ -27,7 +27,7 @@ Push updated `docs/*.html` to `main` on GitHub before submit so hosted copy matc
 
 ## Privacy nutrition label (1.0 local-first)
 
-Declare what **actually ships** in 1.0.0 (`isLoginEnabled = false`).
+Declare what **actually ships** in 1.0.0 (local-first, no account, no Auth/Firestore in app).
 
 | Data type | Collected | Linked to user | Used for tracking | Notes |
 |-----------|-----------|----------------|-------------------|-------|
@@ -59,7 +59,7 @@ Expected rating: **4+**
 
 Suggested text for App Review:
 
-> Puzzle Buddy 1.0 is a local-first puzzle catalog. No account is required. Optional barcode product lookup is off by default (Settings → Barcode & cataloging). Demo data: Settings → Collection → Load Demo Data. Sign-in and cloud sync are implemented but disabled for this release.
+> Puzzle Buddy 1.0 is a local-first puzzle catalog. No account is required. Optional barcode product lookup is off by default (Settings → Barcode & cataloging). Demo data: Settings → Collection → Load Demo Data. Firebase is used for Analytics and Crashlytics only.
 
 ## Accessibility URL
 
@@ -67,21 +67,42 @@ App Store Connect → App Accessibility → URL:
 
 https://jacobrozell.github.io/PuzzleBuddy/accessibility.html
 
-## Screenshots (still todo)
+## Screenshots
 
-Capture on **iPhone 6.7"** and **iPad 13"** emphasizing:
+Capture on **iPhone 17 Pro** and **iPad Pro 13-inch** using the marketing scripts:
 
-1. Puzzle list with collection
-2. Barcode duplicate check / shopping mode
+Upload from the sorted folders (no device bezels):
+
+- **iPhone:** `marketing-screenshots/iphone/{dark,light}/{portrait,landscape}/`
+- **iPad:** `marketing-screenshots/ipad/{dark,light}/{portrait,landscape}/`
+
+```bash
+./Scripts/capture-marketing-screenshots.sh          # iphone/dark/{portrait,landscape}
+APPEARANCE=light ./Scripts/capture-marketing-screenshots.sh
+./Scripts/capture-ipad-marketing-screenshots.sh     # ipad/dark/{portrait,landscape}
+./Scripts/capture-all-marketing-screenshots.sh      # full matrix
+
+# Migrate legacy flat raw/ layout
+./Scripts/sort-marketing-screenshots.sh
+```
+
+See [`marketing-screenshots/README.md`](../../marketing-screenshots/README.md).
+
+Screens emphasized (automated by the script):
+
+1. Puzzle list with demo collection
+2. Barcode duplicate check sheet
 3. Collection stats
 4. Add puzzle form
-5. Settings (local-first, export/import)
+5. Puzzle detail (completed puzzle)
+6. Settings (local-first, export/import gated off in 1.0)
+7. Onboarding welcome + barcode pitch
 
 No login or account pitch in 1.0 marketing.
 
 ## Pre-upload verification
 
-- [ ] Release build: `isLoginEnabled == false`
+- [ ] Release build: no login UI; puzzle data local-only (SwiftData)
 - [ ] Fresh install: no push permission prompt on launch
 - [ ] Privacy + Support links load in Safari
 - [ ] Unit tests green (`Puzzle BuddyTests`)

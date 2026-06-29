@@ -22,7 +22,7 @@ Not yet on the App Store. See [`docs/implementation/1.0.0-pre-ship-sprint.md`](.
 |------|------|-------|
 | **IPDb CSV import + JSON/CSV export** | [`specs/planned/collection-import-export.md`](../specs/planned/collection-import-export.md) | Re-enable `ProductService.isCollectionImportExportEnabled` |
 | **JSON backup restore** | [`specs/planned/json-backup-restore.md`](../specs/planned/json-backup-restore.md) | Pair export with import; include photos in v2 |
-| **Auth + cloud sync** | [`specs/planned/auth-cloud-sync.md`](../specs/planned/auth-cloud-sync.md) | `isLoginEnabled` + local→cloud migration |
+| **Auth + cloud sync** | [`specs/planned/auth-cloud-sync.md`](../specs/planned/auth-cloud-sync.md) | **Removed from app** — spec only for future |
 | **In-app timer (pause)** | [`specs/planned/in-app-timer.md`](../specs/planned/in-app-timer.md) | Competitor core loop; accurate time stats |
 
 ## 1.2.0 — richer catalog

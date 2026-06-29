@@ -2,6 +2,10 @@
 
 Guide for building, running, and debugging Puzzle Buddy on your machine.
 
+**Agents:** [AGENTS.md](../AGENTS.md) · **Telemetry:** [telemetry.md](telemetry.md)
+
+---
+
 ## Initial setup
 
 ### 1. Clone the repository
@@ -18,7 +22,6 @@ cd PuzzleBuddy
 | Xcode 16+ | Mac App Store | Build and run |
 | XcodeGen | `brew install xcodegen` | Generate `.xcodeproj` |
 | SwiftLint | `brew install swiftlint` | Lint locally (CI uses container) |
-| Firebase CLI | `npm install -g firebase-tools` | Deploy Firestore rules |
 
 ### 3. Firebase configuration
 
@@ -26,7 +29,7 @@ cd PuzzleBuddy
 cp GoogleService-Info.plist.example GoogleService-Info.plist
 ```
 
-Replace placeholder values with your Firebase iOS app config, or download the plist from Firebase Console. See [firebase-setup.md](firebase-setup.md).
+Replace placeholder values for local Analytics/Crashlytics testing, or leave placeholders for SwiftData-only runs. See [firebase-setup.md](firebase-setup.md).
 
 ### 4. Generate Xcode project
 
@@ -44,6 +47,8 @@ Run this after every pull that changes `project.yml` or when adding files outsid
 ```
 
 Prevents committing `GoogleService-Info.plist`.
+
+---
 
 ## Running the app
 
@@ -71,7 +76,6 @@ xcodebuild build \
 ### Command line tests
 
 ```bash
-# Build for testing first
 xcodebuild build-for-testing \
   -project "Puzzle Buddy.xcodeproj" \
   -scheme "Puzzle Buddy" \
@@ -81,93 +85,65 @@ xcodebuild build-for-testing \
   CODE_SIGNING_REQUIRED=NO \
   CODE_SIGNING_ALLOWED=NO
 
-# Run tests (matches CI)
 Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 16"
 ```
 
-Environment variables used by `Scripts/ci/run-tests.sh`:
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CI_XCODE_PROJECT` | `Puzzle Buddy.xcodeproj` | Project path |
-| `CI_XCODE_SCHEME` | `Puzzle Buddy` | Scheme name |
-| `CI_PARALLEL_TESTING` | `NO` | Parallel test execution |
-| `CI_XCODE_TEST_LOG` | `xcodebuild-test.log` | Test log file |
+---
 
 ## Project maintenance
 
 ### Adding source files
 
-Files under `Puzzle Buddy/` are included automatically via `project.yml`:
-
-```yaml
-sources:
-  - path: Puzzle Buddy
-    excludes:
-      - "**/README.md"
-```
-
-For new top-level folders or targets, edit `project.yml` and run `xcodegen generate`.
+Files under `Puzzle Buddy/` are included automatically via `project.yml`. For new top-level folders or targets, edit `project.yml` and run `xcodegen generate`.
 
 ### Adding Swift packages
 
-Edit `project.yml` under `packages:` and target `dependencies:`, then regenerate. Example existing entry: Firebase.
+Edit `project.yml` under `packages:` and target `dependencies:`. Current Firebase products: `FirebaseCore`, `FirebaseAnalytics`, `FirebaseCrashlytics`.
 
 ### Changing bundle ID or version
 
-In `project.yml` under the `Puzzle Buddy` target `settings`:
+In `project.yml`: `PRODUCT_BUNDLE_IDENTIFIER`, `MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`.
 
-- `PRODUCT_BUNDLE_IDENTIFIER`
-- `MARKETING_VERSION` / `CURRENT_PROJECT_VERSION` (also `Puzzle_BuddyApp.version` in `Puzzle_BuddyApp.swift` — keep in sync; inaugural release **1.0.0**)
+Also update `Puzzle_BuddyApp.version` in `Puzzle_BuddyApp.swift` and Firebase iOS app registration if bundle ID changes.
 
-Also update Firebase iOS app registration if bundle ID changes.
+---
 
 ## Debugging tips
 
 ### Firebase not initializing
 
-Check Console for Firebase logs. If `FirebaseBootstrap.shouldConfigure` is false:
+If `FirebaseBootstrap.shouldConfigure` is false:
 
-- `GoogleService-Info.plist` is missing from the bundle
-- `GOOGLE_APP_ID` still contains `REPLACE_WITH`
+- `GoogleService-Info.plist` missing from bundle
+- `GOOGLE_APP_ID` contains `REPLACE_WITH`
 
-### Firestore permission errors
-
-Only applies when `ProductService.isLoginEnabled` is true and a user is signed in:
-
-- Confirm user is signed in (`Auth.auth().currentUser`)
-- Path must be `/users/{email}/puzzles` where `email` matches the token
-- Deploy rules: `firebase deploy --only firestore:rules`
+Expected for CI and fresh clones using the example plist.
 
 ### View logs
 
-`AppLog` writes to unified logging subsystem `com.jacobrozell.Puzzle-Buddy`. In Console.app, filter by subsystem or run from Xcode debug console.
+`AppLog` → subsystem `com.jacobrozell.Puzzle-Buddy`. Filter in Console.app or Xcode debug console.
 
-Debug builds log at `.debug` level; release at `.info`.
+### Disable Firebase Analytics / Crashlytics locally
 
-### Disable Firebase Analytics locally
-
-Xcode → Edit Scheme → Run → Arguments:
+Scheme → Run → Arguments:
 
 ```
 -disable_firebase_analytics
 ```
 
+### Force telemetry in Debug
+
+```
+-firebase_analytics_debug
+```
+
+Add `-FIRAnalyticsDebugEnabled` for Firebase DebugView.
+
 ### SwiftUI previews
 
-Previews are enabled (`ENABLE_PREVIEWS: YES`). Use `PreviewSupport.puzzleStore` or `PreviewSupport.modelContext` for in-memory SwiftData fixtures.
+Use `PreviewSupport.puzzleStore` or `PreviewSupport.modelContext`.
 
-### Test login flow locally
-
-Login is off by default in 1.0. To exercise auth UI:
-
-Xcode → Edit Scheme → Run → Arguments → add `-enable_login`
-
-Or test via UI tests using `UITestLaunch.loginArguments` (includes `-enable_login`).
-
-### Test main app without login
-
-Default launch goes straight to the puzzle list. For UI tests with seeded data:
+### UI tests with seeded data
 
 ```
 -disable_firebase_analytics
@@ -175,25 +151,22 @@ Default launch goes straight to the puzzle list. For UI tests with seeded data:
 -ui_testing_seed_puzzles
 ```
 
-See `UITestSupport` and `UITestLaunch` for the full set.
+See `UITestSupport` and [testing.md](testing.md).
+
+---
 
 ## Simulator notes
 
-- **Camera:** Simulator has limited camera support; use photo library for image tests
-- **Sign in with Apple:** Works on Simulator with an Apple ID signed into Settings
-- **Push notifications:** Use a physical device for full FCM testing
-
-### Listing simulators
+- **Camera:** limited on Simulator — use photo library for image tests
+- **Barcode scan:** requires device with camera for live scanner
 
 ```bash
 xcrun simctl list devices available
 ```
 
-Use an available device name in `-destination`, e.g. `platform=iOS Simulator,name=iPhone 16`.
+---
 
-## DerivedData and clean builds
-
-If packages or project generation act stale:
+## Clean builds
 
 ```bash
 rm -rf DerivedData
@@ -203,17 +176,9 @@ xcodebuild -resolvePackageDependencies \
   -scheme "Puzzle Buddy"
 ```
 
-`DerivedData/` is gitignored.
+---
 
-## Local-only mode (1.0 default)
-
-`ProductService.isLoginEnabled` is `false` for 1.0. The app uses SwiftData for persistence — no account or network required for puzzle CRUD.
-
-`FirebaseAuthProvider.shouldBypassAccount` remains for UI tests (`-ui_testing_bypass_auth`) to skip the login gate when testing with `-enable_login`.
-
-## Troubleshooting CI locally
-
-Reproduce CI steps:
+## Reproduce CI locally
 
 ```bash
 cp GoogleService-Info.plist.example GoogleService-Info.plist
@@ -223,5 +188,3 @@ xcodebuild -resolvePackageDependencies -project "Puzzle Buddy.xcodeproj" -scheme
 swiftlint lint
 Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 16"
 ```
-
-CI runs on `macos-15` with Xcode 16 and iPhone 16 Simulator — match when debugging CI-only failures.

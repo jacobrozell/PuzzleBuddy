@@ -12,7 +12,7 @@ Puzzle Buddy is a native iOS app for jigsaw puzzle enthusiasts who want a person
 
 Planned product work — **find & organize** (search, status tabs, custom tags, pick-next), collection stats polish, richer metadata, and competitive positioning vs. [Puzzle Tracker](https://apps.apple.com/us/app/puzzle-tracker/id1561473799) — is documented in [roadmap.md](roadmap.md#find--organize--user-driven-product-strategy).
 
-Version 1.0.0 is **local-first**: all puzzle data lives on device via SwiftData. No account is required to use the app. Firebase provides Analytics and Crashlytics only; authentication and cloud sync are implemented but disabled behind a feature flag (see [roadmap.md](roadmap.md)).
+Version 1.0.0 is **local-first**: all puzzle data lives on device via SwiftData. No account is required. Firebase provides **Analytics and Crashlytics only** — see [telemetry.md](telemetry.md) and [AGENTS.md](../AGENTS.md).
 
 ---
 
@@ -29,7 +29,7 @@ On every cold launch, the app shows a branded splash (`SplashView`) before routi
 | Loading indicator | Appears after a short fade-in with caption "Piecing things together…" |
 | Accessibility | Splash is a single container with header trait on app name; loading progress view has `A11yID.splashLoading` |
 
-The splash bridges the system launch screen (`LaunchScreen.storyboard`) and app initialization (SwiftData container, Firebase bootstrap, auth provider).
+The splash bridges the system launch screen (`LaunchScreen.storyboard`) and app initialization (SwiftData container, optional Firebase bootstrap).
 
 ### Onboarding
 
@@ -56,11 +56,10 @@ Onboarding is skipped automatically during UI tests (`UITestSupport.isRunningUnd
 
 ```
 Onboarding incomplete → OnboardingView
-Login enabled         → LoginView
-Default (1.0)         → PuzzleView (local SwiftData)
+Otherwise             → PuzzleView (SwiftData)
 ```
 
-See [architecture.md](architecture.md#feature-flags-productservice) for how `ProductService.isLoginEnabled` is controlled.
+See [architecture.md](architecture.md).
 
 ---
 
@@ -79,8 +78,8 @@ The catalog is the heart of the app. Users browse, add, edit, and delete puzzles
 | Sort | Toolbar menu: date, name, rating, difficulty, piece count; default **Name** on To-Do / In-Progress tabs |
 | Barcode | Toolbar scan button opens scanner; optional **Shopping mode** for offline duplicate check |
 | Add | Floating `+` button opens `PuzzleForm` as a sheet |
-| Delete | Swipe-to-delete removes puzzles from SwiftData (and Firestore when cloud sync is on) |
-| Refresh | Pull-to-refresh re-fetches from SwiftData or Firestore |
+| Delete | Swipe-to-delete removes puzzles from SwiftData |
+| Refresh | Pull-to-refresh reloads from SwiftData |
 | Empty state | List renders empty until first puzzle is added; `fetchPuzzles()` runs on appear |
 | Layout | Card-style rows with circular thumbnail, name, piece count, and completion date |
 | Adaptive layout | Rows stack vertically at large Dynamic Type sizes or compact vertical size class |
@@ -190,7 +189,7 @@ Difficulty is an integer 0–5 stored as a string enum (`"0"` through `"5"`). `0
 
 #### Time spent
 
-`Puzzle.PuzzleTime` holds optional hours and minutes. Serialized as `"2hr:30min"` for Firestore and split into `estimatedTimeHours` / `estimatedTimeMinutes` on `PuzzleRecord`.
+`Puzzle.PuzzleTime` holds optional hours and minutes. Serialized as `"2hr:30min"` in export dictionaries and split into `estimatedTimeHours` / `estimatedTimeMinutes` on `PuzzleRecord`.
 
 #### Photo attachment (`ImagePickerView`)
 
@@ -236,18 +235,18 @@ Conversion helpers:
 
 ### PuzzleStore
 
-`PuzzleStore` is the single source of truth for the puzzle array in memory.
+`PuzzleStore` is the single source of truth for the puzzle array in memory. All operations use **SwiftData** only.
 
-| Operation | Local mode (1.0) | Cloud mode (future) |
-|-----------|------------------|---------------------|
-| `fetchPuzzles()` | `FetchDescriptor` sorted by `completionDate` desc | Firestore `getDocuments()` on `/users/{email}/puzzles` |
-| `add(puzzle:)` | Insert `PuzzleRecord`, append to array | `setData` then local insert |
-| `update(puzzle:)` | Find record by ID, `apply(from:)`, save | `updateData` then local update |
-| `delete(at:)` | Delete records, remove from array | Firestore `delete` then local delete |
+| Operation | Behavior |
+|-----------|----------|
+| `fetchPuzzles()` | `FetchDescriptor` sorted by `completionDate` desc |
+| `add(puzzle:)` | Insert `PuzzleRecord`, append to array |
+| `update(puzzle:)` | Find record by ID, `apply(from:)`, save |
+| `delete(at:)` | Delete records, remove from array |
 
-State machine: `idle` → `fetching` → `done` (cloud fetch only).
+State: `idle` → `fetching` → `done`.
 
-Analytics events fire on CRUD success and sync failure (`puzzle_added`, `puzzle_updated`, `puzzle_deleted`, `puzzle_list_refreshed`, `puzzle_sync_failed`).
+Analytics events on CRUD and load failure — see [telemetry.md](telemetry.md).
 
 ---
 
@@ -267,12 +266,12 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 
 ### Settings (`SettingsView`)
 
-| Section | 1.0 content | When login enabled |
-|---------|-------------|-------------------|
-| Account | Hidden | Sign Out button |
-| Collection | Demo data, delete all | Import/export when `isCollectionImportExportEnabled` (off in 1.0) |
-| Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) | Same |
-| About | App version from `Puzzle_BuddyApp.version` | Same |
+| Section | Content |
+|---------|---------|
+| Display | Appearance picker |
+| Collection | Demo data, delete all; import/export when `isCollectionImportExportEnabled` (off in 1.0) |
+| Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) |
+| About | App version from `Puzzle_BuddyApp.version` |
 
 **IPDb import / export (1.1+):** Gated by `ProductService.isCollectionImportExportEnabled`. Dogfood with launch arg `-enable_collection_import_export`. See [ipdb-csv-import.md](ipdb-csv-import.md) and [collection-export.md](collection-export.md).
 
@@ -280,60 +279,26 @@ Legal URLs point to `https://jacobrozell.github.io/PuzzleBuddy/`.
 
 ---
 
-## Authentication (implemented, disabled in 1.0)
-
-Login code ships in the repository but is gated by `ProductService.isLoginEnabled` (default `false`). Launch with `-enable_login` to test locally.
-
-When enabled, `RootView` presents `LoginView` instead of `PuzzleView` directly.
-
-### Supported auth methods
-
-| Method | Status | Implementation |
-|--------|--------|----------------|
-| Email / password sign-in | Ready | `FirebaseAuthProvider.login()` |
-| Email / password registration | Ready | `createAccount(with:email:password:)` + Firestore user doc |
-| Sign in with Apple | Ready | SHA-256 nonce + `OAuthProvider.credential` |
-| Forgot password | Ready | `ForgotPasswordView` sends reset email |
-| Apple account creation helper | Stubbed | `createAccountWithApple` is commented out |
-
-### User profile (Firestore)
-
-On sign-in, `updateUser()` writes to `/users/{email}`:
-
-- `currentVersion` — app version string
-- `lastLoggedIn` — server timestamp
-
-Account creation also sets `username` from the registration form.
-
-### Profile view (`ProfileView`)
-
-Account management UI for signed-in users: email display, password reset, username change (`ChangeUsernameView`). Not wired into the main tab bar in 1.0; intended for the login release.
-
----
-
 ## Observability
 
-### AppLog and Analytics
+All telemetry goes through `AppLog.shared`. Full allowlists, Crashlytics behavior, and bootstrap rules: **[telemetry.md](telemetry.md)**.
 
-All telemetry goes through `AppLog.shared` — never call `Analytics.logEvent` directly.
+Summary:
 
 | Principle | Implementation |
 |-----------|----------------|
-| Allowlist only | Unknown event names never reach Firebase |
-| No PII | Email, UID, password, display name blocked from metadata |
-| CI-safe | Analytics inactive when Firebase is not configured |
+| Allowlist only | `PuzzleAnalyticsEventMapping` in `AppLogging.swift` |
+| No PII | `LogRedaction` + breadcrumb format `[category] eventName` |
+| Release-only remote | Debug off unless `-firebase_analytics_debug` |
+| CI-safe | Placeholder plist → Firebase inactive |
 
-Allowlisted puzzle events: `puzzle_added`, `puzzle_updated`, `puzzle_deleted`, `puzzle_list_refreshed`, `puzzle_sync_failed`, `onboarding_completed`.
+Firebase products: **Analytics + Crashlytics** only ([firebase-setup.md](firebase-setup.md)).
 
-See [analytics.md](analytics.md) for the full event and parameter allowlist.
+---
 
-### Crashlytics
+## Future: accounts and cloud sync
 
-Warnings and errors are forwarded to Firebase Crashlytics as logs and non-fatal `record(error:)` calls. No PII in crash metadata.
-
-### Firebase bootstrap
-
-Firebase configures only when `GoogleService-Info.plist` exists and `GOOGLE_APP_ID` does not contain `REPLACE_WITH`. This lets CI and fresh clones build without a real Firebase project.
+Not in the app. Spec: [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md).
 
 ---
 
@@ -359,7 +324,6 @@ Defined in `DesignTokens.swift`:
 
 `AdaptiveLayout.swift` provides helpers for:
 
-- Wide auth layout (iPad / iPhone landscape)
 - Wide detail layout (side-by-side panels on iPad and iPhone landscape)
 - Readable content width on iPad and iPhone landscape
 - Stacked row layout (large Dynamic Type only — not landscape)
@@ -376,8 +340,8 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Area | Coverage |
 |------|----------|
-| VoiceOver labels | Login fields, puzzle form, list rows, detail rows, settings, shopping mode, quick-add, import summary |
-| Accessibility identifiers | `A11yID` on login, list, form, settings, onboarding, splash, barcode, shopping, import/export |
+| VoiceOver labels | Puzzle form, list rows, detail rows, settings, shopping mode, import summary |
+| Accessibility identifiers | `A11yID` on list, form, settings, onboarding, splash, barcode, shopping, import/export |
 | Reduce Motion | Brand background, splash pulse, shopping flash |
 | Dynamic Type | Adaptive row layouts in `PuzzleCell` and detail rows; scroll chrome at accessibility sizes and in landscape |
 | Automated audits | `XCUIAccessibilityAudit` on list, settings, stats, form, detail; landscape layout tests |
@@ -397,8 +361,6 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 | Devices | iPhone and iPad |
 | Camera | Required for "Take photo" — `NSCameraUsageDescription` |
 | Photo library | Implicit via `UIImagePickerController` |
-| Sign in with Apple | Entitlement present; active when login ships |
-| Push notifications | FCM integrated in `AppDelegate`; not used for puzzle sync |
 
 ---
 
@@ -406,10 +368,12 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Hook | Purpose |
 |------|---------|
-| `-enable_login` | Enable login UI and cloud sync path |
-| `-ui_testing` / `UITestSupport` | Bypass auth, seed fixtures, skip onboarding |
-| `auth.shouldBypassAccount` | UI test path straight to `PuzzleView` |
-| Preview fixtures | `Puzzle.fixture()`, `PreviewSupport` for SwiftUI previews |
+| `-enable_collection_import_export` | Settings import/export UI |
+| `-ui_testing_bypass_auth` | Skip onboarding (legacy arg name) |
+| `-ui_testing_seed_puzzles` | Seed demo puzzles |
+| `-disable_firebase_analytics` | Disable Analytics + Crashlytics |
+| `UITestSupport` | Centralized UI test detection |
+| Preview fixtures | `Puzzle.fixture()`, `PreviewSupport` |
 
 See [testing.md](testing.md) for CI and test suite details.
 

@@ -23,19 +23,6 @@ extension XCTestCase {
         XCTAssertTrue(settingsLoaded, file: file, line: line)
     }
 
-    func launchForLogin(
-        extraArguments: [String] = [],
-        contentSizeCategory: String? = nil
-    ) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = UITestLaunch.loginArguments + extraArguments
-        if let contentSizeCategory {
-            app.launchEnvironment["UIPreferredContentSizeCategoryName"] = contentSizeCategory
-        }
-        app.launch()
-        return app
-    }
-
     func launchForAccessibility(
         extraArguments: [String] = [],
         contentSizeCategory: String? = nil

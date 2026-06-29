@@ -2,9 +2,11 @@
 
 Track your jigsaw puzzle collection — piece counts, ratings, difficulty, photos, and completion dates. Built with SwiftUI and SwiftData, with Firebase Analytics and Crashlytics.
 
-**Status:** Pre-ship polish · v1.0.0 (2) · **Branch:** `main` · Local-first inaugural release (login/cloud sync in 1.1+)
+**Status:** Pre-ship polish · v1.0.0 (2) · **Branch:** `main` · Local-first inaugural release
 
-Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.0.0** is the inaugural release — local-first on device; account sign-in and cloud sync ship in **1.1.0+** behind a feature flag. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
+Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.0.0** is local-only on device — no account. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
+
+**Agents:** start with [AGENTS.md](AGENTS.md).
 
 ## Table of contents
 
@@ -40,16 +42,11 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - Stats tab: completed count, pieces assembled, backlog, time at the table, top tags
 - Share collage of collection or filtered list
 
-### Gated for 1.1+ (implemented, off in 1.0)
+### Gated for dogfood (implemented, off in 1.0)
 
 | Feature | Flag | Dogfood launch arg |
 |---------|------|-------------------|
 | IPDb CSV import + JSON/CSV export | `isCollectionImportExportEnabled` | `-enable_collection_import_export` |
-| Login + Firestore sync | `isLoginEnabled` | `-enable_login` |
-
-### Authentication (1.1+)
-
-Email/password, Sign in with Apple, forgot password, Firestore sync — see [docs/firebase-setup.md](docs/firebase-setup.md).
 
 ### Observability
 
@@ -72,8 +69,8 @@ Post-1.0 plans: in-app timer, multi-photo gallery, purchase location, year/type,
 | iOS deployment target | 17.0+ |
 | Swift | 5.0 |
 | macOS (for local builds) | macOS 15+ recommended (matches CI) |
-| Firebase project | Analytics + Crashlytics (Auth + Firestore optional until login ships) |
-| Optional | [XcodeGen](https://github.com/yonaskolb/XcodeGen), [SwiftLint](https://github.com/realm/SwiftLint), [Firebase CLI](https://firebase.google.com/docs/cli) |
+| Firebase project | Analytics + Crashlytics only |
+| Optional | [XcodeGen](https://github.com/yonaskolb/XcodeGen), [SwiftLint](https://github.com/realm/SwiftLint) |
 
 ## Quick start
 
@@ -87,7 +84,7 @@ cp GoogleService-Info.plist.example GoogleService-Info.plist
 
 Edit `GoogleService-Info.plist` with values from the [Firebase Console](https://console.firebase.google.com/) → Project settings → Your apps → iOS app. The bundle ID must be `com.jacobrozell.Puzzle-Buddy`.
 
-For **1.0**, Firebase is used for Analytics and Crashlytics. Enable **Email/Password** and **Apple** sign-in providers under Authentication → Sign-in method when preparing the login release. See [docs/firebase-setup.md](docs/firebase-setup.md).
+For **1.0**, Firebase is used for Analytics and Crashlytics only. See [docs/firebase-setup.md](docs/firebase-setup.md).
 
 ### 2. Generate the Xcode project
 
@@ -125,18 +122,18 @@ See [docs/development.md](docs/development.md) for the full local workflow, simu
 ```
 Puzzle-Buddy/
 ├── Puzzle Buddy/              # Main app target
-│   ├── Login/                 # Auth views (gated by ProductService)
+│   ├── Login/                 # OnboardingView only (legacy folder name)
 │   ├── Views/                 # SwiftUI screens (puzzle list, form, detail, settings)
 │   ├── Helpers/               # Puzzle model, PuzzleRecord (SwiftData), PuzzleStore
 │   └── Util/                  # ProductService, design tokens, logging, error handling
 ├── Puzzle BuddyTests/         # Unit tests
 ├── Puzzle BuddyUITests/       # UI tests
 ├── docs/                      # GitHub Pages + extended documentation
+├── specs/                     # Feature specs (planned + shipped)
+├── AGENTS.md                  # Agent onboarding (read first)
 ├── accessibility/             # WCAG roadmap and evidence
 ├── Scripts/                   # CI helpers and git hook installer
 ├── project.yml                # XcodeGen spec (source of truth for the project)
-├── firestore.rules            # Firestore security rules
-├── firebase.json              # Firebase CLI config
 ├── GoogleService-Info.plist.example
 └── .github/workflows/ci.yml   # SwiftLint + build/test on push/PR
 ```
@@ -146,26 +143,22 @@ Puzzle-Buddy/
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Puzzle_BuddyApp                                            │
-│    ├── AppDelegate (Firebase, Crashlytics, push)            │
+│    ├── AppDelegate (Firebase Analytics + Crashlytics)     │
 │    ├── ModelContainer (SwiftData / PuzzleRecord)            │
-│    ├── FirebaseAuthProvider (@EnvironmentObject)            │
-│    └── RootView → PuzzleView (1.0 default)                │
-│              or LoginView → PuzzleView (login enabled)      │
+│    └── AppShell → RootView → PuzzleView                     │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  PuzzleView / PuzzleTabbar                                  │
-│    └── PuzzleStore (@StateObject)                           │
-│          ├── SwiftData (1.0 default)                        │
-│          └── Firestore: /users/{email}/puzzles (login)      │
+│    └── PuzzleStore (@StateObject) → SwiftData only          │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-- **SwiftUI** for all UI; `@MainActor` on store and auth types
-- **SwiftData** for on-device persistence in 1.0
-- **ProductService** gates login and Firestore cloud sync
-- **Firebase** for Analytics and Crashlytics; Auth/Firestore when login ships
+- **SwiftUI** for all UI; `@MainActor` on `PuzzleStore` and `ErrorHandling`
+- **SwiftData** for on-device persistence
+- **ProductService** gates import/export and other staged features
+- **Firebase** for Analytics and Crashlytics only
 - **Puzzle** is an `ObservableObject`; **PuzzleRecord** is the SwiftData `@Model`
 - **ErrorHandling** is injected via `.withErrorHandling()` at the app root
 
@@ -175,16 +168,18 @@ Full details: [docs/architecture.md](docs/architecture.md).
 
 | Document | Description |
 |----------|-------------|
-| [docs/agent-build-checklist.md](docs/agent-build-checklist.md) | Phased build checklist (0→Ship), progress log, agent session template |
-| [docs/feature-inventory.md](docs/feature-inventory.md) | Shipped vs partial vs planned — product reality register |
-| [docs/features.md](docs/features.md) | Core features — user flows, data model, and behavior (verbose) |
-| [docs/roadmap.md](docs/roadmap.md) | Future releases, stats plan, competitive analysis, accessibility phases, model extensions |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist, conventions |
-| [docs/development.md](docs/development.md) | Local setup, XcodeGen, debugging, common issues |
-| [docs/architecture.md](docs/architecture.md) | App layers, data model, navigation, dependencies |
-| [docs/firebase-setup.md](docs/firebase-setup.md) | Firebase project, Auth, Firestore, rules deployment |
-| [docs/analytics.md](docs/analytics.md) | AppLog, Analytics allowlist, privacy guarantees |
-| [docs/testing.md](docs/testing.md) | Unit tests, UI tests, CI test runner |
+| [AGENTS.md](AGENTS.md) | **Agent onboarding** — read first |
+| [docs/agent-build-checklist.md](docs/agent-build-checklist.md) | Phased build checklist (0→Ship), progress log |
+| [docs/feature-inventory.md](docs/feature-inventory.md) | Shipped vs partial vs planned |
+| [docs/features.md](docs/features.md) | Core features — user flows and behavior |
+| [docs/telemetry.md](docs/telemetry.md) | **Logging, Analytics, Crashlytics spec** (allowlists) |
+| [docs/roadmap.md](docs/roadmap.md) | Future releases and backlog |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist |
+| [docs/development.md](docs/development.md) | Local setup, debugging |
+| [docs/architecture.md](docs/architecture.md) | App layers, data model, navigation |
+| [docs/firebase-setup.md](docs/firebase-setup.md) | Firebase Console, plist, Crashlytics |
+| [docs/analytics.md](docs/analytics.md) | AppLog quick reference |
+| [docs/testing.md](docs/testing.md) | Unit tests, UI tests, CI |
 | [docs/wcag.md](docs/wcag.md) | WCAG 2.1 AA conformance guide (criteria, screens, testing) |
 | [docs/README.md](docs/README.md) | GitHub Pages setup and public URLs |
 | [accessibility/accessibility_todo.md](accessibility/accessibility_todo.md) | WCAG engineering roadmap |
@@ -193,16 +188,9 @@ Full details: [docs/architecture.md](docs/architecture.md).
 ## Firebase & security
 
 - Never commit `GoogleService-Info.plist` — use the example file for CI and keep real credentials local
-- **1.0** uses Firebase for Analytics and Crashlytics only; puzzle data stays on device
-- When login ships, deploy Firestore rules from the repo root:
+- **1.0** uses Firebase for Analytics and Crashlytics only; puzzle data stays on device (SwiftData)
 
-```bash
-firebase deploy --only firestore:rules
-```
-
-- Rules require `request.auth.token.email == userId` for all reads and writes under `/users/{userId}`
-
-See [docs/firebase-setup.md](docs/firebase-setup.md) for step-by-step Firebase Console configuration.
+See [docs/firebase-setup.md](docs/firebase-setup.md) and [docs/telemetry.md](docs/telemetry.md).
 
 ## CI/CD
 

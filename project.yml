@@ -33,15 +33,11 @@ targets:
         buildPhase: resources
     dependencies:
       - package: Firebase
+        product: FirebaseCore
+      - package: Firebase
         product: FirebaseAnalytics
       - package: Firebase
-        product: FirebaseAuth
-      - package: Firebase
         product: FirebaseCrashlytics
-      - package: Firebase
-        product: FirebaseFirestore
-      - package: Firebase
-        product: FirebaseMessaging
     postBuildScripts:
       - name: Firebase Crashlytics
         script: |

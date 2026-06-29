@@ -8,7 +8,6 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @ObservedObject var ps: PuzzleStore
-    @EnvironmentObject var auth: FirebaseAuthProvider
     @EnvironmentObject var eh: ErrorHandling
 
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
@@ -31,10 +30,6 @@ struct SettingsView: View {
     var body: some View {
         List {
             settingsHeader
-
-            if ProductService.isLoginEnabled {
-                accountSection
-            }
 
             appearanceSection
             dataSection
@@ -112,29 +107,6 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity)
             .listRowBackground(Color.clear)
             .accessibilityElement(children: .combine)
-        }
-    }
-
-    @ViewBuilder
-    private var accountSection: some View {
-        Section {
-            if auth.user != nil {
-                Button {
-                    do {
-                        try auth.logout()
-                    } catch {
-                        eh.handle(title: "Logout failed", message: error.localizedDescription)
-                    }
-                } label: {
-                    Text("Sign Out")
-                        .foregroundStyle(Brand.accentWarm)
-                }
-                .optionalAccessibilityIdentifier(A11yID.settingsSignOutButton)
-                .accessibilityLabel("Sign out")
-                .accessibilityHint("Signs out of your Puzzle Buddy account")
-            }
-        } header: {
-            Text("Account")
         }
     }
 

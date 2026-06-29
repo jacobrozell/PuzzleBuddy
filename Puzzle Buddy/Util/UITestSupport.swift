@@ -22,6 +22,7 @@ enum UITestSupport {
             || ProcessInfo.processInfo.arguments.contains(disableFirebaseAnalytics)
             || ProcessInfo.processInfo.arguments.contains(seedPuzzles)
             || ProcessInfo.processInfo.environment["UI_TESTING_SEED_PUZZLES"] == "1"
+            || MarketingSnapshotBootstrap.isMarketingCapture
     }
 
     static var shouldSeedPuzzles: Bool {

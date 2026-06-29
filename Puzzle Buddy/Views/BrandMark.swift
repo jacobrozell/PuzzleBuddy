@@ -20,8 +20,12 @@ struct BrandMark: View {
     var body: some View {
         Group {
             if animated && !reduceMotion {
-                AnimatedGIFView(resourceName: Self.loadingGIFResourceName, isAnimating: true)
-                    .frame(width: size, height: size)
+                AnimatedGIFView(
+                    resourceName: Self.loadingGIFResourceName,
+                    maxPixelSize: Int(size * UIScreen.main.scale),
+                    isAnimating: true
+                )
+                .frame(width: size, height: size)
             } else {
                 staticImage
                     .frame(width: size, height: size)

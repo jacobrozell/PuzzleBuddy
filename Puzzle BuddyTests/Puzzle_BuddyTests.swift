@@ -32,22 +32,14 @@ final class Puzzle_BuddyTests: XCTestCase {
         XCTAssertNil(mapped)
     }
 
-    func testLoginDisabledByDefaultForOnePointZero() {
-        XCTAssertFalse(ProductService.isLoginEnabled)
+    func testPickNextEnabledForOnePointZero() {
+        XCTAssertTrue(ProductService.isPickNextEnabled)
     }
 
     func testCollectionImportExportDisabledForOnePointZero() {
         XCTAssertFalse(ProductService.isCollectionImportExportEnabled)
         XCTAssertFalse(ProductService.isIPDbImportEnabled)
         XCTAssertFalse(ProductService.isCollectionExportEnabled)
-    }
-
-    func testPickNextEnabledForOnePointZero() {
-        XCTAssertTrue(ProductService.isPickNextEnabled)
-    }
-
-    func testCloudSyncDisabledWhenLoginDisabled() {
-        XCTAssertFalse(ProductService.isCloudSyncEnabled)
     }
 
     func testAppInfoDisplayName() {

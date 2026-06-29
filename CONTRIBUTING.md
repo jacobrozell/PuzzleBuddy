@@ -17,9 +17,10 @@ Thank you for helping improve Puzzle Buddy. This guide covers conventions, tooli
 
 ## Before you start
 
-1. Open an issue for large features or breaking changes so we can align on approach.
-2. Fork the repo and create a feature branch from `main` (or `master`).
-3. Keep pull requests focused — one logical change per PR is easier to review.
+1. Read [AGENTS.md](AGENTS.md) if you are an automated agent or new contributor.
+2. Open an issue for large features or breaking changes so we can align on approach.
+3. Fork the repo and create a feature branch from `main` (or `master`).
+4. Keep pull requests focused — one logical change per PR is easier to review.
 
 ## Development setup
 
@@ -100,38 +101,32 @@ Add new tokens to `DesignTokens.swift` when a color or spacing value is reused a
 
 ### SwiftUI patterns
 
-- Prefer `@MainActor` on `ObservableObject` types that touch UI, SwiftData, or Firestore from the main thread (`PuzzleStore`, `FirebaseAuthProvider`, `ErrorHandling`).
-- Use `@StateObject` for owned store lifetimes; `@EnvironmentObject` for app-wide auth and error handling.
+- Prefer `@MainActor` on `ObservableObject` types that touch UI or SwiftData from the main thread (`PuzzleStore`, `ErrorHandling`).
+- Use `@StateObject` for owned store lifetimes; `@EnvironmentObject` for app-wide error handling.
 - Keep view files focused — extract reusable subviews (see `HelperViews/` for rating and difficulty controls).
 
 ### Naming and organization
 
 | Area | Convention |
 |------|------------|
-| Views | `*View.swift` in `Views/` or `Login/` |
-| Stores / services | `*Store.swift` or `*Provider.swift` in `Helpers/` or `Login/` |
+| Views | `*View.swift` in `Views/` or `Login/` (onboarding only) |
+| Stores | `*Store.swift` in `Helpers/` |
 | Utilities | `Util/` |
 | MARK comments | Use `// MARK: - Section` to group extensions and nested types |
 | File header | Keep existing copyright block when editing |
 
-Note: `FirbaseAuthProvider.swift` is a historical typo in the filename — match the existing name if touching that file.
+Note: `Login/` folder name is legacy — contains `OnboardingView` only.
 
 ## Architecture conventions
 
-### Data flow
+### Data flow (1.0)
 
-**1.0 (default):**
-
-1. `RootView` presents `PuzzleView` — no authentication
+1. `AppShell` → `RootView` → `PuzzleView` (or onboarding first run)
 2. `PuzzleStore` loads and saves puzzles via SwiftData (`PuzzleRecord`)
-3. Views mutate local `Puzzle` objects and call `PuzzleStore.add`, `update`, or `delete`
-4. Errors surface through `ErrorHandling.handle(error:title:)` via `.environmentObject(eh)`
+3. Views call `PuzzleStore.add`, `update`, or `delete`
+4. Errors surface through `ErrorHandling.handle(error:title:)`
 
-**Login release (`ProductService.isLoginEnabled`):**
-
-1. User authenticates via `FirebaseAuthProvider` → `LoginView` presents `PuzzleView(user:)`
-2. `PuzzleStore` syncs to Firestore path `/users/{email}/puzzles`
-3. Same view-layer CRUD pattern as local mode
+Future account sync: [specs/planned/auth-cloud-sync.md](specs/planned/auth-cloud-sync.md) — not in app today.
 
 ### SwiftData records
 
@@ -140,24 +135,21 @@ Note: `FirbaseAuthProvider.swift` is a historical typo in the filename — match
 1. Update `PuzzleRecord` and its `init(from:)` / `apply(from:)` / `toPuzzle()` methods
 2. Add tests in `PuzzlePersistenceTests`
 
-### Firestore documents (login release)
+### Dictionary serialization (export / tests)
 
-Puzzle documents use `puzzle.id.uuidString` as the document ID. Fields are defined in `Puzzle.getDataFields()`. When adding fields:
+`Puzzle.getDataFields()` and `fromData(_:)` support export round-trip tests — not cloud sync. When adding fields:
 
-1. Update `getDataFields()` and `fromData(_:)`.
-2. Add unit tests in `PuzzleSerializationTests`.
-3. Consider backward compatibility for existing user data (optional fields with defaults).
+1. Update both methods
+2. Add tests in `PuzzleSerializationTests`
 
 ### Dependencies
 
-Swift packages are declared in `project.yml`:
+Swift packages in `project.yml`:
 
-- **Firebase** (Analytics, Auth, Crashlytics, Firestore, Messaging)
-- **SwiftData** (system framework — on-device persistence)
+- **Firebase** — `FirebaseCore`, `FirebaseAnalytics`, `FirebaseCrashlytics` only
+- **SwiftData** (system)
 
-Add new packages in `project.yml`, then `xcodegen generate` and commit only `project.yml` and `Package.resolved` (if tracked).
-
-Full architecture reference: [docs/architecture.md](docs/architecture.md).
+Full reference: [docs/architecture.md](docs/architecture.md), [AGENTS.md](AGENTS.md).
 
 ## Logging and analytics
 
@@ -166,11 +158,12 @@ All production analytics go through `AppLog.shared` with an `eventName`. Only al
 When adding a new measurable action:
 
 1. Pick a snake_case `eventName`.
-2. Add it to `PuzzleAnalyticsEventMapping.allowlistedEvents` in `AppLogging.swift` if it should appear in Analytics.
-3. Use only allowlisted metadata keys (`app_version`, `log_category`, `auth_provider`, `puzzle_count`, `puzzle_status`).
+2. Add it to `PuzzleAnalyticsEventMapping.allowlistedEvents` in `AppLogging.swift`.
+3. Use only allowlisted metadata keys — see [docs/telemetry.md](docs/telemetry.md).
 4. Never pass email, UID, password, or display name in metadata.
+5. Update [docs/telemetry.md](docs/telemetry.md) and tests in `AppLoggingTests`.
 
-Details: [docs/analytics.md](docs/analytics.md).
+Details: [docs/analytics.md](docs/analytics.md) (quick ref) · [docs/telemetry.md](docs/telemetry.md) (full spec).
 
 ## Accessibility
 

@@ -19,7 +19,7 @@ This document is the developer-facing WCAG conformance guide for the Puzzle Budd
 | GitHub Pages legal/support HTML | App Store listing screenshots |
 | iOS 17.0+ on iPhone and iPad | watchOS, macOS, web |
 
-**Note:** Version 1.0 launches directly into the puzzle list (no sign-in). Login-screen WCAG coverage applies when `ProductService.isLoginEnabled` is true or when testing with `-enable_login`.
+**Note:** Version 1.0 launches directly into the puzzle list (no sign-in). Login was removed from the app in June 2026; see [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md).
 
 **Target conformance level:** WCAG 2.1 Level AA  
 **Conformance status:** Partial — Phase 1 complete; Phase 2–3 in progress (see roadmap)
