@@ -70,7 +70,7 @@ struct OnboardingView: View {
 
             onboardingFooter
         }
-        .readableBrandBackground()
+        .readableBrandBackground(ignoresSafeAreaEdges: .all)
     }
 
     private var onboardingFooter: some View {

@@ -13,6 +13,7 @@ struct PuzzleList: View {
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.verticalSizeClass) private var verticalSizeClass
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
     @State private var showScanner = false
@@ -32,6 +33,7 @@ struct PuzzleList: View {
     @State private var materialFilter: PuzzleMaterial? = nil
     @State private var dispositionFilter: PuzzleDisposition? = nil
     @State private var showTagFilterSheet = false
+    @State private var showFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
 
     private var displayedPuzzles: [Puzzle] {
@@ -86,27 +88,7 @@ struct PuzzleList: View {
     }
 
     var body: some View {
-        List {
-            if displayedPuzzles.isEmpty {
-                emptyStateRow
-            } else {
-                ForEach(displayedPuzzles, id: \.id) { puzzle in
-                    if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
-                        PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
-                            .id(ps.puzzles[index].id)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(EdgeInsets(
-                                top: DS.Spacing.s2,
-                                leading: DS.Spacing.s4,
-                                bottom: DS.Spacing.s2,
-                                trailing: DS.Spacing.s4
-                            ))
-                    }
-                }
-                .onDelete(perform: deleteDisplayedPuzzles)
-            }
-        }
+        puzzleCollection
         .accessibilityIdentifier(A11yID.puzzleList)
         .overlay {
             if ps.state == .fetching, ps.puzzles.isEmpty {
@@ -118,7 +100,6 @@ struct PuzzleList: View {
         .refreshable {
             await ps.fetchPuzzles()
         }
-        .listStyle(.plain)
         .readableBrandScreenChrome()
         .safeAreaInset(edge: .top, spacing: 0) {
             statusFilterPicker
@@ -230,6 +211,9 @@ struct PuzzleList: View {
                 selection: $tagFilter
             )
         }
+        .sheet(isPresented: $showFilterSheet) {
+            filterSheet
+        }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
         }
@@ -296,86 +280,78 @@ struct PuzzleList: View {
             .padding(.bottom, max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2))
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            Color.clear.frame(height: verticalSizeClass == .compact ? DS.Spacing.s2 : 0)
+            // Compact height (landscape) packs the FAB close to the short tab bar,
+            // so reserve enough room for the last row to clear the add button.
+            Color.clear.frame(height: verticalSizeClass == .compact ? 72 : 0)
+        }
+    }
+
+    /// Single-column List on compact width; multi-column grid on regular width (iPad).
+    @ViewBuilder
+    private var puzzleCollection: some View {
+        if horizontalSizeClass == .regular {
+            puzzleGrid
+        } else {
+            puzzleListView
+        }
+    }
+
+    private var puzzleListView: some View {
+        List {
+            if displayedPuzzles.isEmpty {
+                emptyStateRow
+            } else {
+                ForEach(displayedPuzzles, id: \.id) { puzzle in
+                    if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
+                        PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                            .id(ps.puzzles[index].id)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                            .listRowInsets(EdgeInsets(
+                                top: DS.Spacing.s2,
+                                leading: DS.Spacing.s4,
+                                bottom: DS.Spacing.s2,
+                                trailing: DS.Spacing.s4
+                            ))
+                    }
+                }
+                .onDelete(perform: deleteDisplayedPuzzles)
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    private var puzzleGrid: some View {
+        ScrollView {
+            if displayedPuzzles.isEmpty {
+                emptyStateRow
+                    .padding(.top, DS.Spacing.s6)
+                    .padding(.horizontal, DS.Spacing.s4)
+            } else {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 320), spacing: DS.Spacing.s4)],
+                    spacing: DS.Spacing.s4
+                ) {
+                    ForEach(displayedPuzzles, id: \.id) { puzzle in
+                        if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
+                            PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                                .id(ps.puzzles[index].id)
+                        }
+                    }
+                }
+                .padding(.horizontal, DS.Spacing.s4)
+                .padding(.top, DS.Spacing.s2)
+                .padding(.bottom, AdaptiveLayout.tabBarClearance(for: dynamicTypeSize))
+            }
         }
     }
 
     private var statusFilterPicker: some View {
         VStack(spacing: DS.Spacing.s2) {
-            Picker("Filter puzzles by status", selection: $statusFilter) {
-                ForEach(PuzzleListStatusFilter.allCases) { filter in
-                    Text(filter.title).tag(filter)
-                }
-            }
-            .pickerStyle(.segmented)
-            .accessibilityLabel("Filter puzzles by status")
-            .accessibilityValue(statusFilter.title)
-
-            HStack(spacing: DS.Spacing.s2) {
-                Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Brand.textSecondary)
-                    .accessibilityHidden(true)
-
-                TextField("Search name, brand, store, tag, or barcode", text: $searchText)
-                    .textFieldStyle(.plain)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.never)
-                    .submitLabel(.search)
-                    .accessibilityIdentifier(A11yID.puzzleListSearchField)
-                    .accessibilityLabel("Search name, brand, store, tag, or barcode")
-                    .accessibilityHint("Filters the puzzle list as you type")
-
-                if hasActiveSearch {
-                    Button {
-                        searchText = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Brand.textSecondary)
-                    }
-                    .buttonStyle(.plain)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel("Clear search")
-                    .accessibilityHint("Clears the search field")
-                }
-            }
-            .padding(.horizontal, DS.Spacing.s3)
-            .padding(.vertical, DS.Spacing.s2)
-            .background(Brand.card)
-            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
-
-            if !ps.puzzles.isEmpty {
-                HStack(alignment: .center, spacing: DS.Spacing.s2) {
-                    Text(PuzzleListQuery.resultCountLabel(
-                        displayedCount: displayedPuzzles.count,
-                        totalCount: ps.puzzles.count,
-                        hasActiveFilters: hasActiveFilters
-                    ))
-                    .font(.caption)
-                    .foregroundStyle(Brand.textSecondary)
-                    .accessibilityIdentifier(A11yID.puzzleListResultCount)
-
-                    if hasSecondaryFilters {
-                        Button("Clear filters") {
-                            clearSecondaryFilters()
-                        }
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Brand.accent)
-                        .frame(minHeight: 44)
-                        .accessibilityIdentifier(A11yID.puzzleListClearFilters)
-                        .accessibilityHint("Clears search, tag, and other list filters")
-                    }
-
-                    Spacer(minLength: 0)
-
-                    if verticalSizeClass != .compact {
-                        listFilterControls
-                    }
-                }
-
-                if verticalSizeClass == .compact {
-                    listFilterControls
-                }
+            if verticalSizeClass == .compact {
+                compactFilterHeader
+            } else {
+                regularFilterHeader
             }
         }
         .padding(.horizontal, DS.Spacing.s4)
@@ -385,9 +361,183 @@ struct PuzzleList: View {
                 .overlay(alignment: .bottom) {
                     Divider()
                 }
+                // Bleed the sticky header band into the landscape safe-area inset
+                // (e.g. Dynamic Island side) so it doesn't stop short of the edge.
+                .ignoresSafeArea(edges: .horizontal)
         }
         .accessibilityIdentifier(A11yID.puzzleListStatusFilter)
         .accessibilityElement(children: .contain)
+    }
+
+    /// Full filter chrome for portrait / regular height: status, search, count, chips.
+    private var regularFilterHeader: some View {
+        VStack(spacing: DS.Spacing.s2) {
+            statusSegmentedPicker
+            searchField
+
+            if !ps.puzzles.isEmpty {
+                HStack(alignment: .center, spacing: DS.Spacing.s2) {
+                    resultCountText
+
+                    if hasSecondaryFilters {
+                        clearFiltersButton
+                    }
+
+                    Spacer(minLength: 0)
+
+                    listFilterControls
+                }
+            }
+        }
+    }
+
+    /// Single-row header for compact height (landscape): status + a button that
+    /// opens search and secondary filters in a sheet, reclaiming vertical space.
+    private var compactFilterHeader: some View {
+        HStack(spacing: DS.Spacing.s2) {
+            statusSegmentedPicker
+            filterSheetButton
+        }
+    }
+
+    private var statusSegmentedPicker: some View {
+        Picker("Filter puzzles by status", selection: $statusFilter) {
+            ForEach(PuzzleListStatusFilter.allCases) { filter in
+                Text(filter.title).tag(filter)
+            }
+        }
+        .pickerStyle(.segmented)
+        .accessibilityLabel("Filter puzzles by status")
+        .accessibilityValue(statusFilter.title)
+    }
+
+    private var filterSheetButton: some View {
+        Button {
+            showFilterSheet = true
+        } label: {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+                    .font(.title3)
+                    .frame(minWidth: 44, minHeight: 44)
+
+                if hasSecondaryFilters {
+                    Circle()
+                        .fill(Brand.accentWarm)
+                        .frame(width: 9, height: 9)
+                        .offset(x: -6, y: 8)
+                }
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(hasSecondaryFilters ? Brand.accent : Brand.textPrimary)
+        .accessibilityIdentifier(A11yID.puzzleListFilterButton)
+        .accessibilityLabel("Search and filters")
+        .accessibilityValue(hasSecondaryFilters ? "Filters active" : "No filters")
+        .accessibilityHint("Opens search and filter options")
+    }
+
+    private var searchField: some View {
+        HStack(spacing: DS.Spacing.s2) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(Brand.textSecondary)
+                .accessibilityHidden(true)
+
+            TextField("Search name, brand, store, tag, or barcode", text: $searchText)
+                .textFieldStyle(.plain)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                .submitLabel(.search)
+                .accessibilityIdentifier(A11yID.puzzleListSearchField)
+                .accessibilityLabel("Search name, brand, store, tag, or barcode")
+                .accessibilityHint("Filters the puzzle list as you type")
+
+            if hasActiveSearch {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Brand.textSecondary)
+                }
+                .buttonStyle(.plain)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+                .accessibilityLabel("Clear search")
+                .accessibilityHint("Clears the search field")
+            }
+        }
+        .padding(.horizontal, DS.Spacing.s3)
+        .padding(.vertical, DS.Spacing.s2)
+        .background(Brand.card)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+    }
+
+    private var resultCountText: some View {
+        Text(PuzzleListQuery.resultCountLabel(
+            displayedCount: displayedPuzzles.count,
+            totalCount: ps.puzzles.count,
+            hasActiveFilters: hasActiveFilters
+        ))
+        .font(.caption)
+        .foregroundStyle(Brand.textSecondary)
+        .accessibilityIdentifier(A11yID.puzzleListResultCount)
+    }
+
+    private var clearFiltersButton: some View {
+        Button("Clear filters") {
+            clearSecondaryFilters()
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(Brand.accent)
+        .frame(minHeight: 44)
+        .accessibilityIdentifier(A11yID.puzzleListClearFilters)
+        .accessibilityHint("Clears search, tag, and other list filters")
+    }
+
+    /// Search + secondary filters presented as a sheet for compact-height layouts.
+    private var filterSheet: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: DS.Spacing.s4) {
+                    searchField
+
+                    if !ps.puzzles.isEmpty {
+                        HStack(spacing: DS.Spacing.s2) {
+                            resultCountText
+                            if hasSecondaryFilters {
+                                clearFiltersButton
+                            }
+                            Spacer(minLength: 0)
+                        }
+
+                        VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                            pieceCountFilterMenu
+                            typeFilterMenu
+                            materialFilterMenu
+                            dispositionFilterMenu
+                            tagFilterButton
+                            needsPhotoFilterToggle
+                            missingPiecesFilterToggle
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(DS.Spacing.s4)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .brandBackground()
+            .navigationTitle("Search & filter")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        showFilterSheet = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 
     private var listFilterControls: some View {
@@ -610,17 +760,11 @@ struct PuzzleList: View {
     }
 
     private var emptyStateRow: some View {
-        VStack(spacing: DS.Spacing.s3) {
-            Image(systemName: "puzzlepiece.extension")
-                .font(.system(size: 40))
-                .foregroundStyle(Brand.accent)
-                .accessibilityHidden(true)
-
-            Text(emptyStateMessage)
-                .font(.subheadline)
-                .foregroundStyle(Brand.textSecondary)
-                .multilineTextAlignment(.center)
-
+        BrandEmptyState(
+            systemImage: "puzzlepiece.extension.fill",
+            title: showsAddPuzzleAction ? "No puzzles yet" : nil,
+            message: showsAddPuzzleAction ? "Tap Add puzzle to start your collection." : emptyStateMessage
+        ) {
             if showsAddPuzzleAction {
                 Button("Add puzzle") {
                     present = true
@@ -629,7 +773,6 @@ struct PuzzleList: View {
                 .accessibilityHint("Opens the form to add a new puzzle")
             }
         }
-        .frame(maxWidth: .infinity)
         .padding(.vertical, DS.Spacing.s6)
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)

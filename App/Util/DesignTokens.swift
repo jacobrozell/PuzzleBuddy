@@ -73,6 +73,8 @@ enum DS {
 struct BrandBackground: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
+    var ignoredEdges: Edge.Set = [.horizontal, .bottom]
+
     func body(content: Content) -> some View {
         content
             .background {
@@ -89,7 +91,7 @@ struct BrandBackground: ViewModifier {
                         .background(Brand.background)
                     }
                 }
-                .ignoresSafeArea(edges: [.horizontal, .bottom])
+                .ignoresSafeArea(edges: ignoredEdges)
             }
     }
 }
@@ -133,9 +135,56 @@ struct BrandScreenChrome: ViewModifier {
     }
 }
 
+/// Shared empty-state card used across screens (Stats, Puzzle list, etc.) so they look identical.
+struct BrandEmptyState<Action: View>: View {
+    let systemImage: String
+    var title: String?
+    let message: String
+    @ViewBuilder var action: () -> Action
+
+    init(
+        systemImage: String,
+        title: String? = nil,
+        message: String,
+        @ViewBuilder action: @escaping () -> Action = { EmptyView() }
+    ) {
+        self.systemImage = systemImage
+        self.title = title
+        self.message = message
+        self.action = action
+    }
+
+    var body: some View {
+        VStack(spacing: DS.Spacing.s3) {
+            Image(systemName: systemImage)
+                .font(.system(size: 44))
+                .foregroundStyle(Brand.accent)
+                .accessibilityHidden(true)
+
+            if let title {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(Brand.textPrimary)
+                    .multilineTextAlignment(.center)
+            }
+
+            Text(message)
+                .font(.body)
+                .foregroundStyle(Brand.textSecondary)
+                .multilineTextAlignment(.center)
+
+            action()
+                .padding(.top, DS.Spacing.s2)
+        }
+        .padding(DS.Spacing.s5)
+        .frame(maxWidth: .infinity)
+        .brandCardSurface()
+    }
+}
+
 extension View {
-    func brandBackground() -> some View {
-        modifier(BrandBackground())
+    func brandBackground(ignoresSafeAreaEdges edges: Edge.Set = [.horizontal, .bottom]) -> some View {
+        modifier(BrandBackground(ignoredEdges: edges))
     }
 
     func brandScreenChrome() -> some View {
@@ -198,6 +247,7 @@ enum A11yID {
     static let puzzleListDispositionFilter = "puzzle_list_disposition_filter"
     static let puzzleListTagFilter = "puzzle_list_tag_filter"
     static let puzzleListClearFilters = "puzzle_list_clear_filters"
+    static let puzzleListFilterButton = "puzzle_list_filter_button"
     static let addPuzzleButton = "add_puzzle_button"
     static let puzzleDetailSummary = "puzzle_detail_summary"
     static let puzzleDetailStats = "puzzle_detail_stats"

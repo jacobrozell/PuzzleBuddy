@@ -96,10 +96,12 @@ extension View {
     }
 
     /// Readable column with full-bleed brand background (apply background after width constraint).
-    func readableBrandBackground() -> some View {
+    /// Pass `ignoresSafeAreaEdges: .all` for full-screen surfaces (e.g. onboarding) where the
+    /// gradient should extend into the top status bar.
+    func readableBrandBackground(ignoresSafeAreaEdges edges: Edge.Set = [.horizontal, .bottom]) -> some View {
         readableContentWidth()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .brandBackground()
+            .brandBackground(ignoresSafeAreaEdges: edges)
     }
 
     /// Card surface used across list rows and detail panels.

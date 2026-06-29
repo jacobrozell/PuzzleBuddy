@@ -28,6 +28,13 @@ struct PuzzleCell: View {
         .accessibilityAction(named: "Delete puzzle") {
             showDeleteConfirmation = true
         }
+        .contextMenu {
+            Button(role: .destructive) {
+                showDeleteConfirmation = true
+            } label: {
+                Label("Delete puzzle", systemImage: "trash")
+            }
+        }
         .confirmationDialog(
             "Delete \(puzzle.name)?",
             isPresented: $showDeleteConfirmation,
