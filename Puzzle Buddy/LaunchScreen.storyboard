@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="LaunchViewController">
-    <device id="retina6_12" orientation="portrait"/>
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
@@ -25,6 +25,12 @@
                                             <constraint firstAttribute="width" constant="132" id="LaunchCrestWidth"/>
                                             <constraint firstAttribute="height" constant="132" id="LaunchCrestHeight"/>
                                         </constraints>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <real key="value" value="29"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                        </userDefinedRuntimeAttributes>
                                     </imageView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchTextStack">
                                         <rect key="frame" x="0.0" y="160" width="329" height="119"/>
@@ -70,16 +76,16 @@
     <resources>
         <image name="LaunchCrestHero" width="132" height="132"/>
         <namedColor name="BrandAccentLaunch">
-            <color red="0.757" green="0.361" blue="0.220" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.050" green="0.550" blue="0.620" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="BrandInk">
-            <color red="0.173" green="0.133" blue="0.110" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.080" green="0.090" blue="0.110" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="BrandInkSecondary">
-            <color red="0.420" green="0.365" blue="0.329" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.350" green="0.380" blue="0.420" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="LaunchBackground">
-            <color red="0.957" green="0.937" blue="0.902" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.949" green="0.969" blue="0.980" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
