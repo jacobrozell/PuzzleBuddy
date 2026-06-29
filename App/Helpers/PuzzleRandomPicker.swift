@@ -27,8 +27,6 @@ enum PuzzleRandomPicker {
                 break
             case .inProgress:
                 if !includeInProgress { return false }
-            case .completed:
-                return false
             }
             if !pieceCountFilter.matches(puzzle) { return false }
             if let tagFilter,

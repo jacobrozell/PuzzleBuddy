@@ -6,11 +6,6 @@
 import SwiftUI
 import UIKit
 
-enum PuzzleShareScope {
-    case entireCollection
-    case visibleList
-}
-
 struct PuzzleSharePayload: Identifiable {
     let id = UUID()
     let image: UIImage

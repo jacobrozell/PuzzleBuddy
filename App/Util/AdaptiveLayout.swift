@@ -17,17 +17,6 @@ enum AdaptiveLayout {
         dynamicType.isAccessibilitySize
     }
 
-    /// Side-by-side hero + form on iPad or iPhone landscape.
-    static func usesWideAuthLayout(
-        horizontalSizeClass: UserInterfaceSizeClass?,
-        verticalSizeClass: UserInterfaceSizeClass?
-    ) -> Bool {
-        if horizontalSizeClass == .regular && verticalSizeClass != .compact {
-            return true
-        }
-        return verticalSizeClass == .compact
-    }
-
     /// Side-by-side summary + stats on iPad and iPhone landscape.
     static func usesWideDetailLayout(
         horizontalSizeClass: UserInterfaceSizeClass?,
@@ -50,11 +39,6 @@ enum AdaptiveLayout {
         let target = containerWidth * fraction
 
         return min(max(target, minReadable), maxReadable, containerWidth)
-    }
-
-    /// Legacy helper for callers without geometry (previews, tests).
-    static func contentMaxWidth(horizontalSizeClass: UserInterfaceSizeClass?) -> CGFloat? {
-        horizontalSizeClass == .regular ? 1_020 : nil
     }
 
     /// Extra bottom inset so FAB and tab bar stay clear at large Dynamic Type.

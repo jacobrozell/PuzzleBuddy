@@ -145,11 +145,9 @@ struct CollectionStats: Equatable {
     // MARK: - Private helpers
 
     private static func minutesSpent(on puzzle: Puzzle) -> Int {
-        guard let time = puzzle.estimatedTimeSpent,
-              let hours = time.hours,
-              let minutes = time.minutes else {
-            return 0
-        }
+        guard let time = puzzle.estimatedTimeSpent else { return 0 }
+        let hours = max(time.hours ?? 0, 0)
+        let minutes = max(time.minutes ?? 0, 0)
         return max((hours * 60) + minutes, 0)
     }
 
