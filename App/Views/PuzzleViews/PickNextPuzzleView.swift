@@ -58,6 +58,8 @@ struct PickNextPuzzleView: View {
             .navigationDestination(item: $openPuzzleRequest) { request in
                 if let index = ps.puzzles.firstIndex(where: { $0.id == request.id }) {
                     PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
+                } else {
+                    MissingPuzzleDestination()
                 }
             }
         }

@@ -108,6 +108,13 @@ struct PuzzleList: View {
             }
         }
         .accessibilityIdentifier(A11yID.puzzleList)
+        .overlay {
+            if ps.state == .fetching, ps.puzzles.isEmpty {
+                ProgressView("Loading puzzles…")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Brand.background.opacity(0.92))
+            }
+        }
         .refreshable {
             await ps.fetchPuzzles()
         }
@@ -213,6 +220,8 @@ struct PuzzleList: View {
         .navigationDestination(item: $openPuzzleRequest) { request in
             if let index = ps.puzzles.firstIndex(where: { $0.id == request.id }) {
                 PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
+            } else {
+                MissingPuzzleDestination()
             }
         }
         .sheet(isPresented: $showTagFilterSheet) {
@@ -671,7 +680,12 @@ struct PuzzleList: View {
             let puzzleID = displayedPuzzles[offset].id
             return ps.puzzles.firstIndex(where: { $0.id == puzzleID })
         }
-        ps.delete(at: IndexSet(storeIndices))
+        do {
+            try ps.delete(at: IndexSet(storeIndices))
+            BarcodeScanFeedback.scanAccepted()
+        } catch {
+            eh.handle(title: "Could not delete puzzle", message: error.localizedDescription)
+        }
     }
 
     private func applyMarketingSnapshotNavigation() {
@@ -693,7 +707,7 @@ struct PuzzleList: View {
     }
 
     private func handleScannedBarcode(_ raw: String) {
-        guard let normalized = BarcodeNormalizer.normalize(raw) ?? optionalDigits(from: raw) else {
+        guard let normalized = BarcodeNormalizer.normalize(raw) ?? BarcodeNormalizer.optionalDigits(from: raw) else {
             eh.handle(
                 title: "Invalid barcode",
                 message: "Enter a barcode with 6 to 14 digits, or try scanning again."
@@ -726,11 +740,6 @@ struct PuzzleList: View {
     private func beginQuickAdd(barcode normalized: String) {
         let metadata = BarcodeMetadataCache.metadata(for: normalized)
         quickAddContext = QuickAddContext(barcode: normalized, metadata: metadata)
-    }
-
-    private func optionalDigits(from raw: String) -> String? {
-        let digits = raw.filter(\.isNumber)
-        return digits.isEmpty ? nil : digits
     }
 }
 
