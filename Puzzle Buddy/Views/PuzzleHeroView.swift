@@ -23,7 +23,7 @@ struct PuzzleHeroView: View {
                 .strokeBorder(Brand.accent.opacity(0.25), lineWidth: 1)
                 .frame(width: size * 1.2, height: size * 1.2)
 
-            BrandMark(size: size, animated: false)
+            BrandMark(size: size)
                 .rotationEffect(.degrees(animate ? 2 : -2))
                 .scaleEffect(animate ? 1.03 : 0.97)
         }

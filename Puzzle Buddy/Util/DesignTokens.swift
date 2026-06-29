@@ -9,7 +9,6 @@ import SwiftUI
 import UIKit
 
 // MARK: - Brand palette
-// Source of truth: Resources/loading-animation-source/puzzle-scene.jsx + Scripts/render-app-icon.sh
 
 enum Brand {
     private static func dynamic(light: UIColor, dark: UIColor) -> Color {
@@ -19,36 +18,36 @@ enum Brand {
     }
 
     static let background = dynamic(
-        light: UIColor(red: 0.957, green: 0.937, blue: 0.902, alpha: 1), // #f4efe6 stage cream
-        dark: UIColor(red: 0.039, green: 0.051, blue: 0.071, alpha: 1)  // #0a0d12 icon ring
+        light: UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1),
+        dark: UIColor(red: 0.04, green: 0.05, blue: 0.07, alpha: 1)
     )
     static let card = dynamic(
         light: UIColor.white,
-        dark: UIColor(red: 0.110, green: 0.094, blue: 0.086, alpha: 1)
+        dark: UIColor(red: 0.11, green: 0.12, blue: 0.14, alpha: 1)
     )
     static let cardElevated = dynamic(
-        light: UIColor(red: 0.918, green: 0.867, blue: 0.788, alpha: 1), // #eaddc9 ghost slots
-        dark: UIColor(red: 0.165, green: 0.141, blue: 0.125, alpha: 1)
+        light: UIColor(red: 0.92, green: 0.95, blue: 0.97, alpha: 1),
+        dark: UIColor(red: 0.16, green: 0.17, blue: 0.19, alpha: 1)
     )
 
-    /// Terracotta accent — WCAG AA on white text at 4.5:1+ (#c15c38).
-    static let accent = Color(red: 0.757, green: 0.361, blue: 0.220)
-    static let accentSecondary = Color(red: 0.925, green: 0.784, blue: 0.612) // #ecc89c warm sand
-    static let accentWarm = Color(red: 0.831, green: 0.451, blue: 0.267)       // #d47344 lighter terracotta
+    /// Puzzle Buddy signature teal accent (WCAG AA on white text at 4.5:1+).
+    static let accent = Color(red: 0.05, green: 0.55, blue: 0.62)
+    static let accentSecondary = Color(red: 0.12, green: 0.72, blue: 0.78)
+    static let accentWarm = Color(red: 0.93, green: 0.45, blue: 0.13)
 
     static let textPrimary = dynamic(
-        light: UIColor(red: 0.173, green: 0.133, blue: 0.110, alpha: 1),
+        light: UIColor(red: 0.08, green: 0.09, blue: 0.11, alpha: 1),
         dark: UIColor.white
     )
     static let textSecondary = dynamic(
-        light: UIColor(red: 0.420, green: 0.365, blue: 0.329, alpha: 1),
+        light: UIColor(red: 0.35, green: 0.38, blue: 0.42, alpha: 1),
         dark: UIColor(white: 1, alpha: 0.62)
     )
     static let textOnAccent = Color.white
 
-    static let gradientTop = Color(red: 0.925, green: 0.784, blue: 0.612)   // warm sand
-    static let gradientMid = Color(red: 0.824, green: 0.588, blue: 0.431)
-    static let gradientBottom = Color(red: 0.757, green: 0.361, blue: 0.220)  // terracotta
+    static let gradientTop = Color(red: 0.10, green: 0.45, blue: 0.85)
+    static let gradientMid = Color(red: 0.12, green: 0.68, blue: 0.82)
+    static let gradientBottom = Color(red: 0.08, green: 0.58, blue: 0.55)
 }
 
 // MARK: - Design system spacing

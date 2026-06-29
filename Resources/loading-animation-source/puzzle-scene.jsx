@@ -65,25 +65,78 @@ function piecePoints(r, c) {
   return [...top, ...right.slice(1), ...bottom.slice(1), ...left.slice(1)];
 }
 
-// ---------- color ----------
+// ---------- color presets ----------
 function mix(a, b, t) {
   return a.map((v, i) => Math.round(v + (b[i] - v) * t));
 }
 const rgb = (a) => `rgb(${a[0]},${a[1]},${a[2]})`;
-const C_LIGHT = [236, 200, 156]; // warm sand
-const C_DARK = [193, 92, 56];    // terracotta
 
-// per-piece metadata
-const PIECES = [];
-for (let r = 0; r < N; r++) {
-  for (let c = 0; c < N; c++) {
-    const pts = piecePoints(r, c);
-    const cx = OFF + c * S + S / 2, cy = OFF + r * S + S / 2;
-    const g = (r + c) / (2 * (N - 1));
-    const jitter = (sgn(r * 7, c * 3) > 0 ? 0.06 : -0.04);
-    const col = rgb(mix(C_LIGHT, C_DARK, Math.min(1, Math.max(0, g + jitter))));
-    PIECES.push({ r, c, d: toPath(pts), cx, cy, col });
+const PRESETS = {
+  terracotta: {
+    light: [236, 200, 156],
+    dark: [193, 92, 56],
+    background: "#f4efe6",
+    ghostFill: "#eaddc9",
+    ghostStroke: "#f4efe6",
+    pieceStroke: "#f4efe6",
+    shadow: "#7a3b22",
+  },
+  teal: {
+    light: [184, 224, 240],  // airy cyan — Brand.accentSecondary family
+    dark: [13, 140, 158],  // signature teal #0d8c9e
+    background: "#f2f7fa",   // Brand.background light
+    ghostFill: "#dde8f0",
+    ghostStroke: "#f2f7fa",
+    pieceStroke: "#f2f7fa",
+    shadow: "#0a4a55",
+  },
+  ocean: {
+    light: [64, 168, 230],   // Brand.gradientMid family
+    dark: [26, 115, 217],    // Brand.gradientTop family
+    background: "#eef6fc",
+    ghostFill: "#d6eafb",
+    ghostStroke: "#eef6fc",
+    pieceStroke: "#eef6fc",
+    shadow: "#0c3d6e",
+  },
+};
+
+function readPreset() {
+  try {
+    const injected = globalThis.__ICON_RENDER_PRESET;
+    if (injected && PRESETS[injected]) return PRESETS[injected];
+    const name = new URLSearchParams(globalThis.location?.search || "").get("preset") || "teal";
+    return PRESETS[name] || PRESETS.teal;
+  } catch {
+    return PRESETS.teal;
   }
+}
+
+function readExportFlags() {
+  try {
+    const params = new URLSearchParams(globalThis.location?.search || "");
+    return {
+      flat: params.get("flat") === "1",
+      ghost: params.get("ghost") !== "0",
+    };
+  } catch {
+    return { flat: false, ghost: true };
+  }
+}
+
+function buildPieces(palette) {
+  const pieces = [];
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const pts = piecePoints(r, c);
+      const cx = OFF + c * S + S / 2, cy = OFF + r * S + S / 2;
+      const g = (r + c) / (2 * (N - 1));
+      const jitter = (sgn(r * 7, c * 3) > 0 ? 0.06 : -0.04);
+      const col = rgb(mix(palette.light, palette.dark, Math.min(1, Math.max(0, g + jitter))));
+      pieces.push({ r, c, d: toPath(pts), cx, cy, col });
+    }
+  }
+  return pieces;
 }
 
 // snake (boustrophedon) order — reads like a progress sweep
@@ -105,33 +158,44 @@ const IN_END = (N * N - 1) * STAGGER + IN_DUR;
 const HOLD_END = IN_END + HOLD;
 const OUT_END = HOLD_END + (N * N - 1) * OUT_STAGGER + OUT_DUR;
 const LOOP = OUT_END + GAP;
+const HOLD_MID = IN_END + HOLD / 2;
 
 function clamp01(x) { return Math.max(0, Math.min(1, x)); }
 
 function Board() {
+  const palette = readPreset();
+  const flags = readExportFlags();
+  const pieces = buildPieces(palette);
   const t = useTime();
-  const breathe = (t > IN_END && t < HOLD_END)
-    ? 1 + 0.012 * Math.sin(((t - IN_END) / HOLD) * Math.PI * 2)
-    : 1;
+  const breathe = flags.flat
+    ? 1
+    : (t > IN_END && t < HOLD_END)
+      ? 1 + 0.012 * Math.sin(((t - IN_END) / HOLD) * Math.PI * 2)
+      : 1;
+  const pieceFilter = flags.flat ? undefined : "url(#psh)";
 
   return (
     <svg width="1080" height="1080" viewBox="0 0 1080 1080" style={{ display: "block" }}>
-      <defs>
-        <filter id="psh" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#7a3b22" floodOpacity="0.18" />
-        </filter>
-      </defs>
+      {!flags.flat && (
+        <defs>
+          <filter id="psh" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor={palette.shadow} floodOpacity="0.18" />
+          </filter>
+        </defs>
+      )}
 
       {/* ghost board — empty slots, always present */}
-      <g opacity="0.5">
-        {PIECES.map((p) => (
-          <path key={"g" + p.r + p.c} d={p.d} fill="#eaddc9" stroke="#f4efe6" strokeWidth="6" />
-        ))}
-      </g>
+      {flags.ghost && (
+        <g opacity="0.5">
+          {pieces.map((p) => (
+            <path key={"g" + p.r + p.c} d={p.d} fill={palette.ghostFill} stroke={palette.ghostStroke} strokeWidth="6" />
+          ))}
+        </g>
+      )}
 
       {/* animated colored pieces */}
       <g style={{ transform: `scale(${breathe})`, transformBox: "fill-box", transformOrigin: "center" }}>
-        {PIECES.map((p, pi) => {
+        {pieces.map((p, pi) => {
           const k = orderIndex[pi];
           const inStart = k * STAGGER;
           const outStart = HOLD_END + k * OUT_STAGGER;
@@ -169,8 +233,8 @@ function Board() {
                 opacity,
               }}
             >
-              <path d={p.d} fill={p.col} stroke="#f4efe6" strokeWidth="6"
-                strokeLinejoin="round" filter="url(#psh)" />
+              <path d={p.d} fill={p.col} stroke={palette.pieceStroke} strokeWidth="6"
+                strokeLinejoin="round" filter={pieceFilter} />
               {/* soft top highlight */}
               <path d={p.d} fill="#ffffff" opacity="0.10" />
             </g>
@@ -182,11 +246,13 @@ function Board() {
 }
 
 function PuzzleLoader() {
+  const palette = readPreset();
   return (
-    <Stage width={1080} height={1080} duration={LOOP} loop autoplay background="#f4efe6">
+    <Stage width={1080} height={1080} duration={LOOP} loop autoplay background={palette.background}>
       <Board />
     </Stage>
   );
 }
 
 window.PuzzleLoader = PuzzleLoader;
+window.PuzzleSceneTiming = { IN_END, HOLD_MID, HOLD_END, OUT_END, LOOP };
