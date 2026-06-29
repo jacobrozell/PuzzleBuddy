@@ -15,7 +15,8 @@ For **current shipped behavior**, see [features.md](features.md) and [feature-in
 - [Puzzle model extensions](#puzzle-model-extensions)
 - [Find & organize](#find--organize--user-driven-product-strategy)
 - [Stats and collection insights](#stats-and-collection-insights)
-- [Competitive positioning](#competitive-positioning--puzzle-tracker)
+- [Competitive gap analysis](#competitive-gap-analysis)
+- [Competitive positioning — Puzzle Tracker](#competitive-positioning--puzzle-tracker)
 - [Accessibility roadmap](#accessibility-roadmap)
 - [Testing and infrastructure roadmap](#testing-and-infrastructure-roadmap)
 - [Observability roadmap](#observability-roadmap)
@@ -77,14 +78,20 @@ Tags, barcode, notes, brand (`source`), start date, wishlist/abandoned/in-progre
 
 ### Still planned / backlog
 
-| Field / feature | Description | Complexity |
-|-----------------|-------------|------------|
-| In-app timer | Background timer, optional Live Activity | Medium |
-| `price` | Purchase price tracking | Low |
-| `urlLink` | Link to manufacturer or review | Low |
-| Reverse image search | Auto-fill from photo | High — ML or external API |
-| `progressPhotos` | Gallery beyond cover image | Medium |
-| Multi-photo gallery | Several photos per puzzle | Medium |
+See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle Tracker mapping. Summary:
+
+| Field / feature | Description | Target | Spec |
+|-----------------|-------------|--------|------|
+| In-app timer | Background timer, optional Live Activity | 1.1.0 | [in-app-timer.md](../specs/planned/in-app-timer.md) |
+| Box photo OCR | On-device Vision; IPDb Digital Assistant equivalent | 1.2.0 | [box-photo-ocr.md](../specs/planned/box-photo-ocr.md) |
+| Multi-photo gallery | Cover + progress shots | 1.2.0 | [multi-photo-gallery.md](../specs/planned/multi-photo-gallery.md) |
+| Artist field | Separate from brand | 1.2.0 | Backlog |
+| Manufacturer ID / SKU | First-class field (not notes hack) | 1.2.0 | [barcode-metadata-strategy.md](barcode-metadata-strategy.md) |
+| `price` | Purchase price tracking | 1.2.x | Backlog |
+| `urlLink` | Link to manufacturer or review | 1.2.x | Backlog |
+| Tag cloud / brand favorites | Organize polish | 1.2.x | Find & organize section |
+| JSON backup / restore | In-app restore | 1.1.0 | [json-backup-restore.md](../specs/planned/json-backup-restore.md) |
+| Home screen widget | In-progress or random To-Do | 1.3.0 | [home-screen-widget.md](../specs/planned/home-screen-widget.md) |
 
 ### Status enum
 
@@ -257,36 +264,47 @@ Implemented in `PuzzleDetailMetrics.swift` + `PuzzleDetail` stats panel.
 
 ---
 
+## Competitive gap analysis
+
+**Canonical tables:** [competitive-gap-analysis.md](competitive-gap-analysis.md) — IPDb and Puzzle Tracker feature-by-feature vs Puzzle Buddy 1.0, with backlog version and spec links.
+
+Use that doc when prioritizing post-1.0 work. This section keeps positioning narrative for Puzzle Tracker; IPDb strategy lives in [barcode-metadata-strategy.md](barcode-metadata-strategy.md).
+
+---
+
 ## Competitive positioning — Puzzle Tracker
 
-Reference: [Puzzle Tracker on the App Store](https://apps.apple.com/us/app/puzzle-tracker/id1561473799) (Dawid Kurek). Mature competitor (~600+ ratings, 4.7★, freemium premium). Use this section to decide what to match, differentiate, or skip.
+Reference: [Puzzle Tracker on the App Store](https://apps.apple.com/us/app/puzzle-tracker/id1561473799) (Dawid Kurek). Mature competitor (~600+ ratings, 4.7★, freemium premium). **Feature table with backlog IDs:** [competitive-gap-analysis.md — Puzzle Tracker](competitive-gap-analysis.md#puzzle-tracker--feature-comparison).
 
-### Feature comparison
+### Feature comparison (summary)
 
-| Capability | Puzzle Tracker | Puzzle Buddy (1.0) | Opportunity |
-|------------|----------------|---------------------|-------------|
-| Photo gallery per puzzle | ✅ | Single cover photo | Multi-photo progress shots |
-| Status folders | Wishlist, Waiting, Completed, Abandoned, In progress | ✅ Wishlist, To-Do, In-Progress, Completed, Abandoned | — |
-| Built-in timer (pause) | ✅ Core feature | ❌ Manual time only | High-value match; pairs with In-Progress |
-| Progress by photos + days | ✅ | Start date + days on detail ✅ | Progress photos |
-| Filtering and sorting | ✅ Extensive | ✅ Search, status tabs, sort, filters, tags | Incremental polish |
-| Barcode scan | ✅ Bulk + manual | ✅ Scan + shopping duplicate-check | Bulk scan optional |
-| Tags | ✅ | ✅ User tags + filters | Tag cloud / favorites |
+| Capability | Puzzle Tracker | Puzzle Buddy (1.0) | Backlog |
+|------------|----------------|---------------------|---------|
+| Photo gallery per puzzle | ✅ | Single cover photo | 1.2.0 multi-photo |
+| Status folders | Wishlist, Waiting, Completed, Abandoned, In progress | ✅ All five (To-Do = waiting) | — |
+| Built-in timer (pause) | ✅ Core feature | ❌ Manual time only | 1.1.0 timer |
+| Progress by photos + days | ✅ | Days ✅; photos ❌ | 1.2.0 multi-photo |
+| Progress % in-progress | ✅ | ✅ | — |
+| Filtering and sorting | ✅ Extensive | ✅ Search, tabs, sort, filters, tags | 1.2.x tag cloud |
+| Barcode scan | ✅ Bulk + manual | ✅ Scan + shopping mode | Defer bulk |
+| Tags | ✅ | ✅ User tags + filters | 1.2.x favorites |
 | Custom fields / folders | ✅ Premium | ❌ | Defer |
-| Brand, artist, manufacturer | ✅ | ✅ `source` field | Favorites list optional |
-| Purchase location / price | ✅ | ✅ Location; price not shipped | Price field |
+| Brand, artist, manufacturer | ✅ | Brand ✅; artist ❌ | 1.2.0 artist |
+| Purchase location / price | ✅ | Location ✅; price ❌ | 1.2.x price |
 | Disposition after complete | ✅ | ✅ Shipped | — |
-| Puzzle material | ✅ | ✅ Shipped | — |
+| Puzzle material / type / year | ✅ | ✅ Shipped | — |
 | Missing pieces flag | ✅ | ✅ Shipped | — |
 | Wheel / random pick | ✅ | ✅ Pick my next puzzle | — |
 | Re-do / multiple attempts | ✅ | ❌ | Defer |
-| Share results / collages | ✅ | ✅ Share collage | Year-in-review |
-| Friend sharing / social | ✅ v7.3+ | ❌ | Defer; optional cloud later |
-| Statistics screen | ✅ | ✅ Collection Stats tab | Milestones, year-in-review |
-| Favorites on metadata lists | ✅ | ❌ | After tag/brand polish |
-| Accessibility statement | Not indicated | ✅ WCAG work in progress | **Differentiator** |
+| Share results / collages | ✅ | ✅ Share collage | 1.3.0 year-in-review |
+| Friend sharing / social | ✅ v7.3+ | ❌ | Defer |
+| Statistics screen | ✅ | ✅ Collection Stats tab | — |
+| Favorites on metadata lists | ✅ | ❌ | 1.2.x polish |
+| Offline shopping duplicate-check | ❌ | ✅ Dedicated mode | **Differentiator** |
+| Accessibility statement | Not indicated | ✅ WCAG in progress | **Differentiator** |
 | Account required | Premium cloud | ❌ Local-only | **Differentiator** |
 | Privacy pitch | Collects linked data | Allowlisted analytics only | **Differentiator** |
+| Import / export | Premium cloud | Built; gated 1.0 | 1.1.0 |
 
 ### Brainstorm — how Puzzle Buddy can win
 
@@ -376,6 +394,8 @@ Puzzle Buddy competes on **simplicity, local-first trust, accessibility, and col
 | Accessibility | WCAG 2.1 AA — market VoiceOver, Dynamic Type, Reduce Motion |
 | Collection pride | Total puzzles, pieces, hours — not speed metrics |
 | Privacy | Allowlisted analytics only; no PII in telemetry |
+
+**App Store name:** **Puzzle Buddy** (confirmed). Brand-forward vs. competitor **Puzzle Tracker**; subtitle and keywords carry search intent. Naming review, ASO copy, and Connect checklist: [release/app-store-connect.md](release/app-store-connect.md).
 
 ---
 

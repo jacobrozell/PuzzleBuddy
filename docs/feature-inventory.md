@@ -1,6 +1,6 @@
 # Feature inventory — Puzzle Buddy
 
-**What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md).
+**What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md). For competitor gaps see [competitive-gap-analysis.md](competitive-gap-analysis.md).
 
 **Last updated:** 2026-06-29  
 **Target v1.0.0:** Inaugural App Store release — local-first catalog, no account. Import/export gated off.

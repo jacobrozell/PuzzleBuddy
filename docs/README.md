@@ -48,6 +48,8 @@ To update legal copy, edit the HTML files directly. Shared styling lives in `ass
 
 Point Privacy Policy URL, Support URL, and Marketing URL fields to the Pages URLs above.
 
+Full 1.0 submit checklist (name, ASO, keywords, screenshots): [release/app-store-connect.md](release/app-store-connect.md).
+
 ## Technical documentation index
 
 These Markdown files are for developers and agents (linked from [README.md](../README.md)):
@@ -57,9 +59,12 @@ These Markdown files are for developers and agents (linked from [README.md](../R
 | [../AGENTS.md](../AGENTS.md) | **Agent onboarding** — product snapshot, read order, anti-patterns |
 | [agent-build-checklist.md](agent-build-checklist.md) | Phased 0→Ship status, progress log, agent query template |
 | [feature-inventory.md](feature-inventory.md) | What ships today — shipped / gated / planned |
+| [competitive-gap-analysis.md](competitive-gap-analysis.md) | IPDb + Puzzle Tracker gaps vs 1.0 |
 | [telemetry.md](telemetry.md) | **Logging, Analytics, Crashlytics** — full allowlists and bootstrap |
 | [features.md](features.md) | Core features — user flows, fields, persistence |
 | [roadmap.md](roadmap.md) | Future releases and backlog |
+| [release/app-store-connect.md](release/app-store-connect.md) | App Store name, ASO, Connect checklist (1.0) |
+| [release/todo.md](release/todo.md) | Release todo and pre-submit gates |
 | [implementation-playbook.md](implementation-playbook.md) | Build-all-then-cut workflow, agent queries |
 | [architecture.md](architecture.md) | App structure, data model, navigation |
 | [development.md](development.md) | Local setup, XcodeGen, debugging |

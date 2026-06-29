@@ -4,7 +4,7 @@
 **Context:** Duplicate check and quick-add suggestions use on-device data only (`BarcodeMetadataCache`).  
 **Status legend:** `[ ]` not started · `[~]` in progress · `[x]` done
 
-**Last updated:** 2026-06-28
+**Last updated:** 2026-06-29
 
 ---
 
@@ -170,11 +170,13 @@
 
 ## 14. Box photo OCR
 
+**Target:** 1.2.0 · **Spec:** [`specs/planned/box-photo-ocr.md`](../specs/planned/box-photo-ocr.md)
+
 **Deliverables:**
 - [ ] On-device Vision OCR on box photo → suggest title / brand / pieces when barcode cache misses
 - [ ] Barcode remains duplicate key; OCR fills form only
 
-**Files:** new helper + form integration · See `FutureIdeas/backlog.md`
+**Files:** new helper + form integration · See [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md)
 
 ---
 

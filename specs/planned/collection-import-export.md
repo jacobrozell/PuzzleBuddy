@@ -1,7 +1,7 @@
-# Collection import / export (1.1.0)
+# Collection import / export
 
-**Status:** Implemented, gated off for 1.0.0  
-**Flag:** `ProductService.isCollectionImportExportEnabled` (launch arg `-enable_collection_import_export`)
+**Status:** Implemented — **shipping in 1.0.0** (un-gated)  
+**Flag:** `ProductService.isCollectionImportExportEnabled` — default **true** after expanded sprint
 
 ## Scope
 
@@ -11,7 +11,10 @@
 
 ## Ship criteria
 
-- [ ] Re-enable flag for 1.1.0 (Remote Config or static default)
-- [ ] JSON restore flow (see json-backup-restore.md)
+- [ ] Default flag `true` in production builds
+- [ ] UI tests use `-disable_collection_import_export` if needed (or assert buttons visible)
 - [ ] Large CSV device smoke
-- [ ] Update App Store privacy label if needed
+- [ ] App Store privacy label still accurate (user-initiated file access)
+- [ ] Onboarding mentions IPDb import path
+
+**Note:** JSON **restore** UI remains a separate spec ([json-backup-restore.md](json-backup-restore.md)) — export-only for 1.0 unless added in sprint.

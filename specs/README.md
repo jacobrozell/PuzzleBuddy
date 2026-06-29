@@ -24,9 +24,12 @@ Not in the app unless noted otherwise in [feature-inventory.md](../docs/feature-
 | Spec | Topic |
 |------|-------|
 | [auth-cloud-sync.md](planned/auth-cloud-sync.md) | **Future** — removed from app June 2026 |
-| [collection-import-export.md](planned/collection-import-export.md) | IPDb import / export (gated) |
-| [collection-stats.md](planned/collection-stats.md) | Stats tab (mostly shipped) |
-| [json-backup-restore.md](planned/json-backup-restore.md) | Backup restore |
+| [collection-import-export.md](planned/collection-import-export.md) | IPDb import / export (1.0 sprint — un-gate) |
+| [puzzle-physical-metadata.md](planned/puzzle-physical-metadata.md) | Shape, dimensions, cut type (1.0) |
+| [puzzle-redo-completions.md](planned/puzzle-redo-completions.md) | Redo + completion history (1.0) |
+| [multi-photo-gallery.md](planned/multi-photo-gallery.md) | Progress photos (1.0) |
+| [box-photo-ocr.md](planned/box-photo-ocr.md) | On-device box OCR (1.2.0) |
+| [in-app-timer.md](planned/in-app-timer.md) | Pause timer (1.1.0) |
 | Others | See folder listing |
 
 ---

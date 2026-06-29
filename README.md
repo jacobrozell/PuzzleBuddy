@@ -59,7 +59,7 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 
 ### Roadmap
 
-Post-1.0 plans: in-app timer, multi-photo gallery, purchase location, year/type, JSON restore — [FutureIdeas/backlog.md](FutureIdeas/backlog.md) and [docs/roadmap.md](docs/roadmap.md).
+Post-1.0 plans: see [`docs/implementation/1.0.0-expanded-feature-sprint.md`](docs/implementation/1.0.0-expanded-feature-sprint.md) (active), [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md).
 
 ## Requirements
 
@@ -173,6 +173,7 @@ Full details: [docs/architecture.md](docs/architecture.md).
 | [docs/feature-inventory.md](docs/feature-inventory.md) | Shipped vs partial vs planned |
 | [docs/features.md](docs/features.md) | Core features — user flows and behavior |
 | [docs/telemetry.md](docs/telemetry.md) | **Logging, Analytics, Crashlytics spec** (allowlists) |
+| [docs/competitive-gap-analysis.md](docs/competitive-gap-analysis.md) | IPDb + Puzzle Tracker gaps vs 1.0 |
 | [docs/roadmap.md](docs/roadmap.md) | Future releases and backlog |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist |
 | [docs/development.md](docs/development.md) | Local setup, debugging |

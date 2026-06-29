@@ -20,7 +20,7 @@ Puzzle Buddy’s core barcode value is **offline duplicate checking** (Phases A�
 3. **Local metadata cache** — when you save a puzzle with a barcode, name/pieces/source are cached on-device for future scans (no network).
 4. **Soft similar-match hints** — name + brand/pieces warnings in quick-add (IPDb-inspired, offline).
 5. **Inline scan on add/edit form** — barcode row scan button on device.
-6. **IPDb CSV import** — shipped in Settings. See [ipdb-csv-import.md](ipdb-csv-import.md).
+6. **IPDb CSV import** — shipped in Settings (gated for 1.0 App Store). See [ipdb-csv-import.md](ipdb-csv-import.md).
 
 Lookup is **on-device only**: `BarcodeMetadataCache` from puzzles you have already saved.
 
@@ -46,15 +46,23 @@ Every saved puzzle enriches the shared index (barcode, manufacturer ID, box phot
 
 ### What IPDb records contain (vs Puzzle Buddy)
 
-| IPDb field / feature | Puzzle Buddy today |
-|----------------------|-------------------|
-| Title, brand, piece count | Name, source, pieces |
-| Barcode, manufacturer ID / SKU | Barcode only (SKU → notes on CSV import) |
-| Multiple box images, completed photo | Single photo |
-| Tags, shape, dimensions, cut type | Not yet |
-| Community ratings & reviews | Rating (personal) |
-| AI image descriptions (searchable) | — |
-| Social hub, messaging, games | Out of scope (local-first 1.0) |
+Full comparison with backlog mapping: [competitive-gap-analysis.md](competitive-gap-analysis.md#ipdb--feature-comparison).
+
+| IPDb field / feature | Puzzle Buddy 1.0 | Backlog / decision |
+|----------------------|------------------|-------------------|
+| Title, brand, piece count | ✅ Name, source, pieces | — |
+| Barcode | ✅ | — |
+| Manufacturer ID / SKU | ⚠️ Barcode only; SKU → notes on CSV import | 1.2.0 — first-class field |
+| Tags | ✅ User tags + filters | — |
+| Shape, dimensions, cut type | ❌ | Defer — use tags/notes |
+| Multiple box images, completed photo | ❌ Single cover | 1.2.0 — multi-photo gallery |
+| Personal rating / difficulty / time | ✅ | — |
+| Community ratings & reviews | ❌ | Won't do — personal catalog |
+| Progress over days | ✅ `startDate` | — |
+| Digital Assistant (box photo → fields) | ❌ | 1.2.0 — [box-photo-ocr.md](../specs/planned/box-photo-ocr.md) |
+| AI image descriptions (searchable) | ❌ | Won't do |
+| Social hub, messaging, games | ❌ | Won't do |
+| CSV import/export | ✅ Built; **gated** for 1.0 App Store | 1.1.0 — re-enable flag |
 
 IPDb optimizes for **shared reference + community** (web + mobile app). Puzzle Buddy optimizes for **private collection + offline shopping checks + native accessibility**.
 
@@ -84,7 +92,7 @@ Puzzle Buddy ships **(1)** as a hard guard and **(2)/(3)** as soft “looks simi
 | IPDb pattern | Puzzle Buddy response |
 |--------------|----------------------|
 | Barcode-first add + duplicate checks | Shipped (form, FAB scan, shopping mode) |
-| Digital Assistant (box photo → fields) | **Next:** on-device Vision OCR (no API bill) |
+| Digital Assistant (box photo → fields) | **1.2.0** — [box-photo-ocr.md](../specs/planned/box-photo-ocr.md) |
 | Fuzzy duplicate hints | Shipped in quick-add |
 | Reuse existing record vs create new | CSV import shipped; live lookup needs partnership |
 | Hardware Link (phone scan → desktop) | Out of scope |
@@ -120,9 +128,10 @@ Puzzle Buddy shows manufacturer **names** (source field, lookup, CSV import). Li
 
 | Priority | Idea | Effort | Notes |
 |----------|------|--------|-------|
-| **1** | Box photo OCR (Vision) | Medium | IPDb Digital Assistant equivalent, on-device |
+| **1** | Box photo OCR (Vision) | Medium | 1.2.0 — [box-photo-ocr.md](../specs/planned/box-photo-ocr.md) |
 | **2** | IPDb partnership / read-only API | Small–Large | See [ipdb-partnership-outreach.md](ipdb-partnership-outreach.md) |
-| **3** | IPDb CSV import (user-facing) | Shipped | Settings → Collection |
+| **3** | IPDb CSV import (user-facing) | Shipped (gated 1.0) | 1.1.0 un-gate — Settings → Collection |
+| **4** | Manufacturer ID / SKU field | Low | 1.2.0 — replace notes hack on import |
 
 ## What we are not doing
 
@@ -133,7 +142,8 @@ Puzzle Buddy shows manufacturer **names** (source field, lookup, CSV import). Li
 ## Related docs
 
 - [spec-barcode-scanner.md](spec-barcode-scanner.md) — full phased spec
-- [roadmap.md](roadmap.md) — competitive context
+- [competitive-gap-analysis.md](competitive-gap-analysis.md) — IPDb + Puzzle Tracker tables
+- [roadmap.md](roadmap.md) — release strategy + positioning
 - [ipdb-csv-import.md](ipdb-csv-import.md) — user migration guide
 - [ipdb-partnership-outreach.md](ipdb-partnership-outreach.md) — partnership email draft
 - [spec-brand-disclaimer.md](spec-brand-disclaimer.md) — trademark footer spec & placement
