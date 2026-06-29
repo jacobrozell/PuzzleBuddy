@@ -3,20 +3,30 @@
 //  Puzzle Buddy
 //
 
+import PhotosUI
 import SwiftUI
 
 struct PuzzlePhotoGalleryEditor: View {
     @Binding var photos: [PuzzlePhoto]
-    @State private var showLibraryPicker = false
     @State private var showCameraPicker = false
     @State private var pendingImage = UIImage()
+    @State private var pickerItems: [PhotosPickerItem] = []
+    @State private var isImportingPhotos = false
 
     private var sortedPhotos: [PuzzlePhoto] {
-        PuzzlePhotoSemantics.sorted(photos)
+        PuzzlePhotoSemantics.photosInOrder(photos)
     }
 
     private var canAddPhoto: Bool {
         photos.count < PuzzlePhotoLimits.maxCount
+    }
+
+    private var remainingPhotoSlots: Int {
+        max(PuzzlePhotoLimits.maxCount - photos.count, 0)
+    }
+
+    private var photoCountLabel: String {
+        "\(photos.count) of \(PuzzlePhotoLimits.maxCount) photos"
     }
 
     private var isCameraAvailable: Bool {
@@ -25,6 +35,28 @@ struct PuzzlePhotoGalleryEditor: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s3) {
+            if !sortedPhotos.isEmpty {
+                HStack(spacing: DS.Spacing.s2) {
+                    Text(photoCountLabel)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Brand.textSecondary)
+
+                    if sortedPhotos.count > 1 {
+                        Text("Drag to reorder")
+                            .font(.caption)
+                            .foregroundStyle(Brand.textSecondary)
+                    }
+
+                    Spacer()
+
+                    if isImportingPhotos {
+                        ProgressView()
+                            .controlSize(.small)
+                            .accessibilityLabel("Importing photos")
+                    }
+                }
+            }
+
             if sortedPhotos.isEmpty {
                 emptyPlaceholder
             } else {
@@ -33,21 +65,32 @@ struct PuzzlePhotoGalleryEditor: View {
                         ForEach(Array(sortedPhotos.enumerated()), id: \.element.id) { index, photo in
                             photoTile(photo: photo, index: index)
                         }
+
+                        if sortedPhotos.count > 1 {
+                            moveToEndDropZone
+                        }
                     }
                     .padding(.horizontal, DS.Spacing.s2)
                 }
             }
 
             HStack(spacing: DS.Spacing.s2) {
-                Button {
-                    showLibraryPicker = true
-                } label: {
-                    Label("Add photo", systemImage: "photo.on.rectangle")
-                        .frame(maxWidth: .infinity)
+                PhotosPicker(
+                    selection: $pickerItems,
+                    maxSelectionCount: max(remainingPhotoSlots, 1),
+                    matching: .images
+                ) {
+                    Label(
+                        remainingPhotoSlots == 1 ? "Add photo" : "Add photos",
+                        systemImage: "photo.on.rectangle"
+                    )
+                    .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(BrandSecondaryButtonStyle())
-                .disabled(!canAddPhoto)
+                .disabled(!canAddPhoto || isImportingPhotos)
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormChoosePhotoButton)
+                .accessibilityLabel(remainingPhotoSlots == 1 ? "Add photo" : "Add photos")
+                .accessibilityHint("Choose one or more photos from your library")
 
                 if isCameraAvailable {
                     Button {
@@ -57,15 +100,15 @@ struct PuzzlePhotoGalleryEditor: View {
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(BrandPrimaryButtonStyle())
-                    .disabled(!canAddPhoto)
+                    .disabled(!canAddPhoto || isImportingPhotos)
                     .optionalAccessibilityIdentifier(A11yID.puzzleFormTakePhotoButton)
                 }
             }
         }
         .padding(.vertical, DS.Spacing.s2)
-        .sheet(isPresented: $showLibraryPicker) {
-            ImagePicker(sourceType: .photoLibrary, selectedImage: $pendingImage)
-                .onDisappear { appendPendingImageIfNeeded() }
+        .onChange(of: pickerItems) { _, newItems in
+            guard !newItems.isEmpty else { return }
+            Task { await appendPhotos(from: newItems) }
         }
         .fullScreenCover(isPresented: $showCameraPicker) {
             ImagePicker(sourceType: .camera, selectedImage: $pendingImage)
@@ -74,17 +117,41 @@ struct PuzzlePhotoGalleryEditor: View {
     }
 
     private var emptyPlaceholder: some View {
-        HStack {
-            Spacer()
+        VStack(spacing: DS.Spacing.s2) {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.system(size: 48))
                 .foregroundStyle(Brand.accent.opacity(0.8))
-            Spacer()
+
+            Text("Add box art, progress, or finished shots")
+                .font(.subheadline)
+                .foregroundStyle(Brand.textSecondary)
+                .multilineTextAlignment(.center)
         }
+        .frame(maxWidth: .infinity)
         .frame(height: 120)
         .background(Brand.cardElevated)
         .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
-        .accessibilityLabel("No photos yet")
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("No photos yet. Add box art, progress, or finished shots.")
+    }
+
+    private var moveToEndDropZone: some View {
+        RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous)
+            .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            .foregroundStyle(Brand.textSecondary.opacity(0.45))
+            .frame(width: 44, height: 100)
+            .overlay {
+                Image(systemName: "arrow.right.to.line")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Brand.textSecondary)
+            }
+            .dropDestination(for: String.self) { items, _ in
+                guard let draggedID = items.first.flatMap(UUID.init(uuidString:)) else { return false }
+                movePhotoToEnd(draggedID)
+                return true
+            }
+            .accessibilityLabel("Move photo to end")
+            .accessibilityHint("Drop a photo here to move it to the end of the gallery")
     }
 
     @ViewBuilder
@@ -105,7 +172,69 @@ struct PuzzlePhotoGalleryEditor: View {
                 RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous)
                     .strokeBorder(photo.sortOrder == 0 ? Brand.accent : Color.clear, lineWidth: 2)
             }
+            .overlay(alignment: .bottomLeading) {
+                photoBadge(for: photo)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if sortedPhotos.count > 1 {
+                    Image(systemName: "line.3.horizontal")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.white)
+                        .padding(5)
+                        .background(.black.opacity(0.45), in: Circle())
+                        .padding(DS.Spacing.s2)
+                        .accessibilityHidden(true)
+                }
+            }
+            .contentShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+            .accessibilityElement(children: .ignore)
             .accessibilityLabel("Photo \(index + 1) of \(sortedPhotos.count)\(photo.sortOrder == 0 ? ", cover" : "")")
+            .accessibilityHint(sortedPhotos.count > 1 ? "Drag to reorder, or use the actions menu" : "")
+            .accessibilityAdjustableAction { direction in
+                guard sortedPhotos.count > 1 else { return }
+                switch direction {
+                case .increment:
+                    movePhotoOneStepLater(photo.id)
+                case .decrement:
+                    movePhotoOneStepEarlier(photo.id)
+                @unknown default:
+                    break
+                }
+            }
+            .if(sortedPhotos.count > 1) { view in
+                view
+                    .draggable(photo.id.uuidString) {
+                        photoDragPreview(for: photo)
+                    }
+                    .dropDestination(for: String.self) { items, _ in
+                        guard let draggedID = items.first.flatMap(UUID.init(uuidString:)),
+                              draggedID != photo.id else {
+                            return false
+                        }
+                        movePhoto(from: draggedID, before: photo.id)
+                        return true
+                    }
+            }
+            .contextMenu {
+                if photo.sortOrder != 0 {
+                    Button("Set as cover") {
+                        setAsCover(photo.id)
+                    }
+                }
+                if index > 0 {
+                    Button("Move earlier") {
+                        movePhotoOneStepEarlier(photo.id)
+                    }
+                }
+                if index < sortedPhotos.count - 1 {
+                    Button("Move later") {
+                        movePhotoOneStepLater(photo.id)
+                    }
+                }
+                Button("Remove", role: .destructive) {
+                    removePhoto(id: photo.id)
+                }
+            }
 
             Button {
                 removePhoto(id: photo.id)
@@ -117,6 +246,63 @@ struct PuzzlePhotoGalleryEditor: View {
             .offset(x: 6, y: -6)
             .accessibilityLabel("Remove photo \(index + 1)")
         }
+    }
+
+    @ViewBuilder
+    private func photoBadge(for photo: PuzzlePhoto) -> some View {
+        if photo.sortOrder == 0 {
+            Text("Cover")
+                .font(.caption2.weight(.semibold))
+                .padding(.horizontal, DS.Spacing.s2)
+                .padding(.vertical, 2)
+                .background(.ultraThinMaterial, in: Capsule())
+                .padding(DS.Spacing.s2)
+        }
+    }
+
+    @ViewBuilder
+    private func photoDragPreview(for photo: PuzzlePhoto) -> some View {
+        if let image = photo.image {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+        }
+    }
+
+    @MainActor
+    private func appendPhotos(from items: [PhotosPickerItem]) async {
+        defer { pickerItems = [] }
+        guard remainingPhotoSlots > 0 else { return }
+
+        isImportingPhotos = true
+        defer { isImportingPhotos = false }
+
+        var imported: [UIImage] = []
+        for item in items.prefix(remainingPhotoSlots) {
+            if let image = await loadPickerImage(from: item) {
+                imported.append(image)
+            }
+        }
+        guard !imported.isEmpty else { return }
+
+        var updated = photos
+        let nextOrder = (updated.map(\.sortOrder).max() ?? -1) + 1
+        for (offset, image) in imported.enumerated() {
+            updated.append(PuzzlePhoto(sortOrder: nextOrder + offset, image: image))
+        }
+        photos = PuzzlePhotoSemantics.normalizedSortOrders(updated)
+    }
+
+    private func loadPickerImage(from item: PhotosPickerItem) async -> UIImage? {
+        if let data = try? await item.loadTransferable(type: Data.self),
+           let image = UIImage(data: data),
+           image.cgImage != nil {
+            return image
+        }
+
+        return nil
     }
 
     private func appendPendingImageIfNeeded() {
@@ -132,7 +318,38 @@ struct PuzzlePhotoGalleryEditor: View {
 
     private func removePhoto(id: UUID) {
         photos.removeAll { $0.id == id }
-        photos = PuzzlePhotoSemantics.normalizedSortOrders(photos)
+        photos = PuzzlePhotoSemantics.sortedAndNormalized(photos)
+    }
+
+    private func movePhoto(from sourceID: UUID, before destinationID: UUID) {
+        photos = PuzzlePhotoSemantics.movingPhoto(id: sourceID, before: destinationID, in: photos)
+    }
+
+    private func movePhotoToEnd(_ photoID: UUID) {
+        photos = PuzzlePhotoSemantics.movingPhotoToEnd(id: photoID, in: photos)
+    }
+
+    private func movePhotoOneStepEarlier(_ photoID: UUID) {
+        photos = PuzzlePhotoSemantics.movingPhotoOneStep(id: photoID, direction: .earlier, in: photos)
+    }
+
+    private func movePhotoOneStepLater(_ photoID: UUID) {
+        photos = PuzzlePhotoSemantics.movingPhotoOneStep(id: photoID, direction: .later, in: photos)
+    }
+
+    private func setAsCover(_ photoID: UUID) {
+        photos = PuzzlePhotoSemantics.movingPhotoToCover(id: photoID, in: photos)
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
     }
 }
 
@@ -141,7 +358,7 @@ struct PuzzlePhotoGalleryDetail: View {
     let puzzleName: String
 
     private var sortedPhotos: [PuzzlePhoto] {
-        PuzzlePhotoSemantics.sorted(photos)
+        PuzzlePhotoSemantics.photosInOrder(photos)
     }
 
     var body: some View {
@@ -160,12 +377,25 @@ struct PuzzlePhotoGalleryDetail: View {
                 HStack(spacing: DS.Spacing.s3) {
                     ForEach(Array(sortedPhotos.enumerated()), id: \.element.id) { index, photo in
                         if let image = photo.image {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 140, height: 140)
-                                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
-                                .accessibilityLabel("Photo \(index + 1) of \(sortedPhotos.count) for \(puzzleName)")
+                            ZStack(alignment: .bottomLeading) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 140, height: 140)
+                                    .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
+
+                                if photo.sortOrder == 0 {
+                                    Text("Cover")
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, DS.Spacing.s2)
+                                        .padding(.vertical, 2)
+                                        .background(.ultraThinMaterial, in: Capsule())
+                                        .padding(DS.Spacing.s2)
+                                }
+                            }
+                            .accessibilityLabel(
+                                "Photo \(index + 1) of \(sortedPhotos.count) for \(puzzleName)\(photo.sortOrder == 0 ? ", cover" : "")"
+                            )
                         }
                     }
                 }

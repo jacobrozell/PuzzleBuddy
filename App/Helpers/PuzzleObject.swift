@@ -214,7 +214,7 @@ class Puzzle: ObservableObject {
         self.cutType = cutType
         self.dimensionsText = dimensionsText
         self.timesCompleted = timesCompleted
-        self.photos = PuzzlePhotoSemantics.normalizedSortOrders(photos)
+        self.photos = PuzzlePhotoSemantics.sortedAndNormalized(photos)
         self.completions = completions
         self.isDemo = isDemo
         self.barcode = BarcodeNormalizer.normalize(barcode)
@@ -223,7 +223,7 @@ class Puzzle: ObservableObject {
     }
 
     func prepareForPersistence() {
-        photos = PuzzlePhotoSemantics.normalizedSortOrders(
+        photos = PuzzlePhotoSemantics.sortedAndNormalized(
             photos.filter { $0.image != nil }
         )
         if photos.count > PuzzlePhotoLimits.maxCount {

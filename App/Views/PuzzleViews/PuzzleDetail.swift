@@ -232,7 +232,7 @@ struct DetailView: View {
 
                 if let dimensions = puzzle.dimensionsText?.trimmingCharacters(in: .whitespacesAndNewlines),
                    !dimensions.isEmpty {
-                    detailRow(label: "Dimensions", value: dimensions)
+                    detailRow(label: "Finished size", value: dimensions)
                 }
 
                 if let price = puzzle.purchasePrice {

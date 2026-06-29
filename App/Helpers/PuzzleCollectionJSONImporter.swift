@@ -217,7 +217,7 @@ private enum PuzzleBackupNormalizer {
             )
         }
 
-        return PuzzlePhotoSemantics.normalizedSortOrders(
+        return PuzzlePhotoSemantics.sortedAndNormalized(
             Array(decoded.prefix(PuzzlePhotoLimits.maxCount))
         )
     }

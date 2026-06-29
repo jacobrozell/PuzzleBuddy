@@ -363,7 +363,7 @@ class PuzzleStore: ObservableObject {
         let existing = fetchPhotoRecords(puzzleID: puzzle.id)
         existing.forEach { modelContext.delete($0) }
 
-        let normalized = PuzzlePhotoSemantics.normalizedSortOrders(
+        let normalized = PuzzlePhotoSemantics.sortedAndNormalized(
             puzzle.photos.filter { $0.image != nil }.prefix(PuzzlePhotoLimits.maxCount).map { $0 }
         )
         for photo in normalized {
