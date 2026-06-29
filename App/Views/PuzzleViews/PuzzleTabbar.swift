@@ -29,12 +29,8 @@ struct PuzzleTabbar: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            NavigationStack {
-                PuzzleList(ps: ps)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(PuzzleBuddyTab.puzzles.rawValue)
-            }
-            .tag(PuzzleBuddyTab.puzzles)
+            PuzzleList(ps: ps)
+                .tag(PuzzleBuddyTab.puzzles)
             .tabItem {
                 Label {
                     Text("Puzzles")

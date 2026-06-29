@@ -399,10 +399,11 @@ struct PuzzleFormInternal: View {
                 Text("Condition")
             }
         }
+        .adaptiveScrollChrome()
         .scrollContentBackground(.hidden)
         .scrollDismissesKeyboard(.interactively)
         .background(Brand.background)
-        .sheet(isPresented: $showBarcodeScanner) {
+        .adaptiveLongFormSheet(isPresented: $showBarcodeScanner) {
             BarcodeScannerSheet { raw in
                 if let normalized = BarcodeNormalizer.normalize(raw) {
                     formVm.puzzle.barcode = normalized

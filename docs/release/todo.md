@@ -28,7 +28,7 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 
 ## Pre-submit
 
-- [ ] **Landscape + iPad** — Phase 2 layout sign-off
+- [ ] **Landscape + iPad** — quick wins + split view shipped (see [`../../ongoing/landscape-ui.md`](../../ongoing/landscape-ui.md)); manual sign-off still recommended
 - [x] **Generic UPC API lookup** — evaluated and removed; barcode enrichment is on-device only
 - [x] **Onboarding** — update after sprint for IPDb import + new features
 - [x] **Unit tests** — 163+ passing

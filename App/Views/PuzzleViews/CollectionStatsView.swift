@@ -8,6 +8,7 @@ import SwiftUI
 // MARK: - CollectionStatsView
 
 struct CollectionStatsView: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var ps: PuzzleStore
     @State private var showPickNext = false
     @State private var pendingMilestone: CollectionMilestone?
@@ -85,7 +86,7 @@ struct CollectionStatsView: View {
                 )
             }
         }
-        .sheet(isPresented: $showPickNext) {
+        .adaptiveLongFormSheet(isPresented: $showPickNext) {
             PickNextPuzzleView(ps: ps, entryPoint: "stats")
         }
     }
@@ -382,7 +383,7 @@ struct CollectionStatsView: View {
             .accessibilityIdentifier(A11yID.collectionStatsYearChart)
 
             LazyVGrid(
-                columns: [GridItem(.flexible(), spacing: DS.Spacing.s3), GridItem(.flexible(), spacing: DS.Spacing.s3)],
+                columns: AdaptiveLayout.statsGridColumns(horizontalSizeClass: horizontalSizeClass),
                 spacing: DS.Spacing.s3
             ) {
                 statCard(
@@ -524,7 +525,7 @@ struct CollectionStatsView: View {
                 .accessibilityAddTraits(.isHeader)
 
             LazyVGrid(
-                columns: [GridItem(.flexible(), spacing: DS.Spacing.s3), GridItem(.flexible(), spacing: DS.Spacing.s3)],
+                columns: AdaptiveLayout.statsGridColumns(horizontalSizeClass: horizontalSizeClass),
                 spacing: DS.Spacing.s3
             ) {
                 content()

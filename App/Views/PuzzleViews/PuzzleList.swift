@@ -20,6 +20,7 @@ struct PuzzleList: View {
     @State private var showShoppingMode = false
     @State private var showPickNext = false
     @State private var openPuzzleRequest: OpenPuzzleRequest?
+    @State private var selectedPuzzleID: UUID?
     @State private var quickAddContext: QuickAddContext?
     @State private var listScanDuplicate: ListScanDuplicateRequest?
     @State private var searchText: String = ""
@@ -87,82 +88,50 @@ struct PuzzleList: View {
         )
     }
 
+    private var usesSplitNavigation: Bool {
+        AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+    }
+
     var body: some View {
-        puzzleCollection
-        .accessibilityIdentifier(A11yID.puzzleList)
-        .overlay {
-            if ps.state == .fetching, ps.puzzles.isEmpty {
-                ProgressView("Loading puzzles…")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Brand.background.opacity(0.92))
-            }
-        }
-        .refreshable {
-            await ps.fetchPuzzles()
-        }
-        .readableBrandScreenChrome()
-        .safeAreaInset(edge: .top, spacing: 0) {
-            statusFilterPicker
-        }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: DS.Spacing.s3) {
-                    if ProductService.isPickNextEnabled {
-                        Button {
-                            showPickNext = true
-                        } label: {
-                            Image(systemName: "dice")
-                                .frame(minWidth: 44, minHeight: 44)
-                                .contentShape(Rectangle())
+        Group {
+            if usesSplitNavigation {
+                NavigationSplitView {
+                    puzzleListChrome
+                } detail: {
+                    puzzleSplitDetail
+                }
+            } else {
+                NavigationStack {
+                    puzzleListChrome
+                        .navigationDestination(item: $openPuzzleRequest) { request in
+                            puzzleDetailContent(for: request.id)
                         }
-                        .accessibilityLabel("Pick my next puzzle")
-                        .accessibilityHint("Opens a random picker from your To-Do backlog")
-                        .accessibilityIdentifier(A11yID.pickNextButton)
-                    }
-                    if ProductService.isShoppingModeEnabled {
-                        Button {
-                            showShoppingMode = true
-                        } label: {
-                            Image(systemName: "barcode.viewfinder")
-                                .frame(minWidth: 44, minHeight: 44)
-                                .contentShape(Rectangle())
-                        }
-                        .accessibilityLabel("Check duplicate")
-                        .accessibilityHint("Scan a barcode to see if you already own this puzzle while shopping")
-                        .optionalAccessibilityIdentifier(A11yID.checkDuplicateButton)
-                        .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
-                    }
-                    PuzzleShareMenu(
-                        entireCollection: ps.puzzles,
-                        visibleList: displayedPuzzles
-                    )
-                    sortMenu
                 }
             }
         }
-        .sheet(isPresented: $present) {
+        .adaptiveLongFormSheet(isPresented: $present) {
             PuzzleForm(isPresented: $present, ps: ps)
         }
-        .sheet(isPresented: $showScanner) {
+        .adaptiveLongFormSheet(isPresented: $showScanner) {
             BarcodeScannerSheet { barcode in
                 handleScannedBarcode(barcode)
             }
         }
-        .sheet(item: $quickAddContext) { context in
+        .adaptiveLongFormSheet(item: $quickAddContext) { context in
             QuickAddPuzzleSheet(
                 ps: ps,
                 barcode: context.barcode,
                 metadata: context.metadata
             )
         }
-        .sheet(item: $listScanDuplicate) { request in
+        .adaptiveLongFormSheet(item: $listScanDuplicate) { request in
             NavigationStack {
                 ScrollView {
                     BarcodeScanResultCard(
                         result: .match(request.puzzle),
                         onOpenPuzzle: { puzzle in
                             listScanDuplicate = nil
-                            openPuzzleRequest = OpenPuzzleRequest(id: puzzle.id)
+                            navigateToPuzzle(id: puzzle.id)
                         },
                         onAddPuzzle: { _ in },
                         onScanAnother: {
@@ -184,26 +153,19 @@ struct PuzzleList: View {
                 }
             }
         }
-        .sheet(isPresented: $showPickNext) {
+        .adaptiveLongFormSheet(isPresented: $showPickNext) {
             PickNextPuzzleView(ps: ps, entryPoint: "list")
         }
-        .sheet(isPresented: $showShoppingMode) {
+        .adaptiveLongFormSheet(isPresented: $showShoppingMode) {
             ShoppingModeView(
                 ps: ps,
                 onAddPuzzle: { barcode in
                     beginQuickAdd(barcode: barcode)
                 },
                 onOpenPuzzle: { puzzle in
-                    openPuzzleRequest = OpenPuzzleRequest(id: puzzle.id)
+                    navigateToPuzzle(id: puzzle.id)
                 }
             )
-        }
-        .navigationDestination(item: $openPuzzleRequest) { request in
-            if let index = ps.puzzles.firstIndex(where: { $0.id == request.id }) {
-                PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
-            } else {
-                MissingPuzzleDestination()
-            }
         }
         .sheet(isPresented: $showTagFilterSheet) {
             TagFilterSheet(
@@ -217,7 +179,10 @@ struct PuzzleList: View {
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
         }
-        .onChange(of: ps.puzzles.count) { _, _ in
+        .onChange(of: ps.puzzles.map(\.id)) { _, ids in
+            if let selectedPuzzleID, !ids.contains(selectedPuzzleID) {
+                self.selectedPuzzleID = nil
+            }
             applyMarketingSnapshotNavigation()
         }
         .onAppear {
@@ -243,57 +208,144 @@ struct PuzzleList: View {
         } message: {
             Text("This puzzle will be removed from your collection. This cannot be undone.")
         }
-        .overlay(alignment: .bottomTrailing) {
-            Menu {
-                Button {
-                    present = true
-                } label: {
-                    Label("Add puzzle", systemImage: "plus")
-                }
-                .accessibilityIdentifier(A11yID.addPuzzleButton)
+    }
 
-                Button {
-                    showScanner = true
-                } label: {
-                    Label {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Scan barcode")
-                            Text("Add to your collection")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+    private var puzzleListChrome: some View {
+        puzzleCollection
+            .accessibilityIdentifier(A11yID.puzzleList)
+            .overlay {
+                if ps.state == .fetching, ps.puzzles.isEmpty {
+                    ProgressView("Loading puzzles…")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Brand.background.opacity(0.92))
+                }
+            }
+            .refreshable {
+                await ps.fetchPuzzles()
+            }
+            .modifier(PuzzleListScreenChrome(splitNavigation: usesSplitNavigation))
+            .safeAreaInset(edge: .top, spacing: 0) {
+                statusFilterPicker
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack(spacing: DS.Spacing.s3) {
+                        if ProductService.isPickNextEnabled {
+                            Button {
+                                showPickNext = true
+                            } label: {
+                                Image(systemName: "dice")
+                                    .frame(minWidth: 44, minHeight: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .accessibilityLabel("Pick my next puzzle")
+                            .accessibilityHint("Opens a random picker from your To-Do backlog")
+                            .accessibilityIdentifier(A11yID.pickNextButton)
                         }
-                    } icon: {
-                        Image(systemName: "barcode.viewfinder")
+                        if ProductService.isShoppingModeEnabled {
+                            Button {
+                                showShoppingMode = true
+                            } label: {
+                                Image(systemName: "barcode.viewfinder")
+                                    .frame(minWidth: 44, minHeight: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .accessibilityLabel("Check duplicate")
+                            .accessibilityHint("Scan a barcode to see if you already own this puzzle while shopping")
+                            .optionalAccessibilityIdentifier(A11yID.checkDuplicateButton)
+                            .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
+                        }
+                        PuzzleShareMenu(
+                            entireCollection: ps.puzzles,
+                            visibleList: displayedPuzzles
+                        )
+                        sortMenu
                     }
                 }
-                .optionalAccessibilityIdentifier(A11yID.scanBarcodeButton)
-                .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
-            } label: {
-                Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 52))
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(Brand.textOnAccent, Brand.accent)
             }
-            .accessibilityLabel("Add puzzle")
-            .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
-            .padding(DS.Spacing.s4)
-            .padding(.bottom, max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2))
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            // Compact height (landscape) packs the FAB close to the short tab bar,
-            // so reserve enough room for the last row to clear the add button.
-            Color.clear.frame(height: verticalSizeClass == .compact ? 72 : 0)
+            .overlay(alignment: .bottomTrailing) {
+                Menu {
+                    Button {
+                        present = true
+                    } label: {
+                        Label("Add puzzle", systemImage: "plus")
+                    }
+                    .accessibilityIdentifier(A11yID.addPuzzleButton)
+
+                    Button {
+                        showScanner = true
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Scan barcode")
+                                Text("Add to your collection")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "barcode.viewfinder")
+                        }
+                    }
+                    .optionalAccessibilityIdentifier(A11yID.scanBarcodeButton)
+                    .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 52))
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(Brand.textOnAccent, Brand.accent)
+                }
+                .accessibilityLabel("Add puzzle")
+                .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
+                .padding(DS.Spacing.s4)
+                .padding(.bottom, max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2))
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                Color.clear.frame(height: verticalSizeClass == .compact ? 72 : 0)
+            }
+            .navigationTitle("Puzzle Buddy")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private var puzzleSplitDetail: some View {
+        if let selectedPuzzleID {
+            puzzleDetailContent(for: selectedPuzzleID)
+        } else {
+            puzzleDetailPlaceholder
         }
     }
 
-    /// Single-column List on compact width; multi-column grid on regular width (iPad).
     @ViewBuilder
-    private var puzzleCollection: some View {
-        if horizontalSizeClass == .regular {
-            puzzleGrid
+    private func puzzleDetailContent(for id: UUID) -> some View {
+        if let index = ps.puzzles.firstIndex(where: { $0.id == id }) {
+            PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
         } else {
-            puzzleListView
+            MissingPuzzleDestination()
         }
+    }
+
+    private var puzzleDetailPlaceholder: some View {
+        ContentUnavailableView(
+            "Select a puzzle",
+            systemImage: "puzzlepiece.extension",
+            description: Text("Choose a puzzle from your collection to see details.")
+        )
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .brandBackground()
+        .navigationTitle("Details")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func navigateToPuzzle(id: UUID) {
+        if usesSplitNavigation {
+            selectedPuzzleID = id
+        } else {
+            openPuzzleRequest = OpenPuzzleRequest(id: id)
+        }
+    }
+
+    private var puzzleCollection: some View {
+        puzzleListView
     }
 
     private var puzzleListView: some View {
@@ -303,9 +355,17 @@ struct PuzzleList: View {
             } else {
                 ForEach(displayedPuzzles, id: \.id) { puzzle in
                     if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
-                        PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
+                        PuzzleCell(
+                            ps: ps,
+                            puzzle: $ps.puzzles[index],
+                            selectedPuzzleID: usesSplitNavigation ? $selectedPuzzleID : nil
+                        )
                             .id(ps.puzzles[index].id)
-                            .listRowBackground(Color.clear)
+                            .listRowBackground(
+                                selectedPuzzleID == puzzle.id
+                                    ? Brand.accent.opacity(0.12)
+                                    : Color.clear
+                            )
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(
                                 top: DS.Spacing.s2,
@@ -319,31 +379,6 @@ struct PuzzleList: View {
             }
         }
         .listStyle(.plain)
-    }
-
-    private var puzzleGrid: some View {
-        ScrollView {
-            if displayedPuzzles.isEmpty {
-                emptyStateRow
-                    .padding(.top, DS.Spacing.s6)
-                    .padding(.horizontal, DS.Spacing.s4)
-            } else {
-                LazyVGrid(
-                    columns: [GridItem(.adaptive(minimum: 320), spacing: DS.Spacing.s4)],
-                    spacing: DS.Spacing.s4
-                ) {
-                    ForEach(displayedPuzzles, id: \.id) { puzzle in
-                        if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
-                            PuzzleCell(ps: ps, puzzle: $ps.puzzles[index])
-                                .id(ps.puzzles[index].id)
-                        }
-                    }
-                }
-                .padding(.horizontal, DS.Spacing.s4)
-                .padding(.top, DS.Spacing.s2)
-                .padding(.bottom, AdaptiveLayout.tabBarClearance(for: dynamicTypeSize))
-            }
-        }
     }
 
     private var statusFilterPicker: some View {
@@ -841,7 +876,7 @@ struct PuzzleList: View {
         guard !ps.puzzles.isEmpty else { return }
 
         if let id = MarketingSnapshotBootstrap.puzzleDetailID(in: ps.puzzles) {
-            openPuzzleRequest = OpenPuzzleRequest(id: id)
+            navigateToPuzzle(id: id)
         }
 
         if let puzzle = MarketingSnapshotBootstrap.duplicateCheckPuzzle(in: ps.puzzles) {
@@ -1025,6 +1060,20 @@ private struct TagFilterSheet: View {
                     .foregroundStyle(Brand.accent)
                     .accessibilityHidden(true)
             }
+        }
+    }
+}
+
+private struct PuzzleListScreenChrome: ViewModifier {
+    let splitNavigation: Bool
+
+    func body(content: Content) -> some View {
+        if splitNavigation {
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .brandBackground()
+        } else {
+            content.readableBrandScreenChrome()
         }
     }
 }

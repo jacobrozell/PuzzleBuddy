@@ -31,6 +31,7 @@ enum OnboardingStorage {
 
 struct OnboardingView: View {
     @Binding var isPresented: Bool
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @State private var pageIndex = MarketingSnapshotBootstrap.initialOnboardingPage
 
     private let pages: [OnboardingPage] = [
@@ -113,7 +114,7 @@ struct OnboardingView: View {
             .accessibilityLabel(pageIndex == pages.count - 1 ? "Get started with Puzzle Buddy" : "Next onboarding page")
         }
         .padding(.horizontal, DS.Spacing.s5)
-        .padding(.vertical, DS.Spacing.s4)
+        .padding(.vertical, verticalSizeClass == .compact ? DS.Spacing.s2 : DS.Spacing.s4)
     }
 
     private func completeOnboarding(logCompletedEvent: Bool = true) {
@@ -138,46 +139,60 @@ private struct OnboardingPage: Identifiable {
 }
 
 private struct OnboardingPageView: View {
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     let page: OnboardingPage
 
+    private var isCompactHeight: Bool { verticalSizeClass == .compact }
+    private var heroFrame: CGFloat { isCompactHeight ? 100 : 180 }
+    private var brandMarkSize: CGFloat { isCompactHeight ? 72 : 120 }
+    private var systemIconSize: CGFloat { isCompactHeight ? 48 : 72 }
+
     var body: some View {
-        VStack(spacing: DS.Spacing.s5) {
-            Spacer()
+        ScrollView {
+            VStack(spacing: isCompactHeight ? DS.Spacing.s3 : DS.Spacing.s5) {
+                if !isCompactHeight {
+                    Spacer(minLength: DS.Spacing.s4)
+                }
 
-            hero
-                .frame(maxWidth: 180, maxHeight: 180)
-                .accessibilityHidden(true)
+                hero
+                    .frame(maxWidth: heroFrame, maxHeight: heroFrame)
+                    .accessibilityHidden(true)
 
-            VStack(spacing: DS.Spacing.s3) {
-                Text(page.title)
-                    .font(.title2.bold())
-                    .foregroundStyle(Brand.textPrimary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: DS.Spacing.s3) {
+                    Text(page.title)
+                        .font(isCompactHeight ? .title3.bold() : .title2.bold())
+                        .foregroundStyle(Brand.textPrimary)
+                        .multilineTextAlignment(.center)
 
-                Text(page.message)
-                    .font(.body)
-                    .foregroundStyle(Brand.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
+                    Text(page.message)
+                        .font(isCompactHeight ? .subheadline : .body)
+                        .foregroundStyle(Brand.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(.horizontal, isCompactHeight ? DS.Spacing.s4 : DS.Spacing.s6)
+                .accessibilityElement(children: .combine)
+                .accessibilityAddTraits(.isHeader)
+
+                if !isCompactHeight {
+                    Spacer()
+                    Spacer()
+                }
             }
-            .padding(.horizontal, DS.Spacing.s6)
-            .accessibilityElement(children: .combine)
-            .accessibilityAddTraits(.isHeader)
-
-            Spacer()
-            Spacer()
+            .padding(.top, isCompactHeight ? DS.Spacing.s3 : DS.Spacing.s6)
+            .frame(maxWidth: .infinity)
         }
-        .padding(.top, DS.Spacing.s6)
+        .scrollBounceBehavior(.basedOnSize)
     }
 
     @ViewBuilder
     private var hero: some View {
         switch page.hero {
         case .brandMark:
-            PuzzleHeroView(size: 120)
+            PuzzleHeroView(size: brandMarkSize)
         case .systemImage(let name):
             Image(systemName: name)
-                .font(.system(size: 72))
+                .font(.system(size: systemIconSize))
                 .foregroundStyle(Brand.accent)
                 .symbolRenderingMode(.hierarchical)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -12,19 +12,38 @@ struct PuzzleCell: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
     @Binding var puzzle: Puzzle
+    /// When set, row selects into `NavigationSplitView` instead of pushing via `NavigationLink`.
+    var selectedPuzzleID: Binding<UUID?>? = nil
     @State private var showDeleteConfirmation = false
 
+    private var usesSplitSelection: Bool { selectedPuzzleID != nil }
+    private var isSelected: Bool {
+        guard let selectedPuzzleID else { return false }
+        return selectedPuzzleID.wrappedValue == puzzle.id
+    }
+
     var body: some View {
-        NavigationLink {
-            PuzzleDetail(ps: ps, puzzle: $puzzle)
-        } label: {
-            PuzzleCellView(puzzle: $puzzle)
+        Group {
+            if usesSplitSelection {
+                Button {
+                    selectedPuzzleID?.wrappedValue = puzzle.id
+                } label: {
+                    PuzzleCellView(puzzle: $puzzle)
+                }
+                .buttonStyle(.plain)
+            } else {
+                NavigationLink {
+                    PuzzleDetail(ps: ps, puzzle: $puzzle)
+                } label: {
+                    PuzzleCellView(puzzle: $puzzle)
+                }
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id))
         .accessibilityLabel(cellAccessibilityLabel)
         .accessibilityHint("Opens puzzle details. Use the actions rotor to delete.")
-        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction(named: "Delete puzzle") {
             showDeleteConfirmation = true
         }

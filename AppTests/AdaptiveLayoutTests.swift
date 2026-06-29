@@ -45,4 +45,27 @@ final class AdaptiveLayoutTests: XCTestCase {
         )
         XCTAssertGreaterThan(landscape, portrait)
     }
+
+    func testPresentsLongFormAsFullScreenCoverOnIPad() {
+        XCTAssertTrue(
+            AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: .regular)
+        )
+        XCTAssertFalse(
+            AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: .compact)
+        )
+    }
+
+    func testStatsGridColumnsUseAdaptiveLayoutOnIPad() {
+        let iPad = AdaptiveLayout.statsGridColumns(horizontalSizeClass: .regular)
+        XCTAssertEqual(iPad.count, 1)
+        XCTAssertEqual(iPad[0].size, .adaptive(minimum: 220))
+
+        let iPhone = AdaptiveLayout.statsGridColumns(horizontalSizeClass: .compact)
+        XCTAssertEqual(iPhone.count, 2)
+    }
+
+    func testUsesSplitNavigationOnIPad() {
+        XCTAssertTrue(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .regular))
+        XCTAssertFalse(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .compact))
+    }
 }
