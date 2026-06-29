@@ -10,6 +10,7 @@ import SwiftUI
 import UIKit
 
 // MARK: - PuzzleStore
+
 @MainActor
 class PuzzleStore: ObservableObject {
     enum PuzzleStoreState {
@@ -23,6 +24,11 @@ class PuzzleStore: ObservableObject {
 
     private let modelContext: ModelContext
     private var didRunLegacyPhotoMigration = false
+
+    #if DEBUG
+    /// Test seam: next mutation that saves will throw `PuzzleStoreError.saveFailed`.
+    static var forcesNextSaveFailure = false
+    #endif
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -97,16 +103,15 @@ class PuzzleStore: ObservableObject {
     }
 
     @discardableResult
-    func importBackup(_ incoming: [Puzzle], policy: PuzzleBackupImportPolicy) throws -> PuzzleImportSummary {
+    func importBackup(
+        _ incoming: [Puzzle],
+        policy: PuzzleBackupImportPolicy,
+        preSkippedInvalid: Int = 0
+    ) throws -> PuzzleImportSummary {
         var summary = PuzzleImportSummary(source: .jsonBackup)
+        summary.skippedInvalid = preSkippedInvalid
 
-        if policy == .replaceAll {
-            try clearAllPuzzles()
-        }
-
-        let existingIDs = Set(puzzles.map(\.id))
-        var seenIDs = existingIDs
-
+        var candidates: [Puzzle] = []
         for var puzzle in incoming {
             let trimmedName = puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmedName.isEmpty else {
@@ -114,7 +119,20 @@ class PuzzleStore: ObservableObject {
                 continue
             }
             puzzle.name = trimmedName
+            candidates.append(puzzle)
+        }
 
+        if policy == .replaceAll {
+            guard !candidates.isEmpty || incoming.isEmpty else {
+                return summary
+            }
+            try clearAllPuzzles()
+        }
+
+        let existingIDs = Set(puzzles.map(\.id))
+        var seenIDs = existingIDs
+
+        for puzzle in candidates {
             if policy == .mergeSkipExistingIDs, seenIDs.contains(puzzle.id) {
                 summary.skippedExisting += 1
                 continue
@@ -165,7 +183,7 @@ class PuzzleStore: ObservableObject {
         if puzzle.status == .completed {
             try appendCompletion(for: puzzle)
         }
-        try modelContext.save()
+        try saveContext()
         puzzles.append(puzzleFromRecord(record))
         BarcodeMetadataCache.store(from: puzzle)
         AppLog.shared.info(
@@ -184,17 +202,17 @@ class PuzzleStore: ObservableObject {
         modelContext.insert(record)
         try syncPhotos(for: puzzle)
         try syncCompletions(for: puzzle)
-        try modelContext.save()
+        try saveContext()
         puzzles.append(puzzleFromRecord(record))
         BarcodeMetadataCache.store(from: puzzle)
     }
 
-    func delete(at offsets: IndexSet) {
-        deleteLocally(at: offsets)
+    func delete(at offsets: IndexSet) throws {
+        try deleteLocally(at: offsets)
         AppLog.shared.info(.puzzles, eventName: "puzzle_deleted", message: "Puzzle deleted.")
     }
 
-    private func deleteLocally(at offsets: IndexSet) {
+    private func deleteLocally(at offsets: IndexSet) throws {
         for index in offsets {
             let puzzle = puzzles[index]
             if let record = fetchRecord(id: puzzle.id) {
@@ -203,7 +221,7 @@ class PuzzleStore: ObservableObject {
             }
         }
         puzzles.remove(atOffsets: offsets)
-        try? modelContext.save()
+        try saveContext()
     }
 
     func update(puzzle: Puzzle) throws {
@@ -281,7 +299,7 @@ class PuzzleStore: ObservableObject {
         try modelContext.fetch(FetchDescriptor<PuzzleCompletionRecord>()).forEach { modelContext.delete($0) }
         let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
         records.forEach { modelContext.delete($0) }
-        try modelContext.save()
+        try saveContext()
         puzzles = []
         AppLog.shared.info(
             .puzzles,
@@ -308,7 +326,7 @@ class PuzzleStore: ObservableObject {
         }
         guard !demoIndices.isEmpty else { return }
 
-        delete(at: IndexSet(demoIndices))
+        try delete(at: IndexSet(demoIndices))
         AppLog.shared.info(
             .puzzles,
             eventName: "demo_data_removed",
@@ -323,7 +341,9 @@ class PuzzleStore: ObservableObject {
 
     private func updateLocally(puzzle: Puzzle) throws {
         try validateBarcodeUniqueness(for: puzzle)
-        guard let record = fetchRecord(id: puzzle.id) else { return }
+        guard let record = fetchRecord(id: puzzle.id) else {
+            throw PuzzleStoreError.recordNotFound
+        }
 
         let previousStatus = Puzzle.Status(rawValue: record.status) ?? .todo
         var puzzle = puzzle
@@ -340,7 +360,7 @@ class PuzzleStore: ObservableObject {
             puzzles[index] = puzzleFromRecord(record)
         }
         BarcodeMetadataCache.store(from: puzzle)
-        try modelContext.save()
+        try saveContext()
     }
 
     private func appendCompletion(for puzzle: Puzzle) throws {
@@ -405,7 +425,7 @@ class PuzzleStore: ObservableObject {
                 )
             )
         }
-        try modelContext.save()
+        try saveContext()
     }
 
     private func puzzleFromRecord(_ record: PuzzleRecord) -> Puzzle {
@@ -430,7 +450,16 @@ class PuzzleStore: ObservableObject {
             predicate: #Predicate { $0.puzzleID == puzzleID },
             sortBy: [SortDescriptor(\.sortOrder)]
         )
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            AppLog.shared.warning(
+                .puzzles,
+                eventName: "puzzle_photo_fetch_failed",
+                message: error.localizedDescription
+            )
+            return []
+        }
     }
 
     private func fetchCompletionRecords(puzzleID: UUID) -> [PuzzleCompletionRecord] {
@@ -438,7 +467,16 @@ class PuzzleStore: ObservableObject {
             predicate: #Predicate { $0.puzzleID == puzzleID },
             sortBy: [SortDescriptor(\.completionNumber)]
         )
-        return (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            AppLog.shared.warning(
+                .puzzles,
+                eventName: "puzzle_completion_fetch_failed",
+                message: error.localizedDescription
+            )
+            return []
+        }
     }
 
     private func validateBarcodeUniqueness(for puzzle: Puzzle) throws {
@@ -457,6 +495,25 @@ class PuzzleStore: ObservableObject {
             predicate: #Predicate { $0.id == puzzleID }
         )
         descriptor.fetchLimit = 1
-        return try? modelContext.fetch(descriptor).first
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            AppLog.shared.warning(
+                .puzzles,
+                eventName: "puzzle_record_fetch_failed",
+                message: error.localizedDescription
+            )
+            return nil
+        }
+    }
+
+    private func saveContext() throws {
+        #if DEBUG
+        if Self.forcesNextSaveFailure {
+            Self.forcesNextSaveFailure = false
+            throw PuzzleStoreError.saveFailed
+        }
+        #endif
+        try modelContext.save()
     }
 }

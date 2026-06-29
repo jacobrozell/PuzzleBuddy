@@ -12,7 +12,8 @@ enum FirebaseCrashlyticsEventMapping {
         "puzzle_load_failed",
         "model_container_load_failed",
         "model_container_reset_failed",
-        "demo_data_seed_failed"
+        "demo_data_seed_failed",
+        "model_container_ephemeral_fallback"
     ]
 
     /// Stable NSError codes for Crashlytics grouping (documented in unit tests).
@@ -20,7 +21,8 @@ enum FirebaseCrashlyticsEventMapping {
         "puzzle_load_failed": 2001,
         "model_container_load_failed": 2002,
         "model_container_reset_failed": 2003,
-        "demo_data_seed_failed": 2004
+        "demo_data_seed_failed": 2004,
+        "model_container_ephemeral_fallback": 2005
     ]
 
     private static let allowlistedParameterKeys: Set<String> = [

@@ -10,6 +10,7 @@ enum PuzzleModelContainer {
     private static func makeInMemory(schema: Schema) -> ModelContainer {
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
+            UserPreferences.isRunningInEphemeralStore = true
             return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
             fatalError("Could not create in-memory ModelContainer: \(error)")
@@ -26,6 +27,7 @@ enum PuzzleModelContainer {
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
+            UserPreferences.isRunningInEphemeralStore = false
             return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
             AppLog.shared.warning(
@@ -40,6 +42,11 @@ enum PuzzleModelContainer {
                     .puzzles,
                     eventName: "model_container_reset_failed",
                     message: error.localizedDescription
+                )
+                AppLog.shared.error(
+                    .puzzles,
+                    eventName: "model_container_ephemeral_fallback",
+                    message: "Using in-memory store; changes will not persist."
                 )
                 return makeInMemory(schema: schema)
             }
@@ -61,6 +68,7 @@ enum PuzzleModelContainer {
             try? FileManager.default.removeItem(at: url)
         }
 
+        UserPreferences.isRunningInEphemeralStore = false
         return try ModelContainer(for: schema, configurations: [configuration])
     }
 }

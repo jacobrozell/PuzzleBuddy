@@ -10,6 +10,7 @@ import SwiftUI
 // MARK: - PuzzleCell
 struct PuzzleCell: View {
     @ObservedObject var ps: PuzzleStore
+    @EnvironmentObject var eh: ErrorHandling
     @Binding var puzzle: Puzzle
     @State private var showDeleteConfirmation = false
 
@@ -44,7 +45,12 @@ struct PuzzleCell: View {
 
     private func deletePuzzle() {
         guard let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) else { return }
-        ps.delete(at: IndexSet(integer: index))
+        do {
+            try ps.delete(at: IndexSet(integer: index))
+            BarcodeScanFeedback.scanAccepted()
+        } catch {
+            eh.handle(title: "Could not delete puzzle", message: error.localizedDescription)
+        }
     }
 
     private var cellAccessibilityLabel: String {
