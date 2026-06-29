@@ -50,8 +50,8 @@
 
 ```bash
 xcodegen generate
-xcodebuild -scheme "Puzzle Buddy" -destination 'platform=iOS Simulator,name=iPhone 17' \
-  -only-testing:"Puzzle BuddyTests" test
+xcodebuild -scheme PuzzleBuddy -destination 'platform=iOS Simulator,name=iPhone 17' \
+  -only-testing:"AppTests" test
 ```
 
 Manual:

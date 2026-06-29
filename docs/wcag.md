@@ -165,7 +165,7 @@ Information and operation must be understandable.
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| **3.1.1 Language of Page** | Supports | `en` development language; `Puzzle-Buddy-Info.plist` / bundle English |
+| **3.1.1 Language of Page** | Supports | `en` development language; `Info.plist` / bundle English |
 | **3.1.2 Language of Parts** | N/A | Single language UI |
 
 Localization is planned (Phase 3).
@@ -301,7 +301,7 @@ Puzzle Buddy is tested with these system features:
 ### XCUIAccessibilityAudit
 
 ```swift
-// Puzzle BuddyUITests — puzzle list with seeded fixtures
+// AppUITests — puzzle list with seeded fixtures
 func testPuzzleListAccessibilityAudit() throws {
     let app = XCUIApplication()
     app.launchArguments += [

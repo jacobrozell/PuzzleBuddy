@@ -81,7 +81,7 @@ Apply via `.optionalAccessibilityIdentifier(A11yID.*)` or `.accessibilityIdentif
 
 ### Automated audits
 
-- [x] Add `XCUIAccessibilityAudit` UI test suite in `Puzzle BuddyUITests`
+- [x] Add `XCUIAccessibilityAudit` UI test suite in `AppUITests`
 - [x] Run audit on onboarding and puzzle list (seeded fixtures)
 - [x] Run audit on settings and add-puzzle form
 - [x] Landscape layout checks for puzzle list and detail

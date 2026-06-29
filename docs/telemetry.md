@@ -2,7 +2,7 @@
 
 Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytics in **Puzzle Buddy (iOS + Android)**.
 
-**iOS implementation:** `Puzzle Buddy/Util/AppLogging.swift`, `Puzzle Buddy/Util/FirebaseCrashlyticsEventMapping.swift`, `Puzzle Buddy/AppDelegate.swift`
+**iOS implementation:** `App/Util/AppLogging.swift`, `App/Util/FirebaseCrashlyticsEventMapping.swift`, `App/AppDelegate.swift`
 
 **Android implementation:** `PuzzleBuddy-Android/.../support/logging/` (`AppLogger.kt`, `FirebaseAnalyticsEventMapping.kt`, `FirebaseCrashlyticsEventMapping.kt`, `LogSinks.kt`), `FirebaseBootstrap.kt`, `PuzzleBuddyDatabaseFactory.kt`
 
@@ -129,7 +129,7 @@ Only these metadata keys are forwarded (max 100 chars each):
 
 | Key | Source |
 |-----|--------|
-| `app_version` | Auto-injected from `Puzzle_BuddyApp.version` |
+| `app_version` | Auto-injected from `PuzzleBuddyApp.version` |
 | `log_category` | Auto-injected from `LogCategory` |
 | `puzzle_count` | Call site |
 | `puzzle_status` | Call site |

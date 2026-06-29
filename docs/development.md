@@ -35,7 +35,7 @@ Replace placeholder values for local Analytics/Crashlytics testing, or leave pla
 
 ```bash
 xcodegen generate
-open "Puzzle Buddy.xcodeproj"
+open PuzzleBuddy.xcodeproj
 ```
 
 Run this after every pull that changes `project.yml` or when adding files outside existing source globs.
@@ -64,8 +64,8 @@ Prevents committing `GoogleService-Info.plist`.
 xcodegen generate
 
 xcodebuild build \
-  -project "Puzzle Buddy.xcodeproj" \
-  -scheme "Puzzle Buddy" \
+  -project "PuzzleBuddy.xcodeproj" \
+  -scheme PuzzleBuddy \
   -destination "platform=iOS Simulator,name=iPhone 16" \
   -derivedDataPath DerivedData \
   CODE_SIGN_IDENTITY=- \
@@ -77,8 +77,8 @@ xcodebuild build \
 
 ```bash
 xcodebuild build-for-testing \
-  -project "Puzzle Buddy.xcodeproj" \
-  -scheme "Puzzle Buddy" \
+  -project "PuzzleBuddy.xcodeproj" \
+  -scheme PuzzleBuddy \
   -destination "platform=iOS Simulator,name=iPhone 16" \
   -derivedDataPath DerivedData \
   CODE_SIGN_IDENTITY=- \
@@ -94,7 +94,7 @@ Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 16"
 
 ### Adding source files
 
-Files under `Puzzle Buddy/` are included automatically via `project.yml`. For new top-level folders or targets, edit `project.yml` and run `xcodegen generate`.
+Files under `App/` are included automatically via `project.yml`. For new top-level folders or targets, edit `project.yml` and run `xcodegen generate`.
 
 ### Adding Swift packages
 
@@ -104,7 +104,7 @@ Edit `project.yml` under `packages:` and target `dependencies:`. Current Firebas
 
 In `project.yml`: `PRODUCT_BUNDLE_IDENTIFIER`, `MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`.
 
-Also update `Puzzle_BuddyApp.version` in `Puzzle_BuddyApp.swift` and Firebase iOS app registration if bundle ID changes.
+Also update `PuzzleBuddyApp.version` in `PuzzleBuddyApp.swift` and Firebase iOS app registration if bundle ID changes.
 
 ---
 
@@ -172,8 +172,8 @@ xcrun simctl list devices available
 rm -rf DerivedData
 xcodegen generate
 xcodebuild -resolvePackageDependencies \
-  -project "Puzzle Buddy.xcodeproj" \
-  -scheme "Puzzle Buddy"
+  -project "PuzzleBuddy.xcodeproj" \
+  -scheme PuzzleBuddy
 ```
 
 ---
@@ -184,7 +184,7 @@ xcodebuild -resolvePackageDependencies \
 cp GoogleService-Info.plist.example GoogleService-Info.plist
 brew install xcodegen
 xcodegen generate
-xcodebuild -resolvePackageDependencies -project "Puzzle Buddy.xcodeproj" -scheme "Puzzle Buddy"
+xcodebuild -resolvePackageDependencies -project "PuzzleBuddy.xcodeproj" -scheme PuzzleBuddy
 swiftlint lint
 Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 16"
 ```

@@ -6,7 +6,7 @@ For **current shipped behavior**, see [features.md](features.md) and [feature-in
 
 **Last updated:** 2026-06-29
 
-**Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `Puzzle_BuddyApp.version`). Follow-on releases use semver: **1.1.0** (import/export, polish), **1.2.0+**, etc. Account sync is **not** scheduled for 1.1 — see [Future: auth + cloud sync](#future-auth--cloud-sync).
+**Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `PuzzleBuddyApp.version`). Follow-on releases use semver: **1.1.0** (import/export, polish), **1.2.0+**, etc. Account sync is **not** scheduled for 1.1 — see [Future: auth + cloud sync](#future-auth--cloud-sync).
 
 ### Contents
 

@@ -93,7 +93,7 @@ The `.xcodeproj` is generated from `project.yml` and is not committed.
 ```bash
 brew install xcodegen   # if needed
 xcodegen generate
-open "Puzzle Buddy.xcodeproj"
+open PuzzleBuddy.xcodeproj
 ```
 
 ### 3. Install git hooks
@@ -106,7 +106,7 @@ Blocks accidentally committing a real Firebase plist:
 
 ### 4. Build and run
 
-Select the **Puzzle Buddy** scheme, choose an iOS Simulator or device, and press ⌘R.
+Select the **PuzzleBuddy** scheme, choose an iOS Simulator or device, and press ⌘R.
 
 For CI-style verification locally:
 
@@ -120,14 +120,14 @@ See [docs/development.md](docs/development.md) for the full local workflow, simu
 ## Project structure
 
 ```
-Puzzle-Buddy/
-├── Puzzle Buddy/              # Main app target
+PuzzleBuddy/
+├── App/              # Main app target
 │   ├── Login/                 # OnboardingView only (legacy folder name)
 │   ├── Views/                 # SwiftUI screens (puzzle list, form, detail, settings)
 │   ├── Helpers/               # Puzzle model, PuzzleRecord (SwiftData), PuzzleStore
 │   └── Util/                  # ProductService, design tokens, logging, error handling
-├── Puzzle BuddyTests/         # Unit tests
-├── Puzzle BuddyUITests/       # UI tests
+├── AppTests/         # Unit tests
+├── AppUITests/       # UI tests
 ├── docs/                      # GitHub Pages + extended documentation
 ├── specs/                     # Feature specs (planned + shipped)
 ├── AGENTS.md                  # Agent onboarding (read first)
@@ -142,7 +142,7 @@ Puzzle-Buddy/
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Puzzle_BuddyApp                                            │
+│  PuzzleBuddyApp                                            │
 │    ├── AppDelegate (Firebase Analytics + Crashlytics)     │
 │    ├── ModelContainer (SwiftData / PuzzleRecord)            │
 │    └── AppShell → RootView → PuzzleView                     │

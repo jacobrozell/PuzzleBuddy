@@ -10,8 +10,8 @@ Puzzle Buddy uses XCTest for unit tests and XCUITest for UI automation. CI runs 
 
 | Target | Path | Purpose |
 |--------|------|---------|
-| **Puzzle BuddyTests** | `Puzzle BuddyTests/` | Unit tests — models, store, telemetry mapping |
-| **Puzzle BuddyUITests** | `Puzzle BuddyUITests/` | UI smoke, WCAG audits, accessibility |
+| **AppTests** | `AppTests/` | Unit tests — models, store, telemetry mapping |
+| **AppUITests** | `AppUITests/` | UI smoke, WCAG audits, accessibility |
 
 Both wired in `project.yml` under the **Puzzle Buddy** scheme.
 
@@ -28,8 +28,8 @@ Both wired in `project.yml` under the **Puzzle Buddy** scheme.
 ```bash
 xcodegen generate
 xcodebuild build-for-testing \
-  -project "Puzzle Buddy.xcodeproj" \
-  -scheme "Puzzle Buddy" \
+  -project "PuzzleBuddy.xcodeproj" \
+  -scheme PuzzleBuddy \
   -destination "platform=iOS Simulator,name=iPhone 16" \
   -derivedDataPath DerivedData \
   CODE_SIGN_IDENTITY=- \

@@ -68,7 +68,7 @@
 **Problem:** Unit tests use synthetic CSV; real IPDb column names may differ.
 
 **Deliverables:**
-- [ ] `Puzzle BuddyTests/Fixtures/ipdb-sample-export.csv` (anonymized realistic export)
+- [ ] `AppTests/Fixtures/ipdb-sample-export.csv` (anonymized realistic export)
 - [ ] Tests: parse fixture, map status/progress/rating, end-to-end import
 - [ ] Fix any mapping gaps (in-progress `progressPercent`, wishlist → To-Do)
 
@@ -152,7 +152,7 @@ After each sprint item:
 
 ```bash
 xcodegen generate
-xcodebuild -scheme "Puzzle Buddy" -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:"Puzzle BuddyTests" test
+xcodebuild -scheme PuzzleBuddy -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:"AppTests" test
 ```
 
 Manual smoke:

@@ -554,7 +554,7 @@ Already have `NSCameraUsageDescription` in `project.yml`:
 
 > "Puzzle Buddy uses the camera to photograph puzzle boxes and scan barcodes so you can catalog puzzles and check for duplicates."
 
-Add `NSCameraUsageDescription` to `Puzzle-Buddy-Info.plist` if not generated from build settings.
+Add `NSCameraUsageDescription` to `Info.plist` if not generated from build settings.
 
 ### 11.5 Feature flags (`ProductService`)
 
@@ -923,14 +923,14 @@ Use Apple-documented **synthetic** codes for simulator/manual QA; never use real
 
 | Existing file | Change |
 |---------------|--------|
-| `Puzzle Buddy/Helpers/PuzzleObject.swift` | Add `barcode`, serialization |
-| `Puzzle Buddy/Helpers/PuzzleRecord.swift` | Add `barcode`, index |
-| `Puzzle Buddy/Helpers/PuzzleStore.swift` | Duplicate guard, lookup helper |
-| `Puzzle Buddy/Views/PuzzleViews/PuzzleForm.swift` | Barcode row |
-| `Puzzle Buddy/Views/PuzzleViews/PuzzleDetail.swift` | Display barcode |
-| `Puzzle Buddy/Views/PuzzleViews/PuzzleList.swift` | FAB menu, shopping toolbar |
-| `Puzzle Buddy/Util/ProductService.swift` | Feature flags |
-| `Puzzle Buddy/Util/DesignTokens.swift` | A11y IDs |
+| `App/Helpers/PuzzleObject.swift` | Add `barcode`, serialization |
+| `App/Helpers/PuzzleRecord.swift` | Add `barcode`, index |
+| `App/Helpers/PuzzleStore.swift` | Duplicate guard, lookup helper |
+| `App/Views/PuzzleViews/PuzzleForm.swift` | Barcode row |
+| `App/Views/PuzzleViews/PuzzleDetail.swift` | Display barcode |
+| `App/Views/PuzzleViews/PuzzleList.swift` | FAB menu, shopping toolbar |
+| `App/Util/ProductService.swift` | Feature flags |
+| `App/Util/DesignTokens.swift` | A11y IDs |
 | `project.yml` | Update camera usage string |
 | `docs/features.md` | Document barcode when shipped |
 
@@ -1032,5 +1032,5 @@ Use Apple-documented **synthetic** codes for simulator/manual QA; never use real
 - [Go-UPC API](https://go-upc.com/)
 - [Internet Puzzle Database](https://www.ipdb.plus/)
 - [Puzzle Tracker (App Store)](https://apps.apple.com/us/app/puzzle-tracker/id1561473799)
-- Internal: `Puzzle Buddy/Helpers/PuzzleObject.swift` (commented `barcode` field)
+- Internal: `App/Helpers/PuzzleObject.swift` (commented `barcode` field)
 - Internal: `docs/user-research-garage-collector.md` (Phase A/B/C outline)

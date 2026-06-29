@@ -74,4 +74,4 @@ Related: [agent-build-checklist.md](agent-build-checklist.md) Phase 16, [testing
 | Developer | | | |
 | Owner | | | |
 
-**Automated coverage (CI):** `Puzzle BuddyTests` (unit), `PuzzleAccessibilityUITests` (WCAG audits, landscape, Dynamic Type, settings import/export presence).
+**Automated coverage (CI):** `AppTests` (unit), `PuzzleAccessibilityUITests` (WCAG audits, landscape, Dynamic Type, settings import/export presence).

@@ -12,7 +12,7 @@ How to build roadmap features in bulk, then cut a marketing **1.0.0** and plan f
 2. **Cut phase** — When enough is built, choose what ships as **1.0.0** for App Store marketing. Hide or flag the rest via `ProductService` or `#if` only if needed for the cut; prefer leaving code in and gating UI if incomplete.
 3. **Release drafting** — Everything not in 1.0.0 becomes **1.1**, **1.2**, etc. Update `roadmap.md` release table and App Store "What's New" drafts as you market.
 
-Current app version constant: `Puzzle_BuddyApp.version` in `Puzzle_BuddyApp.swift` (also `CFBundleShortVersionString` in `Puzzle-Buddy-Info.plist`).
+Current app version constant: `PuzzleBuddyApp.version` in `PuzzleBuddyApp.swift` (also `CFBundleShortVersionString` in `Info.plist`).
 
 ---
 
@@ -122,7 +122,7 @@ Puzzle Buddy — implement the next incomplete feature from docs/implementation-
 ## Release cut checklist (when ready to market 1.0.0)
 
 - [ ] Finalize 1.0.0 feature table in this doc
-- [ ] Set `Puzzle_BuddyApp.version` and `CFBundleShortVersionString` to `1.0.0`
+- [ ] Set `PuzzleBuddyApp.version` and `CFBundleShortVersionString` to `1.0.0`
 - [ ] App Store screenshots reflect shipped features only
 - [ ] `docs/roadmap.md` — split "Shipped 1.0.0" vs "1.1+"
 - [ ] Draft What's New for 1.0.0; keep 1.1+ bullets from held features

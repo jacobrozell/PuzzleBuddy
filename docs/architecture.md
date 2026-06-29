@@ -21,7 +21,7 @@ Version **1.0** ships as a **local-first** app:
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                        Puzzle_BuddyApp                           │
+│                        PuzzleBuddyApp                           │
 │  @UIApplicationDelegateAdaptor(AppDelegate)                      │
 │  .modelContainer(PuzzleRecord)                                   │
 └────────────────────────────┬─────────────────────────────────────┘
@@ -64,7 +64,7 @@ Version **1.0** ships as a **local-first** app:
 
 ## App entry and lifecycle
 
-### `Puzzle_BuddyApp`
+### `PuzzleBuddyApp`
 
 The `@main` app struct:
 
@@ -73,7 +73,7 @@ The `@main` app struct:
 3. Presents `AppShell` with `.withErrorHandling()`
 4. Applies appearance preference from `@AppStorage`
 
-App version: `Puzzle_BuddyApp.version` — keep in sync with `project.yml` `MARKETING_VERSION`.
+App version: `PuzzleBuddyApp.version` — keep in sync with `project.yml` `MARKETING_VERSION`.
 
 ### `AppShell`
 

@@ -271,7 +271,7 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 | Display | Appearance picker |
 | Collection | Demo data, delete all; import/export when `isCollectionImportExportEnabled` (off in 1.0) |
 | Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) |
-| About | App version from `Puzzle_BuddyApp.version` |
+| About | App version from `PuzzleBuddyApp.version` |
 
 **IPDb import / export (1.1+):** Gated by `ProductService.isCollectionImportExportEnabled`. Dogfood with launch arg `-enable_collection_import_export`. See [ipdb-csv-import.md](ipdb-csv-import.md) and [collection-export.md](collection-export.md).
 

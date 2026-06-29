@@ -80,7 +80,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
   - [x] `DesignSystem/` — *de facto* `Util/DesignTokens.swift`
   - [x] `Support/` — *de facto* `Util/` (logging, flags, layout)
   - [x] `Resources/` — assets, launch storyboard, plist templates
-  - [x] `Tests/` — `Puzzle BuddyTests/`, `Puzzle BuddyUITests/`
+  - [x] `Tests/` — `AppTests/`, `AppUITests/`
   - *Current:* flat `Login/`, `Views/`, `Helpers/`, `Util/` — functional, not checklist layout
 - [x] **0.4** Pin deployment target (iOS 17), bundle ID, team ID, Swift version in `project.yml`
 - [x] **0.5** `.gitignore`: generated `.xcodeproj`, `GoogleService-Info.plist`, DerivedData
@@ -132,7 +132,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 - [ ] **3.2** **Typed errors** at domain boundary — `ErrorHandling` at UI layer only
 - [x] **3.3** **State machines** — `PuzzleStore` idle/fetching/done
 - [x] **3.4** Deterministic services — stats, filter, metrics, serialization tests
-- [x] **3.5** Unit tests per branch — `Puzzle BuddyTests/` (13 files)
+- [x] **3.5** Unit tests per branch — `AppTests/` (13 files)
 - [ ] **3.6** Property-style simulation — not implemented
 - [ ] **3.7** **Command pattern** — not implemented
 - *Gap:* `Puzzle` is `ObservableObject` in `Helpers/` — not strict Domain layer
@@ -152,7 +152,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 ## Phase 5 — App shell & navigation
 
-- [x] **5.1** `@main` app struct + dependency bootstrap (`Puzzle_BuddyApp`)
+- [x] **5.1** `@main` app struct + dependency bootstrap (`PuzzleBuddyApp`)
 - [x] **5.2** Root navigation — tabs: Puzzles, Stats, Settings (`PuzzleTabbar`)
 - [ ] **5.3** **Router** for deep links — not implemented (no push)
 - [x] **5.4** First-run **onboarding** (`OnboardingView`, UserDefaults flag)

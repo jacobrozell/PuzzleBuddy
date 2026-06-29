@@ -16,7 +16,7 @@ Read this file first when working in this repo. It summarizes product reality, c
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
 | **Min iOS** | 17.0 |
 | **Apple team** | `7JT2JB89AV` (personal) |
-| **Version source** | `project.yml` `MARKETING_VERSION` + `Puzzle_BuddyApp.version` (keep in sync) |
+| **Version source** | `project.yml` `MARKETING_VERSION` + `PuzzleBuddyApp.version` (keep in sync) |
 
 Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Future account sync is a **planned spec only** — see [specs/planned/auth-cloud-sync.md](specs/planned/auth-cloud-sync.md). Do not reintroduce Auth/Firestore without an approved spec and explicit user request.
 
@@ -43,15 +43,15 @@ Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Futur
 ## Repository layout
 
 ```
-Puzzle-Buddy/
+PuzzleBuddy/
 ├── AGENTS.md                    ← you are here
-├── Puzzle Buddy/                ← app target (SwiftUI)
+├── App/                ← app target (SwiftUI)
 │   ├── Login/OnboardingView.swift   ← onboarding only (Login/ name is legacy)
 │   ├── Views/                   ← screens, tab bar, settings
 │   ├── Helpers/                 ← Puzzle, PuzzleRecord, PuzzleStore
 │   └── Util/                    ← AppLogging, ProductService, DesignTokens, UITestSupport
-├── Puzzle BuddyTests/           ← unit tests
-├── Puzzle BuddyUITests/         ← UI + WCAG audits
+├── AppTests/           ← unit tests
+├── AppUITests/         ← UI + WCAG audits
 ├── docs/                        ← technical docs (+ GitHub Pages HTML)
 ├── specs/                       ← feature specs (planned + shipped snippets)
 ├── project.yml                  ← XcodeGen source of truth (regenerate .xcodeproj)
@@ -59,14 +59,14 @@ Puzzle-Buddy/
 └── Scripts/ci/run-tests.sh
 ```
 
-**Not in repo:** `Puzzle Buddy.xcodeproj` (generated), real `GoogleService-Info.plist` (gitignored).
+**Not in repo:** `PuzzleBuddy.xcodeproj` (generated), real `GoogleService-Info.plist` (gitignored).
 
 ---
 
 ## App entry flow
 
 ```
-Puzzle_BuddyApp
+PuzzleBuddyApp
   → AppShell (splash unless UI test)
     → RootView
         → OnboardingView (first run)

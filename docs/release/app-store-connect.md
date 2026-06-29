@@ -188,5 +188,5 @@ No login or account pitch in 1.0 marketing.
 - [ ] Release build: no login UI; puzzle data local-only (SwiftData)
 - [ ] Fresh install: no push permission prompt on launch
 - [ ] Privacy + Support links load in Safari
-- [ ] Unit tests green (`Puzzle BuddyTests`)
+- [ ] Unit tests green (`AppTests`)
 - [ ] UI accessibility suite green on iPhone 17 sim
