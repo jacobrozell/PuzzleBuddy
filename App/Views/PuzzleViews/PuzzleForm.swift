@@ -8,6 +8,7 @@
 import Photos
 import PhotosUI
 import SwiftUI
+import UIKit
 
 class PuzzleFormViewModel: ObservableObject {
     @Published var puzzle: Puzzle
@@ -90,7 +91,7 @@ struct PuzzleFormInternal: View {
             } header: {
                 Text("Photos")
             } footer: {
-                Text("Add up to \(PuzzlePhotoLimits.maxCount) photos — box art, progress, or finished puzzle. The first photo is the cover.")
+                Text("Add up to \(PuzzlePhotoLimits.maxCount) photos at once. Drag to reorder — the first photo is the cover.")
             }
 
             Section {
@@ -131,20 +132,22 @@ struct PuzzleFormInternal: View {
 
             Section {
                 TextField(
-                    "Store or source",
+                    "Bought at",
                     text: purchaseLocationBinding,
-                    prompt: Text("Amazon, Goodwill, puzzle swap…")
+                    prompt: Text("Amazon, Goodwill, puzzle swap")
                 )
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormPurchaseLocationField)
-                .accessibilityLabel("Where you bought this puzzle")
+                .accessibilityLabel("Bought at")
+                .accessibilityHint("Optional. Where you bought it or got it — not the puzzle brand.")
 
                 TextField(
-                    "Purchase price",
+                    "Amount paid",
                     text: purchasePriceBinding,
-                    prompt: Text("Optional")
+                    prompt: Text("19.99")
                 )
                 .keyboardType(.decimalPad)
-                .accessibilityLabel("Purchase price")
+                .accessibilityLabel("Amount paid")
+                .accessibilityHint("Optional. Enter how much you paid, such as 19.99.")
 
                 Picker("Release year", selection: releaseYearBinding) {
                     Text("Unknown").tag(Optional<Int>.none)
@@ -183,13 +186,16 @@ struct PuzzleFormInternal: View {
                 .accessibilityValue(formVm.puzzle.cutType.accessibilityDescription)
 
                 TextField(
-                    "Dimensions",
+                    "Finished size",
                     text: dimensionsBinding,
-                    prompt: Text("e.g. 68 × 49 cm")
+                    prompt: Text("27 × 19 in or 68 × 49 cm")
                 )
-                .accessibilityLabel("Finished puzzle dimensions")
+                .accessibilityLabel("Finished puzzle size")
+                .accessibilityHint("Optional. Use inches or centimeters, as printed on the box.")
             } header: {
                 Text("About this puzzle")
+            } footer: {
+                Text("All fields here are optional. Bought at is the store or seller, not the puzzle brand. For finished size, use inches or centimeters — match what’s on the box.")
             }
 
             Section {
@@ -382,6 +388,16 @@ struct PuzzleFormInternal: View {
                 Text("Condition")
             }
         }
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") {
+                    dismissKeyboard()
+                }
+                .accessibilityLabel("Dismiss keyboard")
+            }
+        }
         .sheet(isPresented: $showBarcodeScanner) {
             BarcodeScannerSheet { raw in
                 if let normalized = BarcodeNormalizer.normalize(raw) {
@@ -530,6 +546,15 @@ struct PuzzleFormInternal: View {
                     ? nil
                     : String(digits.prefix(BarcodeNormalizer.maxLength))
             }
+        )
+    }
+
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
         )
     }
 }
