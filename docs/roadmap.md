@@ -395,7 +395,7 @@ Puzzle Buddy competes on **simplicity, local-first trust, accessibility, and col
 | Collection pride | Total puzzles, pieces, hours — not speed metrics |
 | Privacy | Allowlisted analytics only; no PII in telemetry |
 
-**App Store name:** **Puzzle Buddy** (confirmed). Brand-forward vs. competitor **Puzzle Tracker**; subtitle and keywords carry search intent. Naming review, ASO copy, and Connect checklist: [release/app-store-connect.md](release/app-store-connect.md).
+**App Store name:** **Puzzle Buddy: Jigsaw Tracker** (confirmed). Plain **Puzzle Buddy** and **Puzzle Pal** were taken at Connect; home screen stays **Puzzle Buddy**. Subtitle and keywords carry remaining search intent. Naming review, ASO copy, and Connect checklist: [release/app-store-connect.md](release/app-store-connect.md).
 
 ---
 

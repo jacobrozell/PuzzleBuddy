@@ -6,20 +6,22 @@ Use this when creating the app record and submitting build **1.0.0 (1)**. Aligns
 
 | Field | Value |
 |-------|-------|
-| **Name** | Puzzle Buddy |
-| **Subtitle** | Jigsaw Puzzle Tracker App |
+| **Name** | Puzzle Buddy: Jigsaw Tracker |
+| **Subtitle** | Collection Catalog & Organizer |
 | **Primary category** | Lifestyle (or Entertainment) |
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
-| **SKU** | `puzzle-buddy-ios` (suggested) |
+| **SKU** | `a001puzzlebuddy` |
 | **Version** | 1.0.0 |
 | **Build** | 1 |
 | **Keywords** | See [ASO](#app-store-optimization-aso) below |
 
 ## App name (confirmed)
 
-Ship as **Puzzle Buddy** (spaced display name). Matches the personal “Buddy” app family (Dart Buddy, etc.). Brand-forward vs. keyword-heavy competitor [**Puzzle Tracker**](https://apps.apple.com/us/app/puzzle-tracker/id1561473799).
+Ship on App Store Connect as **Puzzle Buddy: Jigsaw Tracker** (28/30 chars). Plain **Puzzle Buddy** and **Puzzle Pal** were unavailable at record creation; the colon subtitle keeps the “Buddy” brand while adding discoverability keywords. Still aligns with the personal “Buddy” app family (Dart Buddy, etc.).
 
-**Before submit:** create the App Store Connect app record and confirm Apple accepts the exact name **Puzzle Buddy** (globally unique — reserved or deleted-app names also block).
+**Home screen:** keep **`Puzzle Buddy`** (`CFBundleDisplayName` in `project.yml`) — shorter icon label; App Store name can differ.
+
+**Before submit:** App Store Connect app record created with exact name **Puzzle Buddy: Jigsaw Tracker** (globally unique — reserved or deleted-app names also block).
 
 ## Naming & trademark hygiene
 
@@ -27,7 +29,7 @@ Not legal advice. Informal pre-ship review (June 2026):
 
 | Check | Finding |
 |-------|---------|
-| Exact App Store name | No jigsaw **catalog** app titled exactly “Puzzle Buddy”; nearest collision is kids game **Puzzles for Kids: PuzzleBuddy** (different name and category) |
+| Exact App Store name | **Puzzle Buddy** and **Puzzle Pal** taken at Connect record creation (June 2026). Shipped as **Puzzle Buddy: Jigsaw Tracker**. Nearest catalog collision remains kids game **Puzzles for Kids: PuzzleBuddy** (different name and category) |
 | Primary competitor | **Puzzle Tracker** — different name; owns the “puzzle tracker” head term |
 | Physical goods | [The Puzzle Buddy](https://puzzlebuddy.com/) — puzzle roll-up mats; same hobby, different product class. Revisit if trademarking or expanding brand |
 | USPTO (informal) | No strong registered software mark for “Puzzle Buddy” found; descriptive phrase → lower infringement risk, harder to register ourselves |
@@ -41,20 +43,20 @@ Legacy internal name **PuzzlePal** (`PuzzlePal_Onboarding_Complete` in onboardin
 
 | Field | Value | Rationale |
 |-------|-------|-----------|
-| **Name** (30 chars) | Puzzle Buddy | Brand identity; 12/30 chars used |
-| **Subtitle** (30 chars) | Jigsaw Puzzle Tracker App | Discoverability-first: covers jigsaw + puzzle + tracker + app |
+| **Name** (30 chars) | Puzzle Buddy: Jigsaw Tracker | Brand + jigsaw + tracker; 28/30 chars; only format Apple accepted after **Puzzle Buddy** / **Puzzle Pal** collisions |
+| **Subtitle** (30 chars) | Collection Catalog & Organizer | Discoverability without repeating name tokens (jigsaw, tracker, buddy, puzzle) |
 
-We do **not** chase “Puzzle Tracker” in the title. Compete on positioning: local-first, accessibility, simplicity — see [`../roadmap.md`](../roadmap.md#competitive-positioning--puzzle-tracker).
+We do **not** chase “Puzzle Tracker” as the primary title. Compete on positioning: local-first, accessibility, simplicity — see [`../roadmap.md`](../roadmap.md#competitive-positioning--puzzle-tracker).
 
 ### Keywords (100 characters)
 
-Apple: for max discoverability, prioritize adjacent search terms not already in **name** or **subtitle** (`puzzle`, `buddy`, `jigsaw`, `tracker`, `app`).
+Apple: for max discoverability, prioritize adjacent search terms not already in **name** or **subtitle** (avoid repeating `puzzle`, `buddy`, `jigsaw`, `tracker`, `collection`, `catalog`, `organizer`).
 
 ```text
-collection,catalog,inventory,organizer,library,wishlist,barcode,scanner,stats,pieces,completed,puzzler
+inventory,library,wishlist,barcode,scanner,stats,pieces,completed,puzzler,duplicate,shelf,offline
 ```
 
-Character count: **99/100**
+Character count: **98/100**
 
 After launch, tune using App Store Connect → **Analytics → Acquisition → App Store Search**.
 
@@ -182,7 +184,7 @@ No login or account pitch in 1.0 marketing.
 
 ## Pre-upload verification
 
-- [ ] App Store Connect accepts exact name **Puzzle Buddy**
+- [x] App Store Connect accepts exact name **Puzzle Buddy: Jigsaw Tracker**
 - [ ] Subtitle, keywords, promotional text, and description pasted per [ASO](#app-store-optimization-aso)
 - [ ] First screenshot clearly signals catalog/organizer (not kids’ game)
 - [ ] Release build: no login UI; puzzle data local-only (SwiftData)

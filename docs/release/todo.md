@@ -21,8 +21,8 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 - [ ] **Device smoke** — add puzzle → filters → pick-next → detail → stats
 - [ ] **WCAG core journey** — VoiceOver manual audit ([`../accessibility/accessibility_todo.md`](../accessibility/accessibility_todo.md))
 - [ ] **App Store Connect** — see [`app-store-connect.md`](app-store-connect.md)
-  - [x] App name confirmed: **Puzzle Buddy** (see naming section in checklist)
-  - [ ] Verify exact name accepted when creating Connect app record
+  - [x] App name confirmed: **Puzzle Buddy: Jigsaw Tracker** (see naming section in checklist)
+  - [x] Verify exact name accepted when creating Connect app record
   - [ ] Paste subtitle, keywords, promotional text, description (ASO section)
   - [ ] Upload screenshots; first frame reads as catalog app
 
