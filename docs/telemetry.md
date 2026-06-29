@@ -6,7 +6,7 @@ Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytic
 
 **Android implementation:** `PuzzleBuddy-Android/.../support/logging/` (`AppLogger.kt`, `FirebaseAnalyticsEventMapping.kt`, `FirebaseCrashlyticsEventMapping.kt`, `LogSinks.kt`), `FirebaseBootstrap.kt`, `PuzzleBuddyDatabaseFactory.kt`
 
-**Cross-platform parity:** [`workspace/firebase-cross-platform-parity.md`](../../workspace/firebase-cross-platform-parity.md) · verify with `~/Desktop/personal/scripts/check-firebase-parity.sh`
+**Cross-platform parity:** [`workspace/firebase-cross-platform-parity.md`](../../workspace/firebase-cross-platform-parity.md) · verify with `~/Desktop/personal/DaRules/scripts/check-firebase-parity.sh`
 
 **Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
@@ -220,7 +220,7 @@ Do not rely on redaction as a safety net — never pass PII intentionally.
 5. Document in this file (Analytics table)
 6. Add/adjust test in `AppLoggingTests` or `Puzzle_BuddyTests`
 7. If `.error` should be a Crashlytics non-fatal, add to `FirebaseCrashlyticsEventMapping` with new stable code
-8. **Android parity** — update `PuzzleBuddy-Android/.../FirebaseAnalyticsEventMapping.kt` (and Crashlytics mapping) in the same change; run `~/Desktop/personal/scripts/check-firebase-parity.sh`
+8. **Android parity** — update `PuzzleBuddy-Android/.../FirebaseAnalyticsEventMapping.kt` (and Crashlytics mapping) in the same change; run `~/Desktop/personal/DaRules/scripts/check-firebase-parity.sh`
 
 ---
 

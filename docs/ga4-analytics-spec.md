@@ -342,7 +342,7 @@ After each phase:
 2. **Realtime** — Smoke `puzzle_added` → `puzzle_completion_recorded` journey.
 3. **Custom definitions** — Confirm dimensions show “Active” in Console.
 4. **Exploration** — Re-run §4.1 and §4.2 funnels; confirm breakdowns populate (24–48h delay).
-5. **Parity** — `~/Desktop/personal/scripts/check-firebase-parity.sh`
+5. **Parity** — `~/Desktop/personal/DaRules/scripts/check-firebase-parity.sh`
 6. **Privacy** — Spot-check no blocked keys; no free text in params.
 
 | Step | Done | Date | Notes |
