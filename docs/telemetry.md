@@ -163,6 +163,9 @@ These appear in Console / Crashlytics breadcrumbs but **not** as Analytics event
 | `demo_data_seed_failed` | warning | `PuzzleStore` UI test seed |
 | `model_container_load_failed` | warning | `PuzzleModelContainer` |
 | `model_container_reset_failed` | warning | `PuzzleModelContainer` |
+| `puzzle_photo_fetch_failed` | warning | `PuzzleStore.fetchPhotoRecords` |
+| `puzzle_completion_fetch_failed` | warning | `PuzzleStore.fetchCompletionRecords` |
+| `puzzle_record_fetch_failed` | warning | `PuzzleStore.fetchRecord` |
 
 Promote to Analytics allowlist only with product approval.
 
@@ -190,6 +193,7 @@ Only allowlisted `.error` events become `Crashlytics.record(error:)` via `Fireba
 | `model_container_load_failed` | 2002 | ModelContainer creation failed |
 | `model_container_reset_failed` | 2003 | Store recovery failed |
 | `demo_data_seed_failed` | 2004 | UI test demo seed failed |
+| `model_container_ephemeral_fallback` | 2005 | Persistent store unavailable; in-memory fallback active |
 
 Domain: `com.jacobrozell.Puzzle-Buddy.logger`
 

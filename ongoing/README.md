@@ -6,6 +6,7 @@
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
+| **1.0.0 pre-release remediation** | [`docs/implementation/1.0.0-pre-release-remediation.md`](../docs/implementation/1.0.0-pre-release-remediation.md) | **Complete** | Audit fixes landed — `1.0.0 (9)`, 225 tests green |
 | **1.0.0 expanded feature sprint** | [`docs/implementation/1.0.0-expanded-feature-sprint.md`](../docs/implementation/1.0.0-expanded-feature-sprint.md) | **In progress** | IPDb un-gate, price, physical metadata, multi-photo, redo — before App Store submit |
 | **App Store 1.0.0 submit** | [`docs/release/todo.md`](../docs/release/todo.md) | Blocked on sprint | Device smoke, Connect after sprint |
 | **Barcode scan polish** | [`barcode-scan-polish.md`](barcode-scan-polish.md) | In progress | Items 8, 13 post-sprint or parallel |
