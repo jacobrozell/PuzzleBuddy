@@ -13,4 +13,9 @@ enum BarcodeScanFeedback {
     static func scanAccepted() {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
+
+    static func invalidScan(announcement: String) {
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
+        UIAccessibility.post(notification: .announcement, argument: announcement)
+    }
 }

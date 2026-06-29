@@ -39,7 +39,9 @@ enum IPDbCSVImporter {
 
         let pieces = firstValue(in: normalized, keys: piecesKeys).flatMap(parsePieces)
         let brand = firstValue(in: normalized, keys: brandKeys)
-        let barcode = firstValue(in: normalized, keys: barcodeKeys).flatMap { BarcodeNormalizer.normalize($0) ?? optionalDigits($0) }
+        let barcode = firstValue(in: normalized, keys: barcodeKeys).flatMap {
+            BarcodeNormalizer.normalize($0) ?? BarcodeNormalizer.optionalDigits(from: $0)
+        }
         let notes = mergedNotes(from: normalized)
         let status = parseStatus(firstValue(in: normalized, keys: statusKeys))
         let progress = parseProgress(firstValue(in: normalized, keys: progressKeys))
@@ -171,10 +173,6 @@ enum IPDbCSVImporter {
         return value
     }
 
-    private static func optionalDigits(_ raw: String) -> String? {
-        let digits = raw.filter(\.isNumber)
-        return digits.isEmpty ? nil : digits
-    }
 
     private static func parseStatus(_ raw: String?) -> Puzzle.Status {
         guard let raw else { return .todo }

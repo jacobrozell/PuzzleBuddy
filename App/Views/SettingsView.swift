@@ -395,9 +395,13 @@ struct SettingsView: View {
         }
 
         let data = try Data(contentsOf: url)
-        let puzzles = try PuzzleCollectionJSONImporter.puzzles(from: data)
+        let parseResult = try PuzzleCollectionJSONImporter.parse(from: data)
         return try await MainActor.run {
-            try ps.importBackup(puzzles, policy: policy)
+            try ps.importBackup(
+                parseResult.puzzles,
+                policy: policy,
+                preSkippedInvalid: parseResult.skippedInvalid
+            )
         }
     }
 }

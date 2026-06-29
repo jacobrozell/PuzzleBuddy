@@ -115,7 +115,12 @@ struct ShoppingModeView: View {
     }
 
     private func handleScan(_ raw: String) {
-        guard let normalized = BarcodeNormalizer.normalize(raw) ?? optionalDigits(from: raw) else { return }
+        guard let normalized = BarcodeNormalizer.normalize(raw) ?? BarcodeNormalizer.optionalDigits(from: raw) else {
+            BarcodeScanFeedback.invalidScan(
+                announcement: "Invalid barcode. Enter 6 to 14 digits, or try scanning again."
+            )
+            return
+        }
 
         scansTotal += 1
 
@@ -167,10 +172,5 @@ struct ShoppingModeView: View {
         }
         announcement += ", \(puzzle.status.rawValue). Actions available: Open puzzle, Scan another."
         UIAccessibility.post(notification: .announcement, argument: announcement)
-    }
-
-    private func optionalDigits(from raw: String) -> String? {
-        let digits = raw.filter(\.isNumber)
-        return digits.isEmpty ? nil : digits
     }
 }

@@ -36,7 +36,13 @@ enum PuzzleCollectionJSONImportError: LocalizedError {
 }
 
 enum PuzzleCollectionJSONImporter {
-    static func puzzles(from data: Data) throws -> [Puzzle] {
+    struct ParseResult {
+        let puzzles: [Puzzle]
+        let skippedInvalid: Int
+        let totalRecords: Int
+    }
+
+    static func parse(from data: Data) throws -> ParseResult {
         guard !data.isEmpty else {
             throw PuzzleCollectionJSONImportError.emptyFile
         }
@@ -56,15 +62,28 @@ enum PuzzleCollectionJSONImporter {
             throw PuzzleCollectionJSONImportError.unsupportedFormatVersion(formatVersion)
         }
 
-        let restored = payload.puzzles.compactMap { record in
-            PuzzleBackupNormalizer.puzzle(from: record)
+        var skippedInvalid = 0
+        let restored = payload.puzzles.compactMap { record -> Puzzle? in
+            guard let puzzle = PuzzleBackupNormalizer.puzzle(from: record) else {
+                skippedInvalid += 1
+                return nil
+            }
+            return puzzle
         }
 
         guard !restored.isEmpty else {
             throw PuzzleCollectionJSONImportError.noRestorablePuzzles
         }
 
-        return restored
+        return ParseResult(
+            puzzles: restored,
+            skippedInvalid: skippedInvalid,
+            totalRecords: payload.puzzles.count
+        )
+    }
+
+    static func puzzles(from data: Data) throws -> [Puzzle] {
+        try parse(from: data).puzzles
     }
 }
 
@@ -187,8 +206,8 @@ private enum PuzzleBackupNormalizer {
         if puzzle.status == .completed && puzzle.completions.isEmpty {
             let inferredCount = max(puzzle.timesCompleted, 1)
             puzzle.timesCompleted = inferredCount
-            if inferredCount == 1 {
-                puzzle.completions = [PuzzleCompletionSemantics.makeCompletion(from: puzzle, number: 1)]
+            puzzle.completions = (1...inferredCount).map {
+                PuzzleCompletionSemantics.makeCompletion(from: puzzle, number: $0)
             }
         }
 

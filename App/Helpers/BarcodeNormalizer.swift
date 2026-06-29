@@ -16,4 +16,10 @@ enum BarcodeNormalizer {
         guard validLengths.contains(digits.count) else { return nil }
         return String(digits.prefix(maxLength))
     }
+
+    /// Extracts digits without length validation (e.g. before showing an invalid-barcode message).
+    static func optionalDigits(from raw: String) -> String? {
+        let digits = raw.filter(\.isNumber)
+        return digits.isEmpty ? nil : digits
+    }
 }
