@@ -10,6 +10,7 @@ struct PuzzleProgressSection: View {
     @Binding var progressPercent: Int
     @Binding var status: Puzzle.Status
     var onCommit: (() -> Void)?
+    var onPuzzleAgain: (() -> Void)?
 
     private var clampedProgress: Int {
         PuzzleProgressSemantics.clamped(progressPercent)
@@ -58,6 +59,15 @@ struct PuzzleProgressSection: View {
                 .font(.subheadline)
                 .foregroundStyle(Brand.textSecondary)
                 .frame(maxWidth: .infinity, alignment: .center)
+
+            if status == .completed, let onPuzzleAgain {
+                Button("Puzzle again") {
+                    onPuzzleAgain()
+                }
+                .buttonStyle(BrandSecondaryButtonStyle(expandHorizontally: true))
+                .optionalAccessibilityIdentifier(A11yID.puzzleDetailRedoButton)
+                .accessibilityHint("Starts a new attempt and keeps your completion history")
+            }
         }
         .padding(.vertical, DS.Spacing.s2)
     }

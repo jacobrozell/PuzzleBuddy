@@ -16,7 +16,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     ) -> XCUIElement {
         let indicators: [XCUIElement] = [
             app.staticTexts[UITestA11yID.seededPuzzleRowLabelPrefix],
-            app.staticTexts["Ocean Breeze"],
+            app.staticTexts["Canal Cruise in Venice"],
             app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")).firstMatch,
             app.buttons[UITestA11yID.addPuzzleButton],
             app.buttons["Add puzzle"],
@@ -147,25 +147,25 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         let completedButton = segmented.buttons["Done"]
         XCTAssertTrue(completedButton.waitForExistence(timeout: 3))
 
-        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).exists)
-        XCTAssertTrue(puzzleRow(named: "Harbor Lights", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).exists)
 
         completedButton.tap()
-        XCTAssertTrue(puzzleRow(named: "Harbor Lights", in: app).waitForExistence(timeout: 3))
-        XCTAssertFalse(puzzleRow(named: "Mountain Sunset", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).waitForExistence(timeout: 3))
+        XCTAssertFalse(puzzleRow(named: "The Bizarre Bookshop", in: app).exists)
 
         segmented.buttons["To-Do"].tap()
-        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 3))
-        XCTAssertFalse(puzzleRow(named: "Harbor Lights", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 3))
+        XCTAssertFalse(puzzleRow(named: "Paris in a Day", in: app).exists)
 
         segmented.buttons["Active"].tap()
-        XCTAssertTrue(puzzleRow(named: "Tabletop Sky", in: app).waitForExistence(timeout: 3))
-        XCTAssertFalse(puzzleRow(named: "Mountain Sunset", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "Venice Romance", in: app).waitForExistence(timeout: 3))
+        XCTAssertFalse(puzzleRow(named: "The Bizarre Bookshop", in: app).exists)
 
         segmented.buttons["All"].tap()
-        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 3))
-        XCTAssertTrue(puzzleRow(named: "Harbor Lights", in: app).exists)
-        XCTAssertTrue(puzzleRow(named: "Tabletop Sky", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 3))
+        XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "Venice Romance", in: app).exists)
     }
 
     func testPuzzleListSearch() throws {
@@ -180,11 +180,11 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         }
         let field = searchField.exists ? searchField : app.textFields[searchLabel]
         field.tap()
-        field.typeText("mountain")
+        field.typeText("bizarre")
 
-        XCTAssertTrue(puzzleRow(named: "Mountain Sunset", in: app).waitForExistence(timeout: 5))
-        XCTAssertFalse(puzzleRow(named: "Ocean Breeze", in: app).exists)
-        XCTAssertFalse(puzzleRow(named: "Harbor Lights", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 5))
+        XCTAssertFalse(puzzleRow(named: "Canal Cruise in Venice", in: app).exists)
+        XCTAssertFalse(puzzleRow(named: "Paris in a Day", in: app).exists)
     }
 
     func testPuzzleListShowsRatingsOnRows() throws {
@@ -192,11 +192,11 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
-        let fourStarRow = puzzleRow(named: "Mountain Sunset", in: app)
+        let fourStarRow = puzzleRow(named: "The Bizarre Bookshop", in: app)
         XCTAssertTrue(fourStarRow.waitForExistence(timeout: 5))
         XCTAssertTrue(fourStarRow.label.contains("Rating 4.0"))
 
-        let fiveStarRow = puzzleRow(named: "Ocean Breeze", in: app)
+        let fiveStarRow = puzzleRow(named: "Canal Cruise in Venice", in: app)
         XCTAssertTrue(fiveStarRow.exists)
         XCTAssertTrue(fiveStarRow.label.contains("Rating 5.0"))
     }
@@ -361,7 +361,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
-        let row = puzzleRow(named: "Harbor Lights", in: app)
+        let row = puzzleRow(named: "Paris in a Day", in: app)
         XCTAssertTrue(row.waitForExistence(timeout: 5), "Demo completed puzzle should be seeded")
         row.tap()
 

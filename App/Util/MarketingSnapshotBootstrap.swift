@@ -60,19 +60,30 @@ enum MarketingSnapshotBootstrap {
         return page
     }
 
-    static func puzzleDetailName(defaultName: String = "Harbor Lights") -> String {
+    static func puzzleDetailName(defaultName: String = DemoDataCatalog.completedPuzzleName) -> String {
         value(following: snapshotPuzzleDetail) ?? defaultName
     }
 
-    static func duplicateCheckPuzzleName(defaultName: String = "Mountain Sunset") -> String {
+    static func duplicateCheckPuzzleName(defaultName: String = DemoDataCatalog.duplicateCheckPuzzleName) -> String {
         value(following: snapshotDuplicateCheck) ?? defaultName
     }
 
     static func prepareLaunchStateIfNeeded() {
         guard ProcessInfo.processInfo.arguments.contains(uiTestReset) else { return }
         OnboardingStorage.reset()
+        if isMarketingCapture {
+            acknowledgeShowcaseMilestones()
+        }
         if !shouldShowOnboarding {
             OnboardingStorage.markComplete()
+        }
+    }
+
+    /// Keeps stats screenshots free of first-run milestone banners.
+    private static func acknowledgeShowcaseMilestones() {
+        let stats = CollectionStats.compute(from: DemoDataCatalog.makePuzzles())
+        for milestone in CollectionMilestones.earned(from: stats) {
+            CollectionMilestones.acknowledge(milestone.id)
         }
     }
 

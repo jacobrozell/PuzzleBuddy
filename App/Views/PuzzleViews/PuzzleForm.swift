@@ -543,14 +543,13 @@ struct SubmitAddButton: View {
             }
         } label: {
             Text("Save")
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
         }
-        .buttonStyle(BrandPrimaryButtonStyle())
+        .buttonStyle(BrandPrimaryButtonStyle(expandHorizontally: true))
         .optionalAccessibilityIdentifier(A11yID.puzzleFormSubmitButton)
         .accessibilityLabel("Save puzzle")
         .accessibilityHint(formVm.puzzle.name.isEmpty ? "Enter a puzzle name to enable saving" : "Saves this puzzle to your collection")
-        .padding()
+        .padding(.horizontal, DS.Spacing.s4)
+        .padding(.vertical, DS.Spacing.s3)
         .disabled(formVm.puzzle.name.isEmpty)
         .opacity(formVm.puzzle.name.isEmpty ? 0.6 : 1.0)
     }

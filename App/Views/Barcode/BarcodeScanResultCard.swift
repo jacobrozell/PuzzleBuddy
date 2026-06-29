@@ -94,7 +94,7 @@ struct BarcodeScanResultCard: View {
                 Button("Open puzzle") {
                     onOpenPuzzle(puzzle)
                 }
-                .buttonStyle(BrandPrimaryButtonStyle())
+                .buttonStyle(BrandPrimaryButtonStyle(expandHorizontally: true))
                 .optionalAccessibilityIdentifier(A11yID.shoppingModeOpenPuzzleButton)
                 .accessibilityLabel("Open puzzle")
                 .accessibilityHint("Opens this puzzle in your collection")
@@ -103,7 +103,7 @@ struct BarcodeScanResultCard: View {
                     Button("Scan another") {
                         onScanAnother()
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(BrandSecondaryButtonStyle(expandHorizontally: true))
                     .accessibilityLabel("Scan another barcode")
                 }
             }
@@ -112,7 +112,7 @@ struct BarcodeScanResultCard: View {
                 Button("Add this puzzle") {
                     onAddPuzzle(barcode)
                 }
-                .buttonStyle(BrandPrimaryButtonStyle())
+                .buttonStyle(BrandPrimaryButtonStyle(expandHorizontally: true))
                 .optionalAccessibilityIdentifier(A11yID.shoppingModeAddPuzzleButton)
                 .accessibilityLabel("Add this puzzle")
                 .accessibilityHint("Opens quick add with this barcode")
@@ -121,7 +121,7 @@ struct BarcodeScanResultCard: View {
                     Button("Scan another") {
                         onScanAnother()
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(BrandSecondaryButtonStyle(expandHorizontally: true))
                     .optionalAccessibilityIdentifier(A11yID.shoppingModeScanAnotherButton)
                     .accessibilityLabel("Scan another barcode")
                 }

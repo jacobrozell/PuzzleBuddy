@@ -11,6 +11,7 @@
 ## Fixes landed (out of band)
 
 - [x] **Sticky filter band cut off in landscape** — the `statusFilterPicker` background + divider stopped at the horizontal safe-area inset (Dynamic Island side), leaving a white gutter. Background now `.ignoresSafeArea(edges: .horizontal)` so it bleeds edge-to-edge. Verified on iPhone 17 Pro real landscape. (`PuzzleList.swift`)
+- [x] **iPad split sidebar filter clipping** — six-segment status control clipped in the narrow sidebar column; replaced with menu picker + filter sheet for secondary filters, inline search only. Unified flat `brandScreenChrome` on split columns (no gradient seam). (`PuzzleList.swift`, `PuzzleTabbar.swift`, `DesignTokens.swift`)
 - [x] **iPad workflow sheets** — add puzzle, quick add, shopping mode, pick next, barcode scanner, and duplicate-scan result use `adaptiveLongFormSheet` (full-screen cover on iPad regular width; large sheet on iPhone). (`AdaptiveLayout.swift`, `PuzzleList.swift`, `CollectionStatsView.swift`, `PuzzleForm.swift`)
 
 ## Symptoms (current)

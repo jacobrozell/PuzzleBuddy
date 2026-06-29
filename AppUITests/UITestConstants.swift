@@ -30,7 +30,7 @@ enum UITestA11yID {
     static let settingsImportIPDbButton = "settings_import_ipdb_button"
     static let settingsExportCollectionButton = "settings_export_collection_button"
 
-    static let seededPuzzleRowLabelPrefix = "Mountain Sunset"
+    static let seededPuzzleRowLabelPrefix = "The Bizarre Bookshop"
 }
 
 enum UITestLaunch {

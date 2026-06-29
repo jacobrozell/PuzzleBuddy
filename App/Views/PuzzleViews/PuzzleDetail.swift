@@ -30,7 +30,11 @@ struct PuzzleDetail: View {
                     .adaptiveScrollChrome()
             } else {
                 ScrollView {
-                    DetailView(puzzle: $puzzle, ps: ps)
+                    DetailView(
+                        puzzle: $puzzle,
+                        ps: ps,
+                        onPuzzleAgain: puzzle.status == .completed ? { showRedoConfirmation = true } : nil
+                    )
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -49,12 +53,6 @@ struct PuzzleDetail: View {
                     .optionalAccessibilityIdentifier(A11yID.puzzleDetailCancelButton)
                     .accessibilityLabel("Cancel editing")
                     .accessibilityHint("Discards unsaved changes and returns to details")
-                } else if puzzle.status == .completed {
-                    Button("Puzzle again") {
-                        showRedoConfirmation = true
-                    }
-                    .optionalAccessibilityIdentifier(A11yID.puzzleDetailRedoButton)
-                    .accessibilityHint("Starts a new attempt and keeps your completion history")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -119,6 +117,7 @@ struct PuzzleDetail: View {
 struct DetailView: View {
     @Binding var puzzle: Puzzle
     @ObservedObject var ps: PuzzleStore
+    var onPuzzleAgain: (() -> Void)?
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -206,7 +205,8 @@ struct DetailView: View {
                     } catch {
                         eh.handle(title: "Could not save progress", message: error.localizedDescription)
                     }
-                }
+                },
+                onPuzzleAgain: onPuzzleAgain
             )
         }
         .groupBoxStyle(BrandGroupBoxStyle())

@@ -97,9 +97,11 @@ struct PuzzleList: View {
             if usesSplitNavigation {
                 NavigationSplitView {
                     puzzleListChrome
+                        .navigationSplitViewColumnWidth(min: 340, ideal: 380, max: 440)
                 } detail: {
                     puzzleSplitDetail
                 }
+                .navigationSplitViewStyle(.balanced)
             } else {
                 NavigationStack {
                     puzzleListChrome
@@ -331,7 +333,7 @@ struct PuzzleList: View {
             description: Text("Choose a puzzle from your collection to see details.")
         )
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .brandBackground()
+        .brandScreenChrome()
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -382,26 +384,34 @@ struct PuzzleList: View {
     }
 
     private var statusFilterPicker: some View {
+        filterHeaderContent
+            .padding(.horizontal, DS.Spacing.s4)
+            .padding(.vertical, DS.Spacing.s2)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                Brand.background
+                    .overlay(alignment: .bottom) {
+                        Divider()
+                    }
+                    // Bleed the sticky header band into the landscape safe-area inset
+                    // (e.g. Dynamic Island side) so it doesn't stop short of the edge.
+                    .ignoresSafeArea(edges: .horizontal)
+            }
+            .accessibilityIdentifier(A11yID.puzzleListStatusFilter)
+            .accessibilityElement(children: .contain)
+    }
+
+    @ViewBuilder
+    private var filterHeaderContent: some View {
         VStack(spacing: DS.Spacing.s2) {
             if verticalSizeClass == .compact {
                 compactFilterHeader
+            } else if usesSplitNavigation {
+                splitFilterHeader
             } else {
                 regularFilterHeader
             }
         }
-        .padding(.horizontal, DS.Spacing.s4)
-        .padding(.vertical, DS.Spacing.s2)
-        .background {
-            Brand.background.opacity(0.95)
-                .overlay(alignment: .bottom) {
-                    Divider()
-                }
-                // Bleed the sticky header band into the landscape safe-area inset
-                // (e.g. Dynamic Island side) so it doesn't stop short of the edge.
-                .ignoresSafeArea(edges: .horizontal)
-        }
-        .accessibilityIdentifier(A11yID.puzzleListStatusFilter)
-        .accessibilityElement(children: .contain)
     }
 
     /// Full filter chrome for portrait / regular height: status, search, count, chips.
@@ -433,6 +443,37 @@ struct PuzzleList: View {
             statusSegmentedPicker
             filterSheetButton
         }
+    }
+
+    /// iPad split sidebar: menu status picker, inline search, secondary filters in a sheet.
+    /// Avoids a six-segment control clipping in a narrow column.
+    private var splitFilterHeader: some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+            HStack(spacing: DS.Spacing.s2) {
+                splitStatusMenuPicker
+                Spacer(minLength: DS.Spacing.s2)
+                if !ps.puzzles.isEmpty {
+                    resultCountText
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                filterSheetButton
+            }
+            searchField
+        }
+    }
+
+    private var splitStatusMenuPicker: some View {
+        Picker("Filter puzzles by status", selection: $statusFilter) {
+            ForEach(PuzzleListStatusFilter.allCases) { filter in
+                Text(filter.title).tag(filter)
+            }
+        }
+        .pickerStyle(.menu)
+        .labelsHidden()
+        .tint(Brand.accent)
+        .accessibilityLabel("Filter puzzles by status")
+        .accessibilityValue(statusFilter.title)
     }
 
     private var statusSegmentedPicker: some View {
@@ -1071,7 +1112,7 @@ private struct PuzzleListScreenChrome: ViewModifier {
         if splitNavigation {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .brandBackground()
+                .brandScreenChrome()
         } else {
             content.readableBrandScreenChrome()
         }

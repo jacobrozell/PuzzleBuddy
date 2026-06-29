@@ -167,7 +167,7 @@ capture "01-puzzle-list" \
   "${COMMON_ARGS[@]}" -snapshot_tab puzzles
 
 capture "02-duplicate-check" \
-  "${COMMON_ARGS[@]}" -snapshot_tab puzzles -snapshot_duplicate_check "Mountain Sunset"
+  "${COMMON_ARGS[@]}" -snapshot_tab puzzles -snapshot_duplicate_check "The Bizarre Bookshop"
 
 capture "03-collection-stats" \
   "${COMMON_ARGS[@]}" -snapshot_tab stats
@@ -176,7 +176,7 @@ capture "04-add-puzzle" \
   "${COMMON_ARGS[@]}" -snapshot_tab puzzles -snapshot_add_puzzle
 
 capture "05-puzzle-detail" \
-  "${COMMON_ARGS[@]}" -snapshot_tab puzzles -snapshot_puzzle_detail "Harbor Lights"
+  "${COMMON_ARGS[@]}" -snapshot_tab puzzles -snapshot_puzzle_detail "Paris in a Day"
 
 capture "06-settings" \
   "${COMMON_ARGS[@]}" -snapshot_tab settings

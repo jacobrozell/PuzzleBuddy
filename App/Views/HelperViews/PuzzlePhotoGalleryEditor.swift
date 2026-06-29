@@ -85,9 +85,9 @@ struct PuzzlePhotoGalleryEditor: View {
                         remainingPhotoSlots == 1 ? "Add photo" : "Add photos",
                         systemImage: "photo.on.rectangle"
                     )
-                    .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(BrandSecondaryButtonStyle())
+                .frame(maxWidth: .infinity)
+                .buttonStyle(BrandSecondaryButtonStyle(expandHorizontally: true))
                 .disabled(!canAddPhoto || isImportingPhotos)
                 .optionalAccessibilityIdentifier(A11yID.puzzleFormChoosePhotoButton)
                 .accessibilityLabel(remainingPhotoSlots == 1 ? "Add photo" : "Add photos")
@@ -98,9 +98,9 @@ struct PuzzlePhotoGalleryEditor: View {
                         showCameraPicker = true
                     } label: {
                         Label("Camera", systemImage: "camera")
-                            .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(BrandPrimaryButtonStyle())
+                    .frame(maxWidth: .infinity)
+                    .buttonStyle(BrandPrimaryButtonStyle(expandHorizontally: true))
                     .disabled(!canAddPhoto || isImportingPhotos)
                     .optionalAccessibilityIdentifier(A11yID.puzzleFormTakePhotoButton)
                 }

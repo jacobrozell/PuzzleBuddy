@@ -74,7 +74,7 @@ Fix existing PNGs without re-capturing:
 2. **Duplicate check** — barcode match sheet
 3. **Collection stats** — summary dashboard
 4. **Add puzzle** — new entry form
-5. **Puzzle detail** — completed puzzle (Harbor Lights)
+5. **Puzzle detail** — completed puzzle (Paris in a Day)
 6. **Settings** — local-first preferences
 7. **Onboarding welcome** — first-launch tour
 8. **Onboarding barcode** — shop-with-confidence page
@@ -95,9 +95,9 @@ RAW_DIR=marketing-screenshots/iphone/light/portrait ./Scripts/frame-marketing-sc
 |--------|-----------|
 | Reset + seed demo | `-ui_test_reset -disable_firebase_analytics -ui_testing_seed_puzzles` |
 | Tab | `-snapshot_tab puzzles` / `stats` / `settings` |
-| Puzzle detail | `-snapshot_puzzle_detail Harbor Lights` |
+| Puzzle detail | `-snapshot_puzzle_detail Paris in a Day` |
 | Add puzzle form | `-snapshot_add_puzzle` |
-| Duplicate check sheet | `-snapshot_duplicate_check Mountain Sunset` |
+| Duplicate check sheet | `-snapshot_duplicate_check The Bizarre Bookshop` |
 | Onboarding | `-snapshot_onboarding` |
 | Onboarding page (0–3) | `-snapshot_onboarding_page 1` |
 

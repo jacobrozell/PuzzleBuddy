@@ -17,6 +17,7 @@ private enum PuzzleBuddyTab: String {
 // MARK: - PuzzleTabbar
 struct PuzzleTabbar: View {
     @EnvironmentObject var eh: ErrorHandling
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var ps: PuzzleStore
 
     @State private var tab: PuzzleBuddyTab = {
@@ -71,7 +72,7 @@ struct PuzzleTabbar: View {
             .accessibilityIdentifier(A11yID.settingsTab)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .brandBackground()
+        .modifier(PuzzleTabRootChrome(regularWidth: horizontalSizeClass == .regular))
         .tint(Brand.accent)
         .onAppear {
             MarketingSnapshotBootstrap.reinforceTabSelection { snapshotTab in

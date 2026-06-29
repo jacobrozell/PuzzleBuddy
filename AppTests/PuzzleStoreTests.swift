@@ -27,6 +27,8 @@ final class PuzzleStoreTests: XCTestCase {
         XCTAssertEqual(store.puzzles.count, DemoDataCatalog.puzzleCount)
         XCTAssertEqual(store.demoPuzzleCount, DemoDataCatalog.puzzleCount)
         XCTAssertTrue(store.puzzles.allSatisfy(\.isDemo))
+        XCTAssertTrue(store.puzzles.allSatisfy { !$0.photos.isEmpty })
+        XCTAssertTrue(store.puzzles.allSatisfy { $0.coverImage != nil })
     }
 
     func testRemoveDemoPuzzlesKeepsUserPuzzles() throws {

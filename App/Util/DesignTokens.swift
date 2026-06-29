@@ -66,6 +66,14 @@ enum DS {
         static let md: CGFloat = 12
         static let pill: CGFloat = 999
     }
+
+    enum Control {
+        /// Shared minimum height for capsule action buttons (HIG touch target).
+        static let capsuleMinHeight: CGFloat = 44
+        static let capsuleVerticalPadding: CGFloat = Spacing.s3
+        static let capsuleHorizontalPadding: CGFloat = Spacing.s5
+        static let capsuleCompactHorizontalPadding: CGFloat = Spacing.s3
+    }
 }
 
 // MARK: - Chrome modifiers
@@ -97,24 +105,38 @@ struct BrandBackground: ViewModifier {
 }
 
 struct BrandPrimaryButtonStyle: ButtonStyle {
+    var expandHorizontally: Bool = false
+    var compact: Bool = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
             .foregroundStyle(Brand.textOnAccent)
-            .padding(.horizontal, DS.Spacing.s5)
-            .padding(.vertical, DS.Spacing.s3)
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
+            .frame(maxWidth: expandHorizontally ? .infinity : nil)
+            .padding(.horizontal, compact ? DS.Control.capsuleCompactHorizontalPadding : DS.Control.capsuleHorizontalPadding)
+            .padding(.vertical, DS.Control.capsuleVerticalPadding)
+            .frame(minHeight: DS.Control.capsuleMinHeight)
             .background(Brand.accent.opacity(configuration.isPressed ? 0.85 : 1))
             .clipShape(Capsule())
     }
 }
 
 struct BrandSecondaryButtonStyle: ButtonStyle {
+    var expandHorizontally: Bool = false
+    var compact: Bool = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
             .foregroundStyle(Brand.accent)
-            .padding(.horizontal, DS.Spacing.s5)
-            .padding(.vertical, DS.Spacing.s3)
+            .lineLimit(1)
+            .minimumScaleFactor(0.85)
+            .frame(maxWidth: expandHorizontally ? .infinity : nil)
+            .padding(.horizontal, compact ? DS.Control.capsuleCompactHorizontalPadding : DS.Control.capsuleHorizontalPadding)
+            .padding(.vertical, DS.Control.capsuleVerticalPadding)
+            .frame(minHeight: DS.Control.capsuleMinHeight)
             .background(Brand.cardElevated.opacity(configuration.isPressed ? 0.85 : 1))
             .clipShape(Capsule())
             .overlay(
@@ -132,6 +154,31 @@ struct BrandScreenChrome: ViewModifier {
                 Brand.background
                     .ignoresSafeArea(edges: [.horizontal, .bottom])
             }
+    }
+}
+
+/// Root tab chrome: flat background on iPad split layouts; subtle gradient on iPhone.
+struct PuzzleTabRootChrome: ViewModifier {
+    let regularWidth: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content.background {
+            Group {
+                if regularWidth || reduceMotion {
+                    Brand.background
+                } else {
+                    LinearGradient(
+                        colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .opacity(0.35)
+                    .background(Brand.background)
+                }
+            }
+            .ignoresSafeArea()
+        }
     }
 }
 
@@ -189,6 +236,10 @@ extension View {
 
     func brandScreenChrome() -> some View {
         modifier(BrandScreenChrome())
+    }
+
+    func puzzleTabRootChrome(regularWidth: Bool) -> some View {
+        modifier(PuzzleTabRootChrome(regularWidth: regularWidth))
     }
 
     /// Done button above the keyboard for number/decimal pads. Attach to the `NavigationStack`, not nested scroll views.
