@@ -29,6 +29,10 @@ final class PuzzleShareTests: XCTestCase {
         XCTAssertTrue(summary.contains("A"))
     }
 
+    func testShareFooterLabelUsesMarketingSite() {
+        XCTAssertEqual(AppLinks.shareFooterLabel, "jacobrozell.github.io/PuzzleBuddy")
+    }
+
     func testCollageRendererProducesImage() {
         let puzzles = [
             makePuzzle(name: "Sunset", status: .completed),

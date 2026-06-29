@@ -197,7 +197,7 @@ enum PuzzleCollectionCollageRenderer {
     }
 
     private static func drawFooter(in rect: CGRect) {
-        let text = "puzzlebuddy.app" as NSString
+        let text = AppLinks.shareFooterLabel as NSString
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.systemFont(ofSize: 20, weight: .medium),
             .foregroundColor: UIColor(red: 0.35, green: 0.38, blue: 0.42, alpha: 1)
