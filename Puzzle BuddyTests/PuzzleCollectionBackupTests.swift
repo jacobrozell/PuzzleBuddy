@@ -11,13 +11,13 @@ import XCTest
 final class PuzzleCollectionBackupTests: XCTestCase {
     // MARK: - JSON importer
 
-    func testImporterDecodesLegacyV1BackupWithoutNewFields() throws {
-        let data = try loadFixture(named: "backup-v1-legacy", extension: "json")
+    func testImporterAcceptsSparseBackupMissingOptionalFields() throws {
+        let data = try loadFixture(named: "backup-sparse-optional-fields", extension: "json")
         let puzzles = try PuzzleCollectionJSONImporter.puzzles(from: data)
 
         XCTAssertEqual(puzzles.count, 2)
 
-        let completed = try XCTUnwrap(puzzles.first { $0.name == "Legacy Sunrise" })
+        let completed = try XCTUnwrap(puzzles.first { $0.name == "Sparse Sunrise" })
         XCTAssertEqual(completed.id, UUID(uuidString: "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"))
         XCTAssertEqual(completed.source, "Galison")
         XCTAssertEqual(completed.status, .completed)
@@ -32,6 +32,17 @@ final class PuzzleCollectionBackupTests: XCTestCase {
         let todo = try XCTUnwrap(puzzles.first { $0.name == "Minimal Row" })
         XCTAssertEqual(todo.status, .todo)
         XCTAssertEqual(todo.progressPercent, 0)
+    }
+
+    func testImporterRejectsNewerBackupFormatVersion() {
+        let json = """
+        {"backupFormatVersion":99,"puzzles":[{"name":"Future","status":"To-Do","rating":0,"difficulty":"0","completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None","disposition":"None","progressPercent":0,"timesCompleted":0,"tags":[],"hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]}]}
+        """
+        XCTAssertThrowsError(try PuzzleCollectionJSONImporter.puzzles(from: Data(json.utf8))) { error in
+            guard case PuzzleCollectionJSONImportError.unsupportedFormatVersion(99) = error else {
+                return XCTFail("Expected unsupportedFormatVersion, got \(error)")
+            }
+        }
     }
 
     func testImporterDecodesCurrentVersionExport() throws {
@@ -138,18 +149,18 @@ final class PuzzleCollectionBackupTests: XCTestCase {
     }
 
     @MainActor
-    func testLegacyBackupImportsIntoEmptyStore() async throws {
+    func testSparseBackupImportsIntoEmptyStore() async throws {
         let container = try makeContainer()
         let context = container.mainContext
         let store = PuzzleStore(modelContext: context)
 
-        let data = try loadFixture(named: "backup-v1-legacy", extension: "json")
+        let data = try loadFixture(named: "backup-sparse-optional-fields", extension: "json")
         let incoming = try PuzzleCollectionJSONImporter.puzzles(from: data)
         let summary = try store.importBackup(incoming, policy: .mergeSkipExistingIDs)
 
         XCTAssertEqual(summary.imported, 2)
         XCTAssertEqual(store.puzzles.count, 2)
-        let completed = try XCTUnwrap(store.puzzles.first { $0.name == "Legacy Sunrise" })
+        let completed = try XCTUnwrap(store.puzzles.first { $0.name == "Sparse Sunrise" })
         XCTAssertEqual(completed.completions.count, 1)
     }
 

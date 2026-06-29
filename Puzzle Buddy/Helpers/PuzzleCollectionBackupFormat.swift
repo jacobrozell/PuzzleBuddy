@@ -8,11 +8,10 @@
 import Foundation
 
 enum PuzzleCollectionBackupFormat {
-    /// Increment when export shape changes in a breaking or additive way.
-    static let currentVersion = 2
+    /// Increment when export shape changes in a breaking way. Additive fields stay on the same version.
+    static let currentVersion = 1
 
-    /// v1 — initial JSON export (metadata + hasImage flag, no embedded photos).
-    /// v2 — adds `photos` with base64 JPEG payloads; explicit `backupFormatVersion`.
+    /// v1 (1.0 ship) — full metadata, embedded photos (base64 JPEG), completion history, `backupFormatVersion`.
 }
 
 struct PuzzleExportPhotoRecord: Codable, Equatable {

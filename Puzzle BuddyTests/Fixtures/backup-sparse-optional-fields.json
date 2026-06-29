@@ -1,11 +1,12 @@
 {
+  "backupFormatVersion": 1,
   "exportedAt": "2024-06-01T12:00:00Z",
-  "appVersion": "0.9.0",
+  "appVersion": "1.0.0",
   "puzzleCount": 2,
   "puzzles": [
     {
       "id": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
-      "name": "Legacy Sunrise",
+      "name": "Sparse Sunrise",
       "pieces": 500,
       "status": "Completed",
       "rating": 4.0,
@@ -14,8 +15,6 @@
       "source": "Galison",
       "barcode": "012345678905",
       "progressPercent": 100,
-      "hasImage": true,
-      "photoCount": 0,
       "tags": ["landscape"],
       "puzzleType": "Jigsaw",
       "material": "Cardboard",
@@ -31,8 +30,6 @@
       "difficulty": "0",
       "completionDate": "2024-06-01T12:00:00Z",
       "progressPercent": 0,
-      "hasImage": false,
-      "photoCount": 0,
       "tags": [],
       "puzzleType": "None",
       "material": "None",

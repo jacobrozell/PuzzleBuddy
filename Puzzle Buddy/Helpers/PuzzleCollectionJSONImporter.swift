@@ -2,7 +2,7 @@
 //  PuzzleCollectionJSONImporter.swift
 //  Puzzle Buddy
 //
-//  Restores Puzzle Buddy JSON backups with version-aware defaults for missing fields.
+//  Restores Puzzle Buddy JSON backups. Missing optional fields get safe defaults.
 //
 
 import Foundation
@@ -19,6 +19,7 @@ enum PuzzleCollectionJSONImportError: LocalizedError {
     case emptyFile
     case invalidFormat
     case noRestorablePuzzles
+    case unsupportedFormatVersion(Int)
 
     var errorDescription: String? {
         switch self {
@@ -28,6 +29,8 @@ enum PuzzleCollectionJSONImportError: LocalizedError {
             return "Could not read this backup. Export a fresh JSON file from Settings and try again."
         case .noRestorablePuzzles:
             return "No puzzles were found in this backup."
+        case .unsupportedFormatVersion(let version):
+            return "This backup requires a newer version of Puzzle Buddy (format v\(version)). Update the app and try again."
         }
     }
 }
@@ -49,8 +52,12 @@ enum PuzzleCollectionJSONImporter {
         }
 
         let formatVersion = payload.resolvedFormatVersion
+        if formatVersion > PuzzleCollectionBackupFormat.currentVersion {
+            throw PuzzleCollectionJSONImportError.unsupportedFormatVersion(formatVersion)
+        }
+
         let restored = payload.puzzles.compactMap { record in
-            PuzzleBackupNormalizer.puzzle(from: record, formatVersion: formatVersion)
+            PuzzleBackupNormalizer.puzzle(from: record)
         }
 
         guard !restored.isEmpty else {
@@ -71,7 +78,7 @@ private struct PuzzleBackupImportPayload: Decodable {
     let puzzles: [PuzzleBackupImportRecord]
 
     var resolvedFormatVersion: Int {
-        backupFormatVersion ?? 1
+        backupFormatVersion ?? PuzzleCollectionBackupFormat.currentVersion
     }
 }
 
@@ -123,7 +130,7 @@ private struct PuzzleBackupImportCompletionRecord: Decodable {
 // MARK: - Normalization
 
 private enum PuzzleBackupNormalizer {
-    static func puzzle(from record: PuzzleBackupImportRecord, formatVersion: Int) -> Puzzle? {
+    static func puzzle(from record: PuzzleBackupImportRecord) -> Puzzle? {
         let trimmedName = record.name?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !trimmedName.isEmpty else { return nil }
 
@@ -148,11 +155,11 @@ private enum PuzzleBackupNormalizer {
             progressPercent: parseProgress(record.progressPercent, status: status),
             purchasePrice: nonNegativePrice(record.purchasePrice),
             purchaseCurrencyCode: optionalString(record.purchaseCurrencyCode, maxLength: 8),
-            puzzleShape: parsePuzzleShape(record.puzzleShape, formatVersion: formatVersion),
-            cutType: parseCutType(record.cutType, formatVersion: formatVersion),
+            puzzleShape: parsePuzzleShape(record.puzzleShape),
+            cutType: parseCutType(record.cutType),
             dimensionsText: optionalString(record.dimensionsText, maxLength: 80),
             timesCompleted: max(record.timesCompleted ?? 0, 0),
-            photos: parsePhotos(record.photos, formatVersion: formatVersion),
+            photos: parsePhotos(record.photos),
             completions: parseCompletions(record.completions),
             isDemo: record.isDemo ?? false,
             barcode: BarcodeNormalizer.normalize(record.barcode),
@@ -163,10 +170,10 @@ private enum PuzzleBackupNormalizer {
             puzzle.id = uuid
         }
 
-        return finalize(puzzle, formatVersion: formatVersion)
+        return finalize(puzzle)
     }
 
-    static func finalize(_ puzzle: Puzzle, formatVersion: Int) -> Puzzle {
+    static func finalize(_ puzzle: Puzzle) -> Puzzle {
         var puzzle = puzzle
 
         if puzzle.progressPercent == 0 {
@@ -189,8 +196,8 @@ private enum PuzzleBackupNormalizer {
         return puzzle
     }
 
-    private static func parsePhotos(_ records: [PuzzleExportPhotoRecord]?, formatVersion: Int) -> [PuzzlePhoto] {
-        guard formatVersion >= 2, let records else { return [] }
+    private static func parsePhotos(_ records: [PuzzleExportPhotoRecord]?) -> [PuzzlePhoto] {
+        guard let records else { return [] }
 
         var decoded: [PuzzlePhoto] = []
         for record in records {
@@ -272,13 +279,13 @@ private enum PuzzleBackupNormalizer {
         }) ?? .none
     }
 
-    private static func parsePuzzleShape(_ raw: String?, formatVersion: Int) -> PuzzleShape {
-        guard formatVersion >= 1, let raw, let shape = PuzzleShape(rawValue: raw) else { return .none }
+    private static func parsePuzzleShape(_ raw: String?) -> PuzzleShape {
+        guard let raw, let shape = PuzzleShape(rawValue: raw) else { return .none }
         return shape
     }
 
-    private static func parseCutType(_ raw: String?, formatVersion: Int) -> PuzzleCutType {
-        guard formatVersion >= 1, let raw, let cut = PuzzleCutType(rawValue: raw) else { return .none }
+    private static func parseCutType(_ raw: String?) -> PuzzleCutType {
+        guard let raw, let cut = PuzzleCutType(rawValue: raw) else { return .none }
         return cut
     }
 
