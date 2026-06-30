@@ -184,6 +184,19 @@ struct PuzzleTabRootChrome: ViewModifier {
     }
 }
 
+/// Card-style GroupBox used on puzzle detail panels.
+struct BrandGroupBoxStyle: GroupBoxStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s3) {
+            configuration.label
+            configuration.content
+        }
+        .padding(DS.Spacing.s4)
+        .background(Brand.card)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
+    }
+}
+
 /// Shared empty-state card used across screens (Stats, Puzzle list, etc.) so they look identical.
 struct BrandEmptyState<Action: View>: View {
     let systemImage: String
@@ -371,6 +384,12 @@ enum A11yID {
     static let puzzleDetailEditButton = "puzzle_detail_edit_button"
     static let puzzleDetailCancelButton = "puzzle_detail_cancel_button"
     static let puzzleDetailRedoButton = "puzzle_detail_redo_button"
+    static let puzzleDetailCompletionHistory = "puzzle_detail_completion_history"
+    static let puzzleDetailCompletionSaveButton = "puzzle_detail_completion_save_button"
+
+    static func puzzleDetailCompletionRow(number: Int) -> String {
+        "puzzle_detail_completion_\(number)"
+    }
     static let puzzleDetailBarcodeRow = "puzzle_detail_barcode_row"
     static let onboardingSkipButton = "onboarding_skip_button"
     static let onboardingNextButton = "onboarding_next_button"

@@ -112,6 +112,8 @@ enum PuzzleAnalyticsEventMapping {
         "puzzle_load_failed",
         "puzzle_redo_started",
         "puzzle_completion_recorded",
+        "puzzle_completion_deleted",
+        "puzzle_completion_updated",
         "settings_collection_exported",
         "shopping_scan_match",
         "shopping_scan_no_match",

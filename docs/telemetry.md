@@ -110,6 +110,8 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_load_failed` | same | `PuzzleStore` SwiftData fetch errors | Local-only |
 | `puzzle_redo_started` | same | `PuzzleStore.startRedo` | User confirms redo |
 | `puzzle_completion_recorded` | same | `PuzzleStore.recordCompletion` | New completion appended |
+| `puzzle_completion_deleted` | same | `PuzzleStore.deleteCompletion` | User removed a completion log |
+| `puzzle_completion_updated` | same | `PuzzleStore.updateCompletion` | User edited completion date/time |
 | `settings_collection_exported` | same | `SettingsView` | Gated by import/export flag |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |

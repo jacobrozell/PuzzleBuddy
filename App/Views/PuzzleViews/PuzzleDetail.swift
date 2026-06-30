@@ -128,6 +128,9 @@ struct DetailView: View {
         VStack(spacing: DS.Spacing.s4) {
             summaryPanel
             progressPanel
+            if !puzzle.completions.isEmpty {
+                PuzzleCompletionHistorySection(ps: ps, puzzle: $puzzle)
+            }
             statsPanel
         }
         .padding(.horizontal)
@@ -244,20 +247,6 @@ struct DetailView: View {
                     )
                 }
 
-                if puzzle.timesCompleted > 0 {
-                    detailRow(
-                        label: "Times completed",
-                        value: "\(puzzle.timesCompleted)"
-                    )
-                }
-
-                ForEach(PuzzleCompletionSemantics.sortedNewestFirst(puzzle.completions)) { completion in
-                    detailRow(
-                        label: "Completion \(completion.completionNumber)",
-                        value: completionSummary(completion)
-                    )
-                }
-
                 if puzzle.status == .completed, puzzle.disposition != .none {
                     detailRow(label: "After finishing", value: puzzle.disposition.displayLabel)
                 }
@@ -333,14 +322,6 @@ struct DetailView: View {
         .accessibilityLabel("Puzzle details")
     }
 
-    private func completionSummary(_ completion: PuzzleCompletion) -> String {
-        var parts = [completion.completedAt.formatted(date: .abbreviated, time: .omitted)]
-        if let timeLabel = completion.timeSpentLabel {
-            parts.append(timeLabel)
-        }
-        return parts.joined(separator: " · ")
-    }
-
     @ViewBuilder
     private func detailRow(
         label: String,
@@ -381,18 +362,6 @@ struct DetailView: View {
             .accessibilityLabel("\(label), \(value)")
             .optionalAccessibilityIdentifier(accessibilityIdentifier)
         }
-    }
-}
-
-private struct BrandGroupBoxStyle: GroupBoxStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: DS.Spacing.s3) {
-            configuration.label
-            configuration.content
-        }
-        .padding(DS.Spacing.s4)
-        .background(Brand.card)
-        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
     }
 }
 
