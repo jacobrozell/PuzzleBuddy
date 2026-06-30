@@ -147,12 +147,14 @@ struct BrandSecondaryButtonStyle: ButtonStyle {
 }
 
 struct BrandScreenChrome: ViewModifier {
+    var ignoredSafeAreaEdges: Edge.Set = [.horizontal, .bottom]
+
     func body(content: Content) -> some View {
         content
             .scrollContentBackground(.hidden)
             .background {
                 Brand.background
-                    .ignoresSafeArea(edges: [.horizontal, .bottom])
+                    .ignoresSafeArea(edges: ignoredSafeAreaEdges)
             }
     }
 }
@@ -234,8 +236,8 @@ extension View {
         modifier(BrandBackground(ignoredEdges: edges))
     }
 
-    func brandScreenChrome() -> some View {
-        modifier(BrandScreenChrome())
+    func brandScreenChrome(ignoredSafeAreaEdges edges: Edge.Set = [.horizontal, .bottom]) -> some View {
+        modifier(BrandScreenChrome(ignoredSafeAreaEdges: edges))
     }
 
     func puzzleTabRootChrome(regularWidth: Bool) -> some View {
@@ -300,6 +302,7 @@ enum A11yID {
     static let puzzleListClearFilters = "puzzle_list_clear_filters"
     static let puzzleListFilterButton = "puzzle_list_filter_button"
     static let addPuzzleButton = "add_puzzle_button"
+    static let addPuzzleFloatingButton = "add_puzzle_floating_button"
     static let puzzleDetailSummary = "puzzle_detail_summary"
     static let puzzleDetailStats = "puzzle_detail_stats"
     static let puzzleDetailPaceRow = "puzzle_detail_pace_row"

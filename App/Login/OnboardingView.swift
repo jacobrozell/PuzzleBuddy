@@ -48,12 +48,12 @@ struct OnboardingView: View {
         OnboardingPage(
             title: "Build Your Collection",
             message: "Log brands, piece counts, tags, ratings, and progress. Spin the dice to pick your next puzzle from the backlog.",
-            hero: .systemImage("list.bullet.rectangle.fill")
+            hero: .systemImage("list.bullet")
         ),
         OnboardingPage(
             title: "Ready to Puzzle?",
             message: "Everything stays on your device. Add your first puzzle and start tracking.",
-            hero: .systemImage("puzzlepiece.extension.fill")
+            hero: .systemImage("puzzlepiece.extension.fill", offset: CGSize(width: -3, height: 0))
         ),
     ]
 
@@ -128,7 +128,7 @@ struct OnboardingView: View {
 
 private enum OnboardingHeroStyle {
     case brandMark
-    case systemImage(String)
+    case systemImage(String, offset: CGSize = .zero)
 }
 
 private struct OnboardingPage: Identifiable {
@@ -145,7 +145,8 @@ private struct OnboardingPageView: View {
     private var isCompactHeight: Bool { verticalSizeClass == .compact }
     private var heroFrame: CGFloat { isCompactHeight ? 100 : 180 }
     private var brandMarkSize: CGFloat { isCompactHeight ? 72 : 120 }
-    private var systemIconSize: CGFloat { isCompactHeight ? 48 : 72 }
+    private var systemIconSize: CGFloat { isCompactHeight ? 34 : 44 }
+    private var systemIconContainerSize: CGFloat { isCompactHeight ? 64 : 80 }
 
     var body: some View {
         ScrollView {
@@ -190,14 +191,23 @@ private struct OnboardingPageView: View {
         switch page.hero {
         case .brandMark:
             PuzzleHeroView(size: brandMarkSize)
-        case .systemImage(let name):
-            Image(systemName: name)
-                .font(.system(size: systemIconSize))
-                .foregroundStyle(Brand.accent)
-                .symbolRenderingMode(.hierarchical)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Brand.card.opacity(0.6), in: Circle())
+        case .systemImage(let name, let offset):
+            systemHeroIcon(name: name, offset: offset)
         }
+    }
+
+    private func systemHeroIcon(name: String, offset: CGSize) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: systemIconContainerSize * 0.22, style: .continuous)
+                .fill(Brand.card.opacity(0.55))
+
+            Image(systemName: name)
+                .font(.system(size: systemIconSize, weight: .semibold))
+                .foregroundStyle(Brand.accent)
+                .symbolRenderingMode(.monochrome)
+                .offset(offset)
+        }
+        .frame(width: systemIconContainerSize, height: systemIconContainerSize)
     }
 }
 
