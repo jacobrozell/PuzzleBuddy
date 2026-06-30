@@ -175,13 +175,24 @@ struct CollectionStats: Equatable {
     }
 
     static let monthSymbols: [String] = {
-        var calendar = Calendar(identifier: .gregorian)
-        return calendar.monthSymbols
+        [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ]
     }()
 
     static let monthAbbreviations: [String] = {
-        var calendar = Calendar(identifier: .gregorian)
-        return calendar.shortMonthSymbols
+        ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     }()
 
     static func formatAverageDays(_ value: Double?) -> String? {

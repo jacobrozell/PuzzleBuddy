@@ -12,9 +12,57 @@ struct CollectionStatsView: View {
     @ObservedObject var ps: PuzzleStore
     @State private var showPickNext = false
     @State private var pendingMilestone: CollectionMilestone?
+    @State private var selectedYear = Calendar.current.component(.year, from: Date())
 
     private var stats: CollectionStats {
         CollectionStats.compute(from: ps.puzzles)
+    }
+
+    private var currentYear: Int {
+        Calendar.current.component(.year, from: Date())
+    }
+
+    private var selectedYearMonthlyCounts: [Int] {
+        monthlyCompletionCounts(for: selectedYear)
+    }
+
+    private var selectedYearTotal: Int {
+        selectedYearMonthlyCounts.reduce(0, +)
+    }
+
+    private var selectedYearLabel: String {
+        String(selectedYear)
+    }
+
+    private var availableActivityYears: [Int] {
+        let completionYears = ps.puzzles
+            .filter { $0.status == .completed }
+            .map { Calendar.current.component(.year, from: $0.completionDate) }
+
+        let years = Array(Set(completionYears)).sorted(by: >)
+        return years.isEmpty ? [currentYear] : years
+    }
+
+    private var selectedYearBusiestMonth: (label: String, count: Int)? {
+        guard let maxCount = selectedYearMonthlyCounts.max(), maxCount > 0,
+              let index = selectedYearMonthlyCounts.firstIndex(of: maxCount) else { return nil }
+        return (CollectionStats.monthSymbols[index], maxCount)
+    }
+
+    /// Matches the number of summary cards so each gets an equal column (avoids a
+    /// lone last-row cell stretching wider than its neighbors on iPad).
+    private var yearActivitySummaryColumnCount: Int {
+        var count = 1 // Finished in selected year
+        if selectedYear == currentYear { count += 1 }
+        if selectedYearBusiestMonth != nil { count += 1 }
+        return count
+    }
+
+    private var yearActivitySummaryColumns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(), spacing: DS.Spacing.s3),
+            count: yearActivitySummaryColumnCount
+        )
     }
 
     var body: some View {
@@ -61,9 +109,14 @@ struct CollectionStatsView: View {
         .readableBrandScreenChrome()
         .onAppear {
             refreshPendingMilestone()
+            validateSelectedYear()
         }
         .onChange(of: ps.puzzles.count) { _, _ in
             refreshPendingMilestone()
+            validateSelectedYear()
+        }
+        .onChange(of: availableActivityYears) { _, years in
+            validateSelectedYear(in: years)
         }
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -97,6 +150,28 @@ struct CollectionStatsView: View {
             stats: stats,
             previouslyAcknowledged: acknowledged
         ).first
+    }
+
+    private func validateSelectedYear(in years: [Int]? = nil) {
+        let years = years ?? availableActivityYears
+        if !years.contains(selectedYear) {
+            selectedYear = years.first ?? currentYear
+        }
+    }
+
+    private func monthlyCompletionCounts(for year: Int) -> [Int] {
+        var months = Array(repeating: 0, count: 12)
+        let calendar = Calendar.current
+
+        for puzzle in ps.puzzles where puzzle.status == .completed {
+            let components = calendar.dateComponents([.year, .month], from: puzzle.completionDate)
+            guard components.year == year,
+                  let month = components.month,
+                  (1...12).contains(month) else { continue }
+            months[month - 1] += 1
+        }
+
+        return months
     }
 
     private func milestoneBanner(_ milestone: CollectionMilestone) -> some View {
@@ -162,8 +237,8 @@ struct CollectionStatsView: View {
         var result: [StatHighlight] = [
             StatHighlight(
                 icon: "calendar",
-                value: "\(stats.completionsThisYear)",
-                caption: "This year"
+                value: "\(selectedYearTotal)",
+                caption: selectedYearLabel
             )
         ]
         if stats.totalMinutesPuzzling > 0 {
@@ -368,14 +443,30 @@ struct CollectionStatsView: View {
 
     private var yearActivitySection: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s3) {
-            Text("This year")
-                .font(.headline)
-                .foregroundStyle(Brand.textPrimary)
-                .accessibilityAddTraits(.isHeader)
+            HStack {
+                Text("Activity in \(selectedYearLabel)")
+                    .font(.headline)
+                    .foregroundStyle(Brand.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+
+                Spacer()
+
+                Picker("Year", selection: $selectedYear) {
+                    ForEach(availableActivityYears, id: \.self) { year in
+                        Text(String(year)).tag(year)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Brand.accent)
+                .accessibilityLabel("Stats year")
+            }
 
             YearActivityChart(
-                monthlyCounts: stats.completionsByMonthThisYear,
-                currentMonthIndex: Calendar.current.component(.month, from: Date()) - 1
+                monthlyCounts: selectedYearMonthlyCounts,
+                year: selectedYear,
+                currentMonthIndex: selectedYear == currentYear
+                    ? Calendar.current.component(.month, from: Date()) - 1
+                    : nil
             )
             .padding(DS.Spacing.s4)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -383,27 +474,32 @@ struct CollectionStatsView: View {
             .accessibilityIdentifier(A11yID.collectionStatsYearChart)
 
             LazyVGrid(
-                columns: AdaptiveLayout.statsGridColumns(horizontalSizeClass: horizontalSizeClass),
+                columns: yearActivitySummaryColumns,
                 spacing: DS.Spacing.s3
             ) {
+                if selectedYear == currentYear {
+                    statCard(
+                        value: "\(stats.completionsThisMonth)",
+                        label: "Finished this month",
+                        subtitle: nil,
+                        identifier: A11yID.collectionStatsMonthCard,
+                        fixedHeight: 108
+                    )
+                }
                 statCard(
-                    value: "\(stats.completionsThisMonth)",
-                    label: "Finished this month",
+                    value: "\(selectedYearTotal)",
+                    label: "Finished in \(selectedYearLabel)",
                     subtitle: nil,
-                    identifier: A11yID.collectionStatsMonthCard
+                    identifier: A11yID.collectionStatsYearCard,
+                    fixedHeight: 108
                 )
-                statCard(
-                    value: "\(stats.completionsThisYear)",
-                    label: "Finished this year",
-                    subtitle: nil,
-                    identifier: A11yID.collectionStatsYearCard
-                )
-                if let best = stats.mostProductiveMonthThisYear {
+                if let best = selectedYearBusiestMonth {
                     statCard(
                         value: best.label,
                         label: "Busiest month",
                         subtitle: best.count == 1 ? "1 finished" : "\(best.count) finished",
-                        identifier: A11yID.collectionStatsBestMonthCard
+                        identifier: A11yID.collectionStatsBestMonthCard,
+                        fixedHeight: 108
                     )
                 }
             }
@@ -587,7 +683,13 @@ struct CollectionStatsView: View {
         .accessibilityLabel("\(label), \(value)")
     }
 
-    private func statCard(value: String, label: String, subtitle: String?, identifier: String) -> some View {
+    private func statCard(
+        value: String,
+        label: String,
+        subtitle: String?,
+        identifier: String,
+        fixedHeight: CGFloat? = nil
+    ) -> some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s2) {
             Text(value)
                 .font(.title2.weight(.semibold))
@@ -600,15 +702,23 @@ struct CollectionStatsView: View {
                 .foregroundStyle(Brand.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if let subtitle {
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(Brand.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+            Group {
+                if let subtitle {
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(Brand.textSecondary)
+                }
             }
+            .frame(maxWidth: .infinity, minHeight: 16, alignment: .topLeading)
+            .fixedSize(horizontal: false, vertical: true)
         }
         .padding(DS.Spacing.s3)
-        .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
+        .frame(
+            maxWidth: .infinity,
+            minHeight: fixedHeight ?? 88,
+            maxHeight: fixedHeight,
+            alignment: .topLeading
+        )
         .brandCardSurface()
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier(identifier)
@@ -664,14 +774,16 @@ private struct HighlightChip: View {
 
 private struct YearActivityChart: View {
     let monthlyCounts: [Int]
-    let currentMonthIndex: Int
+    let year: Int
+    let currentMonthIndex: Int?
 
     private var maxCount: Int { max(monthlyCounts.max() ?? 0, 1) }
     private var total: Int { monthlyCounts.reduce(0, +) }
+    private var yearLabel: String { String(year) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s3) {
-            Text(total == 0 ? "No finishes yet this year" : "\(total) finished so far")
+            Text(total == 0 ? "No finishes in \(yearLabel)" : "\(total) finished in \(yearLabel)")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(Brand.textPrimary)
 
@@ -684,7 +796,7 @@ private struct YearActivityChart: View {
 
             HStack(spacing: 6) {
                 ForEach(Array(CollectionStats.monthAbbreviations.enumerated()), id: \.offset) { index, symbol in
-                    Text(String(symbol.prefix(1)))
+                    Text(symbol)
                         .font(.caption2)
                         .foregroundStyle(index == currentMonthIndex ? Brand.accent : Brand.textSecondary)
                         .frame(maxWidth: .infinity)
@@ -714,8 +826,8 @@ private struct YearActivityChart: View {
     }
 
     private var accessibilityLabel: String {
-        guard total > 0 else { return "No puzzles finished yet this year." }
-        var parts = ["\(total) puzzles finished this year."]
+        guard total > 0 else { return "No puzzles finished in \(yearLabel)." }
+        var parts = ["\(total) puzzles finished in \(yearLabel)."]
         let symbols = CollectionStats.monthSymbols
         for (index, count) in monthlyCounts.enumerated() where count > 0 {
             let name = index < symbols.count ? symbols[index] : "month \(index + 1)"
