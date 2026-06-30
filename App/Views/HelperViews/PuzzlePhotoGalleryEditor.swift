@@ -43,7 +43,7 @@ struct PuzzlePhotoGalleryEditor: View {
                         .foregroundStyle(Brand.textSecondary)
 
                     if sortedPhotos.count > 1 {
-                        Text("Drag to reorder")
+                        Text("Use arrows to reorder")
                             .font(.caption)
                             .foregroundStyle(Brand.textSecondary)
                     }
@@ -66,12 +66,9 @@ struct PuzzlePhotoGalleryEditor: View {
                         ForEach(Array(sortedPhotos.enumerated()), id: \.element.id) { index, photo in
                             photoTile(photo: photo, index: index)
                         }
-
-                        if sortedPhotos.count > 1 {
-                            moveToEndDropZone
-                        }
                     }
                     .padding(.horizontal, DS.Spacing.s2)
+                    .padding(.top, DS.Spacing.s2)
                 }
             }
 
@@ -156,25 +153,6 @@ struct PuzzlePhotoGalleryEditor: View {
         .accessibilityLabel("No photos yet. Add box art, progress, or finished shots.")
     }
 
-    private var moveToEndDropZone: some View {
-        RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous)
-            .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
-            .foregroundStyle(Brand.textSecondary.opacity(0.45))
-            .frame(width: 44, height: 100)
-            .overlay {
-                Image(systemName: "arrow.right.to.line")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Brand.textSecondary)
-            }
-            .dropDestination(for: String.self) { items, _ in
-                guard let draggedID = items.first.flatMap(UUID.init(uuidString:)) else { return false }
-                movePhotoToEnd(draggedID)
-                return true
-            }
-            .accessibilityLabel("Move photo to end")
-            .accessibilityHint("Drop a photo here to move it to the end of the gallery")
-    }
-
     @ViewBuilder
     private func photoTile(photo: PuzzlePhoto, index: Int) -> some View {
         ZStack(alignment: .topTrailing) {
@@ -196,21 +174,10 @@ struct PuzzlePhotoGalleryEditor: View {
             .overlay(alignment: .bottomLeading) {
                 photoBadge(for: photo)
             }
-            .overlay(alignment: .bottomTrailing) {
-                if sortedPhotos.count > 1 {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(.white)
-                        .padding(5)
-                        .background(.black.opacity(0.45), in: Circle())
-                        .padding(DS.Spacing.s2)
-                        .accessibilityHidden(true)
-                }
-            }
             .contentShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Photo \(index + 1) of \(sortedPhotos.count)\(photo.sortOrder == 0 ? ", cover" : "")")
-            .accessibilityHint(sortedPhotos.count > 1 ? "Drag to reorder, or use the actions menu" : "")
+            .accessibilityHint(sortedPhotos.count > 1 ? "Use the reorder buttons, adjustable action, or actions menu" : "")
             .accessibilityAdjustableAction { direction in
                 guard sortedPhotos.count > 1 else { return }
                 switch direction {
@@ -221,20 +188,6 @@ struct PuzzlePhotoGalleryEditor: View {
                 @unknown default:
                     break
                 }
-            }
-            .if(sortedPhotos.count > 1) { view in
-                view
-                    .draggable(photo.id.uuidString) {
-                        photoDragPreview(for: photo)
-                    }
-                    .dropDestination(for: String.self) { items, _ in
-                        guard let draggedID = items.first.flatMap(UUID.init(uuidString:)),
-                              draggedID != photo.id else {
-                            return false
-                        }
-                        movePhoto(from: draggedID, before: photo.id)
-                        return true
-                    }
             }
             .contextMenu {
                 if photo.sortOrder != 0 {
@@ -257,6 +210,28 @@ struct PuzzlePhotoGalleryEditor: View {
                 }
             }
 
+            if sortedPhotos.count > 1 {
+                HStack(spacing: DS.Spacing.s2) {
+                    reorderButton(
+                        systemImage: "chevron.left",
+                        label: "Move photo \(index + 1) earlier",
+                        disabled: index == 0
+                    ) {
+                        movePhotoOneStepEarlier(photo.id)
+                    }
+
+                    reorderButton(
+                        systemImage: "chevron.right",
+                        label: "Move photo \(index + 1) later",
+                        disabled: index == sortedPhotos.count - 1
+                    ) {
+                        movePhotoOneStepLater(photo.id)
+                    }
+                }
+                .padding(DS.Spacing.s2)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+            }
+
             Button {
                 pendingPhotoRemovalID = photo.id
             } label: {
@@ -264,9 +239,26 @@ struct PuzzlePhotoGalleryEditor: View {
                     .symbolRenderingMode(.palette)
                     .foregroundStyle(.white, .black.opacity(0.55))
             }
-            .offset(x: 6, y: -6)
+            .padding(DS.Spacing.s2)
             .accessibilityLabel("Remove photo \(index + 1)")
         }
+    }
+
+    private func reorderButton(
+        systemImage: String,
+        label: String,
+        disabled: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(.white)
+                .frame(width: 24, height: 24)
+                .background(.black.opacity(disabled ? 0.25 : 0.55), in: Circle())
+        }
+        .disabled(disabled)
+        .accessibilityLabel(label)
     }
 
     @ViewBuilder
@@ -278,17 +270,6 @@ struct PuzzlePhotoGalleryEditor: View {
                 .padding(.vertical, 2)
                 .background(.ultraThinMaterial, in: Capsule())
                 .padding(DS.Spacing.s2)
-        }
-    }
-
-    @ViewBuilder
-    private func photoDragPreview(for photo: PuzzlePhoto) -> some View {
-        if let image = photo.image {
-            Image(uiImage: image)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 80, height: 80)
-                .clipShape(RoundedRectangle(cornerRadius: DS.Radius.sm, style: .continuous))
         }
     }
 
@@ -342,14 +323,6 @@ struct PuzzlePhotoGalleryEditor: View {
         photos = PuzzlePhotoSemantics.sortedAndNormalized(photos)
     }
 
-    private func movePhoto(from sourceID: UUID, before destinationID: UUID) {
-        photos = PuzzlePhotoSemantics.movingPhoto(id: sourceID, before: destinationID, in: photos)
-    }
-
-    private func movePhotoToEnd(_ photoID: UUID) {
-        photos = PuzzlePhotoSemantics.movingPhotoToEnd(id: photoID, in: photos)
-    }
-
     private func movePhotoOneStepEarlier(_ photoID: UUID) {
         photos = PuzzlePhotoSemantics.movingPhotoOneStep(id: photoID, direction: .earlier, in: photos)
     }
@@ -360,17 +333,6 @@ struct PuzzlePhotoGalleryEditor: View {
 
     private func setAsCover(_ photoID: UUID) {
         photos = PuzzlePhotoSemantics.movingPhotoToCover(id: photoID, in: photos)
-    }
-}
-
-private extension View {
-    @ViewBuilder
-    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
-        if condition {
-            transform(self)
-        } else {
-            self
-        }
     }
 }
 

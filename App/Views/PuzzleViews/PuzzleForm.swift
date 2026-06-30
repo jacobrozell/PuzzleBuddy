@@ -93,7 +93,7 @@ struct PuzzleFormInternal: View {
             } header: {
                 Text("Photos")
             } footer: {
-                Text("Add up to \(PuzzlePhotoLimits.maxCount) photos at once. Drag to reorder — the first photo is the cover.")
+                Text("Add up to \(PuzzlePhotoLimits.maxCount) photos at once. Use the arrows to reorder — the first photo is the cover.")
             }
 
             Section {
