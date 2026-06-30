@@ -28,10 +28,23 @@ struct PuzzleTabbar: View {
         }
     }()
 
+    private var usesSplitNavigation: Bool {
+        AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+    }
+
     var body: some View {
         TabView(selection: $tab) {
-            PuzzleList(ps: ps)
-                .tag(PuzzleBuddyTab.puzzles)
+            Group {
+                if usesSplitNavigation {
+                    PuzzleList(ps: ps)
+                        .background(Brand.background.ignoresSafeArea())
+                } else {
+                    NavigationStack {
+                        PuzzleList(ps: ps)
+                    }
+                }
+            }
+            .tag(PuzzleBuddyTab.puzzles)
             .tabItem {
                 Label {
                     Text("Puzzles")
@@ -72,7 +85,7 @@ struct PuzzleTabbar: View {
             .accessibilityIdentifier(A11yID.settingsTab)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .modifier(PuzzleTabRootChrome(regularWidth: horizontalSizeClass == .regular))
+        .modifier(PuzzleTabRootChrome(regularWidth: usesSplitNavigation))
         .tint(Brand.accent)
         .onAppear {
             MarketingSnapshotBootstrap.reinforceTabSelection { snapshotTab in

@@ -43,6 +43,8 @@ struct PuzzleDetail: View {
         .animation(.easeInOut, value: isEditable)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Brand.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 if isEditable {
@@ -120,35 +122,13 @@ struct DetailView: View {
     var onPuzzleAgain: (() -> Void)?
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.verticalSizeClass) private var verticalSizeClass
 
-    private var usesWideLayout: Bool {
-        AdaptiveLayout.usesWideDetailLayout(
-            horizontalSizeClass: horizontalSizeClass,
-            verticalSizeClass: verticalSizeClass
-        )
-    }
-
     var body: some View {
-        Group {
-            if usesWideLayout {
-                HStack(alignment: .top, spacing: DS.Spacing.s5) {
-                    VStack(spacing: DS.Spacing.s4) {
-                        summaryPanel
-                        progressPanel
-                    }
-                    .frame(maxWidth: .infinity)
-                    statsPanel
-                        .frame(maxWidth: .infinity)
-                }
-            } else {
-                VStack(spacing: DS.Spacing.s4) {
-                    summaryPanel
-                    progressPanel
-                    statsPanel
-                }
-            }
+        VStack(spacing: DS.Spacing.s4) {
+            summaryPanel
+            progressPanel
+            statsPanel
         }
         .padding(.horizontal)
         .padding(.vertical)
@@ -378,6 +358,7 @@ struct DetailView: View {
                 Text(value)
                     .font(.subheadline.bold())
                     .foregroundStyle(Brand.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)
@@ -392,6 +373,8 @@ struct DetailView: View {
                 Text(value)
                     .font(.subheadline.bold())
                     .foregroundStyle(Brand.textPrimary)
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityElement(children: .combine)

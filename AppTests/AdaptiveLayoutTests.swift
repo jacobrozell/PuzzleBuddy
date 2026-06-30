@@ -47,9 +47,17 @@ final class AdaptiveLayoutTests: XCTestCase {
     }
 
     func testPresentsLongFormAsFullScreenCoverOnIPad() {
-        XCTAssertTrue(
-            AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: .regular)
-        )
+        #if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCTAssertTrue(
+                AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: .regular)
+            )
+        } else {
+            XCTAssertFalse(
+                AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: .regular)
+            )
+        }
+        #endif
         XCTAssertFalse(
             AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: .compact)
         )
@@ -64,8 +72,40 @@ final class AdaptiveLayoutTests: XCTestCase {
         XCTAssertEqual(iPhone.count, 2)
     }
 
+    func testUsesLandscapePhoneLayoutOnCompactHeight() {
+        #if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            XCTAssertTrue(
+                AdaptiveLayout.usesLandscapePhoneLayout(
+                    horizontalSizeClass: .compact,
+                    verticalSizeClass: .compact
+                )
+            )
+            XCTAssertFalse(
+                AdaptiveLayout.usesLandscapePhoneLayout(
+                    horizontalSizeClass: .compact,
+                    verticalSizeClass: .regular
+                )
+            )
+        } else {
+            XCTAssertFalse(
+                AdaptiveLayout.usesLandscapePhoneLayout(
+                    horizontalSizeClass: .regular,
+                    verticalSizeClass: .compact
+                )
+            )
+        }
+        #endif
+    }
+
     func testUsesSplitNavigationOnIPad() {
-        XCTAssertTrue(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .regular))
+        #if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCTAssertTrue(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .regular))
+        } else {
+            XCTAssertFalse(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .regular))
+        }
+        #endif
         XCTAssertFalse(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .compact))
     }
 }

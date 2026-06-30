@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 enum AdaptiveLayout {
     /// Prefer vertical stacking only at accessibility Dynamic Type sizes.
@@ -27,6 +30,31 @@ enum AdaptiveLayout {
         }
         return verticalSizeClass == .compact
     }
+
+    /// iPhone landscape chrome: compact height, or large phones that report regular in both axes.
+    static func usesLandscapePhoneLayout(
+        horizontalSizeClass: UserInterfaceSizeClass?,
+        verticalSizeClass: UserInterfaceSizeClass?
+    ) -> Bool {
+        #if canImport(UIKit)
+        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
+        if verticalSizeClass == .compact { return true }
+        return horizontalSizeClass == .regular && isLandscapeInterface
+        #else
+        return verticalSizeClass == .compact
+        #endif
+    }
+
+    #if canImport(UIKit)
+    /// Active window scene is landscape (for size-class edge cases on large iPhones).
+    static var isLandscapeInterface: Bool {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
+            .map(\.interfaceOrientation.isLandscape)
+            ?? false
+    }
+    #endif
 
     /// Max content width on iPad / regular width. Uses most of the available width with sensible caps.
     static func contentMaxWidth(
@@ -53,14 +81,19 @@ enum AdaptiveLayout {
     static func presentsLongFormAsFullScreenCover(
         horizontalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
-        horizontalSizeClass == .regular
+        usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
     }
 
     /// iPad regular width: list + detail via `NavigationSplitView`.
+    /// iPhone landscape can report regular horizontal size class — keep split navigation iPad-only.
     static func usesSplitNavigation(
         horizontalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
+        #if canImport(UIKit)
+        UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .regular
+        #else
         horizontalSizeClass == .regular
+        #endif
     }
 
     /// Stat cards: two columns on iPhone; adaptive grid on iPad.

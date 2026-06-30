@@ -20,7 +20,6 @@ struct PuzzleList: View {
     @State private var showShoppingMode = false
     @State private var showPickNext = false
     @State private var openPuzzleRequest: OpenPuzzleRequest?
-    @State private var selectedPuzzleID: UUID?
     @State private var quickAddContext: QuickAddContext?
     @State private var listScanDuplicate: ListScanDuplicateRequest?
     @State private var searchText: String = ""
@@ -36,6 +35,7 @@ struct PuzzleList: View {
     @State private var showTagFilterSheet = false
     @State private var showFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
+    @State private var sharePayload: PuzzleSharePayload?
 
     private var displayedPuzzles: [Puzzle] {
         PuzzleListQuery.apply(
@@ -92,23 +92,19 @@ struct PuzzleList: View {
         AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
     }
 
+    private var usesLandscapePhoneLayout: Bool {
+        AdaptiveLayout.usesLandscapePhoneLayout(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: verticalSizeClass
+        )
+    }
+
     var body: some View {
         Group {
             if usesSplitNavigation {
-                NavigationSplitView {
-                    puzzleListChrome
-                        .navigationSplitViewColumnWidth(min: 340, ideal: 380, max: 440)
-                } detail: {
-                    puzzleSplitDetail
-                }
-                .navigationSplitViewStyle(.balanced)
+                regularWidthLayout
             } else {
-                NavigationStack {
-                    puzzleListChrome
-                        .navigationDestination(item: $openPuzzleRequest) { request in
-                            puzzleDetailContent(for: request.id)
-                        }
-                }
+                compactNavigationLayout
             }
         }
         .adaptiveLongFormSheet(isPresented: $present) {
@@ -175,16 +171,22 @@ struct PuzzleList: View {
                 selection: $tagFilter
             )
         }
-        .sheet(isPresented: $showFilterSheet) {
-            filterSheet
+        .modifier(
+            FilterSheetPresentation(
+                isPresented: $showFilterSheet,
+                usesFullScreen: usesSplitNavigation
+            ) {
+                filterSheet
+            }
+        )
+        .sheet(item: $sharePayload) { payload in
+            PuzzleShareSheet(payload: payload)
+                .presentationDetents([.medium, .large])
         }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
         }
-        .onChange(of: ps.puzzles.map(\.id)) { _, ids in
-            if let selectedPuzzleID, !ids.contains(selectedPuzzleID) {
-                self.selectedPuzzleID = nil
-            }
+        .onChange(of: ps.puzzles.map(\.id)) { _, _ in
             applyMarketingSnapshotNavigation()
         }
         .onAppear {
@@ -212,7 +214,170 @@ struct PuzzleList: View {
         }
     }
 
+    /// iPad / regular width: full-width list with push navigation (same model as iPhone).
+    private var regularWidthLayout: some View {
+        NavigationStack {
+            puzzleListChrome
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .navigationDestination(item: $openPuzzleRequest) { request in
+                    puzzleDetailContent(for: request.id)
+                }
+                .toolbar { puzzleToolbar }
+                .toolbarBackground(Brand.background, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+                .navigationTitle("Puzzle Buddy")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    /// iPhone (and compact width): list with push navigation to detail.
+    private var compactNavigationLayout: some View {
+        VStack(spacing: 0) {
+            puzzleListChrome
+            Spacer(minLength: 0)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .bottomTrailing) {
+            if usesLandscapePhoneLayout {
+                addPuzzleFloatingButton
+            }
+        }
+        .navigationDestination(item: $openPuzzleRequest) { request in
+            puzzleDetailContent(for: request.id)
+        }
+        .toolbar { puzzleToolbar }
+        .toolbarBackground(Brand.background, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationTitle("Puzzle Buddy")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
     private var puzzleListChrome: some View {
+        puzzleListScrollContent
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 0) {
+                if showsFloatingAddButton {
+                    addPuzzleFloatingButton
+                }
+            }
+    }
+
+    @ToolbarContentBuilder
+    private var puzzleToolbar: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            if usesSplitNavigation, showsAddPuzzleAction {
+                addPuzzleToolbarButton
+            }
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+            if usesSplitNavigation {
+                HStack(spacing: DS.Spacing.s3) {
+                    pickNextToolbarButton
+                    shoppingModeToolbarButton
+                    PuzzleShareMenu(
+                        entireCollection: ps.puzzles,
+                        visibleList: displayedPuzzles
+                    )
+                    sortMenu
+                }
+            } else {
+                compactPuzzleActionsMenu
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var pickNextToolbarButton: some View {
+        if ProductService.isPickNextEnabled {
+            Button {
+                showPickNext = true
+            } label: {
+                Image(systemName: "dice")
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel("Pick my next puzzle")
+            .accessibilityHint("Opens a random picker from your To-Do backlog")
+            .accessibilityIdentifier(A11yID.pickNextButton)
+        }
+    }
+
+    @ViewBuilder
+    private var shoppingModeToolbarButton: some View {
+        if ProductService.isShoppingModeEnabled {
+            Button {
+                showShoppingMode = true
+            } label: {
+                Image(systemName: "barcode.viewfinder")
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel("Check duplicate")
+            .accessibilityHint("Scan a barcode to see if you already own this puzzle while shopping")
+            .optionalAccessibilityIdentifier(A11yID.checkDuplicateButton)
+            .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
+        }
+    }
+
+    private var compactPuzzleActionsMenu: some View {
+        Menu {
+            if ProductService.isPickNextEnabled {
+                Button {
+                    showPickNext = true
+                } label: {
+                    Label("Pick next puzzle", systemImage: "dice")
+                }
+            }
+
+            if ProductService.isShoppingModeEnabled {
+                Button {
+                    showShoppingMode = true
+                } label: {
+                    Label("Check duplicate", systemImage: "barcode.viewfinder")
+                }
+                .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
+            }
+
+            Section("Share") {
+                Button {
+                    sharePayload = PuzzleCollectionShare.makePayload(puzzles: ps.puzzles)
+                } label: {
+                    Label("Share Entire Collection (\(ps.puzzles.count))", systemImage: "square.grid.2x2")
+                }
+                .disabled(ps.puzzles.isEmpty)
+
+                Button {
+                    sharePayload = PuzzleCollectionShare.makePayload(puzzles: displayedPuzzles)
+                } label: {
+                    Label("Share Visible List (\(displayedPuzzles.count))", systemImage: "line.3.horizontal.decrease.circle")
+                }
+                .disabled(displayedPuzzles.isEmpty)
+            }
+
+            Section("Sort") {
+                ForEach(PuzzleListSortOption.allCases) { option in
+                    Button {
+                        sortOption = option
+                    } label: {
+                        if sortOption == option {
+                            Label(option.title, systemImage: "checkmark")
+                        } else {
+                            Text(option.title)
+                        }
+                    }
+                    .accessibilityLabel(option.accessibilityLabel)
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .font(.title3)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("More puzzle actions")
+    }
+
+    private var puzzleListScrollContent: some View {
         puzzleCollection
             .accessibilityIdentifier(A11yID.puzzleList)
             .overlay {
@@ -229,92 +394,82 @@ struct PuzzleList: View {
             .safeAreaInset(edge: .top, spacing: 0) {
                 statusFilterPicker
             }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: DS.Spacing.s3) {
-                        if ProductService.isPickNextEnabled {
-                            Button {
-                                showPickNext = true
-                            } label: {
-                                Image(systemName: "dice")
-                                    .frame(minWidth: 44, minHeight: 44)
-                                    .contentShape(Rectangle())
-                            }
-                            .accessibilityLabel("Pick my next puzzle")
-                            .accessibilityHint("Opens a random picker from your To-Do backlog")
-                            .accessibilityIdentifier(A11yID.pickNextButton)
-                        }
-                        if ProductService.isShoppingModeEnabled {
-                            Button {
-                                showShoppingMode = true
-                            } label: {
-                                Image(systemName: "barcode.viewfinder")
-                                    .frame(minWidth: 44, minHeight: 44)
-                                    .contentShape(Rectangle())
-                            }
-                            .accessibilityLabel("Check duplicate")
-                            .accessibilityHint("Scan a barcode to see if you already own this puzzle while shopping")
-                            .optionalAccessibilityIdentifier(A11yID.checkDuplicateButton)
-                            .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
-                        }
-                        PuzzleShareMenu(
-                            entireCollection: ps.puzzles,
-                            visibleList: displayedPuzzles
-                        )
-                        sortMenu
-                    }
-                }
-            }
-            .overlay(alignment: .bottomTrailing) {
-                Menu {
-                    Button {
-                        present = true
-                    } label: {
-                        Label("Add puzzle", systemImage: "plus")
-                    }
-                    .accessibilityIdentifier(A11yID.addPuzzleButton)
-
-                    Button {
-                        showScanner = true
-                    } label: {
-                        Label {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Scan barcode")
-                                Text("Add to your collection")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        } icon: {
-                            Image(systemName: "barcode.viewfinder")
-                        }
-                    }
-                    .optionalAccessibilityIdentifier(A11yID.scanBarcodeButton)
-                    .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
-                } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 52))
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(Brand.textOnAccent, Brand.accent)
-                }
-                .accessibilityLabel("Add puzzle")
-                .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
-                .padding(DS.Spacing.s4)
-                .padding(.bottom, max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2))
-            }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                Color.clear.frame(height: verticalSizeClass == .compact ? 72 : 0)
+                if usesLandscapePhoneLayout {
+                    // Reserve list scroll room above the floating tab bar in landscape.
+                    Color.clear.frame(height: 72)
+                }
             }
-            .navigationTitle("Puzzle Buddy")
-            .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var showsFloatingAddButton: Bool {
+        !usesLandscapePhoneLayout && !usesSplitNavigation
+    }
+
+    private var addPuzzleFABBottomPadding: CGFloat {
+        if usesLandscapePhoneLayout {
+            // Landscape: float above the pill tab bar (tighter than portrait inset).
+            return 44 + DS.Spacing.s3
+        }
+        return max(AdaptiveLayout.tabBarClearance(for: dynamicTypeSize) - 88, DS.Spacing.s2)
     }
 
     @ViewBuilder
-    private var puzzleSplitDetail: some View {
-        if let selectedPuzzleID {
-            puzzleDetailContent(for: selectedPuzzleID)
-        } else {
-            puzzleDetailPlaceholder
+    private var addPuzzleMenuContents: some View {
+        Button {
+            present = true
+        } label: {
+            Label("Add puzzle", systemImage: "plus")
         }
+        .accessibilityIdentifier(A11yID.addPuzzleButton)
+
+        Button {
+            showScanner = true
+        } label: {
+            Label {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Scan barcode")
+                    Text("Add to your collection")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } icon: {
+                Image(systemName: "barcode.viewfinder")
+            }
+        }
+        .optionalAccessibilityIdentifier(A11yID.scanBarcodeButton)
+        .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
+    }
+
+    private var addPuzzleFloatingButton: some View {
+        Menu {
+            addPuzzleMenuContents
+        } label: {
+            Image(systemName: "plus.circle.fill")
+                .font(.system(size: 52))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(Brand.textOnAccent, Brand.accent)
+        }
+        .accessibilityLabel("Add puzzle")
+        .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
+        .accessibilityIdentifier(A11yID.addPuzzleFloatingButton)
+        .fixedSize()
+        .padding(.trailing, DS.Spacing.s4)
+        .padding(.bottom, addPuzzleFABBottomPadding)
+    }
+
+    private var addPuzzleToolbarButton: some View {
+        Menu {
+            addPuzzleMenuContents
+        } label: {
+            Image(systemName: "plus")
+                .font(.title3)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Add puzzle")
+        .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
+        .accessibilityIdentifier(A11yID.addPuzzleFloatingButton)
     }
 
     @ViewBuilder
@@ -326,24 +481,8 @@ struct PuzzleList: View {
         }
     }
 
-    private var puzzleDetailPlaceholder: some View {
-        ContentUnavailableView(
-            "Select a puzzle",
-            systemImage: "puzzlepiece.extension",
-            description: Text("Choose a puzzle from your collection to see details.")
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .brandScreenChrome()
-        .navigationTitle("Details")
-        .navigationBarTitleDisplayMode(.inline)
-    }
-
     private func navigateToPuzzle(id: UUID) {
-        if usesSplitNavigation {
-            selectedPuzzleID = id
-        } else {
-            openPuzzleRequest = OpenPuzzleRequest(id: id)
-        }
+        openPuzzleRequest = OpenPuzzleRequest(id: id)
     }
 
     private var puzzleCollection: some View {
@@ -359,15 +498,10 @@ struct PuzzleList: View {
                     if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
                         PuzzleCell(
                             ps: ps,
-                            puzzle: $ps.puzzles[index],
-                            selectedPuzzleID: usesSplitNavigation ? $selectedPuzzleID : nil
+                            puzzle: $ps.puzzles[index]
                         )
                             .id(ps.puzzles[index].id)
-                            .listRowBackground(
-                                selectedPuzzleID == puzzle.id
-                                    ? Brand.accent.opacity(0.12)
-                                    : Color.clear
-                            )
+                            .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(
                                 top: DS.Spacing.s2,
@@ -404,7 +538,7 @@ struct PuzzleList: View {
     @ViewBuilder
     private var filterHeaderContent: some View {
         VStack(spacing: DS.Spacing.s2) {
-            if verticalSizeClass == .compact {
+            if usesLandscapePhoneLayout {
                 compactFilterHeader
             } else if usesSplitNavigation {
                 splitFilterHeader
@@ -449,7 +583,14 @@ struct PuzzleList: View {
     /// Avoids a six-segment control clipping in a narrow column.
     private var splitFilterHeader: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+            Text("Puzzle Buddy")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(Brand.textPrimary)
+                .accessibilityAddTraits(.isHeader)
             HStack(spacing: DS.Spacing.s2) {
+                if showsAddPuzzleAction {
+                    addPuzzleToolbarButton
+                }
                 splitStatusMenuPicker
                 Spacer(minLength: DS.Spacing.s2)
                 if !ps.puzzles.isEmpty {
@@ -599,6 +740,8 @@ struct PuzzleList: View {
                     }
                 }
                 .padding(DS.Spacing.s4)
+                .frame(maxWidth: 680)
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .brandBackground()
@@ -612,8 +755,6 @@ struct PuzzleList: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
     }
 
     private var listFilterControls: some View {
@@ -1105,6 +1246,40 @@ private struct TagFilterSheet: View {
     }
 }
 
+/// Search & filter presentation: full-screen on iPad split (roomy, matches add/edit
+/// forms), detented sheet on compact-height iPhone landscape.
+private struct FilterSheetPresentation<SheetContent: View>: ViewModifier {
+    @Binding var isPresented: Bool
+    let usesFullScreen: Bool
+    @ViewBuilder var sheetContent: () -> SheetContent
+
+    func body(content: Content) -> some View {
+        content
+            .sheet(isPresented: sheetPresentation) {
+                sheetContent()
+                    .presentationDetents([.fraction(0.48), .large])
+                    .presentationDragIndicator(.visible)
+            }
+            .fullScreenCover(isPresented: fullScreenPresentation) {
+                sheetContent()
+            }
+    }
+
+    private var sheetPresentation: Binding<Bool> {
+        Binding(
+            get: { isPresented && !usesFullScreen },
+            set: { if !$0 { isPresented = false } }
+        )
+    }
+
+    private var fullScreenPresentation: Binding<Bool> {
+        Binding(
+            get: { isPresented && usesFullScreen },
+            set: { if !$0 { isPresented = false } }
+        )
+    }
+}
+
 private struct PuzzleListScreenChrome: ViewModifier {
     let splitNavigation: Bool
 
@@ -1112,7 +1287,7 @@ private struct PuzzleListScreenChrome: ViewModifier {
         if splitNavigation {
             content
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .brandScreenChrome()
+                .brandScreenChrome(ignoredSafeAreaEdges: .all)
         } else {
             content.readableBrandScreenChrome()
         }
