@@ -126,6 +126,74 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.nameRoleValue)
     }
 
+    private func addPuzzleFloatingButton(in app: XCUIApplication) -> XCUIElement {
+        let byID = app.buttons[UITestA11yID.addPuzzleFloatingButton]
+        if byID.exists { return byID }
+        return app.buttons.matching(
+            NSPredicate(format: "label == 'Add puzzle' AND identifier != %@", UITestA11yID.addPuzzleButton)
+        ).firstMatch
+    }
+
+    func testAddPuzzleFABLayoutInLandscape() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        let addButton = addPuzzleFloatingButton(in: app)
+        let firstRow = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")
+        ).firstMatch
+        XCTAssertTrue(addButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(firstRow.waitForExistence(timeout: 5))
+
+        app.rotateToLandscape()
+        _ = waitForMainApp(in: app, timeout: 8)
+        RunLoop.current.run(until: Date().addingTimeInterval(0.75))
+
+        let landscapeAddButton = addPuzzleFloatingButton(in: app)
+        let landscapeFirstRow = app.descendants(matching: .any).matching(
+            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_'")
+        ).firstMatch
+        XCTAssertTrue(landscapeAddButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(landscapeFirstRow.waitForExistence(timeout: 5))
+
+        let screen = app.windows.firstMatch.frame
+        let addFrame = landscapeAddButton.frame
+        let rowFrame = landscapeFirstRow.frame
+
+        XCTAssertGreaterThan(
+            screen.width,
+            screen.height,
+            "Expected landscape window before checking FAB layout"
+        )
+        XCTAssertGreaterThan(
+            addFrame.midX,
+            screen.width * 0.65,
+            "Add puzzle FAB should sit in the right portion of the screen in landscape"
+        )
+        // Bottom-right above tab bar: lower half of the screen, not aligned with the row band.
+        XCTAssertGreaterThan(
+            addFrame.minY,
+            screen.height * 0.55,
+            "Add puzzle FAB should sit in the lower portion of the screen in landscape"
+        )
+        XCTAssertGreaterThan(
+            addFrame.minX,
+            rowFrame.midX,
+            "Add puzzle FAB should sit to the right of the list row, not on top of it"
+        )
+        XCTAssertLessThanOrEqual(
+            addFrame.maxX,
+            screen.width + 1,
+            "Add puzzle FAB should not clip off the trailing edge"
+        )
+        XCTAssertLessThan(
+            addFrame.maxY,
+            screen.height - 8,
+            "Add puzzle FAB should stay fully on screen"
+        )
+    }
+
     func testPuzzleListAccessibilityAudit() throws {
         let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)

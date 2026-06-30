@@ -14,6 +14,7 @@ enum UITestA11yID {
     static let puzzleListSearchField = "puzzle_list_search_field"
     static let puzzleListSortMenu = "puzzle_list_sort_menu"
     static let addPuzzleButton = "add_puzzle_button"
+    static let addPuzzleFloatingButton = "add_puzzle_floating_button"
     static let puzzleDetailSummary = "puzzle_detail_summary"
     static let puzzleDetailStats = "puzzle_detail_stats"
     static let puzzleDetailPaceRow = "puzzle_detail_pace_row"
