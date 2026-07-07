@@ -84,6 +84,39 @@ Matches the tone of the Dart Buddy 1.1.0 update post: short declarative sentence
 - Local hobby/game stores that sell puzzles
 - Personal social accounts — a short demo video (barcode duplicate-check is the strongest 15-second demo) outperforms text alone
 
+## Additional opportunities (researched)
+
+**Apple App Store Featuring Nominations — do this regardless of everything else:**
+App Store Connect has a direct editorial-pitch tool (Featuring Nominations). Submit ~2 weeks to 3 months ahead of a launch or major update. Apple's stated criteria favor visual/accessibility craft and "a strong human story — the developer's background, the problem the app solves" — both fit Puzzle Buddy (WCAG 2.1 AA work, built-for-myself origin story). Worth submitting now for 1.0 and again for every meaningful update.
+
+**YouTube — jigsaw timelapse creators:**
+This genre is huge and largely un-monetized by companion apps. Creators already show their collection/organization on camera, so a natural on-screen mention fits better than a paid ad pitch — offer a free copy, no ask attached.
+- Karen Puzzles (~320K subs) — reviews, hacks, timelapses
+- Cronicas Puzzleras (Jimena & Jose Luis) — bilingual EN/ES audience, detailed reviews
+- Andre's Channel — individual videos hitting millions of views
+- Puzzle Time Lapse Videos channel
+
+**Podcasts** (pitch for a listener shoutout or short mention):
+- The Puzzle Podcast (hosted by Rosa)
+- Piece Talks — competitive/speed puzzling community
+- The Missing Piece
+
+**Company/retailer blogs** (not competitive with an app, so low-friction outreach):
+- Puzzle Warehouse's Puzzle Junkies blog
+- Jigsaw Jungle blog
+- The Puzzle Nerds blog
+
+**Discord:**
+- JigsawPuzzles.io Community (~6,450 members) — general puzzle-lovers server, not limited to their own web-puzzle product
+
+**More forums:**
+- Speedsolving.com — active jigsaw-puzzle thread inside the world's largest speedcubing/puzzle community
+- Puzzle Baron forums
+
+**Directory/discovery listings** (low-effort, long-tail, do once):
+- AlternativeTo.net — list as an alternative to Puzzle Tracker; fits the "another option" positioning and has long-term search traffic
+- Indie App Catalog — iOS-specific indie app directory
+
 ## Posting etiquette (avoid a repeat of the Dart Buddy Reddit reception)
 
 - Post from a real, aged account — not a throwaway that only posts self-promo
