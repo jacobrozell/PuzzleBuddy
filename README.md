@@ -174,6 +174,7 @@ Full details: [docs/architecture.md](docs/architecture.md).
 | [docs/features.md](docs/features.md) | Core features — user flows and behavior |
 | [docs/telemetry.md](docs/telemetry.md) | **Logging, Analytics, Crashlytics spec** (allowlists) |
 | [docs/competitive-gap-analysis.md](docs/competitive-gap-analysis.md) | IPDb + Puzzle Tracker gaps vs 1.0 |
+| [docs/release/marketing-copy.md](docs/release/marketing-copy.md) | Launch post drafts, platform copy, where to post |
 | [docs/roadmap.md](docs/roadmap.md) | Future releases and backlog |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist |
 | [docs/development.md](docs/development.md) | Local setup, debugging |
