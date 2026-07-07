@@ -117,6 +117,67 @@ This genre is huge and largely un-monetized by companion apps. Creators already 
 - AlternativeTo.net — list as an alternative to Puzzle Tracker; fits the "another option" positioning and has long-term search traffic
 - Indie App Catalog — iOS-specific indie app directory
 
+## Outreach templates
+
+Same rules as everywhere else: no ask attached, no expectation of coverage, offer the app free, keep it short — creators and hosts get pitched constantly and can tell a template from a genuine one by whether it asks for something.
+
+### YouTube creators (Karen Puzzles, Cronicas Puzzleras, Andre's Channel, etc.)
+
+> Subject: Small tool for your puzzle collection (free, no strings)
+>
+> Hi [Name],
+>
+> I'm Jacob, an indie iOS developer and a puzzler myself. I built a small app called Puzzle Buddy to catalog my jigsaw collection — piece counts, photos, ratings, wishlist vs. completed, and a barcode scanner so I stop buying duplicates.
+>
+> I've watched a bunch of your videos and figured you might get some use out of it, or have opinions on what's missing since you handle a lot more puzzles than I do. No ask attached — just wanted to send you a copy in case it's useful. If it ever comes up naturally in a video, great, but that's genuinely not why I'm reaching out.
+>
+> App Store link: [link]
+>
+> Thanks for all the puzzle content — appreciate what you do.
+> Jacob
+
+### Podcasts (The Puzzle Podcast, Piece Talks, The Missing Piece)
+
+> Subject: Puzzle collection tracker app — thought your listeners might like it
+>
+> Hi [Host name],
+>
+> I'm Jacob — I built a free iOS app called Puzzle Buddy for cataloging a jigsaw puzzle collection (piece counts, photos, ratings, wishlist through completed, barcode duplicate-check). I'm also a listener of the show and figured this community would have good opinions on what a tracker like this should actually do.
+>
+> No pitch for sponsorship or anything like that — just wanted to share it in case it's useful to you, or worth a quick mention to listeners. Happy to answer questions or send more details if helpful.
+>
+> [link]
+>
+> Thanks for the show, it's been a good companion while puzzling.
+> Jacob
+
+### Retailer/company blogs (Puzzle Warehouse, Jigsaw Jungle, The Puzzle Nerds)
+
+> Subject: Free puzzle collection app — might be worth a mention to your readers
+>
+> Hi there,
+>
+> I'm Jacob, an indie developer and puzzler who built Puzzle Buddy — a free iOS app for cataloging a jigsaw puzzle collection (piece counts, photos, ratings, wishlist through completed, barcode duplicate-check to avoid buying a puzzle twice). No account, no ads, nothing personal collected.
+>
+> I know it's not the only tracker out there, but I built it myself and I'm actively improving it, so I thought it might be a useful mention for readers who are organizing a growing collection. Happy to send screenshots, answer questions, or provide a promo code if that's useful — no expectations either way.
+>
+> [link]
+>
+> Thanks for running a great resource for the puzzle community.
+> Jacob
+
+### Apple App Store Connect — Featuring Nomination
+
+Paste into the nomination's free-text description field (structure follows Apple's requested "what/why/priority/accessibility" guidance):
+
+> Puzzle Buddy: Jigsaw Tracker is a new local-first jigsaw puzzle collection app for iPhone and iPad, shipping v1.0.0. It lets puzzlers catalog everything they own or want — piece count, photos, half-star ratings, difficulty, tags, and notes — and organize by status from Wishlist through Completed. A barcode scanner lets shoppers check whether they already own a puzzle before buying a duplicate, and a stats view tracks pieces assembled and time at the table over a collection's lifetime.
+>
+> I'm the sole developer and a jigsaw puzzle collector myself — I built this because I kept buying puzzles I already owned and wanted a simple, private way to track my own shelf. There's no account or login: all puzzle data, including photos, stays on-device. Firebase is used only for anonymized analytics and crash reporting, with an explicit allowlist of non-PII events.
+>
+> Accessibility was a first-class goal, not an afterthought: VoiceOver labels throughout, Dynamic Type support, Reduce Motion support, and an automated accessibility audit in CI targeting WCAG 2.1 AA conformance.
+>
+> This is a new-launch nomination for 1.0.0; I plan to keep submitting nominations for meaningful future updates as the app grows based on user feedback.
+
 ## Posting etiquette (avoid a repeat of the Dart Buddy Reddit reception)
 
 - Post from a real, aged account — not a throwaway that only posts self-promo
