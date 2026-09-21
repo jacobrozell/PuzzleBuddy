@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @ObservedObject var ps: PuzzleStore
@@ -15,14 +14,6 @@ struct SettingsView: View {
     @State private var showClearCollectionAlert = false
     @State private var showLoadDemoAlert = false
     @State private var showRemoveDemoAlert = false
-    @State private var showIPDbImporter = false
-    @State private var showBackupImporter = false
-    @State private var backupImportPolicy: PuzzleBackupImportPolicy = .mergeSkipExistingIDs
-    @State private var showReplaceBackupConfirmation = false
-    @State private var isImporting = false
-    @State private var importSummary: PuzzleImportSummary?
-    @State private var exportShareURL: URL?
-    @State private var isExporting = false
 
     private var appearance: Binding<AppearancePreference> {
         Binding(
@@ -34,7 +25,6 @@ struct SettingsView: View {
     var body: some View {
         List {
             settingsHeader
-
             appearanceSection
             dataSection
             supportSection
@@ -64,52 +54,6 @@ struct SettingsView: View {
             }
         } message: {
             Text("This permanently removes every puzzle on this device. This cannot be undone.")
-        }
-        .fileImporter(
-            isPresented: $showIPDbImporter,
-            allowedContentTypes: [.commaSeparatedText, .plainText, .utf8PlainText, .data],
-            allowsMultipleSelection: false
-        ) { result in
-            importIPDbCSV(result)
-        }
-        .fileImporter(
-            isPresented: $showBackupImporter,
-            allowedContentTypes: [.json],
-            allowsMultipleSelection: false
-        ) { result in
-            importJSONBackup(result, policy: backupImportPolicy)
-        }
-        .alert("Replace entire collection?", isPresented: $showReplaceBackupConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Choose backup file", role: .destructive) {
-                backupImportPolicy = .replaceAll
-                showBackupImporter = true
-            }
-        } message: {
-            Text("This permanently removes every puzzle on this device and restores from your JSON backup. This cannot be undone.")
-        }
-        .sheet(item: $importSummary) { summary in
-            IPDbImportSummarySheet(summary: summary)
-        }
-        .sheet(isPresented: Binding(
-            get: { exportShareURL != nil },
-            set: { if !$0 { exportShareURL = nil } }
-        )) {
-            if let exportShareURL {
-                FileShareSheet(url: exportShareURL)
-            }
-        }
-        .overlay {
-            if isImporting || isExporting {
-                ZStack {
-                    Color.black.opacity(0.2).ignoresSafeArea()
-                    ProgressView(isImporting ? "Importing puzzles…" : "Preparing export…")
-                        .padding()
-                        .background(Brand.card)
-                        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
-                }
-                .accessibilityLabel(isImporting ? "Importing puzzles from CSV file" : "Preparing collection export")
-            }
         }
     }
 
@@ -145,10 +89,6 @@ struct SettingsView: View {
 
     private var dataSection: some View {
         Section {
-            if ProductService.isCollectionImportExportEnabled {
-                importExportButtons
-            }
-
             Button {
                 showLoadDemoAlert = true
             } label: {
@@ -179,67 +119,8 @@ struct SettingsView: View {
         } header: {
             Text("Collection")
         } footer: {
-            VStack(alignment: .leading, spacing: DS.Spacing.s3) {
-                if ProductService.isCollectionImportExportEnabled {
-                    Text("Import: IPDb CSV for migration, or JSON backup to merge or fully restore your collection. Export: back up as JSON (full restore) or IPDb-compatible CSV. CSV files never include photos.")
-                    LegalDisclaimerFooter(
-                        text: LegalCopy.ipdbImportDisclaimer,
-                        style: .form
-                    )
-                } else {
-                    Text("Backup and IPDb import arrive in a future update. Your collection stays on this device.")
-                }
-            }
+            Text("Your collection stays on this device. Demo data is optional sample puzzles for exploring the app.")
         }
-    }
-
-    @ViewBuilder
-    private var importExportButtons: some View {
-        Button {
-            showIPDbImporter = true
-        } label: {
-            Label("Import from IPDb CSV", systemImage: "square.and.arrow.down")
-        }
-        .disabled(isImporting || isExporting)
-        .optionalAccessibilityIdentifier(A11yID.settingsImportIPDbButton)
-        .accessibilityHint("Opens the Files app to choose an IPDb CSV export")
-
-        Button {
-            backupImportPolicy = .mergeSkipExistingIDs
-            showBackupImporter = true
-        } label: {
-            Label("Import backup (JSON)", systemImage: "arrow.trianglehead.2.counterclockwise")
-        }
-        .disabled(isImporting || isExporting)
-        .optionalAccessibilityIdentifier(A11yID.settingsImportBackupButton)
-        .accessibilityHint("Merges puzzles from a Puzzle Buddy JSON backup; skips puzzles already in your collection")
-
-        Button(role: .destructive) {
-            showReplaceBackupConfirmation = true
-        } label: {
-            Label("Restore from backup…", systemImage: "arrow.counterclockwise")
-        }
-        .disabled(isImporting || isExporting)
-        .optionalAccessibilityIdentifier(A11yID.settingsRestoreBackupButton)
-        .accessibilityHint("Replaces your entire collection with a JSON backup")
-
-        Menu {
-            Button {
-                exportCollection(format: .json)
-            } label: {
-                Label("Export as JSON", systemImage: "doc.text")
-            }
-            Button {
-                exportCollection(format: .csv)
-            } label: {
-                Label("Export as IPDb CSV", systemImage: "tablecells")
-            }
-        } label: {
-            Label("Export collection", systemImage: "square.and.arrow.up")
-        }
-        .disabled(ps.puzzles.isEmpty || isImporting || isExporting)
-        .optionalAccessibilityIdentifier(A11yID.settingsExportCollectionButton)
-        .accessibilityHint("Creates a backup file you can save or share")
     }
 
     private var supportSection: some View {
@@ -304,114 +185,6 @@ struct SettingsView: View {
             try ps.clearAllPuzzles()
         } catch {
             eh.handle(title: "Could not delete puzzles", message: error.localizedDescription)
-        }
-    }
-
-    private func exportCollection(format: PuzzleCollectionExportFormat) {
-        guard !ps.puzzles.isEmpty else {
-            eh.handle(title: "Nothing to export", message: PuzzleCollectionExportError.emptyCollection.localizedDescription)
-            return
-        }
-
-        isExporting = true
-        Task {
-            defer { Task { @MainActor in isExporting = false } }
-            do {
-                let url = try PuzzleCollectionExporter.writeTemporaryFile(from: ps.puzzles, format: format)
-                await MainActor.run {
-                    exportShareURL = url
-                }
-                AppLog.shared.info(
-                    .ui,
-                    eventName: "settings_collection_exported",
-                    message: "User exported collection.",
-                    metadata: ["format": format.rawValue, "puzzle_count": "\(ps.puzzles.count)"]
-                )
-            } catch {
-                await MainActor.run {
-                    eh.handle(title: "Export failed", message: error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    private func importIPDbCSV(_ result: Result<[URL], Error>) {
-        switch result {
-        case .failure(let error):
-            eh.handle(title: "Could not open file", message: error.localizedDescription)
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            isImporting = true
-            Task {
-                defer { Task { @MainActor in isImporting = false } }
-                do {
-                    let summary = try await importIPDbCSV(at: url)
-                    await MainActor.run {
-                        importSummary = summary
-                    }
-                } catch {
-                    await MainActor.run {
-                        eh.handle(title: "Import failed", message: error.localizedDescription)
-                    }
-                }
-            }
-        }
-    }
-
-    private func importIPDbCSV(at url: URL) async throws -> PuzzleImportSummary {
-        let accessed = url.startAccessingSecurityScopedResource()
-        defer {
-            if accessed {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-
-        let data = try Data(contentsOf: url)
-        let puzzles = try IPDbCSVImporter.puzzles(from: data)
-        return try await MainActor.run {
-            try ps.importPuzzles(puzzles)
-        }
-    }
-
-    private func importJSONBackup(_ result: Result<[URL], Error>, policy: PuzzleBackupImportPolicy) {
-        switch result {
-        case .failure(let error):
-            eh.handle(title: "Could not open file", message: error.localizedDescription)
-        case .success(let urls):
-            guard let url = urls.first else { return }
-            isImporting = true
-            Task {
-                defer { Task { @MainActor in isImporting = false } }
-                do {
-                    let summary = try await importJSONBackup(at: url, policy: policy)
-                    await MainActor.run {
-                        importSummary = summary
-                    }
-                } catch {
-                    await MainActor.run {
-                        eh.handle(title: "Restore failed", message: error.localizedDescription)
-                    }
-                }
-            }
-        }
-    }
-
-    private func importJSONBackup(at url: URL, policy: PuzzleBackupImportPolicy) async throws -> PuzzleImportSummary {
-        let accessed = url.startAccessingSecurityScopedResource()
-        defer {
-            if accessed {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-
-        let data = try Data(contentsOf: url)
-        let parseResult = try PuzzleCollectionJSONImporter.parse(from: data)
-        return try await MainActor.run {
-            try ps.importBackup(
-                parseResult.puzzles,
-                policy: policy,
-                preSkippedInvalid: parseResult.skippedInvalid
-            )
         }
     }
 }
