@@ -38,6 +38,7 @@ enum PuzzleCollectionJSONImportError: LocalizedError {
 enum PuzzleCollectionJSONImporter {
     struct ParseResult {
         let puzzles: [Puzzle]
+        let friends: [Friend]
         let skippedInvalid: Int
         let totalRecords: Int
     }
@@ -62,6 +63,8 @@ enum PuzzleCollectionJSONImporter {
             throw PuzzleCollectionJSONImportError.unsupportedFormatVersion(formatVersion)
         }
 
+        let friends = (payload.friends ?? []).compactMap(PuzzleBackupNormalizer.friend(from:))
+
         var skippedInvalid = 0
         let restored = payload.puzzles.compactMap { record -> Puzzle? in
             guard let puzzle = PuzzleBackupNormalizer.puzzle(from: record) else {
@@ -77,6 +80,7 @@ enum PuzzleCollectionJSONImporter {
 
         return ParseResult(
             puzzles: restored,
+            friends: friends,
             skippedInvalid: skippedInvalid,
             totalRecords: payload.puzzles.count
         )
@@ -94,6 +98,7 @@ private struct PuzzleBackupImportPayload: Decodable {
     let exportedAt: Date?
     let appVersion: String?
     let puzzleCount: Int?
+    let friends: [FriendExportRecord]?
     let puzzles: [PuzzleBackupImportRecord]
 
     var resolvedFormatVersion: Int {
@@ -129,6 +134,11 @@ private struct PuzzleBackupImportRecord: Decodable {
     let barcode: String?
     let tags: [String]?
     let hasMissingPieces: Bool?
+    let isOnLoan: Bool?
+    let loanedToFriendId: String?
+    let loanedAt: Date?
+    let dueBackDate: Date?
+    let lastLoanNudgeAt: Date?
     let hasImage: Bool?
     let photoCount: Int?
     let photos: [PuzzleExportPhotoRecord]?
@@ -182,7 +192,12 @@ private enum PuzzleBackupNormalizer {
             completions: parseCompletions(record.completions),
             isDemo: record.isDemo ?? false,
             barcode: BarcodeNormalizer.normalize(record.barcode),
-            tags: PuzzleTagSemantics.sanitizedTags(record.tags ?? [])
+            tags: PuzzleTagSemantics.sanitizedTags(record.tags ?? []),
+            isOnLoan: record.isOnLoan ?? false,
+            loanedToFriendID: record.loanedToFriendId.flatMap(UUID.init(uuidString:)),
+            loanedAt: record.loanedAt,
+            dueBackDate: record.dueBackDate,
+            lastLoanNudgeAt: record.lastLoanNudgeAt
         )
 
         if let idString = record.id, let uuid = UUID(uuidString: idString) {
@@ -190,6 +205,21 @@ private enum PuzzleBackupNormalizer {
         }
 
         return finalize(puzzle)
+    }
+
+    static func friend(from record: FriendExportRecord) -> Friend? {
+        guard let id = UUID(uuidString: record.id),
+              let name = FriendSemantics.normalizedDisplayName(record.displayName) else {
+            return nil
+        }
+        return Friend(
+            id: id,
+            displayName: name,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt,
+            remoteId: record.remoteId,
+            isDemo: record.isDemo
+        )
     }
 
     static func finalize(_ puzzle: Puzzle) -> Puzzle {
