@@ -16,7 +16,7 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
 
     override func setUpWithError() throws {
         container = try ModelContainer(
-            for: PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
+            for: FriendRecord.self, PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         context = container.mainContext
@@ -93,6 +93,23 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         XCTAssertEqual(loaded.timesCompleted, 2)
         XCTAssertEqual(loaded.completions.count, 2)
         XCTAssertEqual(loaded.completions.map(\.completionNumber), [1, 2])
+    }
+
+    func testStartRedoPreservesLastCompletionDate() throws {
+        let finishedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        var puzzle = Puzzle.fixture(name: "KeepDate", pieces: 300)
+        puzzle.status = .completed
+        puzzle.completionDate = finishedAt
+
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first(where: { $0.name == "KeepDate" }))
+        XCTAssertEqual(loaded.completionDate, finishedAt)
+
+        try store.startRedo(puzzle: loaded)
+        loaded = try XCTUnwrap(store.puzzles.first(where: { $0.id == loaded.id }))
+        XCTAssertEqual(loaded.status, .inProgress)
+        XCTAssertEqual(loaded.completionDate, finishedAt)
+        XCTAssertNotEqual(loaded.startDate, finishedAt)
     }
 
     func testUpdateWithoutStatusChangeDoesNotAddCompletion() throws {

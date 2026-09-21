@@ -219,7 +219,7 @@ final class PuzzleCollectionBackupTests: XCTestCase {
 
     private func makeContainer() throws -> ModelContainer {
         try ModelContainer(
-            for: PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
+            for: FriendRecord.self, PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
     }
