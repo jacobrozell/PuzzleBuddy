@@ -30,6 +30,11 @@ enum UITestA11yID {
     static let collectionStatsCompletedCard = "collection_stats_completed_card"
     static let settingsImportIPDbButton = "settings_import_ipdb_button"
     static let settingsExportCollectionButton = "settings_export_collection_button"
+    static let onboardingPager = "onboarding_pager"
+    static let onboardingSkipButton = "onboarding_skip_button"
+    static let onboardingNextButton = "onboarding_next_button"
+    static let onboardingBackButton = "onboarding_back_button"
+    static let onboardingFinishButton = "onboarding_finish_button"
 
     static let seededPuzzleRowLabelPrefix = "The Bizarre Bookshop"
 }
@@ -38,7 +43,11 @@ enum UITestLaunch {
     static let disableFirebaseAnalytics = "-disable_firebase_analytics"
     static let bypassOnboarding = "-ui_testing_bypass_onboarding"
     static let seedPuzzles = "-ui_testing_seed_puzzles"
+    static let uiTestReset = "-ui_test_reset"
+    static let snapshotOnboarding = "-snapshot_onboarding"
 
     static let bypassArguments = [disableFirebaseAnalytics, bypassOnboarding, seedPuzzles]
     static let defaultArguments = [disableFirebaseAnalytics, seedPuzzles]
+    /// Forces first-run carousel without bypassing it (`-snapshot_onboarding` wins over test auto-complete).
+    static let onboardingArguments = [disableFirebaseAnalytics, uiTestReset, snapshotOnboarding]
 }

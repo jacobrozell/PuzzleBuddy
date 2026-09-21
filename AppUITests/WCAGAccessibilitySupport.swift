@@ -83,7 +83,7 @@ extension XCTestCase {
         return app
     }
 
-    private func dismissSystemAlertsIfNeeded() {
+    func dismissSystemAlertsIfNeeded() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         let deny = springboard.alerts.buttons["Don’t Allow"]
         if deny.waitForExistence(timeout: 2) {

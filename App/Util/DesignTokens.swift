@@ -392,6 +392,7 @@ enum A11yID {
         "puzzle_detail_completion_\(number)"
     }
     static let puzzleDetailBarcodeRow = "puzzle_detail_barcode_row"
+    static let onboardingPager = "onboarding_pager"
     static let onboardingSkipButton = "onboarding_skip_button"
     static let onboardingNextButton = "onboarding_next_button"
     static let onboardingBackButton = "onboarding_back_button"

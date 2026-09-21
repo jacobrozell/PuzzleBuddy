@@ -37,18 +37,19 @@ First-time users see a four-page onboarding carousel (`OnboardingView`) stored i
 
 | Page | Title | Message |
 |------|-------|---------|
-| 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — track every box on your shelf |
-| 2 | Build Your Collection | Log piece counts, ratings, difficulty, and status |
-| 3 | Capture the Moment | Attach photos from camera or library |
-| 4 | Ready to Puzzle? | Barcode scan, shopping duplicate-check, pick my next puzzle — everything stays on device |
+| 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — offline and private |
+| 2 | Shop With Confidence | Offline barcode duplicate-check at the thrift store |
+| 3 | Build Your Collection | Brands, piece counts, tags, ratings, pick-next |
+| 4 | Ready to Puzzle? | Local-first — add your first puzzle |
 
 Navigation:
 
-- **Skip** (page 1) or **Back** / **Next** on subsequent pages
+- **Skip** / **Next** on every page; **Back** from page 2 onward
 - **Get Started** on the final page marks onboarding complete and dismisses the flow
-- Completing onboarding logs `onboarding_completed` to Analytics (allowlisted)
+- Completing onboarding logs `onboarding_completed` to Analytics (allowlisted); Skip logs `onboarding_skipped`
+- Visual polish: branded ambient heroes, accent page dots, Reduce Motion–safe enter animation
 
-Onboarding is skipped automatically during UI tests (`UITestSupport.isRunningUnderTest`).
+Onboarding is skipped automatically during most UI tests (`-ui_testing_bypass_onboarding`). Dedicated onboarding coverage uses `-ui_test_reset -snapshot_onboarding` (`OnboardingUITests`).
 
 ### Root routing
 
