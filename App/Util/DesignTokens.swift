@@ -323,6 +323,7 @@ enum A11yID {
     static let puzzleDetailProgress = "puzzle_detail_progress"
     static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
     static let settingsRemoveDemoButton = "settings_remove_demo_button"
+    static let settingsWriteReviewButton = "settings_write_review_button"
     static let settingsImportIPDbButton = "settings_import_ipdb_button"
     static let settingsImportBackupButton = "settings_import_backup_button"
     static let settingsRestoreBackupButton = "settings_restore_backup_button"

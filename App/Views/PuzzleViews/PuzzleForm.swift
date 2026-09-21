@@ -6,6 +6,7 @@
 //
 
 import PhotosUI
+import StoreKit
 import SwiftUI
 
 class PuzzleFormViewModel: ObservableObject {
@@ -77,6 +78,7 @@ struct PuzzleFormInternal: View {
     @ObservedObject var formVm: PuzzleFormViewModel
     var allPuzzles: [Puzzle] = []
     @State private var showBarcodeScanner = false
+    @Environment(\.requestReview) private var requestReview
 
     private var barcodeDuplicate: Puzzle? {
         PuzzleDuplicateChecker.findDuplicate(
@@ -407,6 +409,7 @@ struct PuzzleFormInternal: View {
             BarcodeScannerSheet { raw in
                 if let normalized = BarcodeNormalizer.normalize(raw) {
                     formVm.puzzle.barcode = normalized
+                    StoreReviewPrompt.requestIfEligible(reason: .barcodeScan, requestReview: requestReview)
                 } else {
                     let digits = raw.filter(\.isNumber)
                     formVm.puzzle.barcode = digits.isEmpty ? nil : digits

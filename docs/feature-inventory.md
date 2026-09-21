@@ -29,7 +29,8 @@
 | Stats | **Completion milestones** banner | `CollectionMilestones` |
 | Stats | Per-puzzle pace metrics | `PuzzleDetailMetrics` |
 | Stats | Share collage | `PuzzleShareMenu` |
-| Settings | Appearance, demo data, legal links | `SettingsView` |
+| Settings | Appearance, demo data, legal links, **Write a Review** | `SettingsView`, `AppLinks.appStoreWriteReview` |
+| Settings | One-time StoreKit review prompt after scan or edit | `StoreReviewPrompt` |
 | Observability | Allowlisted Analytics + Crashlytics | `AppLog`, [telemetry.md](telemetry.md) |
 | A11y | Phase 1 + automated audits | `A11yID`, `PuzzleAccessibilityUITests` |
 

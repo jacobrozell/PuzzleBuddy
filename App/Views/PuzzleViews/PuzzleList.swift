@@ -5,6 +5,7 @@
 //  Created by Jacob Rozell on 7/23/22.
 //
 
+import StoreKit
 import SwiftUI
 
 
@@ -14,6 +15,7 @@ struct PuzzleList: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.verticalSizeClass) private var verticalSizeClass
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.requestReview) private var requestReview
     @ObservedObject var ps: PuzzleStore
     @State private var present = false
     @State private var showScanner = false
@@ -1084,6 +1086,7 @@ struct PuzzleList: View {
                 message: "Barcode scan completed.",
                 metadata: ["scan_context": "list_scan", "scan_result": "match"]
             )
+            StoreReviewPrompt.requestIfEligible(reason: .barcodeScan, requestReview: requestReview)
             return
         }
 
@@ -1094,6 +1097,7 @@ struct PuzzleList: View {
             message: "Barcode scan completed.",
             metadata: ["scan_context": "list_scan", "scan_result": "no_match"]
         )
+        StoreReviewPrompt.requestIfEligible(reason: .barcodeScan, requestReview: requestReview)
         beginQuickAdd(barcode: normalized)
     }
 

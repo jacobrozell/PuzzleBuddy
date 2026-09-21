@@ -10,7 +10,7 @@ Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytic
 
 **Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-21
 
 ---
 
@@ -168,6 +168,8 @@ These appear in Console / Crashlytics breadcrumbs but **not** as Analytics event
 | `puzzle_photo_fetch_failed` | warning | `PuzzleStore.fetchPhotoRecords` |
 | `puzzle_completion_fetch_failed` | warning | `PuzzleStore.fetchCompletionRecords` |
 | `puzzle_record_fetch_failed` | warning | `PuzzleStore.fetchRecord` |
+| `store_review_requested` | info | `StoreReviewPrompt` after scan/edit (`entry_point`) |
+| `store_review_link_opened` | info | `SettingsView` write-review (`entry_point` `settings_link`) |
 
 Promote to Analytics allowlist only with product approval.
 

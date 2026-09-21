@@ -33,6 +33,7 @@ enum UserPreferences {
     static let appearanceStorageKey = "PuzzleBuddy.AppearancePreference"
     static let ephemeralStoreBannerDismissedKey = "PuzzleBuddy.EphemeralStoreBannerDismissed"
     static let storeWasResetNoticePendingKey = "PuzzleBuddy.StoreWasResetNoticePending"
+    static let hasRequestedStoreReviewKey = "PuzzleBuddy.HasRequestedStoreReview"
 
     /// True when SwiftData fell back to an in-memory store (changes won't survive relaunch).
     static var isRunningInEphemeralStore = false

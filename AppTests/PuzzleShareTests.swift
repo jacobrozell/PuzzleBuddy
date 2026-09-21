@@ -33,6 +33,11 @@ final class PuzzleShareTests: XCTestCase {
         XCTAssertEqual(AppLinks.shareFooterLabel, "jacobrozell.github.io/PuzzleBuddy")
     }
 
+    func testAppStoreWriteReviewURL() {
+        XCTAssertTrue(AppLinks.appStoreWriteReview.absoluteString.contains(AppLinks.appStoreID))
+        XCTAssertTrue(AppLinks.appStoreWriteReview.absoluteString.contains("action=write-review"))
+    }
+
     func testCollageRendererProducesImage() {
         let puzzles = [
             makePuzzle(name: "Sunset", status: .completed),

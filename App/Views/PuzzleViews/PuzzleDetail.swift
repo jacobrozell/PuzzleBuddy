@@ -5,11 +5,13 @@
 //  Created by Jacob Rozell on 8/31/22.
 //
 
+import StoreKit
 import SwiftUI
 
 struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
+    @Environment(\.requestReview) private var requestReview
     @State private var isEditable = false
     @State private var editFormVm: PuzzleFormViewModel?
     @State private var showRedoConfirmation = false
@@ -71,6 +73,9 @@ struct PuzzleDetail: View {
                         try ps.update(puzzle: editFormVm.puzzle)
                         if let refreshed = ps.puzzles.first(where: { $0.id == editFormVm.puzzle.id }) {
                             puzzle = refreshed
+                        }
+                        if !editFormVm.puzzle.isDemo {
+                            StoreReviewPrompt.requestIfEligible(reason: .puzzleEdited, requestReview: requestReview)
                         }
                         self.editFormVm = nil
                         isEditable = false

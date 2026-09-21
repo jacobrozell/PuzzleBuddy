@@ -9,6 +9,7 @@ import UniformTypeIdentifiers
 struct SettingsView: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
+    @Environment(\.openURL) private var openURL
 
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
     @State private var showClearCollectionAlert = false
@@ -243,6 +244,15 @@ struct SettingsView: View {
 
     private var supportSection: some View {
         Section {
+            Button {
+                StoreReviewPrompt.recordSettingsLinkOpened()
+                openURL(AppLinks.appStoreWriteReview)
+            } label: {
+                Text("Write a Review")
+            }
+            .optionalAccessibilityIdentifier(A11yID.settingsWriteReviewButton)
+            .accessibilityHint("Opens the App Store so you can rate Puzzle Buddy")
+
             Link("Privacy Policy", destination: AppLinks.privacyPolicy)
             Link("Support", destination: AppLinks.support)
             Link("Accessibility", destination: AppLinks.accessibility)

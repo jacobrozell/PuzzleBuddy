@@ -11,6 +11,7 @@ Use this when creating the app record and submitting build **1.0.0 (1)**. Aligns
 | **Primary category** | Lifestyle (or Entertainment) |
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
 | **SKU** | `a001puzzlebuddy` |
+| **Apple ID** | `1642548378` |
 | **Version** | 1.0.0 |
 | **Build** | 1 |
 | **Keywords** | See [ASO](#app-store-optimization-aso) below |
