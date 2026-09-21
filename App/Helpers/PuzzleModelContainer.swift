@@ -7,28 +7,46 @@ import Foundation
 import SwiftData
 
 enum PuzzleModelContainer {
-    private static func makeInMemory(schema: Schema) -> ModelContainer {
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+    static var currentSchema: Schema {
+        Schema([
+            FriendRecord.self,
+            PuzzleRecord.self,
+            PuzzlePhotoRecord.self,
+            PuzzleCompletionRecord.self,
+        ])
+    }
+
+    /// Versioned schema used for on-disk opens with `PuzzleMigrationPlan`.
+    static var versionedSchema: Schema {
+        Schema(versionedSchema: PuzzleSchemaV2.self)
+    }
+
+    /// In-memory container for previews, UI tests, and unit tests.
+    /// Opens the current schema without a migration plan (fresh store every time).
+    static func makeInMemory() -> ModelContainer {
+        let configuration = ModelConfiguration(schema: currentSchema, isStoredInMemoryOnly: true)
         do {
             UserPreferences.isRunningInEphemeralStore = true
-            return try ModelContainer(for: schema, configurations: [configuration])
+            return try ModelContainer(for: currentSchema, configurations: [configuration])
         } catch {
             fatalError("Could not create in-memory ModelContainer: \(error)")
         }
     }
 
     static func makePersistent() -> ModelContainer {
-        let schema = Schema([PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self])
-
         if UITestSupport.isRunningUnderTest {
-            return makeInMemory(schema: schema)
+            return makeInMemory()
         }
 
-        let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let configuration = ModelConfiguration(schema: versionedSchema, isStoredInMemoryOnly: false)
 
         do {
             UserPreferences.isRunningInEphemeralStore = false
-            return try ModelContainer(for: schema, configurations: [configuration])
+            return try ModelContainer(
+                for: versionedSchema,
+                migrationPlan: PuzzleMigrationPlan.self,
+                configurations: [configuration]
+            )
         } catch {
             AppLog.shared.warning(
                 .puzzles,
@@ -36,7 +54,7 @@ enum PuzzleModelContainer {
                 message: error.localizedDescription
             )
             do {
-                return try recreatePersistentContainer(schema: schema, configuration: configuration)
+                return try recreatePersistentContainer(configuration: configuration)
             } catch {
                 AppLog.shared.warning(
                     .puzzles,
@@ -48,13 +66,12 @@ enum PuzzleModelContainer {
                     eventName: "model_container_ephemeral_fallback",
                     message: "Using in-memory store; changes will not persist."
                 )
-                return makeInMemory(schema: schema)
+                return makeInMemory()
             }
         }
     }
 
     private static func recreatePersistentContainer(
-        schema: Schema,
         configuration: ModelConfiguration
     ) throws -> ModelContainer {
         let storeURL = configuration.url
@@ -69,7 +86,11 @@ enum PuzzleModelContainer {
         }
 
         UserPreferences.isRunningInEphemeralStore = false
-        let container = try ModelContainer(for: schema, configurations: [configuration])
+        let container = try ModelContainer(
+            for: versionedSchema,
+            migrationPlan: PuzzleMigrationPlan.self,
+            configurations: [configuration]
+        )
 
         // Recovery succeeded but the previous collection was unreadable and is now gone.
         // Flag it for a one-time user notice and record a non-fatal so we hear about it.

@@ -117,6 +117,13 @@ class Puzzle: ObservableObject {
     @Published var isDemo: Bool = false
     @Published var barcode: String? = nil
     @Published var tags: [String] = []
+    @Published var isOnLoan: Bool = false
+    @Published var loanedToFriendID: UUID? = nil
+    /// Resolved / draft name for UI; persisted via FriendStore + loanedToFriendID.
+    @Published var loanedToDisplayName: String? = nil
+    @Published var loanedAt: Date? = nil
+    @Published var dueBackDate: Date? = nil
+    @Published var lastLoanNudgeAt: Date? = nil
     @Published var image: UIImage? = nil {
         didSet {
             syncCoverPhotoFromLegacyImage()
@@ -166,7 +173,13 @@ class Puzzle: ObservableObject {
                   completions: [PuzzleCompletion] = [],
                   isDemo: Bool = false,
                   barcode: String? = nil,
-                  tags: [String] = []
+                  tags: [String] = [],
+                  isOnLoan: Bool = false,
+                  loanedToFriendID: UUID? = nil,
+                  loanedToDisplayName: String? = nil,
+                  loanedAt: Date? = nil,
+                  dueBackDate: Date? = nil,
+                  lastLoanNudgeAt: Date? = nil
     ) {
         self.name = name
         self.pieces = pieces
@@ -196,6 +209,12 @@ class Puzzle: ObservableObject {
         self.isDemo = isDemo
         self.barcode = BarcodeNormalizer.normalize(barcode)
         self.tags = PuzzleTagSemantics.sanitizedTags(tags)
+        self.isOnLoan = isOnLoan
+        self.loanedToFriendID = loanedToFriendID
+        self.loanedToDisplayName = FriendSemantics.normalizedDisplayName(loanedToDisplayName)
+        self.loanedAt = loanedAt
+        self.dueBackDate = dueBackDate
+        self.lastLoanNudgeAt = lastLoanNudgeAt
         self.image = PuzzlePhotoSemantics.coverImage(from: self.photos)
     }
 
@@ -219,6 +238,7 @@ class Puzzle: ObservableObject {
         if let dimensionsText {
             self.dimensionsText = String(dimensionsText.prefix(80))
         }
+        loanedToDisplayName = FriendSemantics.normalizedDisplayName(loanedToDisplayName)
     }
 
     /// Deep copy for edit mode so in-form changes do not mutate the live detail binding.
@@ -269,7 +289,13 @@ class Puzzle: ObservableObject {
             completions: copiedCompletions,
             isDemo: isDemo,
             barcode: barcode,
-            tags: tags
+            tags: tags,
+            isOnLoan: isOnLoan,
+            loanedToFriendID: loanedToFriendID,
+            loanedToDisplayName: loanedToDisplayName,
+            loanedAt: loanedAt,
+            dueBackDate: dueBackDate,
+            lastLoanNudgeAt: lastLoanNudgeAt
         )
         copy.id = id
         copy.image = image
