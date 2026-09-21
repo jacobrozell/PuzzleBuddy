@@ -17,6 +17,7 @@ struct CollectionStats: Equatable {
     let totalMinutesPuzzling: Int
     let backlogCount: Int
     let missingPiecesCount: Int
+    let onLoanCount: Int
     let averageRating: Double?
     let favoritePieceCount: Int?
     let averageDaysToComplete: Double?
@@ -49,6 +50,7 @@ struct CollectionStats: Equatable {
         let wishlist = puzzles.filter { $0.status == .wishlist }
         let abandoned = puzzles.filter { $0.status == .abandoned }
         let missingPieces = puzzles.filter(\.hasMissingPieces)
+        let onLoan = puzzles.filter(\.isOnLoan)
 
         let pieceCounts = completed.compactMap(\.pieces)
         let ratedCompleted = completed.filter { $0.rating != .none }
@@ -81,6 +83,7 @@ struct CollectionStats: Equatable {
             totalMinutesPuzzling: totalMinutes,
             backlogCount: todo.count,
             missingPiecesCount: missingPieces.count,
+            onLoanCount: onLoan.count,
             averageRating: averageRating,
             favoritePieceCount: favoritePieceCount(from: pieceCounts),
             averageDaysToComplete: averageDays,
