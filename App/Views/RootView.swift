@@ -19,6 +19,8 @@ struct RootView: View {
             }
         }
         .task {
+            AnalyticsSessionContext.beginSession()
+            AnalyticsUserContext.syncOnboardingComplete()
             AppLog.shared.info(.app, eventName: "app_bootstrap_ready", message: "Puzzle Buddy launched.")
         }
     }

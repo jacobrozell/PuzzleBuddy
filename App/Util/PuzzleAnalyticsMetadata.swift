@@ -79,4 +79,55 @@ enum PuzzleAnalyticsMetadata {
         values["has_missing_pieces"] = puzzle.hasMissingPieces ? "true" : "false"
         return values
     }
+
+    /// Coarse collection size for user properties and session snapshots (not exact counts).
+    static func collectionSizeBucket(_ count: Int) -> String {
+        switch max(0, count) {
+        case 0: return "0"
+        case 1: return "1"
+        case 2...5: return "2_5"
+        case 6...20: return "6_20"
+        case 21...50: return "21_50"
+        default: return "51_plus"
+        }
+    }
+
+    static func completedCountBucket(_ count: Int) -> String {
+        switch max(0, count) {
+        case 0: return "0"
+        case 1: return "1"
+        case 2...5: return "2_5"
+        default: return "6_plus"
+        }
+    }
+
+    /// `nil` means no prior open recorded (true first session for analytics).
+    static func daysSinceLastOpenBucket(days: Int?) -> String {
+        guard let days else { return "first_open" }
+        switch max(0, days) {
+        case 0: return "0"
+        case 1: return "1"
+        case 2...7: return "2_7"
+        case 8...30: return "8_30"
+        default: return "31_plus"
+        }
+    }
+
+    static func collectionSnapshotMetadata(for puzzles: [Puzzle]) -> [String: String] {
+        let wishlist = puzzles.filter { $0.status == .wishlist }.count
+        let todo = puzzles.filter { $0.status == .todo }.count
+        let inProgress = puzzles.filter { $0.status == .inProgress }.count
+        let completed = puzzles.filter { $0.status == .completed }.count
+        let abandoned = puzzles.filter { $0.status == .abandoned }.count
+        return [
+            "puzzle_count": "\(puzzles.count)",
+            "count_wishlist": "\(wishlist)",
+            "count_todo": "\(todo)",
+            "count_in_progress": "\(inProgress)",
+            "count_completed": "\(completed)",
+            "count_abandoned": "\(abandoned)",
+            "collection_size_bucket": collectionSizeBucket(puzzles.count),
+            "completed_count_bucket": completedCountBucket(completed),
+        ]
+    }
 }

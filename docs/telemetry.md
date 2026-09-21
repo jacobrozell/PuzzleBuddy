@@ -122,6 +122,8 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `onboarding_skipped` | same | `OnboardingView` | Skip on page 1 (no `onboarding_completed`) |
 | `demo_data_loaded` | same | `PuzzleStore.loadDemoPuzzles` | Demo collection loaded |
 | `demo_data_removed` | same | `PuzzleStore.removeDemoPuzzles` | Demo collection removed |
+| `session_snapshot` | same | `AnalyticsSessionContext` after first list load | Once per cold start; collection + days-since-open |
+| `milestone_reached` | same | `AnalyticsMilestones` / stats banner | Once per `milestone_id` |
 
 Events **not** in this set are logged to os.log only (never sent to Firebase Analytics).
 
@@ -152,8 +154,24 @@ Only these metadata keys are forwarded (max 100 chars each):
 | `difficulty` | `puzzle_completion_recorded` |
 | `rating_bucket` | `puzzle_completion_recorded` |
 | `has_missing_pieces` | `puzzle_completion_recorded` |
+| `count_wishlist` / `count_todo` / `count_in_progress` / `count_completed` / `count_abandoned` | `puzzle_list_refreshed`, `session_snapshot` |
+| `collection_size_bucket` | Snapshot / user property — `0`, `1`, `2_5`, `6_20`, `21_50`, `51_plus` |
+| `completed_count_bucket` | Snapshot / user property — `0`, `1`, `2_5`, `6_plus` |
+| `days_since_last_open_bucket` | `session_snapshot` — `first_open`, `0`, `1`, `2_7`, `8_30`, `31_plus` |
+| `milestone_id` | `milestone_reached` |
 
----
+### User properties
+
+Set via `AnalyticsUserContext` (Firebase `setUserProperty`) when collection loads / changes and when onboarding completes:
+
+| Property | Values |
+|----------|--------|
+| `collection_size_bucket` | same buckets as above |
+| `completed_count_bucket` | same buckets as above |
+| `has_completed_puzzle` | `true` / `false` |
+| `onboarding_complete` | `true` / `false` |
+
+Register these as **user-scoped** custom definitions in GA4 (see [ga4-analytics-spec.md](ga4-analytics-spec.md)).
 
 ## Log-only events (not in Analytics allowlist)
 

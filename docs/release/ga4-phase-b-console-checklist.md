@@ -56,6 +56,15 @@ For each: **Scope = Event**, **Event parameter** = parameter name exactly as sho
 | 19 | `difficulty` | Difficulty | `puzzle_completion_recorded` |
 | 20 | `rating_bucket` | Rating bucket | `puzzle_completion_recorded` |
 | 21 | `has_missing_pieces` | Missing pieces | `puzzle_completion_recorded` |
+| 22 | `count_wishlist` | Count wishlist | `puzzle_list_refreshed`, `session_snapshot` |
+| 23 | `count_todo` | Count to-do | `puzzle_list_refreshed`, `session_snapshot` |
+| 24 | `count_in_progress` | Count in-progress | `puzzle_list_refreshed`, `session_snapshot` |
+| 25 | `count_completed` | Count completed | `puzzle_list_refreshed`, `session_snapshot` |
+| 26 | `count_abandoned` | Count abandoned | `puzzle_list_refreshed`, `session_snapshot` |
+| 27 | `collection_size_bucket` | Collection size bucket | snapshots + user property |
+| 28 | `completed_count_bucket` | Completed count bucket | snapshots + user property |
+| 29 | `days_since_last_open_bucket` | Days since last open | `session_snapshot` |
+| 30 | `milestone_id` | Milestone id | `milestone_reached` |
 
 ### Expected parameter values (for QA)
 
@@ -86,8 +95,23 @@ Custom **events** do not need Console registration. Confirm they appear in **Deb
 | `onboarding_skipped` | Skip onboarding on page 1 |
 | `demo_data_loaded` | Load demo data in Settings |
 | `demo_data_removed` | Remove demo data in Settings |
+| `session_snapshot` | Cold launch after list load |
+| `milestone_reached` | Earn first puzzle / first completion / stats banner |
 
 Enriched existing events (`puzzle_added`, `puzzle_completion_recorded`) gain Phase B parameters automatically.
+
+---
+
+## Phase C — user properties (1.1.0 analytics depth)
+
+**Scope = User** for each:
+
+| Property name | Display name | Values |
+|---------------|--------------|--------|
+| `onboarding_complete` | Onboarding complete | `true`, `false` |
+| `collection_size_bucket` | Collection size bucket | `0`, `1`, `2_5`, `6_20`, `21_50`, `51_plus` |
+| `completed_count_bucket` | Completed count bucket | `0`, `1`, `2_5`, `6_plus` |
+| `has_completed_puzzle` | Has completed puzzle | `true`, `false` |
 
 ---
 

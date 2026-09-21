@@ -155,6 +155,32 @@ final class AppLoggingTests: XCTestCase {
         XCTAssertEqual(enrichedAdd?.parameters["add_source"] as? String, "barcode")
     }
 
+    func testAnalyticsMapsSessionSnapshotAndMilestone() {
+        let snapshot = PuzzleAnalyticsEventMapping.map(
+            eventName: "session_snapshot",
+            category: .app,
+            metadata: [
+                "puzzle_count": "12",
+                "collection_size_bucket": "6_20",
+                "days_since_last_open_bucket": "2_7",
+                "count_completed": "4",
+            ],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(snapshot?.name, "session_snapshot")
+        XCTAssertEqual(snapshot?.parameters["collection_size_bucket"] as? String, "6_20")
+        XCTAssertEqual(snapshot?.parameters["days_since_last_open_bucket"] as? String, "2_7")
+
+        let milestone = PuzzleAnalyticsEventMapping.map(
+            eventName: "milestone_reached",
+            category: .app,
+            metadata: ["milestone_id": "first_puzzle"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(milestone?.name, "milestone_reached")
+        XCTAssertEqual(milestone?.parameters["milestone_id"] as? String, "first_puzzle")
+    }
+
     func testCrashlyticsMapsEphemeralFallback() {
         let error = FirebaseCrashlyticsEventMapping.nonFatalError(
             level: .error,
