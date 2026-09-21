@@ -112,7 +112,7 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_completion_recorded` | same | `PuzzleStore.recordCompletion` | New completion appended |
 | `puzzle_completion_deleted` | same | `PuzzleStore.deleteCompletion` | User removed a completion log |
 | `puzzle_completion_updated` | same | `PuzzleStore.updateCompletion` | User edited completion date/time |
-| `settings_collection_exported` | same | `SettingsView` | Gated by import/export flag |
+| `settings_collection_exported` | same | *(legacy allowlist; Settings export UI removed 1.1.0)* | — |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |
 | `puzzle_status_changed` | same | `PuzzleStore.update` | Status field changed |

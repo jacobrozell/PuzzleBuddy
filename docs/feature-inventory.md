@@ -2,8 +2,8 @@
 
 **What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md). For competitor gaps see [competitive-gap-analysis.md](competitive-gap-analysis.md).
 
-**Last updated:** 2026-06-29  
-**Target v1.0.0:** Inaugural App Store release — expanded sprint in progress (build 3).
+**Last updated:** 2026-09-21  
+**Target:** 1.1.0 on `release/1.1.0`
 
 ---
 
@@ -18,8 +18,8 @@
 | Catalog | Tags, notes, brand, purchase location, year, type, material, disposition, **shape, cut type, dimensions, price** | `PuzzleForm`, `PuzzleDetail`, `PuzzleMetadataEnums` |
 | Catalog | **Multi-photo gallery** (max 5, cover = first) | `PuzzlePhotoGalleryEditor`, `PuzzlePhotoRecord` |
 | Catalog | **Redo + completion history** | `PuzzleCompletionRecord`, `PuzzleStore.startRedo` |
-| Settings | **IPDb import + JSON/CSV export** (default on) | `SettingsView`, `ProductService` |
-| Catalog | **Manual start date** on In-Progress / Completed | `PuzzleForm`, `PuzzleDateSemantics` |
+| Catalog | **On loan** + local Friends model (Friends list UI flagged off) | `FriendRecord`, loan fields, list filter |
+| Settings | Appearance, demo data, legal links, **Write a Review** | `SettingsView`, `AppLinks.appStoreWriteReview` |
 | Catalog | Search, status tabs, sort, filters (incl. **type / material / disposition**) | `PuzzleList`, `PuzzleListFilter` |
 | Catalog | Half-star ratings on form + list | `RatingsView`, `PuzzleCell` |
 | Shopping | Barcode scan, shopping duplicate-check | `BarcodeScannerSheet`, `ShoppingModeView` |

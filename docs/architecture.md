@@ -105,12 +105,12 @@ No push notification registration.
 
 | Flag | Default | Launch argument |
 |------|---------|-----------------|
-| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
 | `isBarcodeScanEnabled` | device has scanner | — |
 | `isShoppingModeEnabled` | `true` | — |
 | `isPickNextEnabled` | `true` | — |
+| `isFriendsListEnabled` | `false` | — (Friends list UI stub; On loan uses FriendStore) |
 
-There is no login or cloud sync flag.
+There is no login, cloud sync, or Settings import/export flag. Collection import/export UI was removed in 1.1.0.
 
 ---
 

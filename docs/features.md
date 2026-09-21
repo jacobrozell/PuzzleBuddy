@@ -270,11 +270,11 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 | Section | Content |
 |---------|---------|
 | Display | Appearance picker |
-| Collection | Demo data, delete all; import/export when `isCollectionImportExportEnabled` (off in 1.0) |
+| Collection | Demo data, delete all |
 | Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) |
 | About | App version from `PuzzleBuddyApp.version` |
 
-**IPDb import / export (1.1+):** Gated by `ProductService.isCollectionImportExportEnabled`. Dogfood with launch arg `-enable_collection_import_export`. See [ipdb-csv-import.md](ipdb-csv-import.md) and [collection-export.md](collection-export.md).
+**IPDb import / export:** Settings UI **removed in 1.1.0** (no usage since launch). Parsers/exporters remain in the tree for a possible re-ship — see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and [specs/planned/collection-import-export.md](../specs/planned/collection-import-export.md).
 
 Legal URLs point to `https://jacobrozell.github.io/PuzzleBuddy/`.
 
@@ -369,7 +369,6 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Hook | Purpose |
 |------|---------|
-| `-enable_collection_import_export` | Settings import/export UI |
 | `-ui_testing_bypass_onboarding` | Skip onboarding in UI tests |
 | `-ui_testing_seed_puzzles` | Seed demo puzzles |
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics |

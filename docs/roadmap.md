@@ -30,9 +30,9 @@ Puzzle Buddy uses **staged releases** controlled by `ProductService` feature fla
 
 | Release | Theme | Gated features | Data store |
 |---------|-------|----------------|------------|
-| **1.0.0** (inaugural) | Local-first catalog | Import/export off | SwiftData on device |
-| **1.1.0** (target) | Import/export + polish | `isCollectionImportExportEnabled` | SwiftData on device |
-| **Future** | Richer metadata, widgets, optional accounts | TBD | SwiftData; cloud TBD |
+| **1.0.0** (inaugural) | Local-first catalog | — | SwiftData on device |
+| **1.1.0** (target) | Completion history, On loan, analytics depth | `isFriendsListEnabled` (off) | SwiftData on device |
+| **Future** | Timer, widgets, optional accounts; re-ship import/export UI | TBD | SwiftData; cloud TBD |
 
 Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telemetry.md)). No Auth, Firestore, or push in the app today.
 
@@ -40,9 +40,9 @@ Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telem
 
 | Flag | Default | Override |
 |------|---------|----------|
-| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
 | `isBarcodeScanEnabled` | device capability | — |
 | `isPickNextEnabled` | `true` | — |
+| `isFriendsListEnabled` | `false` | code flag only |
 
 Remote Config for flags is a future option — not implemented.
 

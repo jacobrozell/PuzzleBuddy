@@ -151,7 +151,7 @@ PuzzleBuddy/
 
 - **SwiftUI** for all UI; `@MainActor` on `PuzzleStore` and `ErrorHandling`
 - **SwiftData** for on-device persistence
-- **ProductService** gates import/export and other staged features
+- **ProductService** gates staged features (Friends list UI off; no Settings import/export)
 - **Firebase** for Analytics and Crashlytics only
 - **Puzzle** is an `ObservableObject`; **PuzzleRecord** is the SwiftData `@Model`
 - **ErrorHandling** is injected via `.withErrorHandling()` at the app root
