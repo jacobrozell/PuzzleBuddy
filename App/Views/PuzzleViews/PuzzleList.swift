@@ -28,6 +28,7 @@ struct PuzzleList: View {
     @State private var statusFilter: PuzzleListStatusFilter = .all
     @State private var sortOption: PuzzleListSortOption = .completionDate
     @State private var missingPiecesOnly: Bool = false
+    @State private var onLoanOnly: Bool = false
     @State private var needsPhotoOnly: Bool = false
     @State private var pieceCountFilter: PuzzleListPieceCountFilter = .any
     @State private var tagFilter: String? = nil
@@ -46,6 +47,7 @@ struct PuzzleList: View {
             searchText: searchText,
             sortOption: sortOption,
             missingPiecesOnly: missingPiecesOnly,
+            onLoanOnly: onLoanOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
             tagFilter: tagFilter,
@@ -64,6 +66,7 @@ struct PuzzleList: View {
             statusFilter: statusFilter,
             searchText: searchText,
             missingPiecesOnly: missingPiecesOnly,
+            onLoanOnly: onLoanOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
             tagFilter: tagFilter,
@@ -81,6 +84,7 @@ struct PuzzleList: View {
         PuzzleListQuery.hasSecondaryFilters(
             searchText: searchText,
             missingPiecesOnly: missingPiecesOnly,
+            onLoanOnly: onLoanOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
             tagFilter: tagFilter,
@@ -737,6 +741,7 @@ struct PuzzleList: View {
                             tagFilterButton
                             needsPhotoFilterToggle
                             missingPiecesFilterToggle
+                            onLoanFilterToggle
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -769,6 +774,7 @@ struct PuzzleList: View {
                 tagFilterButton
                 needsPhotoFilterToggle
                 missingPiecesFilterToggle
+                onLoanFilterToggle
             }
         }
     }
@@ -776,6 +782,7 @@ struct PuzzleList: View {
     private func clearSecondaryFilters() {
         searchText = ""
         missingPiecesOnly = false
+        onLoanOnly = false
         needsPhotoOnly = false
         pieceCountFilter = .any
         tagFilter = nil
@@ -954,6 +961,24 @@ struct PuzzleList: View {
         .accessibilityHint("Shows only puzzles flagged with missing pieces")
     }
 
+    private var onLoanFilterToggle: some View {
+        Button {
+            onLoanOnly.toggle()
+        } label: {
+            listFilterChipLabel(
+                "On loan",
+                systemImage: onLoanOnly ? "checkmark.circle.fill" : "circle",
+                isActive: onLoanOnly,
+                activeColor: Brand.accentWarm
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(A11yID.puzzleListOnLoanFilter)
+        .accessibilityLabel("Filter on loan")
+        .accessibilityValue(onLoanOnly ? "On" : "Off")
+        .accessibilityHint("Shows only puzzles currently loaned out")
+    }
+
     private var sortMenu: some View {
         Menu {
             ForEach(PuzzleListSortOption.allCases) { option in
@@ -1021,6 +1046,11 @@ struct PuzzleList: View {
             return hasActiveSearch
                 ? "No puzzles with missing pieces match your search."
                 : "No puzzles flagged with missing pieces."
+        }
+        if onLoanOnly {
+            return hasActiveSearch
+                ? "No puzzles on loan match your search."
+                : "No puzzles are on loan right now."
         }
         if pieceCountFilter != .any {
             return hasActiveSearch

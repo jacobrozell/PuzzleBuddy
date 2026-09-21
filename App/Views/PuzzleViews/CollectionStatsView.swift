@@ -146,10 +146,14 @@ struct CollectionStatsView: View {
 
     private func refreshPendingMilestone() {
         let acknowledged = CollectionMilestones.loadAcknowledged()
-        pendingMilestone = CollectionMilestones.newlyEarned(
+        let next = CollectionMilestones.newlyEarned(
             stats: stats,
             previouslyAcknowledged: acknowledged
         ).first
+        pendingMilestone = next
+        if let next {
+            AnalyticsMilestones.logIfNeeded(milestoneID: next.id)
+        }
     }
 
     private func validateSelectedYear(in years: [Int]? = nil) {
@@ -344,6 +348,14 @@ struct CollectionStatsView: View {
                     label: "Missing pieces",
                     subtitle: "Flagged incomplete",
                     identifier: A11yID.collectionStatsMissingPiecesCard
+                )
+            }
+            if stats.onLoanCount > 0 {
+                statCard(
+                    value: "\(stats.onLoanCount)",
+                    label: "On loan",
+                    subtitle: "Out with friends",
+                    identifier: A11yID.collectionStatsOnLoanCard
                 )
             }
             if let rating = stats.formattedAverageRating {

@@ -97,13 +97,21 @@ struct PuzzleCell: View {
         if puzzle.hasMissingPieces {
             parts.append("Missing pieces")
         }
+        if puzzle.isOnLoan {
+            if let name = puzzle.loanedToDisplayName, !name.isEmpty {
+                parts.append("On loan to \(name)")
+            } else {
+                parts.append("On loan")
+            }
+        }
         if !puzzle.tags.isEmpty {
             parts.append("Tags: \(puzzle.tags.joined(separator: ", "))")
         }
         if puzzle.status == .completed {
             parts.append("Completed \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
         } else if puzzle.status == .inProgress {
-            parts.append("Started \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
+            let started = puzzle.startDate ?? puzzle.completionDate
+            parts.append("Started \(started.formatted(date: .abbreviated, time: .omitted))")
             parts.append(PuzzleProgressSemantics.displayLabel(for: puzzle.progressPercent))
         }
         return parts.joined(separator: ", ")
@@ -230,6 +238,14 @@ private struct PuzzleCellView: View {
                         .foregroundStyle(Brand.accentWarm)
                         .labelStyle(.titleAndIcon)
                         .accessibilityIdentifier(A11yID.puzzleCellMissingPieces)
+                }
+
+                if puzzle.isOnLoan {
+                    Label("On loan", systemImage: "person.fill.checkmark")
+                        .font(.caption)
+                        .foregroundStyle(Brand.accentWarm)
+                        .labelStyle(.titleAndIcon)
+                        .accessibilityIdentifier(A11yID.puzzleCellOnLoan)
                 }
             }
 

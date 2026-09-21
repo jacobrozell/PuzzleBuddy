@@ -374,6 +374,11 @@ struct PuzzleFormInternal: View {
                     }
                     .accessibilityLabel("What happened to this puzzle after finishing")
                     .accessibilityValue(formVm.puzzle.disposition.accessibilityDescription)
+                    .onChange(of: formVm.puzzle.disposition) { _, disposition in
+                        if PuzzleLoanSemantics.dispositionEndsOwnership(disposition) {
+                            PuzzleLoanSemantics.clearLoan(on: formVm.puzzle)
+                        }
+                    }
                 } header: {
                     Text("After finishing")
                 }
@@ -385,6 +390,34 @@ struct PuzzleFormInternal: View {
                     .optionalAccessibilityIdentifier(A11yID.puzzleFormMissingPiecesToggle)
                     .accessibilityLabel("Missing pieces")
                     .accessibilityValue(formVm.puzzle.hasMissingPieces ? "On" : "Off")
+
+                Toggle("On loan", isOn: $formVm.puzzle.isOnLoan)
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormOnLoanToggle)
+                    .accessibilityLabel("On loan")
+                    .accessibilityValue(formVm.puzzle.isOnLoan ? "On" : "Off")
+                    .onChange(of: formVm.puzzle.isOnLoan) { _, isOn in
+                        if !isOn {
+                            PuzzleLoanSemantics.clearLoan(on: formVm.puzzle)
+                        } else if formVm.puzzle.loanedAt == nil {
+                            formVm.puzzle.loanedAt = Date()
+                        }
+                    }
+
+                if formVm.puzzle.isOnLoan {
+                    TextField("Loaned to (optional)", text: loanedToBinding)
+                        .textInputAutocapitalization(.words)
+                        .optionalAccessibilityIdentifier(A11yID.puzzleFormLoanedToField)
+                        .accessibilityLabel("Loaned to")
+                        .accessibilityHint("Optional name of the person who has this puzzle")
+
+                    DatePicker(
+                        "Due back",
+                        selection: dueBackBinding,
+                        displayedComponents: .date
+                    )
+                    .optionalAccessibilityIdentifier(A11yID.puzzleFormDueBackField)
+                    .accessibilityLabel("Due back")
+                }
 
                 VStack(alignment: .leading, spacing: DS.Spacing.s2) {
                     Text("Notes")
@@ -450,6 +483,22 @@ struct PuzzleFormInternal: View {
                 let trimmed = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
                 formVm.puzzle.notes = trimmed.isEmpty ? nil : String(newValue.prefix(2_000))
             }
+        )
+    }
+
+    private var loanedToBinding: Binding<String> {
+        Binding(
+            get: { formVm.puzzle.loanedToDisplayName ?? "" },
+            set: { newValue in
+                formVm.puzzle.loanedToDisplayName = FriendSemantics.normalizedDisplayName(newValue)
+            }
+        )
+    }
+
+    private var dueBackBinding: Binding<Date> {
+        Binding(
+            get: { formVm.puzzle.dueBackDate ?? Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date() },
+            set: { formVm.puzzle.dueBackDate = $0 }
         )
     }
 

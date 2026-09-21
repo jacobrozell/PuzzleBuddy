@@ -15,6 +15,7 @@ struct PuzzleDetail: View {
     @State private var isEditable = false
     @State private var editFormVm: PuzzleFormViewModel?
     @State private var showRedoConfirmation = false
+    @State private var showMarkReturnedConfirmation = false
     @Binding var puzzle: Puzzle
 
     private var trimmedNameIsEmpty: Bool {
@@ -35,7 +36,8 @@ struct PuzzleDetail: View {
                     DetailView(
                         puzzle: $puzzle,
                         ps: ps,
-                        onPuzzleAgain: puzzle.status == .completed ? { showRedoConfirmation = true } : nil
+                        onPuzzleAgain: puzzle.status == .completed ? { showRedoConfirmation = true } : nil,
+                        onMarkReturned: puzzle.isOnLoan ? { showMarkReturnedConfirmation = true } : nil
                     )
                         .frame(maxWidth: .infinity)
                 }
@@ -117,6 +119,25 @@ struct PuzzleDetail: View {
         } message: {
             Text("Start this puzzle again? Your previous completions stay in your history.")
         }
+        .confirmationDialog(
+            "Mark returned?",
+            isPresented: $showMarkReturnedConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Mark returned") {
+                do {
+                    try ps.markReturned(puzzle: puzzle)
+                    if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                        puzzle = refreshed
+                    }
+                } catch {
+                    eh.handle(title: "Could not mark returned", message: error.localizedDescription)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Clear the on-loan status for this puzzle?")
+        }
     }
 }
 
@@ -125,6 +146,7 @@ struct DetailView: View {
     @Binding var puzzle: Puzzle
     @ObservedObject var ps: PuzzleStore
     var onPuzzleAgain: (() -> Void)?
+    var onMarkReturned: (() -> Void)?
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -194,7 +216,8 @@ struct DetailView: View {
                         eh.handle(title: "Could not save progress", message: error.localizedDescription)
                     }
                 },
-                onPuzzleAgain: onPuzzleAgain
+                onPuzzleAgain: onPuzzleAgain,
+                onMarkReturned: onMarkReturned
             )
         }
         .groupBoxStyle(BrandGroupBoxStyle())
@@ -290,6 +313,33 @@ struct DetailView: View {
                     label: "Missing pieces",
                     value: puzzle.hasMissingPieces ? "Yes" : "No"
                 )
+
+                detailRow(
+                    label: "On loan",
+                    value: puzzle.isOnLoan ? "Yes" : "No"
+                )
+
+                if puzzle.isOnLoan {
+                    detailRow(
+                        label: "Loaned to",
+                        value: {
+                            let name = puzzle.loanedToDisplayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                            return name.isEmpty ? "Someone" : name
+                        }()
+                    )
+                    if let loanedAt = puzzle.loanedAt {
+                        detailRow(
+                            label: "Loaned on",
+                            value: loanedAt.formatted(date: .abbreviated, time: .omitted)
+                        )
+                    }
+                    if let dueBack = puzzle.dueBackDate {
+                        detailRow(
+                            label: "Due back",
+                            value: dueBack.formatted(date: .abbreviated, time: .omitted)
+                        )
+                    }
+                }
 
                 if let notes = puzzle.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !notes.isEmpty {
                     detailRow(label: "Notes", value: notes)
