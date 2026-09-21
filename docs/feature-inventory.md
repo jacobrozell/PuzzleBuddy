@@ -7,7 +7,7 @@
 
 ---
 
-## In build (1.0.0 default)
+## In build (1.1.0)
 
 | Area | Feature | Code paths |
 |------|---------|------------|
@@ -18,8 +18,7 @@
 | Catalog | Tags, notes, brand, purchase location, year, type, material, disposition, **shape, cut type, dimensions, price** | `PuzzleForm`, `PuzzleDetail`, `PuzzleMetadataEnums` |
 | Catalog | **Multi-photo gallery** (max 5, cover = first) | `PuzzlePhotoGalleryEditor`, `PuzzlePhotoRecord` |
 | Catalog | **Redo + completion history** | `PuzzleCompletionRecord`, `PuzzleStore.startRedo` |
-| Catalog | **On loan** + local Friends model (Friends list UI flagged off) | `FriendRecord`, loan fields, list filter |
-| Settings | Appearance, demo data, legal links, **Write a Review** | `SettingsView`, `AppLinks.appStoreWriteReview` |
+| Catalog | **Manual start date** on In-Progress / Completed | `PuzzleForm`, `PuzzleDateSemantics` |
 | Catalog | Search, status tabs, sort, filters (incl. **type / material / disposition**) | `PuzzleList`, `PuzzleListFilter` |
 | Catalog | Half-star ratings on form + list | `RatingsView`, `PuzzleCell` |
 | Shopping | Barcode scan, shopping duplicate-check | `BarcodeScannerSheet`, `ShoppingModeView` |
@@ -37,9 +36,11 @@
 
 ---
 
-## Gated off (1.0.0)
+## Gated off
 
-_None — import/export enabled by default. UI tests may pass `-disable_collection_import_export`._
+| Feature | Flag | Notes |
+|---------|------|-------|
+| Friends / People list UI | `isFriendsListEnabled = false` | Model + On loan live; Settings entry hidden |
 
 ---
 
@@ -49,6 +50,7 @@ _None — import/export enabled by default. UI tests may pass `-disable_collecti
 |---------|--------|-------|
 | Login + Firestore sync | **Removed** June 2026 | Future: [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md) |
 | Push / FCM | **Removed** | No Messaging SDK |
+| Settings collection import/export UI | **Removed** 1.1.0 | Helpers kept; re-ship later — [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) |
 
 ---
 
@@ -58,12 +60,12 @@ See [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and `specs/planned/`.
 
 ---
 
-## v1.0 release surface
+## Release surface
 
 | Decision | Choice |
 |----------|--------|
 | Account required | **No** |
-| Import/export | **On** (disable in UI tests: `-disable_collection_import_export`) |
+| Import/export Settings UI | **Off** (removed 1.1.0; helpers in tree) |
 | Pick-next | **On** |
 | Min iOS | 17.0 |
 | Locales | English only |
@@ -74,4 +76,5 @@ See [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and `specs/planned/`.
 
 | Release | Last verified | Tests |
 |---------|---------------|-------|
+| 1.1.0 branch | 2026-09-21 | AppTests green for on-loan / migration suites |
 | 1.0.0 pre-ship | 2026-06-29 | 163+ unit tests green |
