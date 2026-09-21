@@ -42,12 +42,6 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - Stats tab: completed count, pieces assembled, backlog, time at the table, top tags
 - Share collage of collection or filtered list
 
-### Gated for dogfood (implemented, off in 1.0)
-
-| Feature | Flag | Dogfood launch arg |
-|---------|------|-------------------|
-| IPDb CSV import + JSON/CSV export | `isCollectionImportExportEnabled` | `-enable_collection_import_export` |
-
 ### Observability
 
 - Allowlisted Firebase Analytics + Crashlytics (no PII)
@@ -178,6 +172,7 @@ Full details: [docs/architecture.md](docs/architecture.md).
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist |
 | [docs/development.md](docs/development.md) | Local setup, debugging |
 | [docs/architecture.md](docs/architecture.md) | App layers, data model, navigation |
+| [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) | **SwiftData VersionedSchema / migration policy** |
 | [docs/firebase-setup.md](docs/firebase-setup.md) | Firebase Console, plist, Crashlytics |
 | [docs/analytics.md](docs/analytics.md) | AppLog quick reference |
 | [docs/testing.md](docs/testing.md) | Unit tests, UI tests, CI |

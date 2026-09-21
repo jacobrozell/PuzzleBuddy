@@ -12,6 +12,7 @@ struct PuzzleCompletionHistorySection: View {
 
     @State private var editingCompletion: PuzzleCompletion?
     @State private var pendingDelete: PuzzleCompletion?
+    @State private var showDeleteConfirm = false
     @State private var showStatusPrompt = false
 
     private var sortedCompletions: [PuzzleCompletion] {
@@ -65,10 +66,7 @@ struct PuzzleCompletionHistorySection: View {
         }
         .confirmationDialog(
             deleteDialogTitle,
-            isPresented: Binding(
-                get: { pendingDelete != nil && !showStatusPrompt },
-                set: { if !$0 { pendingDelete = nil } }
-            ),
+            isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
             Button("Remove", role: .destructive) {
@@ -148,6 +146,7 @@ struct PuzzleCompletionHistorySection: View {
             }
             Button(role: .destructive) {
                 pendingDelete = completion
+                showDeleteConfirm = true
             } label: {
                 Label("Remove", systemImage: "trash")
             }
@@ -171,10 +170,11 @@ struct PuzzleCompletionHistorySection: View {
     }
 
     private func confirmDelete() {
-        guard let pendingDelete else { return }
+        guard pendingDelete != nil else { return }
 
         let isLast = sortedCompletions.count == 1
         if isLast, puzzle.status == .completed {
+            // Keep pendingDelete while presenting the status prompt.
             showStatusPrompt = true
             return
         }
@@ -187,6 +187,7 @@ struct PuzzleCompletionHistorySection: View {
         defer {
             pendingDelete = nil
             showStatusPrompt = false
+            showDeleteConfirm = false
         }
 
         do {

@@ -2,15 +2,16 @@
 
 How Puzzle Buddy is structured: app entry, persistence, navigation, telemetry, and cross-cutting concerns.
 
-**Last updated:** 2026-06-29 · **Agent guide:** [AGENTS.md](../AGENTS.md)
+**Last updated:** 2026-09-21 · **Agent guide:** [AGENTS.md](../AGENTS.md)
 
 ---
 
-## Release model (1.0)
+## Release model
 
-Version **1.0** ships as a **local-first** app:
+Version **1.0** shipped as a **local-first** app; **1.1.0** continues on the same store shape:
 
-- Puzzles persist on device via **SwiftData** (`PuzzleRecord`)
+- Puzzles persist on device via **SwiftData** (`PuzzleRecord` + photo/completion records)
+- Schema versioning: [swiftdata-migrations.md](swiftdata-migrations.md) (`PuzzleSchemaV1` frozen at App Store 1.0.0)
 - No sign-in — launch goes splash → onboarding (first run) → main tabs
 - **Firebase Analytics + Crashlytics** when a valid `GoogleService-Info.plist` is present (Release by default)
 - Auth, Firestore, and push were **removed** from the app (June 2026)
@@ -137,6 +138,10 @@ Serialization for **export/import tests** (not cloud):
 
 `@Model` persisted on device. Mirrors puzzle fields; see [features.md](features.md) for the full field list.
 
+Also persisted: `PuzzlePhotoRecord`, `PuzzleCompletionRecord`.
+
+**Versioning:** containers open via `PuzzleModelContainer` with `PuzzleSchemaV1` + `PuzzleMigrationPlan`. Policy and how to bump: [swiftdata-migrations.md](swiftdata-migrations.md).
+
 ### `PuzzleStore`
 
 `@MainActor` `ObservableObject` — **SwiftData only**.
@@ -241,4 +246,4 @@ Account + cloud sync: [specs/planned/auth-cloud-sync.md](../specs/planned/auth-c
 
 Product roadmap: [roadmap.md](roadmap.md), [FutureIdeas/backlog.md](../FutureIdeas/backlog.md).
 
-SwiftData migrations not yet implemented — plan before breaking schema changes.
+SwiftData: [swiftdata-migrations.md](swiftdata-migrations.md) — `PuzzleSchemaV1` / `PuzzleMigrationPlan`. Add a schema version + stage before breaking stored-property changes.

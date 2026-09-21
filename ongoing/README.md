@@ -1,6 +1,6 @@
 # Ongoing work
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-21
 
 ## Active
 
@@ -11,7 +11,7 @@
 | **Barcode scan polish** | [`barcode-scan-polish.md`](barcode-scan-polish.md) | In progress | Items 8, 13 post-sprint or parallel |
 | **Landscape UI** | [`landscape-ui.md`](landscape-ui.md) | In progress | Items 1–3 done (condensed header, FAB clearance, iPad grid); 4–7 pending |
 | WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2 manual pass after sprint UI |
-| Future backlog | [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) | Maintained | 1.1+ in `specs/planned/` |
+| Future backlog | [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) | Maintained | Import/export UI deferred; helpers kept |
 
 ## Recently completed
 

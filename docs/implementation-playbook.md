@@ -89,7 +89,7 @@ Implement one roadmap feature for Puzzle Buddy.
 
 ## Requirements for this slice
 1. Implement end-to-end (model if needed → store → UI → tests)
-2. SwiftData migration if schema changes; update PuzzleRecord init/apply/toPuzzle + Firestore getDataFields when applicable
+2. SwiftData migration if **stored properties** change — follow [swiftdata-migrations.md](swiftdata-migrations.md); update PuzzleRecord init/apply/toPuzzle + export serialization when applicable
 3. VoiceOver labels and A11yID on new interactive UI
 4. Unit tests for logic; UI test or accessibility identifier if new primary screen
 5. Update docs/features.md (shipped behavior) and mark item done in docs/roadmap.md

@@ -9,6 +9,11 @@ import XCTest
 final class PuzzleBuddyTests: XCTestCase {
     func testAppVersionIsNonEmpty() {
         XCTAssertFalse(PuzzleBuddyApp.version.isEmpty)
+        XCTAssertEqual(
+            PuzzleBuddyApp.version,
+            Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+            "PuzzleBuddyApp.version must stay in sync with MARKETING_VERSION / Info.plist"
+        )
     }
 
     func testAnalyticsAllowlistIncludesBootstrap() {
@@ -34,10 +39,6 @@ final class PuzzleBuddyTests: XCTestCase {
 
     func testPickNextEnabledForOnePointZero() {
         XCTAssertTrue(ProductService.isPickNextEnabled)
-    }
-
-    func testCollectionImportExportEnabledByDefault() {
-        XCTAssertTrue(ProductService.isCollectionImportExportEnabled)
     }
 
     func testAppInfoDisplayName() {

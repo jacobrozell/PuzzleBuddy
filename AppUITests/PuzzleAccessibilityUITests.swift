@@ -379,30 +379,26 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
     }
 
-    func testSettingsCollectionImportExportVisibleByDefault() throws {
+    func testSettingsCollectionHasDemoControlsWithoutImportExport() throws {
         let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
         openSettingsTab(in: app)
 
-        let importControl = app.descendants(matching: .any)[UITestA11yID.settingsImportIPDbButton]
-        let exportControl = app.descendants(matching: .any)[UITestA11yID.settingsExportCollectionButton]
         let importByLabel = app.buttons["Import from IPDb CSV"]
         let exportByLabel = app.buttons["Export collection"]
-
-        for _ in 0..<4 where !(importControl.exists || importByLabel.exists) {
+        for _ in 0..<4 where importByLabel.exists || exportByLabel.exists {
             app.swipeUp()
         }
+        XCTAssertFalse(importByLabel.exists, "IPDb import should be removed from Settings")
+        XCTAssertFalse(exportByLabel.exists, "Export collection should be removed from Settings")
 
-        XCTAssertTrue(
-            importControl.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 2),
-            "Import from IPDb CSV should be visible when import/export is enabled"
-        )
-        XCTAssertTrue(
-            exportControl.waitForExistence(timeout: 2) || exportByLabel.waitForExistence(timeout: 2),
-            "Export collection should be visible when import/export is enabled"
-        )
+        let loadDemo = app.buttons["Load Demo Data"]
+        for _ in 0..<4 where !loadDemo.exists {
+            app.swipeUp()
+        }
+        XCTAssertTrue(loadDemo.waitForExistence(timeout: 3), "Load Demo Data should remain in Settings")
     }
 
     func testAddPuzzleFormShowsPhotoGalleryControls() throws {

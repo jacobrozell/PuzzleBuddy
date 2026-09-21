@@ -384,7 +384,8 @@ See [testing.md](testing.md) for CI and test suite details.
 
 | Document | Topic |
 |----------|-------|
-| [architecture.md](architecture.md) | Layers, dependencies, SwiftData schema |
+| [architecture.md](architecture.md) | Layers, dependencies, SwiftData overview |
+| [swiftdata-migrations.md](swiftdata-migrations.md) | Schema versions + how to migrate |
 | [roadmap.md](roadmap.md) | Future releases and planned features |
 | [firebase-setup.md](firebase-setup.md) | Firebase Console configuration |
 | [analytics.md](analytics.md) | Logging and privacy rules |

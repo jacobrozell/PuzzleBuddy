@@ -67,6 +67,7 @@ These Markdown files are for developers and agents (linked from [README.md](../R
 | [release/todo.md](release/todo.md) | Release todo and pre-submit gates |
 | [implementation-playbook.md](implementation-playbook.md) | Build-all-then-cut workflow, agent queries |
 | [architecture.md](architecture.md) | App structure, data model, navigation |
+| [swiftdata-migrations.md](swiftdata-migrations.md) | **SwiftData VersionedSchema / migration policy** |
 | [development.md](development.md) | Local setup, XcodeGen, debugging |
 | [firebase-setup.md](firebase-setup.md) | Firebase Console — Analytics + Crashlytics only |
 | [analytics.md](analytics.md) | AppLog quick reference (see telemetry.md for full spec) |
@@ -76,7 +77,7 @@ These Markdown files are for developers and agents (linked from [README.md](../R
 ## Contributing to docs
 
 - Keep the root README as the entry point with links into `docs/`
-- Update technical docs when changing architecture, telemetry allowlists, CI, or feature flags
+- Update technical docs when changing architecture, telemetry allowlists, CI, feature flags, or **SwiftData stored properties** ([swiftdata-migrations.md](swiftdata-migrations.md))
 - Update HTML legal pages when privacy practices or support contact changes
 - Follow the same PR process as code — see [CONTRIBUTING.md](../CONTRIBUTING.md)
 

@@ -97,7 +97,7 @@ See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle
 
 **Shipped:** Wishlist, To-Do, In-Progress, Completed, Abandoned.
 
-New statuses in the future require SwiftData migration planning (none implemented yet).
+New statuses in the future require a SwiftData schema bump if they need new persisted fields — see [swiftdata-migrations.md](swiftdata-migrations.md). Status is already a `String` on `PuzzleRecord`, so new enum cases that fit the same column usually need **no** migration.
 
 ### UI improvements (near-term)
 

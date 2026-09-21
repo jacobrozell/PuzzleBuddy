@@ -76,7 +76,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
   - [ ] `Features/` — SwiftUI + MVVM per flow
   - [ ] `Domain/` — pure business logic (no SwiftUI)
   - [ ] `Data/` — repository protocols + implementations
-  - [ ] `Persistence/` — schema, migrations, container factory
+  - [x] `Persistence/` — `PuzzleSchemaV1`, `PuzzleMigrationPlan`, `PuzzleModelContainer`
   - [x] `DesignSystem/` — *de facto* `Util/DesignTokens.swift`
   - [x] `Support/` — *de facto* `Util/` (logging, flags, layout)
   - [x] `Resources/` — assets, launch storyboard, plist templates
@@ -100,7 +100,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
   - [x] Architecture — [architecture.md](architecture.md)
   - [x] Tech stack — README + architecture
   - [x] Design system — `DesignTokens.swift` + architecture
-  - [ ] Data schema + migration policy — partial in architecture; no versioned migrations
+  - [x] Data schema + migration policy — [swiftdata-migrations.md](swiftdata-migrations.md)
   - [x] Accessibility — [wcag.md](wcag.md), `accessibility/`
   - [ ] Localization policy — not written
   - [x] Test plan + CI — [testing.md](testing.md)
@@ -141,11 +141,11 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 ## Phase 4 — Persistence & repositories
 
-- [ ] **4.1** Versioned schema (`SchemaV1`, `SchemaV2`, …) — single `PuzzleRecord` today
+- [x] **4.1** Versioned schema — `PuzzleSchemaV1` + `PuzzleMigrationPlan` ([swiftdata-migrations.md](swiftdata-migrations.md)); add V2 when stored properties change
 - [x] **4.2** **Repository** — `PuzzleStore` is concrete SwiftData store (no remote layer)
 - [x] **4.3** **Dependency bootstrap** — `ModelContainer` + `@EnvironmentObject` at app root
-- [ ] **4.4** Migration tests in CI
-- [x] **4.5** Bootstrap failure policy — Firebase skipped when plist placeholder; SwiftData always runs
+- [x] **4.4** Migration plan baseline tests — `PuzzleMigrationPlanTests` (add Vn→V{n+1} disk test when introducing a stage)
+- [x] **4.5** Bootstrap failure policy — Firebase skipped when plist placeholder; SwiftData always runs (wipe-on-unreadable last resort)
 - [ ] **4.6** Features depend on `any FooRepository` — direct `PuzzleStore` usage
 
 ---
