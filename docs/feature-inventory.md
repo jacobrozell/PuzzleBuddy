@@ -14,6 +14,7 @@
 | Launch | Splash → onboarding → main tabs | `SplashView`, `RootView`, `OnboardingView` |
 | Catalog | Add / edit / delete puzzle | `PuzzleForm`, `PuzzleStore`, `PuzzleRecord` |
 | Catalog | Status: Wishlist, To-Do, In-Progress, Completed, **Abandoned** | `Puzzle.Status`, list filters |
+| Catalog | **On loan** + local Friends model (Friends list UI flagged off) | `FriendRecord`, loan fields, list filter |
 | Catalog | Tags, notes, brand, purchase location, year, type, material, disposition, **shape, cut type, dimensions, price** | `PuzzleForm`, `PuzzleDetail`, `PuzzleMetadataEnums` |
 | Catalog | **Multi-photo gallery** (max 5, cover = first) | `PuzzlePhotoGalleryEditor`, `PuzzlePhotoRecord` |
 | Catalog | **Redo + completion history** | `PuzzleCompletionRecord`, `PuzzleStore.startRedo` |
