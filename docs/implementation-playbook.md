@@ -76,7 +76,7 @@ Use this in Cursor to start a session. Replace `FEATURE_ID` or say "pick the nex
 Implement one roadmap feature for Puzzle Buddy.
 
 ## Context
-- Repo: Puzzle Buddy (SwiftUI, SwiftData, iOS 17+)
+- Repo: Puzzle Buddy (SwiftUI, SwiftData, iOS 18+)
 - Strategy: Build ALL roadmap items, then cut marketing 1.0.0 later. Do not scope-down unless I say so.
 - Read first: docs/roadmap.md, docs/implementation-playbook.md, docs/architecture.md, docs/features.md
 - Match existing conventions: Brand/DS tokens, A11yID identifiers, PuzzleStore CRUD, SwiftData via PuzzleRecord

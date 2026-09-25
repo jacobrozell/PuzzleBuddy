@@ -50,6 +50,27 @@ enum Brand {
     static let gradientBottom = Color(red: 0.08, green: 0.58, blue: 0.55)
 }
 
+enum BrandWash {
+    static var mesh: some View {
+        MeshGradient(
+            width: 3,
+            height: 3,
+            points: [
+                .init(0.0, 0.0), .init(0.5, 0.0), .init(1.0, 0.0),
+                .init(0.0, 0.5), .init(0.5, 0.5), .init(1.0, 0.5),
+                .init(0.0, 1.0), .init(0.5, 1.0), .init(1.0, 1.0),
+            ],
+            colors: [
+                Brand.gradientTop, Brand.gradientTop, Brand.gradientMid,
+                Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom,
+                Brand.gradientMid, Brand.gradientBottom, Brand.gradientBottom,
+            ]
+        )
+        .opacity(0.35)
+        .background(Brand.background)
+    }
+}
+
 // MARK: - Design system spacing
 
 enum DS {
@@ -90,13 +111,7 @@ struct BrandBackground: ViewModifier {
                     if reduceMotion {
                         Brand.background
                     } else {
-                        LinearGradient(
-                            colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .opacity(0.35)
-                        .background(Brand.background)
+                        BrandWash.mesh
                     }
                 }
                 .ignoresSafeArea(edges: ignoredEdges)
@@ -170,13 +185,7 @@ struct PuzzleTabRootChrome: ViewModifier {
                 if regularWidth || reduceMotion {
                     Brand.background
                 } else {
-                    LinearGradient(
-                        colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .opacity(0.35)
-                    .background(Brand.background)
+                    BrandWash.mesh
                 }
             }
             .ignoresSafeArea()
@@ -307,6 +316,7 @@ enum A11yID {
     static let puzzleListResultCount = "puzzle_list_result_count"
     static let puzzleListMissingPiecesFilter = "puzzle_list_missing_pieces_filter"
     static let puzzleListOnLoanFilter = "puzzle_list_on_loan_filter"
+    static let puzzleListOverdueFilter = "puzzle_list_overdue_filter"
     static let puzzleListNeedsPhotoFilter = "puzzle_list_needs_photo_filter"
     static let puzzleListPieceCountFilter = "puzzle_list_piece_count_filter"
     static let puzzleListTypeFilter = "puzzle_list_type_filter"
@@ -387,6 +397,11 @@ enum A11yID {
     static let puzzleDetailMarkReturnedButton = "puzzle_detail_mark_returned"
     static let puzzleDetailCompletionHistory = "puzzle_detail_completion_history"
     static let puzzleDetailCompletionSaveButton = "puzzle_detail_completion_save_button"
+    static let puzzleDetailUndoCompletionBanner = "puzzle_detail_undo_completion_banner"
+    static let puzzleDetailUndoCompletionButton = "puzzle_detail_undo_completion_button"
+    static let puzzleDetailDueBackOverdue = "puzzle_detail_due_back_overdue"
+    static let whatsNewSheet = "whats_new_sheet"
+    static let whatsNewDismissButton = "whats_new_dismiss_button"
 
     static func puzzleDetailCompletionRow(number: Int) -> String {
         "puzzle_detail_completion_\(number)"
@@ -430,6 +445,7 @@ enum A11yID {
     static let puzzleCellRating = "puzzle_cell_rating"
     static let puzzleCellMissingPieces = "puzzle_cell_missing_pieces"
     static let puzzleCellOnLoan = "puzzle_cell_on_loan"
+    static let puzzleCellOverdue = "puzzle_cell_overdue"
     static let puzzleCellProgress = "puzzle_cell_progress"
     static let puzzleShareButton = "puzzle_share_button"
 }

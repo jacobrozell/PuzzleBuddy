@@ -475,7 +475,7 @@ No push notification telemetry — FCM removed from app.
 | **iPad-optimized navigation** | Adaptive layouts exist; consider sidebar on regular size class |
 | **Widgets / Live Activities** | Puzzle timer or backlog widget — [spec](../specs/planned/home-screen-widget.md) |
 | **Share extension** | Add puzzle from Safari or Photos share sheet |
-| **macOS / visionOS** | Not planned; iOS 17+ iPhone and iPad only |
+| **macOS / visionOS** | Not planned; iOS 18+ iPhone and iPad only |
 | **Android** | Out of scope |
 
 ---

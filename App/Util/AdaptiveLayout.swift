@@ -130,12 +130,8 @@ private struct AdaptiveScrollChrome: ViewModifier {
             .frame(maxWidth: .infinity, alignment: .top)
             .padding(.bottom, AdaptiveLayout.tabBarClearance(for: dynamicTypeSize))
 
-        if #available(iOS 16.4, *) {
-            ScrollView { padded }
-                .scrollBounceBehavior(.basedOnSize)
-        } else {
-            ScrollView { padded }
-        }
+        ScrollView { padded }
+            .scrollBounceBehavior(.basedOnSize)
     }
 }
 
@@ -172,7 +168,7 @@ extension View {
             .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
     }
 
-    /// Long forms (add puzzle, quick add): full-screen on iPad, large sheet on iPhone.
+    /// Long forms (add puzzle, quick add): page-sized sheet on iPad, large sheet on iPhone.
     func adaptiveLongFormSheet<SheetContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> SheetContent
@@ -187,6 +183,11 @@ extension View {
     ) -> some View {
         modifier(AdaptiveLongFormItemSheetModifier(item: item, sheetContent: content))
     }
+
+    /// Near-full page sheet on iPad regular width; no-op on iPhone.
+    func adaptiveIPadPageSheet() -> some View {
+        modifier(AdaptiveIPadPageSheet())
+    }
 }
 
 // MARK: - Long form modal presentation
@@ -198,40 +199,10 @@ private struct AdaptiveLongFormSheetModifier<SheetContent: View>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: compactWidthPresentation) {
+            .sheet(isPresented: $isPresented) {
                 sheetContent()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
+                    .modifier(AdaptiveLongFormPresentationChrome(horizontalSizeClass: horizontalSizeClass))
             }
-            .fullScreenCover(isPresented: regularWidthPresentation) {
-                sheetContent()
-            }
-    }
-
-    private var compactWidthPresentation: Binding<Bool> {
-        Binding(
-            get: {
-                isPresented && !AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                )
-            },
-            set: { newValue in
-                if !newValue { isPresented = false }
-            }
-        )
-    }
-
-    private var regularWidthPresentation: Binding<Bool> {
-        Binding(
-            get: {
-                isPresented && AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                )
-            },
-            set: { newValue in
-                if !newValue { isPresented = false }
-            }
-        )
     }
 }
 
@@ -242,36 +213,36 @@ private struct AdaptiveLongFormItemSheetModifier<Item: Identifiable, SheetConten
 
     func body(content: Content) -> some View {
         content
-            .sheet(item: compactWidthItem) { unwrapped in
+            .sheet(item: $item) { unwrapped in
                 sheetContent(unwrapped)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
-            }
-            .fullScreenCover(item: regularWidthItem) { unwrapped in
-                sheetContent(unwrapped)
+                    .modifier(AdaptiveLongFormPresentationChrome(horizontalSizeClass: horizontalSizeClass))
             }
     }
+}
 
-    private var compactWidthItem: Binding<Item?> {
-        Binding(
-            get: {
-                AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                ) ? nil : item
-            },
-            set: { item = $0 }
-        )
+private struct AdaptiveLongFormPresentationChrome: ViewModifier {
+    let horizontalSizeClass: UserInterfaceSizeClass?
+
+    func body(content: Content) -> some View {
+        if AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: horizontalSizeClass) {
+            content.presentationSizing(.page)
+        } else {
+            content
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+        }
     }
+}
 
-    private var regularWidthItem: Binding<Item?> {
-        Binding(
-            get: {
-                AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                ) ? item : nil
-            },
-            set: { item = $0 }
-        )
+private struct AdaptiveIPadPageSheet: ViewModifier {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    func body(content: Content) -> some View {
+        if AdaptiveLayout.presentsLongFormAsFullScreenCover(horizontalSizeClass: horizontalSizeClass) {
+            content.presentationSizing(.page)
+        } else {
+            content
+        }
     }
 }
 

@@ -24,7 +24,7 @@ Rules:
 5. Accessibility is a release gate (WCAG 2.1 AA)
 6. Update feature-inventory.md and telemetry.md when shipping behavior changes
 
-App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytics+Crashlytics only
+App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 18+ · Firebase Analytics+Crashlytics only
 ```
 
 ---
@@ -82,7 +82,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
   - [x] `Resources/` — assets, launch storyboard, plist templates
   - [x] `Tests/` — `AppTests/`, `AppUITests/`
   - *Current:* flat `Login/`, `Views/`, `Helpers/`, `Util/` — functional, not checklist layout
-- [x] **0.4** Pin deployment target (iOS 17), bundle ID, team ID, Swift version in `project.yml`
+- [x] **0.4** Pin deployment target (iOS 18), bundle ID, team ID, Swift version in `project.yml`
 - [x] **0.5** `.gitignore`: generated `.xcodeproj`, `GoogleService-Info.plist`, DerivedData
 - [x] **0.6** **Git hooks** — `.githooks/pre-commit` blocks Firebase plist (`Scripts/install-git-hooks.sh`)
 - [ ] **0.7** **`.cursor/mcp.json`** — XcodeBuildMCP documented in repo (`.cursor/` gitignored locally)

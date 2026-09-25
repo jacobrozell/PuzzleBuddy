@@ -232,7 +232,7 @@ Declared in `project.yml`; resolve via SPM.
 | Setting | Value |
 |---------|-------|
 | Bundle ID | `com.jacobrozell.Puzzle-Buddy` |
-| Deployment target | iOS 17.0 |
+| Deployment target | iOS 18.0 |
 | Devices | iPhone + iPad |
 | Team | `7JT2JB89AV` |
 | Entitlements | Empty (no Sign in with Apple / push) |

@@ -60,7 +60,7 @@ Post-1.0 plans: see [`docs/implementation/1.0.0-expanded-feature-sprint.md`](doc
 | Tool | Version |
 |------|---------|
 | Xcode | 16+ |
-| iOS deployment target | 17.0+ |
+| iOS deployment target | 18.0+ |
 | Swift | 5.0 |
 | macOS (for local builds) | macOS 15+ recommended (matches CI) |
 | Firebase project | Analytics + Crashlytics only |

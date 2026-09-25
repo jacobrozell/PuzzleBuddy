@@ -14,7 +14,7 @@ Read this file first when working in this repo. It summarizes product reality, c
 | **Account** | Not required — no login UI, no cloud sync |
 | **Firebase** | **Analytics + Crashlytics only** (no Auth, Firestore, FCM in app or `project.yml`) |
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
-| **Min iOS** | 17.0 |
+| **Min iOS** | 18.0 |
 | **Apple team** | `7JT2JB89AV` (personal) |
 | **Version source** | `project.yml` `MARKETING_VERSION` + `PuzzleBuddyApp.version` (keep in sync) |
 | **SwiftData schema** | `PuzzleSchemaV1` @ `1.0.0` — see [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) |

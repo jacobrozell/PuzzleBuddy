@@ -55,7 +55,7 @@ Prevents committing `GoogleService-Info.plist`.
 ### Xcode
 
 1. Scheme: **Puzzle Buddy**
-2. Destination: any iOS 17+ Simulator or device
+2. Destination: any iOS 18+ Simulator or device
 3. ⌘R to run, ⌘U to test
 
 ### Command line build

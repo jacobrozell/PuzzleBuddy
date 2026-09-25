@@ -8,7 +8,7 @@
 import SwiftData
 import SwiftUI
 
-private enum PuzzleBuddyTab: String {
+private enum PuzzleBuddyTab: String, Hashable {
     case puzzles = "Puzzle Buddy"
     case stats = "Collection Stats"
     case settings = "Settings"
@@ -34,56 +34,45 @@ struct PuzzleTabbar: View {
 
     var body: some View {
         TabView(selection: $tab) {
-            Group {
-                if usesSplitNavigation {
-                    PuzzleList(ps: ps)
-                        .background(Brand.background.ignoresSafeArea())
-                } else {
-                    NavigationStack {
+            Tab(value: PuzzleBuddyTab.puzzles) {
+                Group {
+                    if usesSplitNavigation {
                         PuzzleList(ps: ps)
+                            .background(Brand.background.ignoresSafeArea())
+                    } else {
+                        NavigationStack {
+                            PuzzleList(ps: ps)
+                        }
                     }
                 }
-            }
-            .tag(PuzzleBuddyTab.puzzles)
-            .tabItem {
-                Label {
-                    Text("Puzzles")
-                } icon: {
-                    Image(systemName: "list.bullet.circle.fill")
-                }
+            } label: {
+                Label("Puzzles", systemImage: "list.bullet.circle.fill")
             }
             .accessibilityIdentifier(A11yID.puzzlesTab)
 
-            NavigationStack {
-                CollectionStatsView(ps: ps)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(PuzzleBuddyTab.stats.rawValue)
-            }
-            .tag(PuzzleBuddyTab.stats)
-            .tabItem {
-                Label {
-                    Text("Stats")
-                } icon: {
-                    Image(systemName: "chart.bar.fill")
+            Tab(value: PuzzleBuddyTab.stats) {
+                NavigationStack {
+                    CollectionStatsView(ps: ps)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .navigationTitle(PuzzleBuddyTab.stats.rawValue)
                 }
+            } label: {
+                Label("Stats", systemImage: "chart.bar.fill")
             }
             .accessibilityIdentifier(A11yID.statsTab)
 
-            NavigationStack {
-                SettingsView(ps: ps)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(PuzzleBuddyTab.settings.rawValue)
-            }
-            .tag(PuzzleBuddyTab.settings)
-            .tabItem {
-                Label {
-                    Text("Settings")
-                } icon: {
-                    Image(systemName: "gearshape")
+            Tab(value: PuzzleBuddyTab.settings) {
+                NavigationStack {
+                    SettingsView(ps: ps)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .navigationTitle(PuzzleBuddyTab.settings.rawValue)
                 }
+            } label: {
+                Label("Settings", systemImage: "gearshape")
             }
             .accessibilityIdentifier(A11yID.settingsTab)
         }
+        .tabViewStyle(.sidebarAdaptable)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .modifier(PuzzleTabRootChrome(regularWidth: usesSplitNavigation))
         .tint(Brand.accent)
