@@ -158,6 +158,7 @@ enum PuzzleListQuery {
         sortOption: PuzzleListSortOption,
         missingPiecesOnly: Bool = false,
         onLoanOnly: Bool = false,
+        overdueOnly: Bool = false,
         needsPhotoOnly: Bool = false,
         pieceCountFilter: PuzzleListPieceCountFilter = .any,
         tagFilter: String? = nil,
@@ -168,7 +169,8 @@ enum PuzzleListQuery {
         let statusFiltered = PuzzleListStatusFilter.filter(puzzles, by: statusFilter)
         let missingFiltered = filterMissingPieces(statusFiltered, missingPiecesOnly: missingPiecesOnly)
         let onLoanFiltered = filterOnLoanOnly(missingFiltered, onLoanOnly: onLoanOnly)
-        let photoFiltered = filterNeedsPhoto(onLoanFiltered, needsPhotoOnly: needsPhotoOnly)
+        let overdueFiltered = filterOverdueOnly(onLoanFiltered, overdueOnly: overdueOnly)
+        let photoFiltered = filterNeedsPhoto(overdueFiltered, needsPhotoOnly: needsPhotoOnly)
         let pieceFiltered = filterPieceCount(photoFiltered, pieceCountFilter: pieceCountFilter)
         let tagFiltered = PuzzleTagIndex.filter(pieceFiltered, matching: tagFilter)
         let typeFiltered = filterType(tagFiltered, typeFilter: typeFilter)
@@ -186,6 +188,16 @@ enum PuzzleListQuery {
     static func filterOnLoanOnly(_ puzzles: [Puzzle], onLoanOnly: Bool) -> [Puzzle] {
         guard onLoanOnly else { return puzzles }
         return puzzles.filter(\.isOnLoan)
+    }
+
+    static func filterOverdueOnly(
+        _ puzzles: [Puzzle],
+        overdueOnly: Bool,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> [Puzzle] {
+        guard overdueOnly else { return puzzles }
+        return puzzles.filter { PuzzleLoanSemantics.isOverdue($0, now: now, calendar: calendar) }
     }
 
     static func filterNeedsPhoto(_ puzzles: [Puzzle], needsPhotoOnly: Bool) -> [Puzzle] {
@@ -222,6 +234,7 @@ enum PuzzleListQuery {
         searchText: String,
         missingPiecesOnly: Bool,
         onLoanOnly: Bool = false,
+        overdueOnly: Bool = false,
         needsPhotoOnly: Bool = false,
         pieceCountFilter: PuzzleListPieceCountFilter = .any,
         tagFilter: String? = nil,
@@ -233,6 +246,7 @@ enum PuzzleListQuery {
             || hasActiveSearch(searchText)
             || missingPiecesOnly
             || onLoanOnly
+            || overdueOnly
             || needsPhotoOnly
             || pieceCountFilter != .any
             || tagFilter != nil
@@ -306,6 +320,7 @@ enum PuzzleListQuery {
         searchText: String,
         missingPiecesOnly: Bool,
         onLoanOnly: Bool = false,
+        overdueOnly: Bool = false,
         needsPhotoOnly: Bool = false,
         pieceCountFilter: PuzzleListPieceCountFilter = .any,
         tagFilter: String? = nil,
@@ -316,6 +331,7 @@ enum PuzzleListQuery {
         hasActiveSearch(searchText)
             || missingPiecesOnly
             || onLoanOnly
+            || overdueOnly
             || needsPhotoOnly
             || pieceCountFilter != .any
             || tagFilter != nil

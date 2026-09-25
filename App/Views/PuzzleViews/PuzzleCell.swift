@@ -14,6 +14,7 @@ struct PuzzleCell: View {
     @Binding var puzzle: Puzzle
     /// When set, row selects into `NavigationSplitView` instead of pushing via `NavigationLink`.
     var selectedPuzzleID: Binding<UUID?>? = nil
+    var zoomNamespace: Namespace.ID? = nil
     @State private var showDeleteConfirmation = false
 
     private var usesSplitSelection: Bool { selectedPuzzleID != nil }
@@ -31,6 +32,13 @@ struct PuzzleCell: View {
                     PuzzleCellView(puzzle: $puzzle)
                 }
                 .buttonStyle(.plain)
+            } else if let zoomNamespace {
+                NavigationLink {
+                    PuzzleDetail(ps: ps, puzzle: $puzzle, zoomNamespace: zoomNamespace)
+                } label: {
+                    PuzzleCellView(puzzle: $puzzle)
+                        .matchedTransitionSource(id: puzzle.id, in: zoomNamespace)
+                }
             } else {
                 NavigationLink {
                     PuzzleDetail(ps: ps, puzzle: $puzzle)
@@ -98,11 +106,7 @@ struct PuzzleCell: View {
             parts.append("Missing pieces")
         }
         if puzzle.isOnLoan {
-            if let name = puzzle.loanedToDisplayName, !name.isEmpty {
-                parts.append("On loan to \(name)")
-            } else {
-                parts.append("On loan")
-            }
+            parts.append(PuzzleLoanSemantics.listBadgeAccessibilityLabel(for: puzzle))
         }
         if !puzzle.tags.isEmpty {
             parts.append("Tags: \(puzzle.tags.joined(separator: ", "))")
@@ -241,11 +245,15 @@ private struct PuzzleCellView: View {
                 }
 
                 if puzzle.isOnLoan {
-                    Label("On loan", systemImage: "person.fill.checkmark")
+                    let overdue = PuzzleLoanSemantics.isOverdue(puzzle)
+                    Label(
+                        PuzzleLoanSemantics.listBadgeTitle(for: puzzle),
+                        systemImage: overdue ? "clock.badge.exclamationmark" : "person.fill.checkmark"
+                    )
                         .font(.caption)
                         .foregroundStyle(Brand.accentWarm)
                         .labelStyle(.titleAndIcon)
-                        .accessibilityIdentifier(A11yID.puzzleCellOnLoan)
+                        .accessibilityIdentifier(overdue ? A11yID.puzzleCellOverdue : A11yID.puzzleCellOnLoan)
                 }
             }
 

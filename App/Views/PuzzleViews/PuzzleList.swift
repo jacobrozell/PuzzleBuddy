@@ -29,6 +29,7 @@ struct PuzzleList: View {
     @State private var sortOption: PuzzleListSortOption = .completionDate
     @State private var missingPiecesOnly: Bool = false
     @State private var onLoanOnly: Bool = false
+    @State private var overdueOnly: Bool = false
     @State private var needsPhotoOnly: Bool = false
     @State private var pieceCountFilter: PuzzleListPieceCountFilter = .any
     @State private var tagFilter: String? = nil
@@ -39,6 +40,7 @@ struct PuzzleList: View {
     @State private var showFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
     @State private var sharePayload: PuzzleSharePayload?
+    @Namespace private var puzzleZoomNamespace
 
     private var displayedPuzzles: [Puzzle] {
         PuzzleListQuery.apply(
@@ -48,6 +50,7 @@ struct PuzzleList: View {
             sortOption: sortOption,
             missingPiecesOnly: missingPiecesOnly,
             onLoanOnly: onLoanOnly,
+            overdueOnly: overdueOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
             tagFilter: tagFilter,
@@ -67,6 +70,7 @@ struct PuzzleList: View {
             searchText: searchText,
             missingPiecesOnly: missingPiecesOnly,
             onLoanOnly: onLoanOnly,
+            overdueOnly: overdueOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
             tagFilter: tagFilter,
@@ -85,6 +89,7 @@ struct PuzzleList: View {
             searchText: searchText,
             missingPiecesOnly: missingPiecesOnly,
             onLoanOnly: onLoanOnly,
+            overdueOnly: overdueOnly,
             needsPhotoOnly: needsPhotoOnly,
             pieceCountFilter: pieceCountFilter,
             tagFilter: tagFilter,
@@ -481,7 +486,7 @@ struct PuzzleList: View {
     @ViewBuilder
     private func puzzleDetailContent(for id: UUID) -> some View {
         if let index = ps.puzzles.firstIndex(where: { $0.id == id }) {
-            PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
+            PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index], zoomNamespace: puzzleZoomNamespace)
         } else {
             MissingPuzzleDestination()
         }
@@ -504,7 +509,8 @@ struct PuzzleList: View {
                     if let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) {
                         PuzzleCell(
                             ps: ps,
-                            puzzle: $ps.puzzles[index]
+                            puzzle: $ps.puzzles[index],
+                            zoomNamespace: puzzleZoomNamespace
                         )
                             .id(ps.puzzles[index].id)
                             .listRowBackground(Color.clear)
@@ -742,6 +748,7 @@ struct PuzzleList: View {
                             needsPhotoFilterToggle
                             missingPiecesFilterToggle
                             onLoanFilterToggle
+                            overdueFilterToggle
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
@@ -775,6 +782,7 @@ struct PuzzleList: View {
                 needsPhotoFilterToggle
                 missingPiecesFilterToggle
                 onLoanFilterToggle
+                overdueFilterToggle
             }
         }
     }
@@ -783,6 +791,7 @@ struct PuzzleList: View {
         searchText = ""
         missingPiecesOnly = false
         onLoanOnly = false
+        overdueOnly = false
         needsPhotoOnly = false
         pieceCountFilter = .any
         tagFilter = nil
@@ -979,6 +988,24 @@ struct PuzzleList: View {
         .accessibilityHint("Shows only puzzles currently loaned out")
     }
 
+    private var overdueFilterToggle: some View {
+        Button {
+            overdueOnly.toggle()
+        } label: {
+            listFilterChipLabel(
+                "Overdue",
+                systemImage: overdueOnly ? "clock.badge.exclamationmark.fill" : "clock.badge.exclamationmark",
+                isActive: overdueOnly,
+                activeColor: Brand.accentWarm
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(A11yID.puzzleListOverdueFilter)
+        .accessibilityLabel("Filter overdue loans")
+        .accessibilityValue(overdueOnly ? "On" : "Off")
+        .accessibilityHint("Shows only loaned puzzles that are past their due date")
+    }
+
     private var sortMenu: some View {
         Menu {
             ForEach(PuzzleListSortOption.allCases) { option in
@@ -1046,6 +1073,11 @@ struct PuzzleList: View {
             return hasActiveSearch
                 ? "No puzzles with missing pieces match your search."
                 : "No puzzles flagged with missing pieces."
+        }
+        if overdueOnly {
+            return hasActiveSearch
+                ? "No overdue loans match your search."
+                : "No puzzles are overdue."
         }
         if onLoanOnly {
             return hasActiveSearch
@@ -1245,6 +1277,7 @@ private struct TagFilterSheet: View {
         }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
+        .adaptiveIPadPageSheet()
     }
 
     @ViewBuilder
@@ -1280,8 +1313,7 @@ private struct TagFilterSheet: View {
     }
 }
 
-/// Search & filter presentation: full-screen on iPad split (roomy, matches add/edit
-/// forms), detented sheet on compact-height iPhone landscape.
+/// Search & filter presentation: page-sized sheet on iPad, detented sheet on iPhone.
 private struct FilterSheetPresentation<SheetContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     let usesFullScreen: Bool
@@ -1289,28 +1321,16 @@ private struct FilterSheetPresentation<SheetContent: View>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: sheetPresentation) {
-                sheetContent()
-                    .presentationDetents([.fraction(0.48), .large])
-                    .presentationDragIndicator(.visible)
+            .sheet(isPresented: $isPresented) {
+                if usesFullScreen {
+                    sheetContent()
+                        .presentationSizing(.page)
+                } else {
+                    sheetContent()
+                        .presentationDetents([.fraction(0.48), .large])
+                        .presentationDragIndicator(.visible)
+                }
             }
-            .fullScreenCover(isPresented: fullScreenPresentation) {
-                sheetContent()
-            }
-    }
-
-    private var sheetPresentation: Binding<Bool> {
-        Binding(
-            get: { isPresented && !usesFullScreen },
-            set: { if !$0 { isPresented = false } }
-        )
-    }
-
-    private var fullScreenPresentation: Binding<Bool> {
-        Binding(
-            get: { isPresented && usesFullScreen },
-            set: { if !$0 { isPresented = false } }
-        )
     }
 }
 

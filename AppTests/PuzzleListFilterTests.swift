@@ -180,6 +180,24 @@ final class PuzzleListFilterTests: XCTestCase {
         XCTAssertEqual(results.map(\.name), ["Tagged"])
     }
 
+    func testHasActiveFiltersIncludesOverdue() {
+        XCTAssertTrue(
+            PuzzleListQuery.hasActiveFilters(
+                statusFilter: .all,
+                searchText: "",
+                missingPiecesOnly: false,
+                overdueOnly: true
+            )
+        )
+        XCTAssertTrue(
+            PuzzleListQuery.hasSecondaryFilters(
+                searchText: "",
+                missingPiecesOnly: false,
+                overdueOnly: true
+            )
+        )
+    }
+
     func testHasActiveFiltersIncludesTagFilter() {
         XCTAssertTrue(
             PuzzleListQuery.hasActiveFilters(

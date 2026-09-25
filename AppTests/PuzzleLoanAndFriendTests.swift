@@ -92,6 +92,37 @@ final class PuzzleLoanAndFriendTests: XCTestCase {
         }
     }
 
+    func testOverdueSemanticsAndFilter() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let now = Date(timeIntervalSince1970: 1_704_067_200) // 2024-01-01
+
+        let overdue = Puzzle.fixture(name: "Late", pieces: 100)
+        overdue.isOnLoan = true
+        overdue.dueBackDate = calendar.date(byAdding: .day, value: -1, to: now)
+
+        let dueToday = Puzzle.fixture(name: "Today", pieces: 100)
+        dueToday.isOnLoan = true
+        dueToday.dueBackDate = now
+
+        let home = Puzzle.fixture(name: "Home", pieces: 100)
+
+        XCTAssertTrue(PuzzleLoanSemantics.isOverdue(overdue, now: now, calendar: calendar))
+        XCTAssertFalse(PuzzleLoanSemantics.isOverdue(dueToday, now: now, calendar: calendar))
+        XCTAssertFalse(PuzzleLoanSemantics.isOverdue(home, now: now, calendar: calendar))
+        XCTAssertEqual(PuzzleLoanSemantics.listBadgeTitle(for: overdue, now: now, calendar: calendar), "Overdue")
+        XCTAssertEqual(PuzzleLoanSemantics.listBadgeTitle(for: dueToday, now: now, calendar: calendar), "On loan")
+        XCTAssertTrue(PuzzleLoanSemantics.dueBackDisplayValue(for: overdue, now: now, calendar: calendar)?.contains("Overdue") == true)
+
+        let filtered = PuzzleListQuery.filterOverdueOnly(
+            [overdue, dueToday, home],
+            overdueOnly: true,
+            now: now,
+            calendar: calendar
+        )
+        XCTAssertEqual(filtered.map(\.name), ["Late"])
+    }
+
     func testFilterOnLoanOnly() {
         let home = Puzzle.fixture(name: "Home", pieces: 100)
         let out = Puzzle.fixture(name: "Out", pieces: 200)

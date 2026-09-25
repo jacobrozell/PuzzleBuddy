@@ -16,6 +16,51 @@ enum PuzzleLoanSemantics {
         }
     }
 
+    /// A due date is overdue after that calendar day ends — due today is still on time.
+    static func isOverdue(
+        _ puzzle: Puzzle,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> Bool {
+        guard puzzle.isOnLoan, let dueBackDate = puzzle.dueBackDate else { return false }
+        return calendar.startOfDay(for: dueBackDate) < calendar.startOfDay(for: now)
+    }
+
+    static func listBadgeTitle(
+        for puzzle: Puzzle,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> String {
+        isOverdue(puzzle, now: now, calendar: calendar) ? "Overdue" : "On loan"
+    }
+
+    static func listBadgeAccessibilityLabel(
+        for puzzle: Puzzle,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> String {
+        if isOverdue(puzzle, now: now, calendar: calendar), let dueBackDate = puzzle.dueBackDate {
+            return "Overdue, due \(dueBackDate.formatted(date: .abbreviated, time: .omitted))"
+        }
+        if let name = puzzle.loanedToDisplayName?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty {
+            return "On loan to \(name)"
+        }
+        return "On loan"
+    }
+
+    static func dueBackDisplayValue(
+        for puzzle: Puzzle,
+        now: Date = Date(),
+        calendar: Calendar = .current
+    ) -> String? {
+        guard let dueBackDate = puzzle.dueBackDate else { return nil }
+        let date = dueBackDate.formatted(date: .abbreviated, time: .omitted)
+        if isOverdue(puzzle, now: now, calendar: calendar) {
+            return "\(date) · Overdue"
+        }
+        return date
+    }
+
     static func clearLoan(on puzzle: Puzzle) {
         puzzle.isOnLoan = false
         puzzle.loanedToFriendID = nil
