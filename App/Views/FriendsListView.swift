@@ -15,6 +15,7 @@ struct FriendsListView: View {
     @State private var newFriendName = ""
     @State private var renameTarget: Friend?
     @State private var renameText = ""
+    @State private var deleteTarget: Friend?
 
     var body: some View {
         List {
@@ -38,6 +39,17 @@ struct FriendsListView: View {
             TextField("Name", text: $renameText)
             Button("Cancel", role: .cancel) { renameTarget = nil }
             Button("Save", action: saveRename)
+        }
+        .confirmationDialog(
+            "Delete \(deleteTarget?.displayName ?? "this person")?",
+            isPresented: deletePresented,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) {
+                if let deleteTarget { deleteFriend(deleteTarget) }
+                deleteTarget = nil
+            }
+            Button("Cancel", role: .cancel) { deleteTarget = nil }
         }
         .accessibilityIdentifier(A11yID.friendsList)
     }
@@ -64,6 +76,13 @@ struct FriendsListView: View {
         }
     }
 
+    private var deletePresented: Binding<Bool> {
+        Binding(
+            get: { deleteTarget != nil },
+            set: { if !$0 { deleteTarget = nil } }
+        )
+    }
+
     private var renamePresented: Binding<Bool> {
         Binding(
             get: { renameTarget != nil },
@@ -88,6 +107,15 @@ struct FriendsListView: View {
             }
         }
         .accessibilityElement(children: .combine)
+        .contextMenu {
+            Button("Rename") {
+                renameTarget = friend
+                renameText = friend.displayName
+            }
+            Button("Delete", role: .destructive) {
+                deleteTarget = friend
+            }
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button("Rename") {
                 renameTarget = friend
@@ -96,7 +124,7 @@ struct FriendsListView: View {
             .tint(Brand.accent)
 
             Button("Delete", role: .destructive) {
-                deleteFriend(friend)
+                deleteTarget = friend
             }
         }
     }

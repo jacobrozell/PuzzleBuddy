@@ -12,7 +12,9 @@ enum UITestA11yID {
     static let puzzleListStatusFilter = "puzzle_list_status_filter"
     static let puzzleListEmptyState = "puzzle_list_empty_state"
     static let puzzleListSearchField = "puzzle_list_search_field"
+    static let puzzleListFilterButton = "puzzle_list_filter_button"
     static let puzzleListSortMenu = "puzzle_list_sort_menu"
+    static let settingsLoadDemoButton = "settings_load_demo_button"
     static let addPuzzleButton = "add_puzzle_button"
     static let addPuzzleFloatingButton = "add_puzzle_floating_button"
     static let puzzleDetailSummary = "puzzle_detail_summary"
@@ -35,6 +37,18 @@ enum UITestA11yID {
     static let onboardingNextButton = "onboarding_next_button"
     static let onboardingBackButton = "onboarding_back_button"
     static let onboardingFinishButton = "onboarding_finish_button"
+    static let whatsNewSheet = "whats_new_sheet"
+    static let whatsNewDismissButton = "whats_new_dismiss_button"
+    static let puzzleListOverdueFilter = "puzzle_list_overdue_filter"
+    static let puzzleDetailUndoCompletionBanner = "puzzle_detail_undo_completion_banner"
+    static let puzzleDetailUndoCompletionButton = "puzzle_detail_undo_completion_button"
+    static let puzzleDetailCompletionHistory = "puzzle_detail_completion_history"
+    static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
+    static let puzzleDetailCompletionRemoveButton = "puzzle_detail_completion_remove_button"
+
+    static func puzzleDetailCompletionRow(number: Int) -> String {
+        "puzzle_detail_completion_\(number)"
+    }
 
     static let seededPuzzleRowLabelPrefix = "The Bizarre Bookshop"
 }
@@ -45,6 +59,7 @@ enum UITestLaunch {
     static let seedPuzzles = "-ui_testing_seed_puzzles"
     static let uiTestReset = "-ui_test_reset"
     static let snapshotOnboarding = "-snapshot_onboarding"
+    static let showWhatsNew = "-ui_testing_show_whats_new"
 
     static let bypassArguments = [disableFirebaseAnalytics, bypassOnboarding, seedPuzzles]
     static let defaultArguments = [disableFirebaseAnalytics, seedPuzzles]

@@ -164,18 +164,11 @@ struct CollectionStatsView: View {
     }
 
     private func monthlyCompletionCounts(for year: Int) -> [Int] {
-        var months = Array(repeating: 0, count: 12)
-        let calendar = Calendar.current
-
-        for puzzle in ps.puzzles where puzzle.status == .completed {
-            let components = calendar.dateComponents([.year, .month], from: puzzle.completionDate)
-            guard components.year == year,
-                  let month = components.month,
-                  (1...12).contains(month) else { continue }
-            months[month - 1] += 1
-        }
-
-        return months
+        CollectionStats.monthlyCompletionCounts(
+            from: ps.puzzles,
+            year: year,
+            calendar: Calendar.current
+        )
     }
 
     private func milestoneBanner(_ milestone: CollectionMilestone) -> some View {

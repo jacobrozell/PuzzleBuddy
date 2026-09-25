@@ -37,6 +37,7 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleListSearchField.isEmpty)
         XCTAssertFalse(A11yID.puzzleListClearFilters.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellRating.isEmpty)
+        XCTAssertFalse(A11yID.settingsLoadDemoButton.isEmpty)
         XCTAssertFalse(A11yID.settingsRemoveDemoButton.isEmpty)
         XCTAssertFalse(A11yID.settingsWriteReviewButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleShareButton.isEmpty)
@@ -46,6 +47,7 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleDetailUndoCompletionButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleListOverdueFilter.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellOverdue.isEmpty)
+        XCTAssertTrue(A11yID.puzzleRow(id: UUID(), name: "The Bizarre Bookshop").contains("the_bizarre_bookshop"))
     }
 
     func testPuzzleRatingAccessibilityDescription() {

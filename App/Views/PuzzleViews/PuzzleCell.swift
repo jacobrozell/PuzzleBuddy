@@ -48,8 +48,9 @@ struct PuzzleCell: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id))
+        .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id, name: puzzle.name))
         .accessibilityLabel(cellAccessibilityLabel)
+        .accessibilityValue(puzzle.name)
         .accessibilityHint("Opens puzzle details. Use the actions rotor to delete.")
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction(named: "Delete puzzle") {
@@ -102,6 +103,9 @@ struct PuzzleCell: View {
             parts.append(puzzle.difficulty.accessibilityDescription)
         }
         parts.append(puzzle.status.accessibilityDescription)
+        if puzzle.timesCompleted > 1 {
+            parts.append("Completed \(puzzle.timesCompleted) times")
+        }
         if puzzle.hasMissingPieces {
             parts.append("Missing pieces")
         }
@@ -222,40 +226,7 @@ private struct PuzzleCellView: View {
                     .accessibilityIdentifier(A11yID.puzzleCellRating)
             }
 
-            HStack(spacing: DS.Spacing.s2) {
-                PuzzleStatusPill(status: puzzle.status)
-
-                if puzzle.timesCompleted > 1 {
-                    Text("×\(puzzle.timesCompleted)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Brand.textSecondary)
-                        .padding(.horizontal, DS.Spacing.s2)
-                        .padding(.vertical, 2)
-                        .background(Brand.cardElevated)
-                        .clipShape(Capsule())
-                        .accessibilityLabel("Completed \(puzzle.timesCompleted) times")
-                }
-
-                if puzzle.hasMissingPieces {
-                    Label("Missing pieces", systemImage: "exclamationmark.triangle.fill")
-                        .font(.caption)
-                        .foregroundStyle(Brand.accentWarm)
-                        .labelStyle(.titleAndIcon)
-                        .accessibilityIdentifier(A11yID.puzzleCellMissingPieces)
-                }
-
-                if puzzle.isOnLoan {
-                    let overdue = PuzzleLoanSemantics.isOverdue(puzzle)
-                    Label(
-                        PuzzleLoanSemantics.listBadgeTitle(for: puzzle),
-                        systemImage: overdue ? "clock.badge.exclamationmark" : "person.fill.checkmark"
-                    )
-                        .font(.caption)
-                        .foregroundStyle(Brand.accentWarm)
-                        .labelStyle(.titleAndIcon)
-                        .accessibilityIdentifier(overdue ? A11yID.puzzleCellOverdue : A11yID.puzzleCellOnLoan)
-                }
-            }
+            badgeRow
 
             if puzzle.status == .inProgress {
                 PuzzleListProgressBar(progress: puzzle.progressPercent)
@@ -278,6 +249,50 @@ private struct PuzzleCellView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private var badgeRow: some View {
+        let badges = Group {
+            PuzzleStatusPill(status: puzzle.status)
+
+            if puzzle.timesCompleted > 1 {
+                Text("×\(puzzle.timesCompleted)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Brand.textSecondary)
+                    .padding(.horizontal, DS.Spacing.s2)
+                    .padding(.vertical, 2)
+                    .background(Brand.cardElevated)
+                    .clipShape(Capsule())
+                    .accessibilityLabel("Completed \(puzzle.timesCompleted) times")
+            }
+
+            if puzzle.hasMissingPieces {
+                Label("Missing pieces", systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(Brand.accentWarmText)
+                    .labelStyle(.titleAndIcon)
+                    .accessibilityIdentifier(A11yID.puzzleCellMissingPieces)
+            }
+
+            if puzzle.isOnLoan {
+                let overdue = PuzzleLoanSemantics.isOverdue(puzzle)
+                Label(
+                    PuzzleLoanSemantics.listBadgeTitle(for: puzzle),
+                    systemImage: overdue ? "clock.badge.exclamationmark" : "person.fill.checkmark"
+                )
+                .font(.caption)
+                .foregroundStyle(Brand.accentWarmText)
+                .labelStyle(.titleAndIcon)
+                .accessibilityIdentifier(overdue ? A11yID.puzzleCellOverdue : A11yID.puzzleCellOnLoan)
+            }
+        }
+
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) { badges }
+        } else {
+            HStack(spacing: DS.Spacing.s2) { badges }
+        }
     }
 }
 

@@ -13,7 +13,7 @@ Authoritative policy for on-device persistence versioning. Follow this **before*
 | Live schema | `PuzzleSchemaV2` @ `Schema.Version(1, 1, 0)` |
 | Frozen baseline | `PuzzleSchemaV1` @ `1.0.0` — **nested** model copies (do not edit) |
 | Migration plan | `PuzzleMigrationPlan` — lightweight V1→V2 |
-| Container | `PuzzleModelContainer` (versioned + plan on disk; plain schema in-memory) |
+| Container | `PuzzleModelContainer` (versioned + plan on disk; unversioned 1.0.0 stores are copied to V2; wipe is last resort) |
 | Models (V2) | `FriendRecord`, `PuzzleRecord`, `PuzzlePhotoRecord`, `PuzzleCompletionRecord` |
 | Git contract | Tag `1.0.0` freezes V1 nested shape; On loan adds V2 |
 

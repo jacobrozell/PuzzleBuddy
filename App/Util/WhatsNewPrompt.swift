@@ -17,6 +17,9 @@ enum WhatsNewPrompt {
         isUITesting: Bool = UITestSupport.isRunningUnderTest,
         isMarketingCapture: Bool = MarketingSnapshotBootstrap.isMarketingCapture
     ) -> Bool {
+        if ProcessInfo.processInfo.arguments.contains("-ui_testing_show_whats_new") {
+            return true
+        }
         guard !isUITesting else { return false }
         guard !isMarketingCapture else { return false }
         guard onboardingComplete else { return false }

@@ -321,7 +321,12 @@ class PuzzleStore: ObservableObject {
             modelContext.delete(record)
         }
 
-        try reconcileCompletions(for: puzzleID, statusIfEmpty: statusIfRemovingLast)
+        do {
+            try reconcileCompletions(for: puzzleID, statusIfEmpty: statusIfRemovingLast)
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
         clearPendingUndo(ifMatching: completionID)
 
         if logDeletedEvent {
@@ -401,8 +406,13 @@ class PuzzleStore: ObservableObject {
         record.timeSpentMinutes = completion.timeSpentMinutes
         record.rating = completion.rating
 
-        PuzzleCompletionSemantics.renumberRecords(fetchCompletionRecords(puzzleID: puzzleID))
-        try reconcileCompletions(for: puzzleID, statusIfEmpty: nil)
+        do {
+            PuzzleCompletionSemantics.renumberRecords(try fetchCompletionRecordsThrowing(puzzleID: puzzleID))
+            try reconcileCompletions(for: puzzleID, statusIfEmpty: nil)
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
         clearPendingUndo(ifMatching: completion.id)
 
         AppLog.shared.info(
@@ -479,7 +489,13 @@ class PuzzleStore: ObservableObject {
         if !demoIndices.isEmpty {
             try delete(at: IndexSet(demoIndices))
         }
-        try friends.removeDemoFriends()
+        let protectedLoanFriendIDs = Set(
+            puzzles.compactMap { puzzle -> UUID? in
+                guard !puzzle.isDemo, puzzle.isOnLoan else { return nil }
+                return puzzle.loanedToFriendID
+            }
+        )
+        try friends.removeDemoFriends(keepingFriendIDs: protectedLoanFriendIDs)
         AppLog.shared.info(
             .puzzles,
             eventName: "demo_data_removed",
@@ -608,7 +624,12 @@ class PuzzleStore: ObservableObject {
             throw PuzzleStoreError.recordNotFound
         }
 
-        let records = fetchCompletionRecords(puzzleID: puzzleID)
+        let records: [PuzzleCompletionRecord]
+        do {
+            records = try fetchCompletionRecordsThrowing(puzzleID: puzzleID)
+        } catch {
+            throw PuzzleStoreError.completionHistoryUnavailable
+        }
         PuzzleCompletionSemantics.renumberRecords(records)
 
         let count = records.count
@@ -623,6 +644,8 @@ class PuzzleStore: ObservableObject {
                 }
                 puzzleRecord.status = statusIfEmpty.rawValue
                 if statusIfEmpty == .todo {
+                    puzzleRecord.progressPercent = 0
+                } else if statusIfEmpty == .inProgress, puzzleRecord.progressPercent >= 100 {
                     puzzleRecord.progressPercent = 0
                 }
             }
@@ -723,6 +746,10 @@ class PuzzleStore: ObservableObject {
     }
 
     private func fetchCompletionRecords(puzzleID: UUID) -> [PuzzleCompletionRecord] {
+        (try? fetchCompletionRecordsThrowing(puzzleID: puzzleID)) ?? []
+    }
+
+    private func fetchCompletionRecordsThrowing(puzzleID: UUID) throws -> [PuzzleCompletionRecord] {
         var descriptor = FetchDescriptor<PuzzleCompletionRecord>(
             predicate: #Predicate { $0.puzzleID == puzzleID },
             sortBy: [SortDescriptor(\.completionNumber)]
@@ -735,7 +762,7 @@ class PuzzleStore: ObservableObject {
                 eventName: "puzzle_completion_fetch_failed",
                 message: error.localizedDescription
             )
-            return []
+            throw error
         }
     }
 

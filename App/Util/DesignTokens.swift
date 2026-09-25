@@ -34,6 +34,16 @@ enum Brand {
     static let accent = Color(red: 0.05, green: 0.55, blue: 0.62)
     static let accentSecondary = Color(red: 0.12, green: 0.72, blue: 0.78)
     static let accentWarm = Color(red: 0.93, green: 0.45, blue: 0.13)
+    /// Warm badge / chip text — ≥ 4.5:1 on card in light mode.
+    static let accentWarmText = dynamic(
+        light: UIColor(red: 0.52, green: 0.22, blue: 0.02, alpha: 1),
+        dark: UIColor(red: 0.98, green: 0.72, blue: 0.38, alpha: 1)
+    )
+    /// Accent text on washed backgrounds — ≥ 4.5:1 in light mode.
+    static let accentText = dynamic(
+        light: UIColor(red: 0.02, green: 0.36, blue: 0.42, alpha: 1),
+        dark: UIColor(red: 0.48, green: 0.88, blue: 0.92, alpha: 1)
+    )
 
     static let textPrimary = dynamic(
         light: UIColor(red: 0.08, green: 0.09, blue: 0.11, alpha: 1),
@@ -333,6 +343,7 @@ enum A11yID {
     static let puzzleDetailHoursPer1000Row = "puzzle_detail_hours_per_1000_row"
     static let puzzleDetailProgress = "puzzle_detail_progress"
     static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
+    static let settingsLoadDemoButton = "settings_load_demo_button"
     static let settingsRemoveDemoButton = "settings_remove_demo_button"
     static let settingsWriteReviewButton = "settings_write_review_button"
     static let settingsBrandDisclaimerFooter = "settings_brand_disclaimer_footer"
@@ -397,6 +408,7 @@ enum A11yID {
     static let puzzleDetailMarkReturnedButton = "puzzle_detail_mark_returned"
     static let puzzleDetailCompletionHistory = "puzzle_detail_completion_history"
     static let puzzleDetailCompletionSaveButton = "puzzle_detail_completion_save_button"
+    static let puzzleDetailCompletionRemoveButton = "puzzle_detail_completion_remove_button"
     static let puzzleDetailUndoCompletionBanner = "puzzle_detail_undo_completion_banner"
     static let puzzleDetailUndoCompletionButton = "puzzle_detail_undo_completion_button"
     static let puzzleDetailDueBackOverdue = "puzzle_detail_due_back_overdue"
@@ -415,8 +427,18 @@ enum A11yID {
     static let friendsList = "friends_list"
     static let friendsListAddButton = "friends_list_add_button"
 
-    static func puzzleRow(id: UUID) -> String {
-        "puzzle_row_\(id.uuidString)"
+    static func puzzleRowSlug(for name: String) -> String {
+        name.lowercased()
+            .replacingOccurrences(of: "[^a-z0-9]+", with: "_", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+    }
+
+    static func puzzleRow(id: UUID, name: String = "") -> String {
+        let slug = puzzleRowSlug(for: name)
+        if slug.isEmpty {
+            return "puzzle_row_\(id.uuidString)"
+        }
+        return "puzzle_row_\(slug)_\(id.uuidString.prefix(8))"
     }
 
     static let scanBarcodeButton = "scan_barcode_button"

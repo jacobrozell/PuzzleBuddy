@@ -33,7 +33,7 @@ final class PuzzleMigrationPlanTests: XCTestCase {
     }
 
     func testVersionedContainerOpensInMemory() throws {
-        let container = PuzzleModelContainer.makeInMemory()
+        let container = PuzzleModelContainer.makeInMemoryVersioned()
         let context = container.mainContext
         context.insert(PuzzleRecord(from: Puzzle.fixture(name: "Migrate", pieces: 500)))
         try context.save()

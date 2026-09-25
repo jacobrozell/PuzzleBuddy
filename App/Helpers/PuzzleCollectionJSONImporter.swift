@@ -26,7 +26,7 @@ enum PuzzleCollectionJSONImportError: LocalizedError {
         case .emptyFile:
             return "The backup file looks empty. Choose a Puzzle Buddy JSON export and try again."
         case .invalidFormat:
-            return "Could not read this backup. Export a fresh JSON file from Settings and try again."
+            return "Could not read this backup. Share a fresh JSON backup from Puzzle Buddy and try again."
         case .noRestorablePuzzles:
             return "No puzzles were found in this backup."
         case .unsupportedFormatVersion(let version):

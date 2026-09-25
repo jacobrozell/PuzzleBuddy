@@ -942,7 +942,7 @@ struct PuzzleList: View {
                 "Needs photo",
                 systemImage: needsPhotoOnly ? "photo.badge.checkmark.fill" : "photo",
                 isActive: needsPhotoOnly,
-                activeColor: Brand.accentWarm
+                activeColor: Brand.accentWarmText
             )
         }
         .buttonStyle(.plain)
@@ -960,7 +960,7 @@ struct PuzzleList: View {
                 "Missing pieces",
                 systemImage: missingPiecesOnly ? "checkmark.circle.fill" : "circle",
                 isActive: missingPiecesOnly,
-                activeColor: Brand.accentWarm
+                activeColor: Brand.accentWarmText
             )
         }
         .buttonStyle(.plain)
@@ -978,7 +978,7 @@ struct PuzzleList: View {
                 "On loan",
                 systemImage: onLoanOnly ? "checkmark.circle.fill" : "circle",
                 isActive: onLoanOnly,
-                activeColor: Brand.accentWarm
+                activeColor: Brand.accentWarmText
             )
         }
         .buttonStyle(.plain)
@@ -996,7 +996,7 @@ struct PuzzleList: View {
                 "Overdue",
                 systemImage: overdueOnly ? "clock.badge.exclamationmark.fill" : "clock.badge.exclamationmark",
                 isActive: overdueOnly,
-                activeColor: Brand.accentWarm
+                activeColor: Brand.accentWarmText
             )
         }
         .buttonStyle(.plain)

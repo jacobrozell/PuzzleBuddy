@@ -248,9 +248,34 @@ struct CollectionStats: Equatable {
         now: Date,
         component: Calendar.Component
     ) -> Int {
-        completed.filter { puzzle in
-            calendar.isDate(puzzle.completionDate, equalTo: now, toGranularity: component)
+        completionDates(from: completed).filter { date in
+            calendar.isDate(date, equalTo: now, toGranularity: component)
         }.count
+    }
+
+    static func completionDates(from puzzles: [Puzzle]) -> [Date] {
+        puzzles.flatMap { puzzle -> [Date] in
+            if puzzle.completions.isEmpty {
+                return puzzle.status == .completed ? [puzzle.completionDate] : []
+            }
+            return puzzle.completions.map(\.completedAt)
+        }
+    }
+
+    static func monthlyCompletionCounts(
+        from puzzles: [Puzzle],
+        year: Int,
+        calendar: Calendar
+    ) -> [Int] {
+        var months = Array(repeating: 0, count: 12)
+        for date in completionDates(from: puzzles) {
+            let components = calendar.dateComponents([.year, .month], from: date)
+            guard components.year == year, let month = components.month, (1...12).contains(month) else {
+                continue
+            }
+            months[month - 1] += 1
+        }
+        return months
     }
 
     static func favoritePieceCount(from counts: [Int]) -> Int? {
@@ -400,15 +425,11 @@ struct CollectionStats: Equatable {
         calendar: Calendar,
         now: Date
     ) -> [Int] {
-        var months = Array(repeating: 0, count: 12)
-        let currentYear = calendar.component(.year, from: now)
-        for puzzle in completed {
-            let components = calendar.dateComponents([.year, .month], from: puzzle.completionDate)
-            guard components.year == currentYear, let month = components.month,
-                  (1...12).contains(month) else { continue }
-            months[month - 1] += 1
-        }
-        return months
+        monthlyCompletionCounts(
+            from: completed,
+            year: calendar.component(.year, from: now),
+            calendar: calendar
+        )
     }
 }
 

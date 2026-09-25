@@ -228,8 +228,8 @@ private struct AdaptiveLongFormPresentationChrome: ViewModifier {
             content.presentationSizing(.page)
         } else {
             content
-                .presentationDetents([.large])
                 .presentationDragIndicator(.visible)
+                .presentationSizing(.page)
         }
     }
 }

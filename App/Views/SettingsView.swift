@@ -37,7 +37,7 @@ struct SettingsView: View {
                 loadDemoData()
             }
         } message: {
-            Text("Adds four sample puzzles so you can explore the app. Your existing puzzles stay in the collection.")
+            Text("Adds \(DemoDataCatalog.puzzleCount) sample puzzles so you can explore the app. Your existing puzzles stay in the collection.")
         }
         .alert("Remove demo puzzles?", isPresented: $showRemoveDemoAlert) {
             Button("Cancel", role: .cancel) {}
@@ -94,6 +94,7 @@ struct SettingsView: View {
             } label: {
                 Label("Load Demo Data", systemImage: "square.stack.3d.up")
             }
+            .accessibilityIdentifier(A11yID.settingsLoadDemoButton)
             .accessibilityHint("Adds sample puzzles for exploring the app")
 
             Button(role: .destructive) {

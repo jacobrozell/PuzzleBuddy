@@ -32,6 +32,11 @@ struct PuzzleForm: View {
     @Binding var isPresented: Bool
 
     @StateObject var formVm: PuzzleFormViewModel
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    private var pinsSaveInToolbar: Bool {
+        verticalSizeClass == .compact
+    }
 
     /// Detail Init
     init(puzzle: Puzzle, ps: PuzzleStore) {
@@ -49,10 +54,12 @@ struct PuzzleForm: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                PuzzleFormInternal(formVm: formVm, allPuzzles: ps.puzzles)
-                SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented)
-            }
+            PuzzleFormInternal(formVm: formVm, allPuzzles: ps.puzzles)
+                .safeAreaInset(edge: .bottom) {
+                    if !pinsSaveInToolbar {
+                        SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented)
+                    }
+                }
             .background {
                 Brand.background
                     .ignoresSafeArea(edges: [.horizontal, .bottom])
@@ -66,6 +73,11 @@ struct PuzzleForm: View {
                     }
                     .accessibilityLabel("Cancel")
                     .accessibilityHint("Closes the add puzzle form without saving")
+                }
+                if pinsSaveInToolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        SubmitAddButton(ps: ps, formVm: formVm, isPresented: $isPresented, compact: true)
+                    }
                 }
             }
             .keyboardDismissToolbar()
@@ -398,8 +410,13 @@ struct PuzzleFormInternal: View {
                     .onChange(of: formVm.puzzle.isOnLoan) { _, isOn in
                         if !isOn {
                             PuzzleLoanSemantics.clearLoan(on: formVm.puzzle)
-                        } else if formVm.puzzle.loanedAt == nil {
-                            formVm.puzzle.loanedAt = Date()
+                        } else {
+                            if formVm.puzzle.loanedAt == nil {
+                                formVm.puzzle.loanedAt = Date()
+                            }
+                            if formVm.puzzle.dueBackDate == nil {
+                                formVm.puzzle.dueBackDate = Calendar.current.date(byAdding: .day, value: 14, to: Date())
+                            }
                         }
                     }
 
@@ -497,7 +514,12 @@ struct PuzzleFormInternal: View {
 
     private var dueBackBinding: Binding<Date> {
         Binding(
-            get: { formVm.puzzle.dueBackDate ?? Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date() },
+            get: {
+                if let stored = formVm.puzzle.dueBackDate { return stored }
+                let fallback = Calendar.current.date(byAdding: .day, value: 14, to: Date()) ?? Date()
+                formVm.puzzle.dueBackDate = fallback
+                return fallback
+            },
             set: { formVm.puzzle.dueBackDate = $0 }
         )
     }
@@ -583,27 +605,45 @@ struct SubmitAddButton: View {
     @EnvironmentObject var eh: ErrorHandling
     @ObservedObject var formVm: PuzzleFormViewModel
     @Binding var isPresented: Bool
+    var compact: Bool = false
 
     var body: some View {
         Button {
-            do {
-                try ps.add(puzzle: formVm.puzzle)
-                BarcodeScanFeedback.scanAccepted()
-                isPresented = false
-            } catch {
-                eh.handle(title: "Couldn't add puzzle", message: error.localizedDescription)
-            }
+            save()
         } label: {
             Text("Save")
         }
-        .buttonStyle(BrandPrimaryButtonStyle(expandHorizontally: true))
+        .modifier(SubmitAddButtonStyle(compact: compact))
         .optionalAccessibilityIdentifier(A11yID.puzzleFormSubmitButton)
         .accessibilityLabel("Save puzzle")
         .accessibilityHint(formVm.puzzle.name.isEmpty ? "Enter a puzzle name to enable saving" : "Saves this puzzle to your collection")
-        .padding(.horizontal, DS.Spacing.s4)
-        .padding(.vertical, DS.Spacing.s3)
         .disabled(formVm.puzzle.name.isEmpty)
         .opacity(formVm.puzzle.name.isEmpty ? 0.6 : 1.0)
+    }
+
+    private func save() {
+        do {
+            try ps.add(puzzle: formVm.puzzle)
+            BarcodeScanFeedback.scanAccepted()
+            isPresented = false
+        } catch {
+            eh.handle(title: "Couldn't add puzzle", message: error.localizedDescription)
+        }
+    }
+}
+
+private struct SubmitAddButtonStyle: ViewModifier {
+    let compact: Bool
+
+    func body(content: Content) -> some View {
+        if compact {
+            content
+        } else {
+            content
+                .buttonStyle(BrandPrimaryButtonStyle(expandHorizontally: true))
+                .padding(.horizontal, DS.Spacing.s4)
+                .padding(.vertical, DS.Spacing.s3)
+        }
     }
 }
 

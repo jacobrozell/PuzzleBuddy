@@ -19,6 +19,7 @@ struct WhatsNewView: View {
                             .foregroundStyle(Brand.textPrimary)
                             .multilineTextAlignment(.center)
                             .frame(maxWidth: .infinity)
+                            .accessibilityAddTraits(.isHeader)
                         Text(WhatsNewCopy.subtitle)
                             .font(.subheadline)
                             .foregroundStyle(Brand.textSecondary)
@@ -57,6 +58,7 @@ struct WhatsNewView: View {
                 .padding(DS.Spacing.s5)
             }
             .readableBrandScreenChrome()
+            .navigationTitle(WhatsNewCopy.title)
             .navigationBarTitleDisplayMode(.inline)
         }
         .accessibilityIdentifier(A11yID.whatsNewSheet)

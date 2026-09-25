@@ -12,6 +12,7 @@ struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.requestReview) private var requestReview
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isEditable = false
     @State private var editFormVm: PuzzleFormViewModel?
     @State private var showRedoConfirmation = false
@@ -49,7 +50,7 @@ struct PuzzleDetail: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .modifier(PuzzleDetailZoomTransition(id: puzzle.id, namespace: zoomNamespace))
-        .animation(.easeInOut, value: isEditable)
+        .animation(reduceMotion ? nil : .easeInOut, value: isEditable)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarBackground(Brand.background, for: .navigationBar)
@@ -174,8 +175,9 @@ struct PuzzleDetail: View {
                 }
             }
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Brand.accent)
-            .frame(minHeight: 44)
+            .foregroundStyle(Brand.accentText)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
             .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionButton)
             .accessibilityHint("Removes the finish you just logged and restores the previous status")
 
@@ -193,6 +195,7 @@ struct PuzzleDetail: View {
         .padding(DS.Spacing.s3)
         .background(Brand.accent.opacity(0.12))
         .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.updatesFrequently)
         .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionBanner)
         .accessibilityLabel("Marked complete. Undo if that was an accident.")
     }

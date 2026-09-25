@@ -1,6 +1,50 @@
-# Puzzle Buddy — App Store Connect checklist (1.0.0)
+# Puzzle Buddy — App Store Connect checklist
 
-Use this when creating the app record and submitting build **1.0.0 (1)**. Aligns with `[todo.md](todo.md)` and `[../privacy.html](../privacy.html)`.
+Use this when submitting. Aligns with [`todo.md`](todo.md) and [`../privacy.html`](../privacy.html).
+
+## 1.1.0 package
+
+| Field | Value |
+| ----- | ----- |
+| **Version** | 1.1.0 |
+| **Minimum OS** | iOS 18.0 |
+| **Privacy URL** | https://jacobrozell.github.io/PuzzleBuddy/privacy.html |
+| **Support URL** | https://jacobrozell.github.io/PuzzleBuddy/support.html |
+
+### 1.1.0 Notes for Review
+
+> Puzzle Buddy 1.1.0 is a local-first jigsaw catalog. No account or login. Requires iOS 18.
+>
+> **Demo data:** Settings → Collection → Load Demo Data (adds 13 sample puzzles; existing user puzzles are kept). Remove Demo Data removes only those samples.
+>
+> **New in 1.1 (how to review):**
+> - Completion history: open **Floral Arch** (completed twice) → edit or delete a finish.
+> - Undo complete: mark a puzzle Complete, then use the undo banner (same session).
+> - On loan: **Paris in a Day** is already on loan to “Mom.” Filters: On loan. To see **Overdue**, edit that puzzle and set Due back to a past date.
+> - What’s New sheet appears only for users who already finished 1.0 onboarding. A fresh install sees 1.1 features in onboarding instead.
+> - StoreKit `requestReview` may appear once after a barcode scan or after saving a non-demo edit. Settings → Write a Review opens the App Store write-review URL.
+>
+> **Not shipped (do not look for these):** People / Friends list UI is off. Settings import/export was removed. There is no barcode product-lookup toggle or network catalog. Barcodes are on-device only (duplicate check + suggestions from saved puzzles). Camera required for scan; simulators show “Scanner unavailable” and manual barcode entry still works.
+>
+> **Privacy:** Collection, photos, notes, and optional borrower names stay on device. Firebase Analytics and Crashlytics only (allowlisted events; no titles, photos, or names). Privacy: https://jacobrozell.github.io/PuzzleBuddy/privacy.html
+>
+> Brand names in the catalog are for identification only. Settings → Help & Legal has the manufacturer disclaimer.
+
+### 1.1.0 What’s New (App Store)
+
+> Track every finish. 1.1 adds completion history (edit or delete a log), a same-session undo after you mark a puzzle complete, and On loan / overdue filters. What’s New notes appear if you already used 1.0.
+
+### 1.1.0 screenshots
+
+Recapture at least: list with On loan / overdue chips, detail + completion history, iPad / sidebar tabs. First frame still reads as a catalog, not a kids’ game. Do not advertise import/export or a People list.
+
+### Privacy nutrition (1.1.0)
+
+Product interaction: `session_snapshot`, `milestone_reached`. Friend / borrower names: Other user content (not Contacts / Name).
+
+---
+
+## 1.0.0 App information (historical)
 
 ## App information
 

@@ -63,6 +63,7 @@ struct PuzzleExportRecord: Codable, Equatable {
     let photoCount: Int
     let photos: [PuzzleExportPhotoRecord]
     let completions: [PuzzleExportCompletionRecord]
+    let isDemo: Bool
 }
 
 struct FriendExportRecord: Codable, Equatable {
@@ -186,7 +187,8 @@ enum PuzzleCollectionExporter {
                     timeSpentMinutes: $0.timeSpentMinutes,
                     rating: $0.rating
                 )
-            }
+            },
+            isDemo: puzzle.isDemo
         )
     }
 

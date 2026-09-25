@@ -32,7 +32,12 @@ struct PuzzleView: View {
             if MarketingSnapshotBootstrap.shouldResetCollection {
                 try? ps.clearAllPuzzles()
             }
-            if UITestSupport.shouldSeedPuzzles, ps.puzzles.isEmpty {
+            if UITestSupport.shouldForceSeedDemoCatalog {
+                if !ps.puzzles.contains(where: { $0.name == DemoDataCatalog.primarySeededPuzzleName }) {
+                    try? ps.clearAllPuzzles()
+                    try? ps.loadDemoPuzzles()
+                }
+            } else if UITestSupport.shouldSeedPuzzles, ps.puzzles.isEmpty {
                 try? ps.loadDemoPuzzles()
             } else if ps.puzzles.isEmpty {
                 await ps.fetchPuzzles()

@@ -135,6 +135,22 @@ final class AppLoggingTests: XCTestCase {
         )
         XCTAssertEqual(undone?.name, "puzzle_completion_undone")
         XCTAssertEqual(undone?.parameters["completion_number"] as? String, "1")
+
+        let deleted = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_deleted",
+            category: .puzzles,
+            metadata: ["completion_number": "2"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(deleted?.name, "puzzle_completion_deleted")
+
+        let updated = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_updated",
+            category: .puzzles,
+            metadata: ["completion_number": "1"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(updated?.name, "puzzle_completion_updated")
     }
 
     func testAnalyticsAllowlistsOnboardingCompleted() {

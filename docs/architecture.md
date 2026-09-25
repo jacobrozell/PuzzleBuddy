@@ -11,7 +11,7 @@ How Puzzle Buddy is structured: app entry, persistence, navigation, telemetry, a
 Version **1.0** shipped as a **local-first** app; **1.1.0** continues on the same store shape:
 
 - Puzzles persist on device via **SwiftData** (`PuzzleRecord` + photo/completion records)
-- Schema versioning: [swiftdata-migrations.md](swiftdata-migrations.md) (`PuzzleSchemaV1` frozen at App Store 1.0.0)
+- Schema versioning: [swiftdata-migrations.md](swiftdata-migrations.md) (`PuzzleSchemaV2` live; nested V1 frozen at App Store 1.0.0)
 - No sign-in — launch goes splash → onboarding (first run) → main tabs
 - **Firebase Analytics + Crashlytics** when a valid `GoogleService-Info.plist` is present (Release by default)
 - Auth, Firestore, and push were **removed** from the app (June 2026)
@@ -140,7 +140,7 @@ Serialization for **export/import tests** (not cloud):
 
 Also persisted: `PuzzlePhotoRecord`, `PuzzleCompletionRecord`.
 
-**Versioning:** containers open via `PuzzleModelContainer` with `PuzzleSchemaV1` + `PuzzleMigrationPlan`. Policy and how to bump: [swiftdata-migrations.md](swiftdata-migrations.md).
+**Versioning:** containers open via `PuzzleModelContainer` with `PuzzleSchemaV2` + `PuzzleMigrationPlan`. Unversioned 1.0.0 stores are copied into V2 instead of wiped. Policy and how to bump: [swiftdata-migrations.md](swiftdata-migrations.md).
 
 ### `PuzzleStore`
 
@@ -246,4 +246,4 @@ Account + cloud sync: [specs/planned/auth-cloud-sync.md](../specs/planned/auth-c
 
 Product roadmap: [roadmap.md](roadmap.md), [FutureIdeas/backlog.md](../FutureIdeas/backlog.md).
 
-SwiftData: [swiftdata-migrations.md](swiftdata-migrations.md) — `PuzzleSchemaV1` / `PuzzleMigrationPlan`. Add a schema version + stage before breaking stored-property changes.
+SwiftData: [swiftdata-migrations.md](swiftdata-migrations.md) — `PuzzleSchemaV2` / `PuzzleMigrationPlan`. Add a schema version + stage before breaking stored-property changes.

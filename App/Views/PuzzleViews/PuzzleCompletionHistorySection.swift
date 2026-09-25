@@ -14,8 +14,6 @@ struct PuzzleCompletionHistorySection: View {
     @State private var pendingDelete: PuzzleCompletion?
     @State private var showDeleteConfirm = false
     @State private var showStatusPrompt = false
-    @ScaledMetric(relativeTo: .body) private var historyRowHeight: CGFloat = 68
-
     private var sortedCompletions: [PuzzleCompletion] {
         PuzzleCompletionSemantics.sortedNewestFirst(puzzle.completions)
     }
@@ -28,35 +26,15 @@ struct PuzzleCompletionHistorySection: View {
                     .foregroundStyle(Brand.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                List {
-                    ForEach(sortedCompletions) { completion in
+                VStack(spacing: 0) {
+                    ForEach(Array(sortedCompletions.enumerated()), id: \.element.id) { index, completion in
                         completionRow(completion)
-                            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
-                            .listRowBackground(Color.clear)
-                            .listRowSeparatorTint(Brand.textSecondary.opacity(0.18))
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    pendingDelete = completion
-                                    showDeleteConfirm = true
-                                } label: {
-                                    Label(PuzzleCompletionHistoryCopy.swipeRemoveTitle, systemImage: "trash")
-                                }
-                                .accessibilityLabel("Remove completion \(completion.completionNumber)")
-
-                                Button {
-                                    editingCompletion = completion
-                                } label: {
-                                    Label(PuzzleCompletionHistoryCopy.swipeEditTitle, systemImage: "pencil")
-                                }
-                                .tint(Brand.accent)
-                                .accessibilityLabel("Edit completion \(completion.completionNumber)")
-                            }
+                        if index < sortedCompletions.count - 1 {
+                            Divider()
+                                .overlay(Brand.textSecondary.opacity(0.18))
+                        }
                     }
                 }
-                .listStyle(.plain)
-                .scrollDisabled(true)
-                .scrollContentBackground(.hidden)
-                .frame(height: CGFloat(sortedCompletions.count) * historyRowHeight)
             }
         } label: {
             HStack {
@@ -66,11 +44,12 @@ struct PuzzleCompletionHistorySection: View {
                 if puzzle.timesCompleted > 0 {
                     Text("\(puzzle.timesCompleted)")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(Brand.textOnAccent)
+                        .foregroundStyle(Brand.textPrimary)
                         .padding(.horizontal, DS.Spacing.s2)
                         .padding(.vertical, 2)
-                        .background(Brand.accent)
+                        .background(Brand.cardElevated)
                         .clipShape(Capsule())
+                        .accessibilityLabel("\(puzzle.timesCompleted) completions")
                 }
             }
             .accessibilityAddTraits(.isHeader)
@@ -83,6 +62,11 @@ struct PuzzleCompletionHistorySection: View {
                 completion: completion,
                 onSave: { updated in
                     saveCompletion(updated)
+                },
+                onDelete: {
+                    pendingDelete = completion
+                    editingCompletion = nil
+                    showDeleteConfirm = true
                 }
             )
             .adaptiveIPadPageSheet()
@@ -157,6 +141,19 @@ struct PuzzleCompletionHistorySection: View {
         .accessibilityIdentifier(A11yID.puzzleDetailCompletionRow(number: completion.completionNumber))
         .accessibilityLabel(completionAccessibilityLabel(completion))
         .accessibilityHint("Opens editor for this completion log")
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button {
+                editingCompletion = completion
+            } label: {
+                Label(PuzzleCompletionHistoryCopy.swipeEditTitle, systemImage: "pencil")
+            }
+            Button(role: .destructive) {
+                pendingDelete = completion
+                showDeleteConfirm = true
+            } label: {
+                Label(PuzzleCompletionHistoryCopy.swipeRemoveTitle, systemImage: "trash")
+            }
+        }
         .contextMenu {
             Button {
                 editingCompletion = completion
@@ -193,8 +190,10 @@ struct PuzzleCompletionHistorySection: View {
 
         let isLast = sortedCompletions.count == 1
         if isLast, puzzle.status == .completed {
-            // Keep pendingDelete while presenting the status prompt.
-            showStatusPrompt = true
+            showDeleteConfirm = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                showStatusPrompt = true
+            }
             return
         }
 
@@ -243,6 +242,7 @@ struct PuzzleCompletionHistorySection: View {
 private struct CompletionEditSheet: View {
     let completion: PuzzleCompletion
     let onSave: (PuzzleCompletion) -> Void
+    let onDelete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
     @State private var completedAt: Date
@@ -250,9 +250,14 @@ private struct CompletionEditSheet: View {
     @State private var minutes: Int
     @State private var tracksTime: Bool
 
-    init(completion: PuzzleCompletion, onSave: @escaping (PuzzleCompletion) -> Void) {
+    init(
+        completion: PuzzleCompletion,
+        onSave: @escaping (PuzzleCompletion) -> Void,
+        onDelete: @escaping () -> Void
+    ) {
         self.completion = completion
         self.onSave = onSave
+        self.onDelete = onDelete
         _completedAt = State(initialValue: completion.completedAt)
         let h = completion.timeSpentHours ?? 0
         let m = completion.timeSpentMinutes ?? 0
@@ -285,6 +290,13 @@ private struct CompletionEditSheet: View {
                 } footer: {
                     Text("Time spent is stored on this completion log only.")
                 }
+
+                Section {
+                    Button("Remove", role: .destructive) {
+                        onDelete()
+                    }
+                    .accessibilityIdentifier(A11yID.puzzleDetailCompletionRemoveButton)
+                }
             }
             .navigationTitle("Edit completion")
             .navigationBarTitleDisplayMode(.inline)
@@ -310,7 +322,6 @@ private struct CompletionEditSheet: View {
                             updated.timeSpentMinutes = nil
                         }
                         onSave(updated)
-                        dismiss()
                     }
                     .accessibilityIdentifier(A11yID.puzzleDetailCompletionSaveButton)
                 }

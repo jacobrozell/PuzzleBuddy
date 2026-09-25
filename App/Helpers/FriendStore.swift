@@ -79,7 +79,7 @@ final class FriendStore: ObservableObject {
         let friend = Friend(displayName: normalized, isDemo: isDemo)
         let record = FriendRecord(from: friend)
         modelContext.insert(record)
-        try modelContext.save()
+        // Defer save to the puzzle write so a failed puzzle save can roll back this friend.
         friends.append(friend)
         friends.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
         AppLog.shared.info(.puzzles, eventName: "friend_created", message: "Friend created.")
@@ -114,10 +114,10 @@ final class FriendStore: ObservableObject {
         friends.removeAll { $0.id == friend.id }
     }
 
-    func removeDemoFriends() throws {
+    func removeDemoFriends(keepingFriendIDs: Set<UUID> = []) throws {
         let demoRecords = fetchAllRecords().filter(\.isDemo)
         guard !demoRecords.isEmpty else { return }
-        for record in demoRecords {
+        for record in demoRecords where !keepingFriendIDs.contains(record.id) {
             modelContext.delete(record)
         }
         try modelContext.save()
