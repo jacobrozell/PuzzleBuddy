@@ -21,6 +21,8 @@ enum OnboardingStorage {
 
     static func markComplete() {
         UserDefaults.standard.set(true, forKey: key)
+        // First-run users already saw 1.1 features in onboarding — skip the upgrader sheet.
+        WhatsNewPrompt.markSeen()
     }
 
     static func reset() {
@@ -35,28 +37,17 @@ struct OnboardingView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pageIndex = MarketingSnapshotBootstrap.initialOnboardingPage
 
-    private let pages: [OnboardingPage] = [
-        OnboardingPage(
-            title: "Welcome to \(AppInfo.displayName)",
-            message: "Your personal jigsaw puzzle catalog — track every box on your shelf, offline and private.",
-            hero: .brandMark
-        ),
-        OnboardingPage(
-            title: "Shop With Confidence",
-            message: "Scan a barcode at the thrift store to check duplicates instantly — no account or internet required.",
-            hero: .scene(.barcode)
-        ),
-        OnboardingPage(
-            title: "Build Your Collection",
-            message: "Log brands, piece counts, tags, ratings, and progress. Spin the dice to pick your next puzzle from the backlog.",
-            hero: .scene(.collection)
-        ),
-        OnboardingPage(
-            title: "Ready to Puzzle?",
-            message: "Everything stays on your device. Add your first puzzle and start tracking.",
-            hero: .scene(.ready)
-        ),
-    ]
+    private let pages: [OnboardingPage] = {
+        let heroes: [OnboardingHeroStyle] = [
+            .brandMark,
+            .scene(.barcode),
+            .scene(.collection),
+            .scene(.ready),
+        ]
+        return zip(OnboardingCopy.pages(), heroes).map { copy, hero in
+            OnboardingPage(title: copy.title, message: copy.message, hero: hero)
+        }
+    }()
 
     var body: some View {
         VStack(spacing: 0) {
