@@ -10,6 +10,7 @@ enum PuzzleStoreError: LocalizedError {
     case recordNotFound
     case completionNotFound
     case statusRequiredAfterRemovingLastCompletion
+    case completionUndoUnavailable
     case saveFailed
 
     var errorDescription: String? {
@@ -22,6 +23,8 @@ enum PuzzleStoreError: LocalizedError {
             return "That completion log is no longer available."
         case .statusRequiredAfterRemovingLastCompletion:
             return "Choose a status after removing the last completion."
+        case .completionUndoUnavailable:
+            return "That completion can no longer be undone from the banner."
         case .saveFailed:
             return "Could not save changes to your collection."
         }

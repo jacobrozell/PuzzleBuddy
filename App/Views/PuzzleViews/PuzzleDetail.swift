@@ -17,6 +17,7 @@ struct PuzzleDetail: View {
     @State private var showRedoConfirmation = false
     @State private var showMarkReturnedConfirmation = false
     @Binding var puzzle: Puzzle
+    var zoomNamespace: Namespace.ID? = nil
 
     private var trimmedNameIsEmpty: Bool {
         if isEditable, let editFormVm {
@@ -27,6 +28,9 @@ struct PuzzleDetail: View {
 
     var body: some View {
         VStack {
+            if !isEditable, ps.activeCompletionUndo(for: puzzle.id) != nil {
+                undoCompletionBanner
+            }
             if isEditable, let editFormVm {
                 PuzzleFormInternal(formVm: editFormVm, allPuzzles: ps.puzzles)
                     .keyboardDismissToolbar()
@@ -44,6 +48,7 @@ struct PuzzleDetail: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .modifier(PuzzleDetailZoomTransition(id: puzzle.id, namespace: zoomNamespace))
         .animation(.easeInOut, value: isEditable)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
@@ -138,6 +143,58 @@ struct PuzzleDetail: View {
         } message: {
             Text("Clear the on-loan status for this puzzle?")
         }
+    }
+
+    private var undoCompletionBanner: some View {
+        HStack(alignment: .top, spacing: DS.Spacing.s3) {
+            Image(systemName: "arrow.uturn.backward.circle.fill")
+                .foregroundStyle(Brand.accent)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                Text("Marked complete")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.textPrimary)
+                Text("Undo if that was an accident. Your previous status comes back.")
+                    .font(.caption)
+                    .foregroundStyle(Brand.textSecondary)
+            }
+
+            Spacer(minLength: DS.Spacing.s2)
+
+            Button("Undo") {
+                do {
+                    try ps.undoLastCompletion(puzzleID: puzzle.id)
+                    if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                        puzzle = refreshed
+                    }
+                    BarcodeScanFeedback.scanAccepted()
+                } catch {
+                    eh.handle(title: "Could not undo completion", message: error.localizedDescription)
+                }
+            }
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Brand.accent)
+            .frame(minHeight: 44)
+            .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionButton)
+            .accessibilityHint("Removes the finish you just logged and restores the previous status")
+
+            Button {
+                ps.dismissCompletionUndo(for: puzzle.id)
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Brand.textSecondary)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel("Dismiss undo completion")
+        }
+        .padding(DS.Spacing.s3)
+        .background(Brand.accent.opacity(0.12))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionBanner)
+        .accessibilityLabel("Marked complete. Undo if that was an accident.")
     }
 }
 
@@ -333,10 +390,13 @@ struct DetailView: View {
                             value: loanedAt.formatted(date: .abbreviated, time: .omitted)
                         )
                     }
-                    if let dueBack = puzzle.dueBackDate {
+                    if let dueBack = PuzzleLoanSemantics.dueBackDisplayValue(for: puzzle) {
                         detailRow(
                             label: "Due back",
-                            value: dueBack.formatted(date: .abbreviated, time: .omitted)
+                            value: dueBack,
+                            accessibilityIdentifier: PuzzleLoanSemantics.isOverdue(puzzle)
+                                ? A11yID.puzzleDetailDueBackOverdue
+                                : nil
                         )
                     }
                 }
@@ -416,6 +476,19 @@ struct DetailView: View {
             .accessibilityElement(children: .combine)
             .accessibilityLabel("\(label), \(value)")
             .optionalAccessibilityIdentifier(accessibilityIdentifier)
+        }
+    }
+}
+
+private struct PuzzleDetailZoomTransition: ViewModifier {
+    let id: UUID
+    let namespace: Namespace.ID?
+
+    func body(content: Content) -> some View {
+        if let namespace {
+            content.navigationTransition(.zoom(sourceID: id, in: namespace))
+        } else {
+            content
         }
     }
 }

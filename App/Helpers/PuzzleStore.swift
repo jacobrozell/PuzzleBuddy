@@ -21,6 +21,7 @@ class PuzzleStore: ObservableObject {
 
     @Published var puzzles: [Puzzle] = []
     @Published var state: PuzzleStoreState = .idle
+    @Published private(set) var pendingCompletionUndo: CompletionUndoSnapshot?
 
     let friends: FriendStore
     private let modelContext: ModelContext
@@ -272,6 +273,7 @@ class PuzzleStore: ObservableObject {
         puzzle.progressPercent = 0
         puzzle.startDate = Date()
         // Keep completionDate as the latest finish so history, sort, and stats stay accurate.
+        clearPendingUndo(for: puzzle.id)
         try update(puzzle: puzzle)
         AppLog.shared.info(
             .puzzles,
@@ -294,7 +296,8 @@ class PuzzleStore: ObservableObject {
     func deleteCompletion(
         puzzleID: UUID,
         completionID: UUID,
-        statusIfRemovingLast: Puzzle.Status? = nil
+        statusIfRemovingLast: Puzzle.Status? = nil,
+        logDeletedEvent: Bool = true
     ) throws {
         guard fetchRecord(id: puzzleID) != nil else {
             throw PuzzleStoreError.recordNotFound
@@ -319,15 +322,71 @@ class PuzzleStore: ObservableObject {
         }
 
         try reconcileCompletions(for: puzzleID, statusIfEmpty: statusIfRemovingLast)
+        clearPendingUndo(ifMatching: completionID)
 
+        if logDeletedEvent {
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_completion_deleted",
+                message: "Removed puzzle completion log.",
+                metadata: [
+                    "completion_number": removedNumber.map { "\($0)" } ?? "0"
+                ]
+            )
+        }
+    }
+
+    func undoLastCompletion(puzzleID: UUID, now: Date = Date()) throws {
+        guard let snapshot = pendingCompletionUndo, snapshot.puzzleID == puzzleID else {
+            throw PuzzleStoreError.completionUndoUnavailable
+        }
+        guard snapshot.isActive(now: now) else {
+            pendingCompletionUndo = nil
+            throw PuzzleStoreError.completionUndoUnavailable
+        }
+
+        let recordsBeforeDelete = fetchCompletionRecords(puzzleID: puzzleID)
+        let isRemovingLast = recordsBeforeDelete.count == 1
+        let removedNumber = recordsBeforeDelete.first(where: { $0.id == snapshot.completionID })?.completionNumber
+
+        try deleteCompletion(
+            puzzleID: puzzleID,
+            completionID: snapshot.completionID,
+            statusIfRemovingLast: snapshot.previousStatus,
+            logDeletedEvent: false
+        )
+
+        if isRemovingLast, let record = fetchRecord(id: puzzleID) {
+            record.status = snapshot.previousStatus.rawValue
+            record.progressPercent = snapshot.previousProgressPercent
+            if let index = puzzles.firstIndex(where: { $0.id == puzzleID }) {
+                puzzles[index] = puzzleFromRecord(record)
+            }
+            try saveContext()
+        }
+
+        pendingCompletionUndo = nil
         AppLog.shared.info(
             .puzzles,
-            eventName: "puzzle_completion_deleted",
-            message: "Removed puzzle completion log.",
+            eventName: "puzzle_completion_undone",
+            message: "Undid accidental puzzle completion.",
             metadata: [
                 "completion_number": removedNumber.map { "\($0)" } ?? "0"
             ]
         )
+    }
+
+    func activeCompletionUndo(for puzzleID: UUID, now: Date = Date()) -> CompletionUndoSnapshot? {
+        CompletionUndoSemantics.activeSnapshot(
+            pendingCompletionUndo,
+            puzzleID: puzzleID,
+            now: now
+        )
+    }
+
+    func dismissCompletionUndo(for puzzleID: UUID) {
+        guard pendingCompletionUndo?.puzzleID == puzzleID else { return }
+        pendingCompletionUndo = nil
     }
 
     /// Updates an existing completion log in place (SwiftData row), then renumbers if dates shifted.
@@ -344,6 +403,7 @@ class PuzzleStore: ObservableObject {
 
         PuzzleCompletionSemantics.renumberRecords(fetchCompletionRecords(puzzleID: puzzleID))
         try reconcileCompletions(for: puzzleID, statusIfEmpty: nil)
+        clearPendingUndo(ifMatching: completion.id)
 
         AppLog.shared.info(
             .puzzles,
@@ -439,6 +499,7 @@ class PuzzleStore: ObservableObject {
         }
 
         let previousStatus = Puzzle.Status(rawValue: record.status) ?? .todo
+        let previousProgressPercent = record.progressPercent
         var puzzle = puzzle
         try prepareLoanFields(&puzzle)
         puzzle.prepareForPersistence()
@@ -446,7 +507,13 @@ class PuzzleStore: ObservableObject {
 
         do {
             if puzzle.status == .completed && previousStatus != .completed {
-                try appendCompletion(for: puzzle)
+                let completionID = try appendCompletion(for: puzzle)
+                pendingCompletionUndo = CompletionUndoSemantics.snapshot(
+                    puzzleID: puzzle.id,
+                    completionID: completionID,
+                    previousStatus: previousStatus,
+                    previousProgressPercent: previousProgressPercent
+                )
             }
 
             try syncPhotos(for: puzzle)
@@ -463,7 +530,8 @@ class PuzzleStore: ObservableObject {
         }
     }
 
-    private func appendCompletion(for puzzle: Puzzle) throws {
+    @discardableResult
+    private func appendCompletion(for puzzle: Puzzle) throws -> UUID {
         let existing = fetchCompletionRecords(puzzleID: puzzle.id)
         let nextNumber = (existing.map(\.completionNumber).max() ?? 0) + 1
         let completion = PuzzleCompletionSemantics.makeCompletion(from: puzzle, number: nextNumber)
@@ -483,6 +551,17 @@ class PuzzleStore: ObservableObject {
         }
         AnalyticsMilestones.logCompletionMilestones(completedCount: completedCount)
         AnalyticsUserContext.syncCollection(from: puzzles)
+        return completion.id
+    }
+
+    private func clearPendingUndo(for puzzleID: UUID) {
+        guard pendingCompletionUndo?.puzzleID == puzzleID else { return }
+        pendingCompletionUndo = nil
+    }
+
+    private func clearPendingUndo(ifMatching completionID: UUID) {
+        guard pendingCompletionUndo?.completionID == completionID else { return }
+        pendingCompletionUndo = nil
     }
 
     private func syncPhotos(for puzzle: Puzzle) throws {

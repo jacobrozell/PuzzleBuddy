@@ -212,6 +212,80 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         XCTAssertEqual(store.puzzles.first?.timesCompleted, 1)
     }
 
+    func testUndoLastCompletionRestoresPreviousStatusAndProgress() throws {
+        var puzzle = Puzzle.fixture(name: "Accidental", pieces: 400)
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 45
+        try store.add(puzzle: puzzle)
+
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        loaded.progressPercent = 100
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.status, .completed)
+        XCTAssertEqual(loaded.timesCompleted, 1)
+        XCTAssertNotNil(store.activeCompletionUndo(for: loaded.id))
+
+        try store.undoLastCompletion(puzzleID: loaded.id)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.status, .inProgress)
+        XCTAssertEqual(loaded.progressPercent, 45)
+        XCTAssertEqual(loaded.timesCompleted, 0)
+        XCTAssertTrue(loaded.completions.isEmpty)
+        XCTAssertNil(store.activeCompletionUndo(for: loaded.id))
+    }
+
+    func testAddingCompletedPuzzleDoesNotCreateUndo() throws {
+        var puzzle = Puzzle.fixture(name: "Already done", pieces: 200)
+        puzzle.status = .completed
+        try store.add(puzzle: puzzle)
+        let loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.timesCompleted, 1)
+        XCTAssertNil(store.activeCompletionUndo(for: loaded.id))
+    }
+
+    func testExpiredUndoIsUnavailable() throws {
+        var puzzle = Puzzle.fixture(name: "Too late", pieces: 200)
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 20
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        let expired = Date().addingTimeInterval(CompletionUndoSemantics.window + 5)
+        XCTAssertThrowsError(
+            try store.undoLastCompletion(puzzleID: loaded.id, now: expired)
+        ) { error in
+            guard case PuzzleStoreError.completionUndoUnavailable = error else {
+                return XCTFail("Expected completionUndoUnavailable, got \(error)")
+            }
+        }
+        XCTAssertEqual(store.puzzles.first?.status, .completed)
+    }
+
+    func testUndoSecondCompletionKeepsEarlierHistory() throws {
+        var puzzle = Puzzle.fixture(name: "Replay undo", pieces: 300)
+        puzzle.status = .completed
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        try store.startRedo(puzzle: loaded)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.completions.count, 2)
+        try store.undoLastCompletion(puzzleID: loaded.id)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.status, .completed)
+        XCTAssertEqual(loaded.timesCompleted, 1)
+        XCTAssertEqual(loaded.completions.count, 1)
+    }
+
     func testUpdateCompletionChangesDateAndPersists() async throws {
         var puzzle = Puzzle.fixture(name: "Edit me", pieces: 200)
         puzzle.status = .completed
