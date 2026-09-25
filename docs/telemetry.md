@@ -10,7 +10,7 @@ Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytic
 
 **Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-25
 
 ---
 
@@ -112,6 +112,9 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_completion_recorded` | same | `PuzzleStore.recordCompletion` | New completion appended |
 | `puzzle_completion_deleted` | same | `PuzzleStore.deleteCompletion` | User removed a completion log |
 | `puzzle_completion_updated` | same | `PuzzleStore.updateCompletion` | User edited completion date/time |
+| `puzzle_completion_undone` | same | `PuzzleStore.undoLastCompletion` | Same-session accidental-complete undo |
+| `whats_new_shown` | same | `WhatsNewView` | 1.1 upgrader notes sheet |
+| `whats_new_dismissed` | same | `PuzzleView` | User dismissed What's New |
 | `settings_collection_exported` | same | *(legacy allowlist; Settings export UI removed 1.1.0)* | — |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |

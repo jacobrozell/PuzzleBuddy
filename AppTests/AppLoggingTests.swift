@@ -110,6 +110,33 @@ final class AppLoggingTests: XCTestCase {
         XCTAssertEqual(recorded?.parameters["completion_number"] as? String, "3")
     }
 
+    func testAnalyticsAllowlistsWhatsNewAndUndoEvents() {
+        let shown = PuzzleAnalyticsEventMapping.map(
+            eventName: "whats_new_shown",
+            category: .ui,
+            metadata: [:],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(shown?.name, "whats_new_shown")
+
+        let dismissed = PuzzleAnalyticsEventMapping.map(
+            eventName: "whats_new_dismissed",
+            category: .ui,
+            metadata: [:],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(dismissed?.name, "whats_new_dismissed")
+
+        let undone = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_undone",
+            category: .puzzles,
+            metadata: ["completion_number": "1"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(undone?.name, "puzzle_completion_undone")
+        XCTAssertEqual(undone?.parameters["completion_number"] as? String, "1")
+    }
+
     func testAnalyticsAllowlistsOnboardingCompleted() {
         let mapped = PuzzleAnalyticsEventMapping.map(
             eventName: "onboarding_completed",

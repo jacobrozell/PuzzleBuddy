@@ -351,7 +351,7 @@ After each phase:
 | Phase B events shipped | [x] | 2026-06-29 | iOS + Android |
 | Phase B dimensions registered | [ ] | | [Checklist](release/ga4-phase-b-console-checklist.md) |
 | User properties (Phase D / 1.1 depth) | [ ] | | Register §5.3 user-scoped dims |
-| `session_snapshot` / `milestone_reached` | [x] | 2026-09-21 | iOS on `release/1.1.0` (Android deferred) |
+| `session_snapshot` / `milestone_reached` | [x] | 2026-09-25 | iOS + Android allowlist; Android call sites on launch/list |
 
 ---
 
