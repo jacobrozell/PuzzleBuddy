@@ -41,6 +41,11 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.settingsWriteReviewButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleShareButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellProgress.isEmpty)
+        XCTAssertFalse(A11yID.whatsNewSheet.isEmpty)
+        XCTAssertFalse(A11yID.whatsNewDismissButton.isEmpty)
+        XCTAssertFalse(A11yID.puzzleDetailUndoCompletionButton.isEmpty)
+        XCTAssertFalse(A11yID.puzzleListOverdueFilter.isEmpty)
+        XCTAssertFalse(A11yID.puzzleCellOverdue.isEmpty)
     }
 
     func testPuzzleRatingAccessibilityDescription() {

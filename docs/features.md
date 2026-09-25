@@ -39,8 +39,10 @@ First-time users see a four-page onboarding carousel (`OnboardingView`) stored i
 |------|-------|---------|
 | 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — offline and private |
 | 2 | Shop With Confidence | Offline barcode duplicate-check at the thrift store |
-| 3 | Build Your Collection | Brands, piece counts, tags, ratings, pick-next |
-| 4 | Ready to Puzzle? | Local-first — add your first puzzle |
+| 3 | Build Your Collection | Brands, piece counts, tags, ratings, **on loan**, pick-next |
+| 4 | Ready to Puzzle? | Local-first — **undo or fix an accidental Complete** in history |
+
+**1.1 upgraders** (onboarding already complete) see a one-time **What's New** sheet (`WhatsNewPrompt` / `WhatsNewView`) after splash: fix a finish, On loan, Puzzle again. First-run users skip it because `OnboardingStorage.markComplete()` marks the notes as seen. Hidden during UI tests and marketing snapshots.
 
 Navigation:
 
@@ -75,7 +77,7 @@ The catalog is the heart of the app. Users browse, add, edit, and delete puzzles
 | Display | One row per puzzle via `PuzzleCell`; brand (`source`) under name when set |
 | Status filter | Segmented control: **To-Do**, **In-Progress**, **Completed**, **All** (default All) |
 | Search | Matches puzzle name, brand (`source`), and barcode (case-insensitive; barcode digit-normalized) |
-| Filters | Piece count (≤500, 1000, 1500+), **Needs photo**, missing pieces |
+| Filters | Piece count (≤500, 1000, 1500+), **Needs photo**, missing pieces, **On loan**, **Overdue** |
 | Sort | Toolbar menu: date, name, rating, difficulty, piece count; default **Name** on To-Do / In-Progress tabs |
 | Barcode | Toolbar scan button opens scanner; optional **Shopping mode** for offline duplicate check |
 | Add | Floating `+` button opens `PuzzleForm` as a sheet |
@@ -107,7 +109,10 @@ Read-only detail view with inline edit mode toggled from the navigation bar.
 | Section | Content |
 |---------|---------|
 | Summary panel | Photo (or placeholder), name, star rating (if set), difficulty (if set) |
-| Stats panel | Status, completion date, time spent, piece count, puzzle pace, pace per 1,000 pieces (when data allows) |
+| Progress panel | Percent ring, slider, **Puzzle again**, **Mark returned** |
+| Completion history | Newest-first logs; tap or swipe to **Edit** / **Remove** |
+| Undo banner | Same-session (5 min) **Undo** after marking Complete by accident |
+| Stats panel | Status, completion date, time spent, piece count, puzzle pace, pace per 1,000 pieces (when data allows); overdue due-back label |
 
 **Edit mode** reuses `PuzzleFormInternal` inline. Tapping **Save** calls `PuzzleStore.update(puzzle:)` and returns to read mode.
 
@@ -358,7 +363,7 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Requirement | Value |
 |-------------|-------|
-| iOS deployment target | 17.0+ (SwiftData) |
+| iOS deployment target | 18.0+ (SwiftData) |
 | Devices | iPhone and iPad |
 | Camera | Required for "Take photo" — `NSCameraUsageDescription` |
 | Photo library | Implicit via `UIImagePickerController` |

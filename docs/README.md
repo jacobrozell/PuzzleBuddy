@@ -65,6 +65,7 @@ These Markdown files are for developers and agents (linked from [README.md](../R
 | [roadmap.md](roadmap.md) | Future releases and backlog |
 | [release/app-store-connect.md](release/app-store-connect.md) | App Store name, ASO, Connect checklist (1.0) |
 | [release/todo.md](release/todo.md) | Release todo and pre-submit gates |
+| [implementation/1.1.1-file-split.md](implementation/1.1.1-file-split.md) | **1.1.1** — split `PuzzleList` / `PuzzleStore` (engineering only) |
 | [implementation-playbook.md](implementation-playbook.md) | Build-all-then-cut workflow, agent queries |
 | [architecture.md](architecture.md) | App structure, data model, navigation |
 | [swiftdata-migrations.md](swiftdata-migrations.md) | **SwiftData VersionedSchema / migration policy** |

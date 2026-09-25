@@ -2,11 +2,12 @@
 
 Prioritized backlog. Shipped behavior: [`docs/feature-inventory.md`](../docs/feature-inventory.md).
 
-**Active:** [`docs/implementation/1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) on `release/1.1.0`
+**Active:** [`docs/implementation/1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) on `release/1.1.0`  
+**Next (engineering):** [`docs/implementation/1.1.1-file-split.md`](../docs/implementation/1.1.1-file-split.md) — split `PuzzleList` / `PuzzleStore` after 1.1.0 ships
 
 **Competitor gaps:** [`docs/competitive-gap-analysis.md`](../docs/competitive-gap-analysis.md)
 
-**Last updated:** 2026-09-21
+**Last updated:** 2026-09-25
 
 ---
 
@@ -31,7 +32,15 @@ Settings UI **removed in 1.1.0** (GA4: zero `puzzle_import_completed` / `setting
 |------|------|-------|
 | **Completion history edit/delete** | [`1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) | Accidental-finish recovery |
 | **Analytics depth** | [`ga4-analytics-spec.md`](../docs/ga4-analytics-spec.md) | User properties, session snapshot (code on branch) |
-| **Onboarding + review prompt** | — | Less skippable onboarding; App Store review popup |
+| **Onboarding + review prompt** | — | Review prompt shipped; 1.1 What's New sheet + onboarding copy for loan/undo |
+
+---
+
+## 1.1.1 — engineering (no product)
+
+| Idea | Spec | Notes |
+|------|------|-------|
+| **Split oversized files** | [`1.1.1-file-split.md`](../docs/implementation/1.1.1-file-split.md) | `PuzzleList` 1.3k, `PuzzleStore` 800, stats/form/detail. Move code only — no behavior or schema. |
 
 ---
 
@@ -52,6 +61,10 @@ Settings UI **removed in 1.1.0** (GA4: zero `puzzle_import_completed` / `setting
 ---
 
 ## Later
+
+### Deployment target
+
+**1.1.0 minimum is iOS 18.** GA4 Tech details, 2026-09-25 showed only 2 active users on iOS 18, and the device models in that report (iPhone 12 Pro through iPhone 17 Pro Max) can all run iOS 26 — no hardware in the installed base was stuck below 18.
 
 | Idea | Spec | Notes |
 |------|------|-------|

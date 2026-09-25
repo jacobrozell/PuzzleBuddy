@@ -2,7 +2,7 @@
 
 **What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md). For competitor gaps see [competitive-gap-analysis.md](competitive-gap-analysis.md).
 
-**Last updated:** 2026-09-21  
+**Last updated:** 2026-09-25  
 **Target:** 1.1.0 on `release/1.1.0`
 
 ---
@@ -12,6 +12,7 @@
 | Area | Feature | Code paths |
 |------|---------|------------|
 | Launch | Splash → onboarding → main tabs | `SplashView`, `RootView`, `OnboardingView` |
+| Launch | **What's New (1.1)** one-time sheet for 1.0 upgraders | `WhatsNewPrompt`, `WhatsNewView` |
 | Catalog | Add / edit / delete puzzle | `PuzzleForm`, `PuzzleStore`, `PuzzleRecord` |
 | Catalog | Status: Wishlist, To-Do, In-Progress, Completed, **Abandoned** | `Puzzle.Status`, list filters |
 | Catalog | **On loan** + local Friends model (Friends list UI flagged off) | `FriendRecord`, loan fields, list filter |
@@ -19,7 +20,8 @@
 | Catalog | **Multi-photo gallery** (max 5, cover = first) | `PuzzlePhotoGalleryEditor`, `PuzzlePhotoRecord` |
 | Catalog | **Redo + completion history** | `PuzzleCompletionRecord`, `PuzzleStore.startRedo` |
 | Catalog | **Manual start date** on In-Progress / Completed | `PuzzleForm`, `PuzzleDateSemantics` |
-| Catalog | Search, status tabs, sort, filters (incl. **type / material / disposition**) | `PuzzleList`, `PuzzleListFilter` |
+| Catalog | **Undo completion** banner (5 min / same session) | `CompletionUndoSemantics`, `PuzzleStore.undoLastCompletion` |
+| Catalog | Search, status tabs, sort, filters (incl. **type / material / disposition**, **Overdue**) | `PuzzleList`, `PuzzleListFilter` |
 | Catalog | Half-star ratings on form + list | `RatingsView`, `PuzzleCell` |
 | Shopping | Barcode scan, shopping duplicate-check | `BarcodeScannerSheet`, `ShoppingModeView` |
 | Shopping | Local barcode metadata from saved puzzles | `BarcodeMetadataCache` |
@@ -67,7 +69,7 @@ See [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and `specs/planned/`.
 | Account required | **No** |
 | Import/export Settings UI | **Off** (removed 1.1.0; helpers in tree) |
 | Pick-next | **On** |
-| Min iOS | 17.0 |
+| Min iOS | 18.0 |
 | Locales | English only |
 
 ---
