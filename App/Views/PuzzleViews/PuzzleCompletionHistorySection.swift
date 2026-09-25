@@ -14,6 +14,7 @@ struct PuzzleCompletionHistorySection: View {
     @State private var pendingDelete: PuzzleCompletion?
     @State private var showDeleteConfirm = false
     @State private var showStatusPrompt = false
+    @ScaledMetric(relativeTo: .body) private var historyRowHeight: CGFloat = 68
 
     private var sortedCompletions: [PuzzleCompletion] {
         PuzzleCompletionSemantics.sortedNewestFirst(puzzle.completions)
@@ -27,14 +28,35 @@ struct PuzzleCompletionHistorySection: View {
                     .foregroundStyle(Brand.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(sortedCompletions.enumerated()), id: \.element.id) { index, completion in
-                        if index > 0 {
-                            Divider()
-                        }
+                List {
+                    ForEach(sortedCompletions) { completion in
                         completionRow(completion)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparatorTint(Brand.textSecondary.opacity(0.18))
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    pendingDelete = completion
+                                    showDeleteConfirm = true
+                                } label: {
+                                    Label(PuzzleCompletionHistoryCopy.swipeRemoveTitle, systemImage: "trash")
+                                }
+                                .accessibilityLabel("Remove completion \(completion.completionNumber)")
+
+                                Button {
+                                    editingCompletion = completion
+                                } label: {
+                                    Label(PuzzleCompletionHistoryCopy.swipeEditTitle, systemImage: "pencil")
+                                }
+                                .tint(Brand.accent)
+                                .accessibilityLabel("Edit completion \(completion.completionNumber)")
+                            }
                     }
                 }
+                .listStyle(.plain)
+                .scrollDisabled(true)
+                .scrollContentBackground(.hidden)
+                .frame(height: CGFloat(sortedCompletions.count) * historyRowHeight)
             }
         } label: {
             HStack {
@@ -63,9 +85,10 @@ struct PuzzleCompletionHistorySection: View {
                     saveCompletion(updated)
                 }
             )
+            .adaptiveIPadPageSheet()
         }
         .confirmationDialog(
-            deleteDialogTitle,
+            PuzzleCompletionHistoryCopy.deleteDialogTitle,
             isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
@@ -94,21 +117,17 @@ struct PuzzleCompletionHistorySection: View {
                 showStatusPrompt = false
             }
         } message: {
-            Text("This was your only completion log. Choose a new status for the puzzle.")
+            Text(PuzzleCompletionHistoryCopy.lastCompletionStatusPrompt)
         }
-    }
-
-    private var deleteDialogTitle: String {
-        "Remove completion?"
     }
 
     private var deleteDialogMessage: String {
         guard let pendingDelete else { return "" }
-        let date = pendingDelete.completedAt.formatted(date: .abbreviated, time: .omitted)
-        if sortedCompletions.count == 1 {
-            return "Remove the finish log from \(date)?"
-        }
-        return "Remove completion #\(pendingDelete.completionNumber) from \(date)? Other finishes stay in your history."
+        return PuzzleCompletionHistoryCopy.deleteDialogMessage(
+            completionNumber: pendingDelete.completionNumber,
+            completedAt: pendingDelete.completedAt,
+            remainingCount: sortedCompletions.count
+        )
     }
 
     @ViewBuilder
@@ -142,13 +161,13 @@ struct PuzzleCompletionHistorySection: View {
             Button {
                 editingCompletion = completion
             } label: {
-                Label("Edit", systemImage: "pencil")
+                Label(PuzzleCompletionHistoryCopy.swipeEditTitle, systemImage: "pencil")
             }
             Button(role: .destructive) {
                 pendingDelete = completion
                 showDeleteConfirm = true
             } label: {
-                Label("Remove", systemImage: "trash")
+                Label(PuzzleCompletionHistoryCopy.swipeRemoveTitle, systemImage: "trash")
             }
         }
     }
