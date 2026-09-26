@@ -1,13 +1,13 @@
 # Ongoing work
 
-**Last updated:** 2026-09-25
+**Last updated:** 2026-09-26
 
 ## Active
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
 | **1.1.0 completion history** | [`docs/implementation/1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) | **In progress** | Edit/delete + swipe + undo banner; What's New + overdue loan polish on `release/1.1.0` |
-| **1.1.0 review-lane fixes** | [`1.1.0-review-fixes.md`](1.1.0-review-fixes.md) | **Done** | Items #1–#18, #21–#28 closed; #19/#20 deferred to 1.1.1 |
+| **1.1.0 review-lane fixes** | [`1.1.0-review-fixes.md`](1.1.0-review-fixes.md) | **Done** | #1–#18, #21–#29 closed; #19/#20 deferred to 1.1.1 |
 | **App Store 1.0.0** | [`docs/release/todo.md`](../docs/release/todo.md) | **App Review** | Tag `1.0.0` on `main`; 1.1.0 work on release branch |
 | **Barcode scan polish** | [`barcode-scan-polish.md`](barcode-scan-polish.md) | In progress | Items 8, 13 post-sprint or parallel |
 | **Landscape UI** | [`landscape-ui.md`](landscape-ui.md) | In progress | Items 1–3 done (condensed header, FAB clearance, iPad grid); 4–7 pending |

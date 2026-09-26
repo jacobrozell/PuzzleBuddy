@@ -461,12 +461,15 @@ class PuzzleStore: ObservableObject {
         try modelContext.fetch(FetchDescriptor<PuzzleCompletionRecord>()).forEach { modelContext.delete($0) }
         let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
         records.forEach { modelContext.delete($0) }
+        try modelContext.fetch(FetchDescriptor<FriendRecord>()).forEach { modelContext.delete($0) }
         try saveContext()
         puzzles = []
+        friends.reload()
+        objectWillChange.send()
         AppLog.shared.info(
             .puzzles,
             eventName: "puzzle_collection_cleared",
-            message: "Cleared all local puzzles."
+            message: "Cleared all local puzzles and people."
         )
     }
 

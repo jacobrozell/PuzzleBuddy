@@ -47,13 +47,13 @@ struct SettingsView: View {
         } message: {
             Text("Removes \(ps.demoPuzzleCount) sample puzzles. Your own puzzles are not affected.")
         }
-        .alert("Delete all puzzles?", isPresented: $showClearCollectionAlert) {
+        .alert("Delete all data?", isPresented: $showClearCollectionAlert) {
             Button("Cancel", role: .cancel) {}
-            Button("Delete All", role: .destructive) {
+            Button("Delete All Data", role: .destructive) {
                 clearCollection()
             }
         } message: {
-            Text("This permanently removes every puzzle on this device. This cannot be undone.")
+            Text("This permanently removes every puzzle, photo, completion, and borrower name on this device. This cannot be undone.")
         }
     }
 
@@ -113,10 +113,14 @@ struct SettingsView: View {
             Button(role: .destructive) {
                 showClearCollectionAlert = true
             } label: {
-                Label("Delete All Puzzles", systemImage: "trash")
+                Label("Delete All Data", systemImage: "trash")
             }
-            .disabled(ps.puzzles.isEmpty)
-            .accessibilityHint(ps.puzzles.isEmpty ? "No puzzles to delete" : "Removes every puzzle from this device")
+            .disabled(ps.puzzles.isEmpty && ps.friends.friends.isEmpty)
+            .accessibilityHint(
+                ps.puzzles.isEmpty && ps.friends.friends.isEmpty
+                    ? "No data to delete"
+                    : "Removes every puzzle, photo, completion, and borrower name from this device"
+            )
         } header: {
             Text("Collection")
         } footer: {
@@ -185,7 +189,7 @@ struct SettingsView: View {
         do {
             try ps.clearAllPuzzles()
         } catch {
-            eh.handle(title: "Could not delete puzzles", message: error.localizedDescription)
+            eh.handle(title: "Could not delete data", message: error.localizedDescription)
         }
     }
 }

@@ -194,7 +194,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 18+ · Firebase Analytic
 - [x] **8.4** Settings / store tests — persistence tests exist
 - [ ] **8.5** **AppLinks** registry — URLs hardcoded in `SettingsView`
 - [ ] **8.6** Tip/donate row — not applicable (nil = hidden pattern not wired)
-- [ ] **8.7** **Delete all local data** — `Delete All Puzzles` in Settings (verify ship checklist)
+- [ ] **8.7** **Delete all local data** — `Delete All Data` in Settings (verify ship checklist)
 
 ---
 

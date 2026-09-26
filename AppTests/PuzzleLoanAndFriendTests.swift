@@ -184,7 +184,7 @@ final class PuzzleLoanAndFriendTests: XCTestCase {
         XCTAssertEqual(parsed.puzzles.first?.loanedToFriendID, store.puzzles.first?.loanedToFriendID)
     }
 
-    func testClearAllPuzzlesKeepsFriends() throws {
+    func testClearAllPuzzlesDeletesFriends() throws {
         let puzzle = Puzzle.fixture(name: "Temp", pieces: 100)
         puzzle.isOnLoan = true
         puzzle.loanedToDisplayName = "Mom"
@@ -194,6 +194,6 @@ final class PuzzleLoanAndFriendTests: XCTestCase {
         try store.clearAllPuzzles()
         store.friends.reload()
         XCTAssertTrue(store.puzzles.isEmpty)
-        XCTAssertEqual(store.friends.friends.count, 1)
+        XCTAssertTrue(store.friends.friends.isEmpty)
     }
 }

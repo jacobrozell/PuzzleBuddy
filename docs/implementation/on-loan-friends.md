@@ -27,7 +27,7 @@
 
 - Gifted / Sold / Donated / Trashed clears loan
 - Mark returned clears loan fields; Friend row kept
-- Delete all puzzles does **not** delete friends
+- Delete All Data removes puzzles **and** friends (`FriendRecord`)
 - Demo friends use `isDemo`; removed with demo puzzles
 - Never put borrower names in Analytics
 
