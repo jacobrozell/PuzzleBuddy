@@ -30,7 +30,7 @@ xcodegen generate
 xcodebuild build-for-testing \
   -project "PuzzleBuddy.xcodeproj" \
   -scheme PuzzleBuddy \
-  -destination "platform=iOS Simulator,name=iPhone 17,OS=27.0" \
+  -destination "platform=iOS Simulator,name=iPhone 17" \
   -derivedDataPath DerivedData \
   CODE_SIGN_IDENTITY=- \
   CODE_SIGNING_REQUIRED=NO \

@@ -36,7 +36,12 @@ final class PuzzleCollectionBackupTests: XCTestCase {
 
     func testImporterRejectsNewerBackupFormatVersion() {
         let json = """
-        {"backupFormatVersion":99,"puzzles":[{"name":"Future","status":"To-Do","rating":0,"difficulty":"0","completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None","disposition":"None","progressPercent":0,"timesCompleted":0,"tags":[],"hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]}]}
+        {"backupFormatVersion":99,"puzzles":[{
+        "name":"Future","status":"To-Do","rating":0,"difficulty":"0",
+        "completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None",
+        "disposition":"None","progressPercent":0,"timesCompleted":0,"tags":[],
+        "hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]
+        }]}
         """
         XCTAssertThrowsError(try PuzzleCollectionJSONImporter.puzzles(from: Data(json.utf8))) { error in
             guard case PuzzleCollectionJSONImportError.unsupportedFormatVersion(99) = error else {

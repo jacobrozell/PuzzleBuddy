@@ -130,7 +130,12 @@ final class PuzzlePreReleaseRemediationTests: XCTestCase {
 
     func testSparseMultiCompletionSynthesizesNCompletions() throws {
         let json = """
-        {"backupFormatVersion":1,"puzzles":[{"name":"Repeat","status":"Completed","rating":0,"difficulty":"0","completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None","disposition":"None","progressPercent":100,"timesCompleted":3,"tags":[],"hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]}]}
+        {"backupFormatVersion":1,"puzzles":[{
+        "name":"Repeat","status":"Completed","rating":0,"difficulty":"0",
+        "completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None",
+        "disposition":"None","progressPercent":100,"timesCompleted":3,"tags":[],
+        "hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]
+        }]}
         """
         let puzzle = try XCTUnwrap(PuzzleCollectionJSONImporter.puzzles(from: Data(json.utf8)).first)
         XCTAssertEqual(puzzle.completions.count, 3)
