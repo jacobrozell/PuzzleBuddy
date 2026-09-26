@@ -4,6 +4,18 @@ Status legend: `[ ]` todo · `[x]` done
 
 Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](../features.md) · Inventory: [`../feature-inventory.md`](../feature-inventory.md)
 
+## 1.1.0 TestFlight / App Review
+
+- [x] Review-lane fixes — [`../../ongoing/1.1.0-review-fixes.md`](../../ongoing/1.1.0-review-fixes.md)
+- [ ] **Connect version** `1.1.0` · this build · **minimum iOS 18.0**
+- [ ] **Notes for Review** — paste the 1.1.0 notes from [`app-store-connect.md`](app-store-connect.md#110-notes-for-review)
+- [ ] **What’s New** — completion history, undo, On loan / overdue, What’s New sheet (do not claim import/export or People list)
+- [ ] **Screenshots** — recapture list (On loan / overdue chips), detail + history, iPad / `sidebarAdaptable`; first frame still reads as a catalog
+- [ ] **Privacy + support Pages** — push `docs/privacy.html` / `docs/support.html` so Connect URLs match 1.1
+- [ ] **Nutrition / privacy label** — Product interaction (`session_snapshot`, `milestone_reached`); friend names under Other user content
+- [x] **Age 4+** and export-compliance exemption — re-confirm, no change expected
+- [x] AppUITests on iPhone 17 · units cover migrate / history / loan
+
 ## 1.0.0 App Store
 
 - [x] **No login / cloud sync** — Auth, Firestore, FCM removed from app (June 2026)

@@ -13,7 +13,7 @@ env:
   CI_XCODE_PROJECT: PuzzleBuddy.xcodeproj
   CI_XCODE_SCHEME: PuzzleBuddy
   CI_PARALLEL_TESTING: NO
-  SIM_DESTINATION: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+  SIM_DESTINATION: platform=iOS Simulator,name=iPhone 17
 
 jobs:
   firebase-parity:
@@ -32,7 +32,7 @@ jobs:
           path: PuzzleBuddy-Android
 
       - name: Verify Firebase telemetry parity
-        run: PuzzleBuddy-Android/scripts/check-firebase-parity.sh
+        run: Scripts/ci/check-firebase-parity.sh
 
   lint:
     name: SwiftLint

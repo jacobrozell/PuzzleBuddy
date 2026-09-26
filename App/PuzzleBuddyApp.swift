@@ -10,7 +10,7 @@ import SwiftUI
 
 @main
 struct PuzzleBuddyApp: App {
-    public static let version = "1.0.0" // Keep in sync with MARKETING_VERSION in project.yml
+    public static let version = "1.1.0" // Keep in sync with MARKETING_VERSION in project.yml
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue

@@ -2,6 +2,15 @@
 
 Professional App Store and marketing assets for **Puzzle Buddy**.
 
+## 1.1.0 recapture list
+
+Before 1.1.0 Connect upload, recapture at least:
+
+1. Puzzle list showing **On loan** / **Overdue** chips
+2. Puzzle detail with **completion history**
+3. iPad / `sidebarAdaptable` tabs
+4. Keep the first frame reading as a **catalog**, not a kids’ game
+
 ## Folder layout
 
 Screenshots are sorted by **device → appearance → orientation**:

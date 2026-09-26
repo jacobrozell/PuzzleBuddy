@@ -37,18 +37,21 @@ First-time users see a four-page onboarding carousel (`OnboardingView`) stored i
 
 | Page | Title | Message |
 |------|-------|---------|
-| 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — track every box on your shelf |
-| 2 | Build Your Collection | Log piece counts, ratings, difficulty, and status |
-| 3 | Capture the Moment | Attach photos from camera or library |
-| 4 | Ready to Puzzle? | Barcode scan, shopping duplicate-check, pick my next puzzle — everything stays on device |
+| 1 | Welcome to Puzzle Buddy | Personal jigsaw catalog — offline and private |
+| 2 | Shop With Confidence | Offline barcode duplicate-check at the thrift store |
+| 3 | Build Your Collection | Brands, piece counts, tags, ratings, **on loan**, pick-next |
+| 4 | Ready to Puzzle? | Local-first — **undo or fix an accidental Complete** in history |
+
+**1.1 upgraders** (onboarding already complete) see a one-time **What's New** sheet (`WhatsNewPrompt` / `WhatsNewView`) after splash: fix a finish, On loan, Puzzle again. First-run users skip it because `OnboardingStorage.markComplete()` marks the notes as seen. Hidden during UI tests and marketing snapshots.
 
 Navigation:
 
-- **Skip** (page 1) or **Back** / **Next** on subsequent pages
+- **Skip** / **Next** on every page; **Back** from page 2 onward
 - **Get Started** on the final page marks onboarding complete and dismisses the flow
-- Completing onboarding logs `onboarding_completed` to Analytics (allowlisted)
+- Completing onboarding logs `onboarding_completed` to Analytics (allowlisted); Skip logs `onboarding_skipped`
+- Visual polish: branded ambient heroes, accent page dots, Reduce Motion–safe enter animation
 
-Onboarding is skipped automatically during UI tests (`UITestSupport.isRunningUnderTest`).
+Onboarding is skipped automatically during most UI tests (`-ui_testing_bypass_onboarding`). Dedicated onboarding coverage uses `-ui_test_reset -snapshot_onboarding` (`OnboardingUITests`).
 
 ### Root routing
 
@@ -74,7 +77,7 @@ The catalog is the heart of the app. Users browse, add, edit, and delete puzzles
 | Display | One row per puzzle via `PuzzleCell`; brand (`source`) under name when set |
 | Status filter | Segmented control: **To-Do**, **In-Progress**, **Completed**, **All** (default All) |
 | Search | Matches puzzle name, brand (`source`), and barcode (case-insensitive; barcode digit-normalized) |
-| Filters | Piece count (≤500, 1000, 1500+), **Needs photo**, missing pieces |
+| Filters | Piece count (≤500, 1000, 1500+), **Needs photo**, missing pieces, **On loan**, **Overdue** |
 | Sort | Toolbar menu: date, name, rating, difficulty, piece count; default **Name** on To-Do / In-Progress tabs |
 | Barcode | Toolbar scan button opens scanner; optional **Shopping mode** for offline duplicate check |
 | Add | Floating `+` button opens `PuzzleForm` as a sheet |
@@ -106,7 +109,10 @@ Read-only detail view with inline edit mode toggled from the navigation bar.
 | Section | Content |
 |---------|---------|
 | Summary panel | Photo (or placeholder), name, star rating (if set), difficulty (if set) |
-| Stats panel | Status, completion date, time spent, piece count, puzzle pace, pace per 1,000 pieces (when data allows) |
+| Progress panel | Percent ring, slider, **Puzzle again**, **Mark returned** |
+| Completion history | Newest-first logs; tap or swipe to **Edit** / **Remove** |
+| Undo banner | Same-session (5 min) **Undo** after marking Complete by accident |
+| Stats panel | Status, completion date, time spent, piece count, puzzle pace, pace per 1,000 pieces (when data allows); overdue due-back label |
 
 **Edit mode** reuses `PuzzleFormInternal` inline. Tapping **Save** calls `PuzzleStore.update(puzzle:)` and returns to read mode.
 
@@ -269,11 +275,11 @@ Navigation title reflects the active tab ("Puzzle Buddy", "Collection Stats", or
 | Section | Content |
 |---------|---------|
 | Display | Appearance picker |
-| Collection | Demo data, delete all; import/export when `isCollectionImportExportEnabled` (off in 1.0) |
+| Collection | Demo data, delete all |
 | Help & Legal | Privacy Policy, Support, Accessibility (GitHub Pages links) |
 | About | App version from `PuzzleBuddyApp.version` |
 
-**IPDb import / export (1.1+):** Gated by `ProductService.isCollectionImportExportEnabled`. Dogfood with launch arg `-enable_collection_import_export`. See [ipdb-csv-import.md](ipdb-csv-import.md) and [collection-export.md](collection-export.md).
+**IPDb import / export:** Settings UI **removed in 1.1.0** (no usage since launch). Parsers/exporters remain in the tree for a possible re-ship — see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md) and [specs/planned/collection-import-export.md](../specs/planned/collection-import-export.md).
 
 Legal URLs point to `https://jacobrozell.github.io/PuzzleBuddy/`.
 
@@ -357,7 +363,7 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Requirement | Value |
 |-------------|-------|
-| iOS deployment target | 17.0+ (SwiftData) |
+| iOS deployment target | 18.0+ (SwiftData) |
 | Devices | iPhone and iPad |
 | Camera | Required for "Take photo" — `NSCameraUsageDescription` |
 | Photo library | Implicit via `UIImagePickerController` |
@@ -368,7 +374,6 @@ Phase 1 accessibility work is complete. See [wcag.md](wcag.md) and [../accessibi
 
 | Hook | Purpose |
 |------|---------|
-| `-enable_collection_import_export` | Settings import/export UI |
 | `-ui_testing_bypass_onboarding` | Skip onboarding in UI tests |
 | `-ui_testing_seed_puzzles` | Seed demo puzzles |
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics |
@@ -383,7 +388,8 @@ See [testing.md](testing.md) for CI and test suite details.
 
 | Document | Topic |
 |----------|-------|
-| [architecture.md](architecture.md) | Layers, dependencies, SwiftData schema |
+| [architecture.md](architecture.md) | Layers, dependencies, SwiftData overview |
+| [swiftdata-migrations.md](swiftdata-migrations.md) | Schema versions + how to migrate |
 | [roadmap.md](roadmap.md) | Future releases and planned features |
 | [firebase-setup.md](firebase-setup.md) | Firebase Console configuration |
 | [analytics.md](analytics.md) | Logging and privacy rules |

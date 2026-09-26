@@ -34,6 +34,16 @@ enum Brand {
     static let accent = Color(red: 0.05, green: 0.55, blue: 0.62)
     static let accentSecondary = Color(red: 0.12, green: 0.72, blue: 0.78)
     static let accentWarm = Color(red: 0.93, green: 0.45, blue: 0.13)
+    /// Warm badge / chip text — ≥ 4.5:1 on card in light mode.
+    static let accentWarmText = dynamic(
+        light: UIColor(red: 0.52, green: 0.22, blue: 0.02, alpha: 1),
+        dark: UIColor(red: 0.98, green: 0.72, blue: 0.38, alpha: 1)
+    )
+    /// Accent text on washed backgrounds — ≥ 4.5:1 in light mode.
+    static let accentText = dynamic(
+        light: UIColor(red: 0.02, green: 0.36, blue: 0.42, alpha: 1),
+        dark: UIColor(red: 0.48, green: 0.88, blue: 0.92, alpha: 1)
+    )
 
     static let textPrimary = dynamic(
         light: UIColor(red: 0.08, green: 0.09, blue: 0.11, alpha: 1),
@@ -48,6 +58,27 @@ enum Brand {
     static let gradientTop = Color(red: 0.10, green: 0.45, blue: 0.85)
     static let gradientMid = Color(red: 0.12, green: 0.68, blue: 0.82)
     static let gradientBottom = Color(red: 0.08, green: 0.58, blue: 0.55)
+}
+
+enum BrandWash {
+    static var mesh: some View {
+        MeshGradient(
+            width: 3,
+            height: 3,
+            points: [
+                .init(0.0, 0.0), .init(0.5, 0.0), .init(1.0, 0.0),
+                .init(0.0, 0.5), .init(0.5, 0.5), .init(1.0, 0.5),
+                .init(0.0, 1.0), .init(0.5, 1.0), .init(1.0, 1.0),
+            ],
+            colors: [
+                Brand.gradientTop, Brand.gradientTop, Brand.gradientMid,
+                Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom,
+                Brand.gradientMid, Brand.gradientBottom, Brand.gradientBottom,
+            ]
+        )
+        .opacity(0.35)
+        .background(Brand.background)
+    }
 }
 
 // MARK: - Design system spacing
@@ -90,13 +121,7 @@ struct BrandBackground: ViewModifier {
                     if reduceMotion {
                         Brand.background
                     } else {
-                        LinearGradient(
-                            colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .opacity(0.35)
-                        .background(Brand.background)
+                        BrandWash.mesh
                     }
                 }
                 .ignoresSafeArea(edges: ignoredEdges)
@@ -170,17 +195,24 @@ struct PuzzleTabRootChrome: ViewModifier {
                 if regularWidth || reduceMotion {
                     Brand.background
                 } else {
-                    LinearGradient(
-                        colors: [Brand.gradientTop, Brand.gradientMid, Brand.gradientBottom],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                    .opacity(0.35)
-                    .background(Brand.background)
+                    BrandWash.mesh
                 }
             }
             .ignoresSafeArea()
         }
+    }
+}
+
+/// Card-style GroupBox used on puzzle detail panels.
+struct BrandGroupBoxStyle: GroupBoxStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: DS.Spacing.s3) {
+            configuration.label
+            configuration.content
+        }
+        .padding(DS.Spacing.s4)
+        .background(Brand.card)
+        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
     }
 }
 
@@ -293,6 +325,8 @@ enum A11yID {
     static let puzzleListSortMenu = "puzzle_list_sort_menu"
     static let puzzleListResultCount = "puzzle_list_result_count"
     static let puzzleListMissingPiecesFilter = "puzzle_list_missing_pieces_filter"
+    static let puzzleListOnLoanFilter = "puzzle_list_on_loan_filter"
+    static let puzzleListOverdueFilter = "puzzle_list_overdue_filter"
     static let puzzleListNeedsPhotoFilter = "puzzle_list_needs_photo_filter"
     static let puzzleListPieceCountFilter = "puzzle_list_piece_count_filter"
     static let puzzleListTypeFilter = "puzzle_list_type_filter"
@@ -309,14 +343,10 @@ enum A11yID {
     static let puzzleDetailHoursPer1000Row = "puzzle_detail_hours_per_1000_row"
     static let puzzleDetailProgress = "puzzle_detail_progress"
     static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
+    static let settingsLoadDemoButton = "settings_load_demo_button"
     static let settingsRemoveDemoButton = "settings_remove_demo_button"
-    static let settingsImportIPDbButton = "settings_import_ipdb_button"
-    static let settingsImportBackupButton = "settings_import_backup_button"
-    static let settingsRestoreBackupButton = "settings_restore_backup_button"
-    static let settingsExportCollectionButton = "settings_export_collection_button"
+    static let settingsWriteReviewButton = "settings_write_review_button"
     static let settingsBrandDisclaimerFooter = "settings_brand_disclaimer_footer"
-    static let ipdbImportSummarySheet = "ipdb_import_summary_sheet"
-    static let ipdbImportDoneButton = "ipdb_import_done_button"
     static let settingsTab = "settings_tab"
     static let puzzlesTab = "puzzles_tab"
     static let statsTab = "stats_tab"
@@ -327,6 +357,7 @@ enum A11yID {
     static let collectionStatsTotalCard = "collection_stats_total_card"
     static let collectionStatsInProgressCard = "collection_stats_in_progress_card"
     static let collectionStatsMissingPiecesCard = "collection_stats_missing_pieces_card"
+    static let collectionStatsOnLoanCard = "collection_stats_on_loan_card"
     static let collectionStatsWishlistCard = "collection_stats_wishlist_card"
     static let collectionStatsAbandonedCard = "collection_stats_abandoned_card"
     static let collectionStatsAverageDaysCard = "collection_stats_average_days_card"
@@ -366,19 +397,48 @@ enum A11yID {
     static let puzzleFormChoosePhotoButton = "puzzle_form_choose_photo_button"
     static let puzzleFormTakePhotoButton = "puzzle_form_take_photo_button"
     static let puzzleFormMissingPiecesToggle = "puzzle_form_missing_pieces_toggle"
+    static let puzzleFormOnLoanToggle = "puzzle_form_on_loan_toggle"
+    static let puzzleFormLoanedToField = "puzzle_form_loaned_to_field"
+    static let puzzleFormDueBackField = "puzzle_form_due_back_field"
     static let puzzleFormNotesField = "puzzle_form_notes_field"
     static let puzzleFormTagsField = "puzzle_form_tags_field"
     static let puzzleDetailEditButton = "puzzle_detail_edit_button"
     static let puzzleDetailCancelButton = "puzzle_detail_cancel_button"
     static let puzzleDetailRedoButton = "puzzle_detail_redo_button"
+    static let puzzleDetailMarkReturnedButton = "puzzle_detail_mark_returned"
+    static let puzzleDetailCompletionHistory = "puzzle_detail_completion_history"
+    static let puzzleDetailCompletionSaveButton = "puzzle_detail_completion_save_button"
+    static let puzzleDetailCompletionRemoveButton = "puzzle_detail_completion_remove_button"
+    static let puzzleDetailUndoCompletionBanner = "puzzle_detail_undo_completion_banner"
+    static let puzzleDetailUndoCompletionButton = "puzzle_detail_undo_completion_button"
+    static let puzzleDetailDueBackOverdue = "puzzle_detail_due_back_overdue"
+    static let whatsNewSheet = "whats_new_sheet"
+    static let whatsNewDismissButton = "whats_new_dismiss_button"
+
+    static func puzzleDetailCompletionRow(number: Int) -> String {
+        "puzzle_detail_completion_\(number)"
+    }
     static let puzzleDetailBarcodeRow = "puzzle_detail_barcode_row"
+    static let onboardingPager = "onboarding_pager"
     static let onboardingSkipButton = "onboarding_skip_button"
     static let onboardingNextButton = "onboarding_next_button"
     static let onboardingBackButton = "onboarding_back_button"
     static let onboardingFinishButton = "onboarding_finish_button"
+    static let friendsList = "friends_list"
+    static let friendsListAddButton = "friends_list_add_button"
 
-    static func puzzleRow(id: UUID) -> String {
-        "puzzle_row_\(id.uuidString)"
+    static func puzzleRowSlug(for name: String) -> String {
+        name.lowercased()
+            .replacingOccurrences(of: "[^a-z0-9]+", with: "_", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "_"))
+    }
+
+    static func puzzleRow(id: UUID, name: String = "") -> String {
+        let slug = puzzleRowSlug(for: name)
+        if slug.isEmpty {
+            return "puzzle_row_\(id.uuidString)"
+        }
+        return "puzzle_row_\(slug)_\(id.uuidString.prefix(8))"
     }
 
     static let scanBarcodeButton = "scan_barcode_button"
@@ -406,6 +466,8 @@ enum A11yID {
     static let pickNextSpinButton = "pick_next_spin_button"
     static let puzzleCellRating = "puzzle_cell_rating"
     static let puzzleCellMissingPieces = "puzzle_cell_missing_pieces"
+    static let puzzleCellOnLoan = "puzzle_cell_on_loan"
+    static let puzzleCellOverdue = "puzzle_cell_overdue"
     static let puzzleCellProgress = "puzzle_cell_progress"
     static let puzzleShareButton = "puzzle_share_button"
 }

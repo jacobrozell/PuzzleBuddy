@@ -135,6 +135,10 @@ enum DemoDataCatalog {
         puzzle.purchasePrice = 18.00
         puzzle.tags = ["paris", "michael storrings", "city"]
         puzzle.notes = "Gift from my sister — framed the box art after finishing."
+        puzzle.isOnLoan = true
+        puzzle.loanedToDisplayName = "Mom"
+        puzzle.loanedAt = daysAgo(10)
+        puzzle.dueBackDate = Calendar.current.date(byAdding: .day, value: 7, to: Date())
         applyPhotos(&puzzle, cover: "paris-day-cover", gallery: ["paris-day-completed"])
         return puzzle
     }

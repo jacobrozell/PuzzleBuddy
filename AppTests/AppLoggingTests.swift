@@ -110,6 +110,49 @@ final class AppLoggingTests: XCTestCase {
         XCTAssertEqual(recorded?.parameters["completion_number"] as? String, "3")
     }
 
+    func testAnalyticsAllowlistsWhatsNewAndUndoEvents() {
+        let shown = PuzzleAnalyticsEventMapping.map(
+            eventName: "whats_new_shown",
+            category: .ui,
+            metadata: [:],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(shown?.name, "whats_new_shown")
+
+        let dismissed = PuzzleAnalyticsEventMapping.map(
+            eventName: "whats_new_dismissed",
+            category: .ui,
+            metadata: [:],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(dismissed?.name, "whats_new_dismissed")
+
+        let undone = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_undone",
+            category: .puzzles,
+            metadata: ["completion_number": "1"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(undone?.name, "puzzle_completion_undone")
+        XCTAssertEqual(undone?.parameters["completion_number"] as? String, "1")
+
+        let deleted = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_deleted",
+            category: .puzzles,
+            metadata: ["completion_number": "2"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(deleted?.name, "puzzle_completion_deleted")
+
+        let updated = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_completion_updated",
+            category: .puzzles,
+            metadata: ["completion_number": "1"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(updated?.name, "puzzle_completion_updated")
+    }
+
     func testAnalyticsAllowlistsOnboardingCompleted() {
         let mapped = PuzzleAnalyticsEventMapping.map(
             eventName: "onboarding_completed",
@@ -153,6 +196,32 @@ final class AppLoggingTests: XCTestCase {
             appVersion: "1.0.0"
         )
         XCTAssertEqual(enrichedAdd?.parameters["add_source"] as? String, "barcode")
+    }
+
+    func testAnalyticsMapsSessionSnapshotAndMilestone() {
+        let snapshot = PuzzleAnalyticsEventMapping.map(
+            eventName: "session_snapshot",
+            category: .app,
+            metadata: [
+                "puzzle_count": "12",
+                "collection_size_bucket": "6_20",
+                "days_since_last_open_bucket": "2_7",
+                "count_completed": "4",
+            ],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(snapshot?.name, "session_snapshot")
+        XCTAssertEqual(snapshot?.parameters["collection_size_bucket"] as? String, "6_20")
+        XCTAssertEqual(snapshot?.parameters["days_since_last_open_bucket"] as? String, "2_7")
+
+        let milestone = PuzzleAnalyticsEventMapping.map(
+            eventName: "milestone_reached",
+            category: .app,
+            metadata: ["milestone_id": "first_puzzle"],
+            appVersion: "1.1.0"
+        )
+        XCTAssertEqual(milestone?.name, "milestone_reached")
+        XCTAssertEqual(milestone?.parameters["milestone_id"] as? String, "first_puzzle")
     }
 
     func testCrashlyticsMapsEphemeralFallback() {

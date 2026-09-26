@@ -2,11 +2,11 @@
 
 Read this file first when working in this repo. It summarizes product reality, conventions, and where authoritative docs live.
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-21
 
 ---
 
-## Product snapshot (1.0.0)
+## Product snapshot
 
 | Topic | Reality |
 |-------|---------|
@@ -14,9 +14,10 @@ Read this file first when working in this repo. It summarizes product reality, c
 | **Account** | Not required — no login UI, no cloud sync |
 | **Firebase** | **Analytics + Crashlytics only** (no Auth, Firestore, FCM in app or `project.yml`) |
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
-| **Min iOS** | 17.0 |
+| **Min iOS** | 18.0 |
 | **Apple team** | `7JT2JB89AV` (personal) |
 | **Version source** | `project.yml` `MARKETING_VERSION` + `PuzzleBuddyApp.version` (keep in sync) |
+| **SwiftData schema** | `PuzzleSchemaV2` @ `1.1.0` + lightweight V1→V2 — see [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) |
 
 Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Future account sync is a **planned spec only** — see [specs/planned/auth-cloud-sync.md](specs/planned/auth-cloud-sync.md). Do not reintroduce Auth/Firestore without an approved spec and explicit user request.
 
@@ -27,6 +28,7 @@ Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Futur
 | Task | Start here |
 |------|------------|
 | Architecture / data flow | [docs/architecture.md](docs/architecture.md) |
+| **SwiftData schema / migrations** | [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) |
 | Logging, Analytics, Crashlytics | [docs/telemetry.md](docs/telemetry.md) |
 | Firebase Console / plist | [docs/firebase-setup.md](docs/firebase-setup.md) |
 | Feature behavior (verbose) | [docs/features.md](docs/features.md) |
@@ -36,7 +38,7 @@ Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Futur
 | Phased ship checklist | [docs/agent-build-checklist.md](docs/agent-build-checklist.md) |
 | Code style / PR expectations | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
-**Dart Buddy parity:** Telemetry follows the same pattern as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — `AppLog` allowlist, Release-only remote collection, Crashlytics breadcrumbs at `.info+`, allowlisted non-fatals only.
+**Dart Buddy parity:** Telemetry follows the same pattern as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — `AppLog` allowlist, Release-only remote collection, Crashlytics breadcrumbs at `.info+`, allowlisted non-fatals only. SwiftData versioning follows the same *idea* as Dart Buddy’s schema lock (see migration doc).
 
 ---
 
@@ -48,18 +50,20 @@ PuzzleBuddy/
 ├── App/                ← app target (SwiftUI)
 │   ├── Login/OnboardingView.swift   ← onboarding only (Login/ name is legacy)
 │   ├── Views/                   ← screens, tab bar, settings
-│   ├── Helpers/                 ← Puzzle, PuzzleRecord, PuzzleStore
+│   ├── Helpers/                 ← Puzzle, PuzzleRecord, PuzzleStore, PuzzleModelContainer
+│   ├── Persistence/             ← PuzzleSchemaV1, PuzzleMigrationPlan
 │   └── Util/                    ← AppLogging, ProductService, DesignTokens, UITestSupport
-├── AppTests/           ← unit tests
+├── AppTests/           ← unit tests (incl. PuzzleMigrationPlanTests)
 ├── AppUITests/         ← UI + WCAG audits
 ├── docs/                        ← technical docs (+ GitHub Pages HTML)
+│   └── swiftdata-migrations.md  ← schema versioning policy
 ├── specs/                       ← feature specs (planned + shipped snippets)
 ├── project.yml                  ← XcodeGen source of truth (regenerate .xcodeproj)
 ├── GoogleService-Info.plist.example
 └── Scripts/ci/run-tests.sh
 ```
 
-**Not in repo:** `PuzzleBuddy.xcodeproj` (generated), real `GoogleService-Info.plist` (gitignored).
+**Not in repo:** real `GoogleService-Info.plist` (gitignored). `.xcodeproj` is generated — run `xcodegen generate` after adding sources.
 
 ---
 
@@ -82,7 +86,7 @@ Key types:
 | `PuzzleStore` | `@MainActor` collection CRUD; SwiftData via `ModelContext` |
 | `Puzzle` | UI/domain `ObservableObject` |
 | `PuzzleRecord` | SwiftData `@Model` persistence |
-| `ProductService` | Feature flags (import/export gated; no login flags) |
+| `ProductService` | Feature flags (barcode / shopping / pick-next; no login flags) |
 | `AppLog.shared` | Only logging/analytics API |
 | `ErrorHandling` | Root-level alert presentation |
 
@@ -90,14 +94,13 @@ Key types:
 
 ## Feature flags (`ProductService`)
 
-| Flag | Default | Launch argument |
-|------|---------|-----------------|
-| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
-| `isBarcodeScanEnabled` | device capability | — |
+| Flag | Default | Notes |
+|------|---------|-------|
+| `isBarcodeScanEnabled` | device capability | VisionKit availability |
 | `isShoppingModeEnabled` | `true` | — |
 | `isPickNextEnabled` | `true` | — |
 
-There is **no** `isLoginEnabled` or cloud sync flag.
+There is **no** import/export or cloud sync flag. Collection import/export was removed from Settings (1.1.0).
 
 ---
 
@@ -137,7 +140,6 @@ Personal git push: use `git@github.com-personal:jacobrozell/PuzzleBuddy.git` (se
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics collection |
 | `-ui_testing_bypass_onboarding` | Skip onboarding in UI tests |
 | `-ui_testing_seed_puzzles` | Load demo puzzles into SwiftData |
-| `-enable_collection_import_export` | Enable Settings import/export UI |
 
 See `UITestSupport.swift` and `UITestLaunch` in UI test target.
 
@@ -145,12 +147,14 @@ See `UITestSupport.swift` and `UITestLaunch` in UI test target.
 
 ## When changing the puzzle model
 
-1. Update `Puzzle`, `PuzzleRecord` (`init(from:)`, `apply(from:)`, `toPuzzle()`).
-2. Update `getDataFields()` / `fromData(_:)` if export/serialization fields change (used for JSON/export tests — **not** Firestore).
-3. Add/update tests: `PuzzleSerializationTests`, `PuzzlePersistenceTests`.
-4. Update [docs/features.md](docs/features.md) field tables if user-visible.
+1. Read [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) — decide if stored properties changed.
+2. If **stored properties** change: add `PuzzleSchemaV{n+1}` + `MigrationStage` in `PuzzleMigrationPlan` **before** shipping; never mutate `PuzzleSchemaV1`’s meaning after tag `1.0.0`.
+3. Update `Puzzle`, `PuzzleRecord` (`init(from:)`, `apply(from:)`, `toPuzzle()`), and photo/completion records as needed.
+4. Update `getDataFields()` / `fromData(_:)` if export/serialization fields change (JSON/export tests — **not** Firestore).
+5. Add/update tests: `PuzzleSerializationTests`, `PuzzlePersistenceTests`, `PuzzleMigrationPlanTests` (and a Vn→V{n+1} disk test when migrating).
+6. Update [docs/features.md](docs/features.md) field tables if user-visible; update the migration doc.
 
-SwiftData schema changes may require migration planning — none implemented yet.
+**Current lock:** `PuzzleSchemaV2` @ `1.1.0` with lightweight V1→V2 (On loan + `FriendRecord`). After 1.1.0 ships, do not edit V2 stored properties — add V3 + a stage.
 
 ---
 
@@ -160,6 +164,7 @@ Update docs when you change:
 
 - Analytics/Crashlytics allowlists → `docs/telemetry.md`, `docs/analytics.md`
 - Architecture or navigation → `docs/architecture.md`
+- **SwiftData stored properties / schema** → `docs/swiftdata-migrations.md`, `App/Persistence/`
 - Feature flags → `ProductService.swift`, `docs/feature-inventory.md`, `docs/features.md`
 - Firebase Console steps → `docs/firebase-setup.md`
 - Shipped vs planned scope → `docs/feature-inventory.md`, `docs/agent-build-checklist.md` progress log
@@ -174,5 +179,6 @@ Set **Last updated** dates on files you touch.
 - Committing `GoogleService-Info.plist`
 - Using `print()` in app code (SwiftLint `no_print_statements`)
 - Logging PII even if redaction would strip it
-- Editing generated `.xcodeproj` instead of `project.yml`
+- Editing generated `.xcodeproj` instead of `project.yml` (+ forgetting `xcodegen generate` after new Persistence files)
+- Changing SwiftData stored properties without `PuzzleSchemaV{n+1}` + migration stage (see [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md))
 - Assuming login/cloud sync docs in old commits still apply — check this file and `docs/architecture.md`

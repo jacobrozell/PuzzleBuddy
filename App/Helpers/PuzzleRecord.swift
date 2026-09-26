@@ -37,6 +37,11 @@ final class PuzzleRecord {
     var isDemo: Bool = false
     var barcode: String?
     var tags: [String] = []
+    var isOnLoan: Bool = false
+    var loanedToFriendID: UUID?
+    var loanedAt: Date?
+    var dueBackDate: Date?
+    var lastLoanNudgeAt: Date?
     @Attribute(.externalStorage) var imageData: Data?
 
     init(
@@ -68,6 +73,11 @@ final class PuzzleRecord {
         isDemo: Bool = false,
         barcode: String? = nil,
         tags: [String] = [],
+        isOnLoan: Bool = false,
+        loanedToFriendID: UUID? = nil,
+        loanedAt: Date? = nil,
+        dueBackDate: Date? = nil,
+        lastLoanNudgeAt: Date? = nil,
         imageData: Data? = nil
     ) {
         self.id = id
@@ -98,6 +108,11 @@ final class PuzzleRecord {
         self.isDemo = isDemo
         self.barcode = barcode
         self.tags = PuzzleTagSemantics.sanitizedTags(tags)
+        self.isOnLoan = isOnLoan
+        self.loanedToFriendID = loanedToFriendID
+        self.loanedAt = loanedAt
+        self.dueBackDate = dueBackDate
+        self.lastLoanNudgeAt = lastLoanNudgeAt
         self.imageData = imageData
     }
 
@@ -132,6 +147,11 @@ final class PuzzleRecord {
             isDemo: puzzle.isDemo,
             barcode: puzzle.barcode,
             tags: puzzle.tags,
+            isOnLoan: puzzle.isOnLoan,
+            loanedToFriendID: puzzle.loanedToFriendID,
+            loanedAt: puzzle.loanedAt,
+            dueBackDate: puzzle.dueBackDate,
+            lastLoanNudgeAt: puzzle.lastLoanNudgeAt,
             imageData: puzzle.image?.jpegData(compressionQuality: 0.30)
         )
     }
@@ -164,6 +184,11 @@ final class PuzzleRecord {
         isDemo = puzzle.isDemo
         barcode = BarcodeNormalizer.normalize(puzzle.barcode)
         tags = PuzzleTagSemantics.sanitizedTags(puzzle.tags)
+        isOnLoan = puzzle.isOnLoan
+        loanedToFriendID = puzzle.loanedToFriendID
+        loanedAt = puzzle.loanedAt
+        dueBackDate = puzzle.dueBackDate
+        lastLoanNudgeAt = puzzle.lastLoanNudgeAt
         imageData = puzzle.image?.jpegData(compressionQuality: 0.30)
     }
 
@@ -194,7 +219,12 @@ final class PuzzleRecord {
             timesCompleted: timesCompleted,
             isDemo: isDemo,
             barcode: barcode,
-            tags: tags
+            tags: tags,
+            isOnLoan: isOnLoan,
+            loanedToFriendID: loanedToFriendID,
+            loanedAt: loanedAt,
+            dueBackDate: dueBackDate,
+            lastLoanNudgeAt: lastLoanNudgeAt
         )
         puzzle.id = id
         if let imageData, let image = UIImage(data: imageData) {

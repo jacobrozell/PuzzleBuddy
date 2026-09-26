@@ -30,9 +30,9 @@ Puzzle Buddy uses **staged releases** controlled by `ProductService` feature fla
 
 | Release | Theme | Gated features | Data store |
 |---------|-------|----------------|------------|
-| **1.0.0** (inaugural) | Local-first catalog | Import/export off | SwiftData on device |
-| **1.1.0** (target) | Import/export + polish | `isCollectionImportExportEnabled` | SwiftData on device |
-| **Future** | Richer metadata, widgets, optional accounts | TBD | SwiftData; cloud TBD |
+| **1.0.0** (inaugural) | Local-first catalog | — | SwiftData on device |
+| **1.1.0** (target) | Completion history, On loan, analytics depth | `isFriendsListEnabled` (off) | SwiftData on device |
+| **Future** | Timer, widgets, optional accounts; re-ship import/export UI | TBD | SwiftData; cloud TBD |
 
 Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telemetry.md)). No Auth, Firestore, or push in the app today.
 
@@ -40,9 +40,9 @@ Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telem
 
 | Flag | Default | Override |
 |------|---------|----------|
-| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
 | `isBarcodeScanEnabled` | device capability | — |
 | `isPickNextEnabled` | `true` | — |
+| `isFriendsListEnabled` | `false` | code flag only |
 
 Remote Config for flags is a future option — not implemented.
 
@@ -97,7 +97,7 @@ See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle
 
 **Shipped:** Wishlist, To-Do, In-Progress, Completed, Abandoned.
 
-New statuses in the future require SwiftData migration planning (none implemented yet).
+New statuses in the future require a SwiftData schema bump if they need new persisted fields — see [swiftdata-migrations.md](swiftdata-migrations.md). Status is already a `String` on `PuzzleRecord`, so new enum cases that fit the same column usually need **no** migration.
 
 ### UI improvements (near-term)
 
@@ -475,7 +475,7 @@ No push notification telemetry — FCM removed from app.
 | **iPad-optimized navigation** | Adaptive layouts exist; consider sidebar on regular size class |
 | **Widgets / Live Activities** | Puzzle timer or backlog widget — [spec](../specs/planned/home-screen-widget.md) |
 | **Share extension** | Add puzzle from Safari or Photos share sheet |
-| **macOS / visionOS** | Not planned; iOS 17+ iPhone and iPad only |
+| **macOS / visionOS** | Not planned; iOS 18+ iPhone and iPad only |
 | **Android** | Out of scope |
 
 ---

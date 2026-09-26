@@ -146,10 +146,14 @@ struct CollectionStatsView: View {
 
     private func refreshPendingMilestone() {
         let acknowledged = CollectionMilestones.loadAcknowledged()
-        pendingMilestone = CollectionMilestones.newlyEarned(
+        let next = CollectionMilestones.newlyEarned(
             stats: stats,
             previouslyAcknowledged: acknowledged
         ).first
+        pendingMilestone = next
+        if let next {
+            AnalyticsMilestones.logIfNeeded(milestoneID: next.id)
+        }
     }
 
     private func validateSelectedYear(in years: [Int]? = nil) {
@@ -160,18 +164,11 @@ struct CollectionStatsView: View {
     }
 
     private func monthlyCompletionCounts(for year: Int) -> [Int] {
-        var months = Array(repeating: 0, count: 12)
-        let calendar = Calendar.current
-
-        for puzzle in ps.puzzles where puzzle.status == .completed {
-            let components = calendar.dateComponents([.year, .month], from: puzzle.completionDate)
-            guard components.year == year,
-                  let month = components.month,
-                  (1...12).contains(month) else { continue }
-            months[month - 1] += 1
-        }
-
-        return months
+        CollectionStats.monthlyCompletionCounts(
+            from: ps.puzzles,
+            year: year,
+            calendar: Calendar.current
+        )
     }
 
     private func milestoneBanner(_ milestone: CollectionMilestone) -> some View {
@@ -344,6 +341,14 @@ struct CollectionStatsView: View {
                     label: "Missing pieces",
                     subtitle: "Flagged incomplete",
                     identifier: A11yID.collectionStatsMissingPiecesCard
+                )
+            }
+            if stats.onLoanCount > 0 {
+                statCard(
+                    value: "\(stats.onLoanCount)",
+                    label: "On loan",
+                    subtitle: "Out with friends",
+                    identifier: A11yID.collectionStatsOnLoanCard
                 )
             }
             if let rating = stats.formattedAverageRating {

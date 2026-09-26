@@ -109,6 +109,13 @@ package-lock.json
 # Firebase secrets (use GoogleService-Info.plist.example for CI)
 GoogleService-Info.plist
 
+# GA4 / GCP service-account keys (never commit — keep under ~/.config/ga4/ only)
+*-ga4-reader.json
+*ga4*credentials*.json
+*-firebase-adminsdk*.json
+**/service-account*.json
+!**/service-account*.example.json
+
 # CI artifacts
 DerivedData/
 TestResults.xcresult

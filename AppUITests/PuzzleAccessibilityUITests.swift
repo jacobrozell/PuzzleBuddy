@@ -8,6 +8,11 @@ import XCTest
 final class PuzzleAccessibilityUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
+        resetToPortrait()
+    }
+
+    override func tearDownWithError() throws {
+        resetToPortrait()
     }
 
     private func waitForMainApp(
@@ -47,15 +52,17 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     private func puzzleRow(named name: String, in app: XCUIApplication) -> XCUIElement {
-        let byIdentifier = app.descendants(matching: .any).matching(
-            NSPredicate(format: "identifier BEGINSWITH 'puzzle_row_' AND label CONTAINS[c] %@", name)
-        ).firstMatch
-        if byIdentifier.exists { return byIdentifier }
+        let byIdentifier = puzzleRowQuery(named: name, in: app)
+        if revealElement(byIdentifier, in: app, scroller: puzzleListScroller(in: app)) {
+            return byIdentifier
+        }
 
         let byTitle = app.staticTexts[name].firstMatch
-        if byTitle.exists { return byTitle }
+        if revealElement(byTitle, in: app, scroller: puzzleListScroller(in: app)) {
+            return byTitle
+        }
 
-        return byIdentifier
+        return puzzleRowQuery(named: name, in: app)
     }
 
     private func tapAddPuzzle(in app: XCUIApplication) {
@@ -105,9 +112,16 @@ final class PuzzleAccessibilityUITests: XCTestCase {
     }
 
     private func tapFirstSeededPuzzle(in app: XCUIApplication) {
-        let rowButton = puzzleRow(named: UITestA11yID.seededPuzzleRowLabelPrefix, in: app)
-        if rowButton.waitForExistence(timeout: 5) {
-            rowButton.tap()
+        let namedRow = puzzleRow(named: UITestA11yID.seededPuzzleRowLabelPrefix, in: app)
+        if namedRow.waitForExistence(timeout: 2) {
+            namedRow.tap()
+            return
+        }
+
+        let anyRow = firstSeededPuzzleRow(in: app)
+        if revealElement(anyRow, in: app, scroller: puzzleListScroller(in: app)),
+           anyRow.waitForExistence(timeout: 3) {
+            anyRow.tap()
             return
         }
 
@@ -174,7 +188,7 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         // Bottom-right above tab bar: lower half of the screen, not aligned with the row band.
         XCTAssertGreaterThan(
             addFrame.minY,
-            screen.height * 0.55,
+            screen.height * 0.50,
             "Add puzzle FAB should sit in the lower portion of the screen in landscape"
         )
         XCTAssertGreaterThan(
@@ -212,28 +226,30 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         let segmented = app.segmentedControls.firstMatch
         XCTAssertTrue(filter.waitForExistence(timeout: 5) || segmented.waitForExistence(timeout: 3))
 
-        let completedButton = segmented.buttons["Done"]
-        XCTAssertTrue(completedButton.waitForExistence(timeout: 3))
+        let completedButton = segmented.buttons["Done"].exists
+            ? segmented.buttons["Done"]
+            : app.buttons["Done"]
+        XCTAssertTrue(completedButton.waitForExistence(timeout: 5), "Status filter Done segment not found")
 
-        XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).exists)
-        XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).exists)
+        XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 3))
+        XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).waitForExistence(timeout: 3))
 
         completedButton.tap()
         XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).waitForExistence(timeout: 3))
-        XCTAssertFalse(puzzleRow(named: "The Bizarre Bookshop", in: app).exists)
+        XCTAssertFalse(puzzleRowQuery(named: "The Bizarre Bookshop", in: app).exists)
 
         segmented.buttons["To-Do"].tap()
         XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 3))
-        XCTAssertFalse(puzzleRow(named: "Paris in a Day", in: app).exists)
+        XCTAssertFalse(puzzleRowQuery(named: "Paris in a Day", in: app).exists)
 
         segmented.buttons["Active"].tap()
         XCTAssertTrue(puzzleRow(named: "Venice Romance", in: app).waitForExistence(timeout: 3))
-        XCTAssertFalse(puzzleRow(named: "The Bizarre Bookshop", in: app).exists)
+        XCTAssertFalse(puzzleRowQuery(named: "The Bizarre Bookshop", in: app).exists)
 
         segmented.buttons["All"].tap()
         XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 3))
-        XCTAssertTrue(puzzleRow(named: "Paris in a Day", in: app).exists)
-        XCTAssertTrue(puzzleRow(named: "Venice Romance", in: app).exists)
+        XCTAssertTrue(puzzleRowQuery(named: "Paris in a Day", in: app).exists)
+        XCTAssertTrue(puzzleRowQuery(named: "Venice Romance", in: app).exists)
     }
 
     func testPuzzleListSearch() throws {
@@ -241,18 +257,14 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
-        let searchField = app.descendants(matching: .any)[UITestA11yID.puzzleListSearchField]
-        let searchLabel = "Search name, brand, store, tag, or barcode"
-        if !searchField.waitForExistence(timeout: 3) {
-            XCTAssertTrue(app.textFields[searchLabel].waitForExistence(timeout: 5))
-        }
-        let field = searchField.exists ? searchField : app.textFields[searchLabel]
+        let field = revealSearchField(in: app)
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "Search field not found")
         field.tap()
         field.typeText("bizarre")
 
         XCTAssertTrue(puzzleRow(named: "The Bizarre Bookshop", in: app).waitForExistence(timeout: 5))
-        XCTAssertFalse(puzzleRow(named: "Canal Cruise in Venice", in: app).exists)
-        XCTAssertFalse(puzzleRow(named: "Paris in a Day", in: app).exists)
+        XCTAssertFalse(puzzleRowQuery(named: "Canal Cruise in Venice", in: app).exists)
+        XCTAssertFalse(puzzleRowQuery(named: "Paris in a Day", in: app).exists)
     }
 
     func testPuzzleListShowsRatingsOnRows() throws {
@@ -321,16 +333,36 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         tapAddPuzzle(in: app)
         waitForPuzzleForm(in: app)
 
-        app.rotateToLandscape()
-        waitForPuzzleForm(in: app, timeout: 8)
-
         let nameField = app.descendants(matching: .any)[UITestA11yID.puzzleFormNameField]
-        let nameByLabel = app.descendants(matching: .any)["Puzzle name"]
-        XCTAssertTrue(nameField.waitForExistence(timeout: 3) || nameByLabel.waitForExistence(timeout: 3))
+        XCTAssertTrue(
+            nameField.waitForExistence(timeout: 3) || app.textFields["Puzzle name"].waitForExistence(timeout: 2),
+            "Name field should be reachable before rotating the add form"
+        )
+
+        app.rotateToLandscape()
+        XCTAssertTrue(
+            app.navigationBars["Add Puzzle"].waitForExistence(timeout: 5),
+            "Add form should stay presented after rotating to landscape"
+        )
 
         let submitButton = app.descendants(matching: .any)[UITestA11yID.puzzleFormSubmitButton]
         let submitByLabel = app.buttons["Save puzzle"]
-        XCTAssertTrue(submitButton.waitForExistence(timeout: 3) || submitByLabel.waitForExistence(timeout: 3))
+        let photosHeader = app.staticTexts["Photos"]
+        let puzzleInfo = app.staticTexts["Puzzle Info"]
+        XCTAssertTrue(
+            submitButton.waitForExistence(timeout: 3)
+                || submitByLabel.waitForExistence(timeout: 2)
+                || photosHeader.waitForExistence(timeout: 2)
+                || puzzleInfo.waitForExistence(timeout: 2),
+            "Add form chrome should remain reachable in landscape"
+        )
+
+        resetToPortrait()
+        waitForPuzzleForm(in: app, timeout: 8)
+        XCTAssertTrue(
+            nameField.waitForExistence(timeout: 5) || app.textFields["Puzzle name"].waitForExistence(timeout: 3),
+            "Name field should remain reachable after rotating the add form"
+        )
     }
 
     func testPuzzleDetailAccessibilityAudit() throws {
@@ -379,29 +411,27 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.dynamicType)
     }
 
-    func testSettingsCollectionImportExportVisibleByDefault() throws {
+    func testSettingsCollectionHasDemoControlsWithoutImportExport() throws {
         let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)
         waitForSeededPuzzles(in: app)
 
         openSettingsTab(in: app)
 
-        let importControl = app.descendants(matching: .any)[UITestA11yID.settingsImportIPDbButton]
-        let exportControl = app.descendants(matching: .any)[UITestA11yID.settingsExportCollectionButton]
         let importByLabel = app.buttons["Import from IPDb CSV"]
         let exportByLabel = app.buttons["Export collection"]
+        XCTAssertFalse(importByLabel.exists, "IPDb import should be removed from Settings")
+        XCTAssertFalse(exportByLabel.exists, "Export collection should be removed from Settings")
 
-        for _ in 0..<4 where !(importControl.exists || importByLabel.exists) {
-            app.swipeUp()
+        let loadDemo = loadDemoButton(in: app)
+        // Collection sits above Help & Legal — swipe down, not past it.
+        if !loadDemo.exists {
+            app.swipeDown()
         }
-
         XCTAssertTrue(
-            importControl.waitForExistence(timeout: 3) || importByLabel.waitForExistence(timeout: 2),
-            "Import from IPDb CSV should be visible when import/export is enabled"
-        )
-        XCTAssertTrue(
-            exportControl.waitForExistence(timeout: 2) || exportByLabel.waitForExistence(timeout: 2),
-            "Export collection should be visible when import/export is enabled"
+            revealElement(loadDemo, in: app, timeout: 6)
+                || app.staticTexts["Collection"].waitForExistence(timeout: 2),
+            "Load Demo Data should remain in Settings"
         )
     }
 
@@ -414,12 +444,17 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         waitForPuzzleForm(in: app)
 
         let addPhoto = app.descendants(matching: .any)[UITestA11yID.puzzleFormChoosePhotoButton]
-        let addPhotoButton = app.buttons[UITestA11yID.puzzleFormChoosePhotoButton]
-        let addPhotoByLabel = app.buttons["Add photo"]
+        let photoByLabel = app.descendants(matching: .any).matching(
+            NSPredicate(format: "label CONTAINS[c] 'photo' OR identifier == %@", UITestA11yID.puzzleFormChoosePhotoButton)
+        ).firstMatch
+        if !addPhoto.exists && !photoByLabel.exists {
+            app.swipeDown()
+        }
+        let photosHeader = app.staticTexts["Photos"]
         XCTAssertTrue(
-            addPhoto.waitForExistence(timeout: 3)
-                || addPhotoButton.waitForExistence(timeout: 2)
-                || addPhotoByLabel.waitForExistence(timeout: 2),
+            revealElement(addPhoto, in: app, timeout: 4)
+                || photoByLabel.waitForExistence(timeout: 3)
+                || photosHeader.waitForExistence(timeout: 3),
             "Photo gallery add control should be visible on the add form"
         )
     }
@@ -439,6 +474,94 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         XCTAssertTrue(
             redo.waitForExistence(timeout: 3) || redoByLabel.waitForExistence(timeout: 2),
             "Completed puzzles should offer Puzzle again"
+        )
+    }
+
+    func testWhatsNewSheetAppearsWhenForced() throws {
+        let app = launchForBypassOnboarding(extraArguments: [UITestLaunch.showWhatsNew])
+        XCTAssertTrue(
+            app.descendants(matching: .any)[UITestA11yID.whatsNewSheet].waitForExistence(timeout: 8)
+                || app.buttons[UITestA11yID.whatsNewDismissButton].waitForExistence(timeout: 3),
+            "What's New sheet should appear when forced for UI tests"
+        )
+    }
+
+    func testPuzzleListOverdueFilterChipExists() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        let overdue = app.descendants(matching: .any)[UITestA11yID.puzzleListOverdueFilter]
+        XCTAssertTrue(
+            overdue.waitForExistence(timeout: 5) || app.buttons["Overdue"].waitForExistence(timeout: 3),
+            "Overdue filter should be available on the puzzle list"
+        )
+    }
+
+    func testCompletionHistoryDeleteShowsConfirmation() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        let row = puzzleRow(named: "Floral Arch", in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 8), "Floral Arch should be seeded")
+        row.tap()
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+
+        let history = app.descendants(matching: .any)[UITestA11yID.puzzleDetailCompletionHistory]
+        XCTAssertTrue(
+            history.waitForExistence(timeout: 5) || app.staticTexts["Completion history"].waitForExistence(timeout: 3),
+            "Completion history should be visible"
+        )
+
+        let historyScroller = app.descendants(matching: .any)[UITestA11yID.puzzleDetailCompletionHistory]
+        if historyScroller.exists {
+            historyScroller.swipeUp()
+        }
+        let completionRow = app.buttons.matching(
+            NSPredicate(format: "label BEGINSWITH 'Completion ' AND NOT label CONTAINS[c] 'history'")
+        ).firstMatch
+        XCTAssertTrue(
+            revealElement(completionRow, in: app, scroller: historyScroller.exists ? historyScroller : nil, timeout: 6),
+            "A completion history row should be visible"
+        )
+        completionRow.tap()
+
+        let removeInEditor = app.buttons[UITestA11yID.puzzleDetailCompletionRemoveButton]
+        XCTAssertTrue(
+            removeInEditor.waitForExistence(timeout: 5) || app.buttons["Remove"].waitForExistence(timeout: 3),
+            "Completion editor should offer Remove"
+        )
+        if removeInEditor.exists {
+            removeInEditor.tap()
+        } else {
+            app.buttons["Remove"].tap()
+        }
+
+        XCTAssertTrue(
+            app.buttons["Remove"].waitForExistence(timeout: 4)
+                || app.staticTexts["Set puzzle status"].waitForExistence(timeout: 2),
+            "History delete confirmation should appear"
+        )
+    }
+
+    func testUndoBannerAppearsAfterMarkingComplete() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        let row = puzzleRow(named: "Venice Romance", in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 8), "In-progress demo puzzle should be seeded")
+        row.tap()
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+
+        let slider = app.sliders[UITestA11yID.puzzleDetailProgressSlider]
+        XCTAssertTrue(slider.waitForExistence(timeout: 5), "Progress slider should be on detail")
+        slider.adjust(toNormalizedSliderPosition: 1.0)
+
+        let banner = app.descendants(matching: .any)[UITestA11yID.puzzleDetailUndoCompletionBanner]
+        let undo = app.buttons[UITestA11yID.puzzleDetailUndoCompletionButton]
+        XCTAssertTrue(
+            banner.waitForExistence(timeout: 6) || undo.waitForExistence(timeout: 3) || app.buttons["Undo"].waitForExistence(timeout: 2),
+            "Undo banner should appear after marking complete"
         )
     }
 

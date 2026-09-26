@@ -10,7 +10,7 @@ Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytic
 
 **Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-25
 
 ---
 
@@ -110,7 +110,12 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_load_failed` | same | `PuzzleStore` SwiftData fetch errors | Local-only |
 | `puzzle_redo_started` | same | `PuzzleStore.startRedo` | User confirms redo |
 | `puzzle_completion_recorded` | same | `PuzzleStore.recordCompletion` | New completion appended |
-| `settings_collection_exported` | same | `SettingsView` | Gated by import/export flag |
+| `puzzle_completion_deleted` | same | `PuzzleStore.deleteCompletion` | User removed a completion log |
+| `puzzle_completion_updated` | same | `PuzzleStore.updateCompletion` | User edited completion date/time |
+| `puzzle_completion_undone` | same | `PuzzleStore.undoLastCompletion` | Same-session accidental-complete undo |
+| `whats_new_shown` | same | `WhatsNewView` | 1.1 upgrader notes sheet |
+| `whats_new_dismissed` | same | `PuzzleView` | User dismissed What's New |
+| `settings_collection_exported` | same | *(legacy allowlist; Settings export UI removed 1.1.0)* | — |
 | `shopping_scan_match` | same | `ShoppingModeView` | Duplicate found |
 | `shopping_scan_no_match` | same | `ShoppingModeView` | No duplicate |
 | `puzzle_status_changed` | same | `PuzzleStore.update` | Status field changed |
@@ -120,6 +125,8 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `onboarding_skipped` | same | `OnboardingView` | Skip on page 1 (no `onboarding_completed`) |
 | `demo_data_loaded` | same | `PuzzleStore.loadDemoPuzzles` | Demo collection loaded |
 | `demo_data_removed` | same | `PuzzleStore.removeDemoPuzzles` | Demo collection removed |
+| `session_snapshot` | same | `AnalyticsSessionContext` after first list load | Once per cold start; collection + days-since-open |
+| `milestone_reached` | same | `AnalyticsMilestones` / stats banner | Once per `milestone_id` |
 
 Events **not** in this set are logged to os.log only (never sent to Firebase Analytics).
 
@@ -150,8 +157,24 @@ Only these metadata keys are forwarded (max 100 chars each):
 | `difficulty` | `puzzle_completion_recorded` |
 | `rating_bucket` | `puzzle_completion_recorded` |
 | `has_missing_pieces` | `puzzle_completion_recorded` |
+| `count_wishlist` / `count_todo` / `count_in_progress` / `count_completed` / `count_abandoned` | `puzzle_list_refreshed`, `session_snapshot` |
+| `collection_size_bucket` | Snapshot / user property — `0`, `1`, `2_5`, `6_20`, `21_50`, `51_plus` |
+| `completed_count_bucket` | Snapshot / user property — `0`, `1`, `2_5`, `6_plus` |
+| `days_since_last_open_bucket` | `session_snapshot` — `first_open`, `0`, `1`, `2_7`, `8_30`, `31_plus` |
+| `milestone_id` | `milestone_reached` |
 
----
+### User properties
+
+Set via `AnalyticsUserContext` (Firebase `setUserProperty`) when collection loads / changes and when onboarding completes:
+
+| Property | Values |
+|----------|--------|
+| `collection_size_bucket` | same buckets as above |
+| `completed_count_bucket` | same buckets as above |
+| `has_completed_puzzle` | `true` / `false` |
+| `onboarding_complete` | `true` / `false` |
+
+Register these as **user-scoped** custom definitions in GA4 (see [ga4-analytics-spec.md](ga4-analytics-spec.md)).
 
 ## Log-only events (not in Analytics allowlist)
 
@@ -166,6 +189,8 @@ These appear in Console / Crashlytics breadcrumbs but **not** as Analytics event
 | `puzzle_photo_fetch_failed` | warning | `PuzzleStore.fetchPhotoRecords` |
 | `puzzle_completion_fetch_failed` | warning | `PuzzleStore.fetchCompletionRecords` |
 | `puzzle_record_fetch_failed` | warning | `PuzzleStore.fetchRecord` |
+| `store_review_requested` | info | `StoreReviewPrompt` after scan/edit (`entry_point`) |
+| `store_review_link_opened` | info | `SettingsView` write-review (`entry_point` `settings_link`) |
 
 Promote to Analytics allowlist only with product approval.
 

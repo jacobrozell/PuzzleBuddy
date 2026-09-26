@@ -1,20 +1,30 @@
 # Collection import / export
 
-**Status:** Implemented — **shipping in 1.0.0** (un-gated)  
-**Flag:** `ProductService.isCollectionImportExportEnabled` — default **true** after expanded sprint
+**Status:** **Deferred** — Settings UI removed in 1.1.0 (zero production usage). CSV/JSON **helpers remain** in the codebase for a future re-ship.  
+**Flag:** removed (`ProductService.isCollectionImportExportEnabled` deleted)
 
-## Scope
+## Current state (2026-09-21)
+
+| Layer | Status |
+|-------|--------|
+| Settings UI (import IPDb / export / JSON restore) | **Removed** |
+| `IPDbCSVImporter`, `PuzzleCollectionExporter`, JSON backup importer | **Kept** (unit-tested; no Settings entry) |
+| `PuzzleStore.importPuzzles` / `importBackup` | **Kept** |
+
+## Future re-ship scope
 
 - Settings → Import from IPDb CSV
 - Settings → Export collection (JSON + IPDb-compatible CSV)
-- See [`docs/ipdb-csv-import.md`](../../docs/ipdb-csv-import.md) and [`docs/collection-export.md`](../../docs/collection-export.md)
+- Settings → JSON backup merge / replace restore
+- See [`docs/ipdb-csv-import.md`](../../docs/ipdb-csv-import.md), [`docs/collection-export.md`](../../docs/collection-export.md), [`json-backup-restore.md`](json-backup-restore.md)
 
-## Ship criteria
+## Re-ship criteria
 
-- [ ] Default flag `true` in production builds
-- [ ] UI tests use `-disable_collection_import_export` if needed (or assert buttons visible)
+- [ ] Clear demand (support requests or analytics after opt-in dogfood)
+- [ ] Restore Settings UI + summary sheet
+- [ ] Re-add feature flag or ship ungated with UI tests
 - [ ] Large CSV device smoke
 - [ ] App Store privacy label still accurate (user-initiated file access)
-- [ ] Onboarding mentions IPDb import path
+- [ ] Optional: onboarding mention
 
-**Note:** JSON **restore** UI remains a separate spec ([json-backup-restore.md](json-backup-restore.md)) — export-only for 1.0 unless added in sprint.
+**Tracked in:** [`FutureIdeas/backlog.md`](../../FutureIdeas/backlog.md)

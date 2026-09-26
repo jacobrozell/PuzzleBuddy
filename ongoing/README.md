@@ -1,18 +1,19 @@
 # Ongoing work
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-26
 
 ## Active
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
-| **1.0.0 pre-release remediation** | [`docs/implementation/1.0.0-pre-release-remediation.md`](../docs/implementation/1.0.0-pre-release-remediation.md) | **Complete** | Audit fixes landed — `1.0.0 (9)`, 225 tests green |
-| **1.0.0 expanded feature sprint** | [`docs/implementation/1.0.0-expanded-feature-sprint.md`](../docs/implementation/1.0.0-expanded-feature-sprint.md) | **In progress** | IPDb un-gate, price, physical metadata, multi-photo, redo — before App Store submit |
-| **App Store 1.0.0 submit** | [`docs/release/todo.md`](../docs/release/todo.md) | Blocked on sprint | Device smoke, Connect after sprint |
+| **1.1.0 completion history** | [`docs/implementation/1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) | **In progress** | Edit/delete + swipe + undo banner; What's New + overdue loan polish on `release/1.1.0` |
+| **1.1.0 review-lane fixes** | [`1.1.0-review-fixes.md`](1.1.0-review-fixes.md) | **Done** | #1–#18, #21–#29 closed; #19/#20 deferred to 1.1.1 |
+| **App Store 1.0.0** | [`docs/release/todo.md`](../docs/release/todo.md) | **App Review** | Tag `1.0.0` on `main`; 1.1.0 work on release branch |
 | **Barcode scan polish** | [`barcode-scan-polish.md`](barcode-scan-polish.md) | In progress | Items 8, 13 post-sprint or parallel |
 | **Landscape UI** | [`landscape-ui.md`](landscape-ui.md) | In progress | Items 1–3 done (condensed header, FAB clearance, iPad grid); 4–7 pending |
 | WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2 manual pass after sprint UI |
-| Future backlog | [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) | Maintained | 1.1+ in `specs/planned/` |
+| Future backlog | [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) | Maintained | Import/export UI deferred; helpers kept |
+| **1.1.1 file split** | [`docs/implementation/1.1.1-file-split.md`](../docs/implementation/1.1.1-file-split.md) | Planned | After 1.1.0: extract list filters/actions and store completions. No product change. |
 
 ## Recently completed
 

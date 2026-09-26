@@ -16,7 +16,7 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
 
     override func setUpWithError() throws {
         container = try ModelContainer(
-            for: PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
+            for: FriendRecord.self, PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
         context = container.mainContext
@@ -95,6 +95,23 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         XCTAssertEqual(loaded.completions.map(\.completionNumber), [1, 2])
     }
 
+    func testStartRedoPreservesLastCompletionDate() throws {
+        let finishedAt = Date(timeIntervalSince1970: 1_700_000_000)
+        var puzzle = Puzzle.fixture(name: "KeepDate", pieces: 300)
+        puzzle.status = .completed
+        puzzle.completionDate = finishedAt
+
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first(where: { $0.name == "KeepDate" }))
+        XCTAssertEqual(loaded.completionDate, finishedAt)
+
+        try store.startRedo(puzzle: loaded)
+        loaded = try XCTUnwrap(store.puzzles.first(where: { $0.id == loaded.id }))
+        XCTAssertEqual(loaded.status, .inProgress)
+        XCTAssertEqual(loaded.completionDate, finishedAt)
+        XCTAssertNotEqual(loaded.startDate, finishedAt)
+    }
+
     func testUpdateWithoutStatusChangeDoesNotAddCompletion() throws {
         var puzzle = Puzzle.fixture(name: "Stable", pieces: 200)
         puzzle.status = .completed
@@ -129,6 +146,167 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         XCTAssertEqual(completion.timeSpentHours, 4)
         XCTAssertEqual(completion.timeSpentMinutes, 15)
         XCTAssertEqual(completion.rating, 5.0)
+    }
+
+    func testDeleteMiddleCompletionRenumbers() throws {
+        var puzzle = Puzzle.fixture(name: "Triple", pieces: 500)
+        puzzle.status = .completed
+        puzzle.completionDate = Date(timeIntervalSince1970: 1_000)
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first)
+
+        loaded.status = .inProgress
+        try store.update(puzzle: loaded)
+        loaded.status = .completed
+        loaded.completionDate = Date(timeIntervalSince1970: 2_000)
+        try store.update(puzzle: loaded)
+
+        try store.startRedo(puzzle: try XCTUnwrap(store.puzzles.first))
+        loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        loaded.completionDate = Date(timeIntervalSince1970: 3_000)
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.completions.count, 3)
+        let middle = try XCTUnwrap(loaded.completions.first(where: { $0.completionNumber == 2 }))
+
+        try store.deleteCompletion(puzzleID: loaded.id, completionID: middle.id)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.timesCompleted, 2)
+        XCTAssertEqual(loaded.completions.map(\.completionNumber), [1, 2])
+    }
+
+    func testDeleteLastCompletionRevertsStatus() throws {
+        var puzzle = Puzzle.fixture(name: "Oops", pieces: 300)
+        puzzle.status = .completed
+        try store.add(puzzle: puzzle)
+        let loaded = try XCTUnwrap(store.puzzles.first)
+        let completion = try XCTUnwrap(loaded.completions.first)
+
+        try store.deleteCompletion(
+            puzzleID: loaded.id,
+            completionID: completion.id,
+            statusIfRemovingLast: .inProgress
+        )
+        let updated = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(updated.status, .inProgress)
+        XCTAssertEqual(updated.timesCompleted, 0)
+        XCTAssertTrue(updated.completions.isEmpty)
+    }
+
+    func testDeleteLastCompletionWithoutStatusThrows() throws {
+        var puzzle = Puzzle.fixture(name: "Needs status", pieces: 300)
+        puzzle.status = .completed
+        try store.add(puzzle: puzzle)
+        let loaded = try XCTUnwrap(store.puzzles.first)
+        let completion = try XCTUnwrap(loaded.completions.first)
+
+        XCTAssertThrowsError(
+            try store.deleteCompletion(puzzleID: loaded.id, completionID: completion.id)
+        ) { error in
+            guard case PuzzleStoreError.statusRequiredAfterRemovingLastCompletion = error else {
+                return XCTFail("Expected statusRequiredAfterRemovingLastCompletion, got \(error)")
+            }
+        }
+        XCTAssertEqual(store.puzzles.first?.timesCompleted, 1)
+    }
+
+    func testUndoLastCompletionRestoresPreviousStatusAndProgress() throws {
+        var puzzle = Puzzle.fixture(name: "Accidental", pieces: 400)
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 45
+        try store.add(puzzle: puzzle)
+
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        loaded.progressPercent = 100
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.status, .completed)
+        XCTAssertEqual(loaded.timesCompleted, 1)
+        XCTAssertNotNil(store.activeCompletionUndo(for: loaded.id))
+
+        try store.undoLastCompletion(puzzleID: loaded.id)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.status, .inProgress)
+        XCTAssertEqual(loaded.progressPercent, 45)
+        XCTAssertEqual(loaded.timesCompleted, 0)
+        XCTAssertTrue(loaded.completions.isEmpty)
+        XCTAssertNil(store.activeCompletionUndo(for: loaded.id))
+    }
+
+    func testAddingCompletedPuzzleDoesNotCreateUndo() throws {
+        var puzzle = Puzzle.fixture(name: "Already done", pieces: 200)
+        puzzle.status = .completed
+        try store.add(puzzle: puzzle)
+        let loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.timesCompleted, 1)
+        XCTAssertNil(store.activeCompletionUndo(for: loaded.id))
+    }
+
+    func testExpiredUndoIsUnavailable() throws {
+        var puzzle = Puzzle.fixture(name: "Too late", pieces: 200)
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 20
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        let expired = Date().addingTimeInterval(CompletionUndoSemantics.window + 5)
+        XCTAssertThrowsError(
+            try store.undoLastCompletion(puzzleID: loaded.id, now: expired)
+        ) { error in
+            guard case PuzzleStoreError.completionUndoUnavailable = error else {
+                return XCTFail("Expected completionUndoUnavailable, got \(error)")
+            }
+        }
+        XCTAssertEqual(store.puzzles.first?.status, .completed)
+    }
+
+    func testUndoSecondCompletionKeepsEarlierHistory() throws {
+        var puzzle = Puzzle.fixture(name: "Replay undo", pieces: 300)
+        puzzle.status = .completed
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        try store.startRedo(puzzle: loaded)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        try store.update(puzzle: loaded)
+
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.completions.count, 2)
+        try store.undoLastCompletion(puzzleID: loaded.id)
+        loaded = try XCTUnwrap(store.puzzles.first)
+        XCTAssertEqual(loaded.status, .completed)
+        XCTAssertEqual(loaded.timesCompleted, 1)
+        XCTAssertEqual(loaded.completions.count, 1)
+    }
+
+    func testUpdateCompletionChangesDateAndPersists() async throws {
+        var puzzle = Puzzle.fixture(name: "Edit me", pieces: 200)
+        puzzle.status = .completed
+        puzzle.completionDate = Date(timeIntervalSince1970: 1_000)
+        try store.add(puzzle: puzzle)
+        let puzzleID = try XCTUnwrap(store.puzzles.first?.id)
+        var completion = try XCTUnwrap(store.puzzles.first?.completions.first)
+        let newDate = Date(timeIntervalSince1970: 9_000)
+        completion.completedAt = newDate
+
+        try store.updateCompletion(puzzleID: puzzleID, completion: completion)
+        XCTAssertEqual(store.puzzles.first?.completionDate, newDate)
+
+        let reloaded = PuzzleStore(modelContext: context)
+        await reloaded.fetchPuzzles()
+        let loaded = try XCTUnwrap(reloaded.puzzles.first { $0.id == puzzleID })
+        XCTAssertEqual(loaded.completions.first?.completedAt, newDate)
+        XCTAssertEqual(loaded.completionDate, newDate)
+
+        let records = try context.fetch(FetchDescriptor<PuzzleCompletionRecord>())
+        XCTAssertEqual(records.filter { $0.puzzleID == puzzleID }.count, 1)
     }
 
     // MARK: - Photos
