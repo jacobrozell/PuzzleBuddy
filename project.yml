@@ -26,7 +26,10 @@ targets:
       - path: App
         excludes:
           - "**/README.md"
+          - PrivacyInfo.xcprivacy
       - path: App/Resources
+        buildPhase: resources
+      - path: App/PrivacyInfo.xcprivacy
         buildPhase: resources
       - path: GoogleService-Info.plist
         type: file

@@ -267,6 +267,24 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         XCTAssertEqual(store.puzzles.first?.status, .completed)
     }
 
+    func testFailedCompleteSaveClearsUndoSnapshot() throws {
+        defer { PuzzleStore.forcesNextSaveFailure = false }
+        var puzzle = Puzzle.fixture(name: "Fail save", pieces: 200)
+        puzzle.status = .inProgress
+        puzzle.progressPercent = 40
+        try store.add(puzzle: puzzle)
+        var loaded = try XCTUnwrap(store.puzzles.first)
+        loaded.status = .completed
+        PuzzleStore.forcesNextSaveFailure = true
+        XCTAssertThrowsError(try store.update(puzzle: loaded)) { error in
+            guard case PuzzleStoreError.saveFailed = error else {
+                return XCTFail("Expected saveFailed, got \(error)")
+            }
+        }
+        XCTAssertNil(store.activeCompletionUndo(for: loaded.id))
+        XCTAssertEqual(store.puzzles.first?.status, .inProgress)
+    }
+
     func testUndoSecondCompletionKeepsEarlierHistory() throws {
         var puzzle = Puzzle.fixture(name: "Replay undo", pieces: 300)
         puzzle.status = .completed
@@ -281,7 +299,8 @@ final class PuzzleExpandedFeatureTests: XCTestCase {
         XCTAssertEqual(loaded.completions.count, 2)
         try store.undoLastCompletion(puzzleID: loaded.id)
         loaded = try XCTUnwrap(store.puzzles.first)
-        XCTAssertEqual(loaded.status, .completed)
+        XCTAssertEqual(loaded.status, .inProgress)
+        XCTAssertEqual(loaded.progressPercent, 0)
         XCTAssertEqual(loaded.timesCompleted, 1)
         XCTAssertEqual(loaded.completions.count, 1)
     }

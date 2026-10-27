@@ -22,6 +22,7 @@ enum UITestA11yID {
     static let puzzleDetailPaceRow = "puzzle_detail_pace_row"
     static let puzzleDetailHoursPer1000Row = "puzzle_detail_hours_per_1000_row"
     static let puzzleDetailEditButton = "puzzle_detail_edit_button"
+    static let puzzleDetailCancelButton = "puzzle_detail_cancel_button"
     static let puzzleDetailRedoButton = "puzzle_detail_redo_button"
     static let puzzleFormNameField = "puzzle_form_name_field"
     static let puzzleFormChoosePhotoButton = "puzzle_form_choose_photo_button"

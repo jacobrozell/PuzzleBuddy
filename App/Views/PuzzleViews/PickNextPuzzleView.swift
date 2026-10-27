@@ -8,6 +8,7 @@ import SwiftUI
 struct PickNextPuzzleView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var ps: PuzzleStore
+    @ObservedObject var browse: PuzzleBrowseState
     var entryPoint: String = "list"
 
     @State private var includeInProgress: Bool = false
@@ -57,7 +58,7 @@ struct PickNextPuzzleView: View {
             }
             .navigationDestination(item: $openPuzzleRequest) { request in
                 if let index = ps.puzzles.firstIndex(where: { $0.id == request.id }) {
-                    PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index])
+                    PuzzleDetail(ps: ps, browse: browse, puzzle: $ps.puzzles[index])
                 } else {
                     MissingPuzzleDestination()
                 }

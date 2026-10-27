@@ -107,13 +107,12 @@
 
 ---
 
-## 7. NavigationSplitView on iPad (1.0)
+## 7. NavigationSplitView on iPad and iPhone Duo (1.1)
 
 **Deliverables:**
-- [x] iPad regular width uses `NavigationStack` push for list → detail (same model as iPhone; `usesSplitNavigation` still means iPad regular width for toolbar vs FAB and sheet sizing).
-- [x] Programmatic navigation (shopping mode, marketing snapshots) opens detail via `openPuzzleRequest`.
-- [x] iPhone keeps `NavigationStack` + `NavigationLink` push.
-- [x] iOS 18 sidebar-adaptable tabs on iPad (`PuzzleTabbar` + `.tabViewStyle(.sidebarAdaptable)`).
+- [x] One `NavigationSplitView` for every width. Regular width (iPad, Duo inner display, resizable window) shows list and detail together. Compact width collapses to a stack so fold does not rebuild navigation.
+- [x] Row selection is `selectedPuzzleID` on the list. Programmatic navigation (shopping mode, marketing snapshots) sets that selection.
+- [x] iOS 18 sidebar-adaptable tabs stay on `PuzzleTabbar`.
 
 **Files:** `PuzzleTabbar.swift`, `PuzzleList.swift`, `PuzzleCell.swift`, `AdaptiveLayout.swift`
 

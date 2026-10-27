@@ -19,6 +19,7 @@ struct PuzzleTabbar: View {
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var ps: PuzzleStore
+    @ObservedObject var browse: PuzzleBrowseState
 
     @State private var tab: PuzzleBuddyTab = {
         switch MarketingSnapshotBootstrap.forcedTab {
@@ -35,16 +36,8 @@ struct PuzzleTabbar: View {
     var body: some View {
         TabView(selection: $tab) {
             Tab(value: PuzzleBuddyTab.puzzles) {
-                Group {
-                    if usesSplitNavigation {
-                        PuzzleList(ps: ps)
-                            .background(Brand.background.ignoresSafeArea())
-                    } else {
-                        NavigationStack {
-                            PuzzleList(ps: ps)
-                        }
-                    }
-                }
+                PuzzleList(ps: ps, browse: browse)
+                    .background(Brand.background.ignoresSafeArea())
             } label: {
                 Label("Puzzles", systemImage: "list.bullet.circle.fill")
             }
@@ -55,7 +48,9 @@ struct PuzzleTabbar: View {
                     CollectionStatsView(ps: ps)
                         .navigationBarTitleDisplayMode(.inline)
                         .navigationTitle(PuzzleBuddyTab.stats.rawValue)
+                        .brandNavigationBarBackground()
                 }
+                .background(Brand.background.ignoresSafeArea())
             } label: {
                 Label("Stats", systemImage: "chart.bar.fill")
             }
@@ -66,7 +61,9 @@ struct PuzzleTabbar: View {
                     SettingsView(ps: ps)
                         .navigationBarTitleDisplayMode(.inline)
                         .navigationTitle(PuzzleBuddyTab.settings.rawValue)
+                        .brandNavigationBarBackground()
                 }
+                .background(Brand.background.ignoresSafeArea())
             } label: {
                 Label("Settings", systemImage: "gearshape")
             }
@@ -106,6 +103,6 @@ struct PuzzleTabbar: View {
 
 struct PuzzleTabbar_Previews: PreviewProvider {
     static var previews: some View {
-        PuzzleTabbar(ps: PreviewSupport.puzzleStore)
+        PuzzleTabbar(ps: PreviewSupport.puzzleStore, browse: PuzzleBrowseState())
     }
 }

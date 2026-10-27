@@ -14,6 +14,7 @@ enum MarketingSnapshotBootstrap {
     static let snapshotDuplicateCheck = "-snapshot_duplicate_check"
     static let snapshotOnboarding = "-snapshot_onboarding"
     static let snapshotOnboardingPage = "-snapshot_onboarding_page"
+    static let snapshotAppearance = "-snapshot_appearance"
 
     enum Tab: String {
         case puzzles
@@ -52,6 +53,12 @@ enum MarketingSnapshotBootstrap {
         return Tab(rawValue: value)
     }
 
+    /// Pins light/dark for marketing captures so sim appearance and in-app Settings stay in sync.
+    static var forcedAppearance: AppearancePreference? {
+        guard let value = value(following: snapshotAppearance) else { return nil }
+        return AppearancePreference(rawValue: value)
+    }
+
     static var initialOnboardingPage: Int {
         guard let raw = value(following: snapshotOnboardingPage),
               let page = Int(raw),
@@ -71,6 +78,9 @@ enum MarketingSnapshotBootstrap {
     static func prepareLaunchStateIfNeeded() {
         guard ProcessInfo.processInfo.arguments.contains(uiTestReset) else { return }
         OnboardingStorage.reset()
+        if let appearance = forcedAppearance {
+            UserDefaults.standard.set(appearance.rawValue, forKey: UserPreferences.appearanceStorageKey)
+        }
         if isMarketingCapture {
             acknowledgeShowcaseMilestones()
         }

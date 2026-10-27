@@ -41,6 +41,8 @@ struct AppShell: View {
                 }
             }
         }
+        .background(Brand.background.ignoresSafeArea())
+        .brandWindowBackground()
     }
 }
 

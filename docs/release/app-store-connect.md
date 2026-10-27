@@ -23,6 +23,7 @@ Use this when submitting. Aligns with [`todo.md`](todo.md) and [`../privacy.html
 > - On loan: **Paris in a Day** is already on loan to “Mom.” Filters: On loan. To see **Overdue**, edit that puzzle and set Due back to a past date.
 > - What’s New sheet appears only for users who already finished 1.0 onboarding. A fresh install sees 1.1 features in onboarding instead.
 > - StoreKit `requestReview` may appear once after a barcode scan or after saving a non-demo edit. Settings → Write a Review opens the App Store write-review URL.
+> - **iPhone Duo:** outer display uses a vertical tab bar with the status cluster on the trailing edge. Inner display uses regular-width chrome. No Duo-only APIs.
 >
 > **Not shipped (do not look for these):** People / Friends list UI is off. Settings import/export was removed. There is no barcode product-lookup toggle or network catalog. Barcodes are on-device only (duplicate check + suggestions from saved puzzles). Camera required for scan; simulators show “Scanner unavailable” and manual barcode entry still works.
 >
@@ -32,11 +33,22 @@ Use this when submitting. Aligns with [`todo.md`](todo.md) and [`../privacy.html
 
 ### 1.1.0 What’s New (App Store)
 
-> Track every finish. 1.1 adds completion history (edit or delete a log), a same-session undo after you mark a puzzle complete, and On loan / overdue filters. What’s New notes appear if you already used 1.0.
+> Track every finish. 1.1 adds completion history (edit or delete a log), undo after you mark a puzzle complete, and On loan / overdue filters. The catalog fills iPhone Duo on both the outer and inner displays.
+
+**Paste-ready 1.1.0 Connect fields:** [`1.1.0-connect-paste.md`](1.1.0-connect-paste.md)
 
 ### 1.1.0 screenshots
 
-Recapture at least: list with On loan / overdue chips, detail + completion history, iPad / sidebar tabs. First frame still reads as a catalog, not a kids’ game. Do not advertise import/export or a People list.
+Recapture at least: list with On loan / overdue chips, detail + completion history, iPad / sidebar tabs, **iPhone Duo outer + inner**. First frame still reads as a catalog, not a kids’ game. Do not advertise import/export or a People list.
+
+**iPhone Duo (Connect sizes, no frames, no alpha):**
+
+| Display | Portrait | Landscape | Capture |
+|---------|----------|-----------|---------|
+| Outer (folded) | 1398 × 2034 | 2034 × 1398 | [`../../Scripts/capture-duo-marketing-screenshots.sh`](../../Scripts/capture-duo-marketing-screenshots.sh) |
+| Inner (open) | 2007 × 2853 | 2853 × 2007 | same script, Device Hub **Open** pose |
+
+Uploading Duo screenshots shows the **optimized for iPhone Duo** product-page badge. Required for iOS 27.1+ submits starting April 2027.
 
 ### Privacy nutrition (1.1.0)
 

@@ -10,15 +10,23 @@ import SwiftUI
 
 struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
+    @ObservedObject var browse: PuzzleBrowseState
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.requestReview) private var requestReview
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isEditable = false
-    @State private var editFormVm: PuzzleFormViewModel?
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showRedoConfirmation = false
     @State private var showMarkReturnedConfirmation = false
     @Binding var puzzle: Puzzle
     var zoomNamespace: Namespace.ID? = nil
+
+    private var isEditable: Bool {
+        browse.editFormVm?.puzzle.id == puzzle.id
+    }
+
+    private var editFormVm: PuzzleFormViewModel? {
+        isEditable ? browse.editFormVm : nil
+    }
 
     private var trimmedNameIsEmpty: Bool {
         if isEditable, let editFormVm {
@@ -31,6 +39,20 @@ struct PuzzleDetail: View {
         VStack {
             if !isEditable, ps.activeCompletionUndo(for: puzzle.id) != nil {
                 undoCompletionBanner
+                    .onAppear {
+                        UIAccessibility.post(
+                            notification: .announcement,
+                            argument: "Marked complete. Undo if that was an accident."
+                        )
+                    }
+                    .task(id: ps.pendingCompletionUndo?.recordedAt) {
+                        guard let snapshot = ps.activeCompletionUndo(for: puzzle.id) else { return }
+                        let remaining = CompletionUndoSemantics.window - Date().timeIntervalSince(snapshot.recordedAt)
+                        if remaining > 0 {
+                            try? await Task.sleep(for: .seconds(remaining))
+                        }
+                        ps.expireCompletionUndoIfNeeded(puzzleID: puzzle.id)
+                    }
             }
             if isEditable, let editFormVm {
                 PuzzleFormInternal(formVm: editFormVm, allPuzzles: ps.puzzles)
@@ -51,27 +73,33 @@ struct PuzzleDetail: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .modifier(PuzzleDetailZoomTransition(id: puzzle.id, namespace: zoomNamespace))
         .animation(reduceMotion ? nil : .easeInOut, value: isEditable)
+        .navigationBarBackButtonHidden(horizontalSizeClass == .compact)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Brand.background, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        .brandNavigationBarBackground()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 if isEditable {
                     Button("Cancel") {
-                        editFormVm = nil
-                        isEditable = false
+                        browse.editFormVm = nil
                     }
                     .optionalAccessibilityIdentifier(A11yID.puzzleDetailCancelButton)
                     .accessibilityLabel("Cancel editing")
                     .accessibilityHint("Discards unsaved changes and returns to details")
+                } else if horizontalSizeClass == .compact {
+                    Button {
+                        browse.editFormVm = nil
+                        browse.selectedPuzzleID = nil
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                    }
+                    .accessibilityLabel("Back")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     guard isEditable else {
-                        editFormVm = PuzzleFormViewModel(puzzle: puzzle.copy())
-                        isEditable = true
+                        browse.editFormVm = PuzzleFormViewModel(puzzle: puzzle.copy())
                         return
                     }
 
@@ -85,8 +113,7 @@ struct PuzzleDetail: View {
                         if !editFormVm.puzzle.isDemo {
                             StoreReviewPrompt.requestIfEligible(reason: .puzzleEdited, requestReview: requestReview)
                         }
-                        self.editFormVm = nil
-                        isEditable = false
+                        browse.editFormVm = nil
                         BarcodeScanFeedback.scanAccepted()
                     } catch {
                         eh.handle(title: "Could not save puzzle", message: error.localizedDescription)
@@ -500,7 +527,7 @@ private struct PuzzleDetailZoomTransition: ViewModifier {
 struct PuzzleDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            PuzzleDetail(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture()))
+            PuzzleDetail(ps: PreviewSupport.puzzleStore, browse: PuzzleBrowseState(), puzzle: .constant(.fixture()))
         }
     }
 }

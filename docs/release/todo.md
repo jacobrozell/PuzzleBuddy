@@ -6,11 +6,11 @@ Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](
 
 ## 1.1.0 TestFlight / App Review
 
+- [x] **iPhone Duo readiness** — size-class layout + top-edge fill; Xcode 27.1; Duo sim smoke — [`../../ongoing/iphone-duo-1.1.0.md`](../../ongoing/iphone-duo-1.1.0.md)
 - [x] Review-lane fixes — [`../../ongoing/1.1.0-review-fixes.md`](../../ongoing/1.1.0-review-fixes.md)
 - [ ] **Connect version** `1.1.0` · this build · **minimum iOS 18.0**
-- [ ] **Notes for Review** — paste the 1.1.0 notes from [`app-store-connect.md`](app-store-connect.md#110-notes-for-review)
-- [ ] **What’s New** — completion history, undo, On loan / overdue, What’s New sheet (do not claim import/export or People list)
-- [ ] **Screenshots** — recapture list (On loan / overdue chips), detail + history, iPad / `sidebarAdaptable`; first frame still reads as a catalog
+- [ ] **Notes for Review / What’s New / description** — paste from [`1.1.0-connect-paste.md`](1.1.0-connect-paste.md)
+- [ ] **Screenshots** — Duo outer + inner (see paste doc); recapture iPhone 6.5" / iPad list + history; first frame still reads as a catalog
 - [ ] **Privacy + support Pages** — push `docs/privacy.html` / `docs/support.html` so Connect URLs match 1.1
 - [ ] **Nutrition / privacy label** — Product interaction (`session_snapshot`, `milestone_reached`); friend names under Other user content
 - [x] **Age 4+** and export-compliance exemption — re-confirm, no change expected

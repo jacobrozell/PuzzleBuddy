@@ -1,11 +1,12 @@
 # Ongoing work
 
-**Last updated:** 2026-09-26
+**Last updated:** 2026-10-27
 
 ## Active
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
+| **iPhone Duo (1.1.0)** | [`iphone-duo-1.1.0.md`](iphone-duo-1.1.0.md) | **Connect assets** | Screenshots + listing copy: [`../docs/release/1.1.0-connect-paste.md`](../docs/release/1.1.0-connect-paste.md) |
 | **1.1.0 completion history** | [`docs/implementation/1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) | **In progress** | Edit/delete + swipe + undo banner; What's New + overdue loan polish on `release/1.1.0` |
 | **1.1.0 review-lane fixes** | [`1.1.0-review-fixes.md`](1.1.0-review-fixes.md) | **Done** | #1–#18, #21–#29 closed; #19/#20 deferred to 1.1.1 |
 | **App Store 1.0.0** | [`docs/release/todo.md`](../docs/release/todo.md) | **App Review** | Tag `1.0.0` on `main`; 1.1.0 work on release branch |

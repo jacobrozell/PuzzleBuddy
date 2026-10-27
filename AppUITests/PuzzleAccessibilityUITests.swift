@@ -365,6 +365,65 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         )
     }
 
+    func testPuzzleDetailEditSurvivesRotation() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        tapFirstSeededPuzzle(in: app)
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+
+        let editButton = app.buttons[UITestA11yID.puzzleDetailEditButton]
+        XCTAssertTrue(editButton.waitForExistence(timeout: 3))
+        editButton.tap()
+
+        let nameField = app.descendants(matching: .any)[UITestA11yID.puzzleFormNameField]
+        let nameByLabel = app.textFields["Puzzle name"]
+        XCTAssertTrue(
+            nameField.waitForExistence(timeout: 3) || nameByLabel.waitForExistence(timeout: 2),
+            "Name field should be reachable before rotating edit mode"
+        )
+        let field = nameField.exists ? nameField : nameByLabel
+        field.tap()
+        let sentinel = "Fold rotation sentinel"
+        field.typeText(sentinel)
+
+        let cancelButton = app.buttons[UITestA11yID.puzzleDetailCancelButton]
+        XCTAssertTrue(
+            cancelButton.waitForExistence(timeout: 3) || app.buttons["Cancel"].waitForExistence(timeout: 2),
+            "Cancel should be visible in edit mode before rotation"
+        )
+
+        app.rotateToLandscape()
+        XCTAssertTrue(
+            cancelButton.waitForExistence(timeout: 5) || app.buttons["Cancel"].waitForExistence(timeout: 3),
+            "Edit mode should stay presented after rotating to landscape"
+        )
+        let saveButton = app.buttons[UITestA11yID.puzzleDetailEditButton]
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            saveButton.label.localizedCaseInsensitiveContains("Save"),
+            "Save should remain visible in landscape edit mode"
+        )
+
+        resetToPortrait()
+        XCTAssertTrue(
+            cancelButton.waitForExistence(timeout: 5) || app.buttons["Cancel"].waitForExistence(timeout: 3),
+            "Edit mode should stay presented after rotating back to portrait"
+        )
+
+        let portraitNameField = app.descendants(matching: .any)[UITestA11yID.puzzleFormNameField]
+        XCTAssertTrue(
+            portraitNameField.waitForExistence(timeout: 5) || app.textFields["Puzzle name"].waitForExistence(timeout: 3),
+            "Name field should remain reachable after rotating edit mode back to portrait"
+        )
+        let valueInPortrait = portraitNameField.value as? String ?? ""
+        XCTAssertTrue(
+            valueInPortrait.contains(sentinel),
+            "Unsaved edit text should survive rotation back to portrait"
+        )
+    }
+
     func testPuzzleDetailAccessibilityAudit() throws {
         let app = launchForBypassOnboarding()
         _ = waitForMainApp(in: app)

@@ -17,10 +17,14 @@ enum Brand {
         })
     }
 
-    static let background = dynamic(
-        light: UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1),
-        dark: UIColor(red: 0.04, green: 0.05, blue: 0.07, alpha: 1)
-    )
+    /// Window / chrome fill. Exposed as `UIColor` so the UIWindow can match SwiftUI.
+    static let backgroundUIColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.04, green: 0.05, blue: 0.07, alpha: 1)
+            : UIColor(red: 0.95, green: 0.97, blue: 0.98, alpha: 1)
+    }
+
+    static let background = Color(uiColor: backgroundUIColor)
     static let card = dynamic(
         light: UIColor.white,
         dark: UIColor(red: 0.11, green: 0.12, blue: 0.14, alpha: 1)
@@ -112,7 +116,8 @@ enum DS {
 struct BrandBackground: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    var ignoredEdges: Edge.Set = [.horizontal, .bottom]
+    /// Include `.top` so Duo (status bar on the trailing edge) does not show a white strip.
+    var ignoredEdges: Edge.Set = .all
 
     func body(content: Content) -> some View {
         content
@@ -172,7 +177,7 @@ struct BrandSecondaryButtonStyle: ButtonStyle {
 }
 
 struct BrandScreenChrome: ViewModifier {
-    var ignoredSafeAreaEdges: Edge.Set = [.horizontal, .bottom]
+    var ignoredSafeAreaEdges: Edge.Set = .all
 
     func body(content: Content) -> some View {
         content
@@ -264,11 +269,11 @@ struct BrandEmptyState<Action: View>: View {
 }
 
 extension View {
-    func brandBackground(ignoresSafeAreaEdges edges: Edge.Set = [.horizontal, .bottom]) -> some View {
+    func brandBackground(ignoresSafeAreaEdges edges: Edge.Set = .all) -> some View {
         modifier(BrandBackground(ignoredEdges: edges))
     }
 
-    func brandScreenChrome(ignoredSafeAreaEdges edges: Edge.Set = [.horizontal, .bottom]) -> some View {
+    func brandScreenChrome(ignoredSafeAreaEdges edges: Edge.Set = .all) -> some View {
         modifier(BrandScreenChrome(ignoredSafeAreaEdges: edges))
     }
 

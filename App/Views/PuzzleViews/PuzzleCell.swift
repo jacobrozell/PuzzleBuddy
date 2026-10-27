@@ -12,41 +12,15 @@ struct PuzzleCell: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
     @Binding var puzzle: Puzzle
-    /// When set, row selects into `NavigationSplitView` instead of pushing via `NavigationLink`.
-    var selectedPuzzleID: Binding<UUID?>? = nil
+    /// Selection highlight for the surrounding `List(selection:)`.
+    var selectedPuzzleID: UUID? = nil
     var zoomNamespace: Namespace.ID? = nil
     @State private var showDeleteConfirmation = false
 
-    private var usesSplitSelection: Bool { selectedPuzzleID != nil }
-    private var isSelected: Bool {
-        guard let selectedPuzzleID else { return false }
-        return selectedPuzzleID.wrappedValue == puzzle.id
-    }
+    private var isSelected: Bool { selectedPuzzleID == puzzle.id }
 
     var body: some View {
-        Group {
-            if usesSplitSelection {
-                Button {
-                    selectedPuzzleID?.wrappedValue = puzzle.id
-                } label: {
-                    PuzzleCellView(puzzle: $puzzle)
-                }
-                .buttonStyle(.plain)
-            } else if let zoomNamespace {
-                NavigationLink {
-                    PuzzleDetail(ps: ps, puzzle: $puzzle, zoomNamespace: zoomNamespace)
-                } label: {
-                    PuzzleCellView(puzzle: $puzzle)
-                        .matchedTransitionSource(id: puzzle.id, in: zoomNamespace)
-                }
-            } else {
-                NavigationLink {
-                    PuzzleDetail(ps: ps, puzzle: $puzzle)
-                } label: {
-                    PuzzleCellView(puzzle: $puzzle)
-                }
-            }
-        }
+        puzzleCellLabel
         .accessibilityElement(children: .ignore)
         .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id, name: puzzle.name))
         .accessibilityLabel(cellAccessibilityLabel)
@@ -76,6 +50,16 @@ struct PuzzleCell: View {
             Text("This puzzle will be removed from your collection. This cannot be undone.")
         }
         .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private var puzzleCellLabel: some View {
+        if let zoomNamespace {
+            PuzzleCellView(puzzle: $puzzle)
+                .matchedTransitionSource(id: puzzle.id, in: zoomNamespace)
+        } else {
+            PuzzleCellView(puzzle: $puzzle)
+        }
     }
 
     private func deletePuzzle() {

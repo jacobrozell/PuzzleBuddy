@@ -14,6 +14,7 @@ struct PuzzleView: View {
     @AppStorage(UserPreferences.ephemeralStoreBannerDismissedKey) private var ephemeralBannerDismissed = false
     @AppStorage(UserPreferences.storeWasResetNoticePendingKey) private var storeWasResetNoticePending = false
     @State private var showWhatsNew = false
+    @StateObject private var browse = PuzzleBrowseState()
 
     init(modelContext: ModelContext) {
         _ps = StateObject(wrappedValue: PuzzleStore(modelContext: modelContext))
@@ -26,7 +27,7 @@ struct PuzzleView: View {
             } else if showsStoreResetBanner {
                 storeResetBanner
             }
-            PuzzleTabbar(ps: ps)
+            PuzzleTabbar(ps: ps, browse: browse)
         }
         .task {
             if MarketingSnapshotBootstrap.shouldResetCollection {

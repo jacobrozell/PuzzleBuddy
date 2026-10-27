@@ -17,11 +17,7 @@ struct PuzzleList: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Environment(\.requestReview) private var requestReview
     @ObservedObject var ps: PuzzleStore
-    @State private var present = false
-    @State private var showScanner = false
-    @State private var showShoppingMode = false
-    @State private var showPickNext = false
-    @State private var openPuzzleRequest: OpenPuzzleRequest?
+    @ObservedObject var browse: PuzzleBrowseState
     @State private var quickAddContext: QuickAddContext?
     @State private var listScanDuplicate: ListScanDuplicateRequest?
     @State private var searchText: String = ""
@@ -37,7 +33,6 @@ struct PuzzleList: View {
     @State private var materialFilter: PuzzleMaterial? = nil
     @State private var dispositionFilter: PuzzleDisposition? = nil
     @State private var showTagFilterSheet = false
-    @State private var showFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
     @State private var sharePayload: PuzzleSharePayload?
     @Namespace private var puzzleZoomNamespace
@@ -111,17 +106,11 @@ struct PuzzleList: View {
     }
 
     var body: some View {
-        Group {
-            if usesSplitNavigation {
-                regularWidthLayout
-            } else {
-                compactNavigationLayout
-            }
+        puzzlesNavigationLayout
+        .adaptiveLongFormSheet(isPresented: $browse.showAddForm) {
+            PuzzleForm(isPresented: $browse.showAddForm, ps: ps)
         }
-        .adaptiveLongFormSheet(isPresented: $present) {
-            PuzzleForm(isPresented: $present, ps: ps)
-        }
-        .adaptiveLongFormSheet(isPresented: $showScanner) {
+        .adaptiveLongFormSheet(isPresented: $browse.showScanner) {
             BarcodeScannerSheet { barcode in
                 handleScannedBarcode(barcode)
             }
@@ -145,7 +134,7 @@ struct PuzzleList: View {
                         onAddPuzzle: { _ in },
                         onScanAnother: {
                             listScanDuplicate = nil
-                            showScanner = true
+                            browse.showScanner = true
                         }
                     )
                     .padding(DS.Spacing.s4)
@@ -162,10 +151,10 @@ struct PuzzleList: View {
                 }
             }
         }
-        .adaptiveLongFormSheet(isPresented: $showPickNext) {
-            PickNextPuzzleView(ps: ps, entryPoint: "list")
+        .adaptiveLongFormSheet(isPresented: $browse.showPickNext) {
+            PickNextPuzzleView(ps: ps, browse: browse, entryPoint: "list")
         }
-        .adaptiveLongFormSheet(isPresented: $showShoppingMode) {
+        .adaptiveLongFormSheet(isPresented: $browse.showShoppingMode) {
             ShoppingModeView(
                 ps: ps,
                 onAddPuzzle: { barcode in
@@ -184,7 +173,7 @@ struct PuzzleList: View {
         }
         .modifier(
             FilterSheetPresentation(
-                isPresented: $showFilterSheet,
+                isPresented: $browse.showFilterSheet,
                 usesFullScreen: usesSplitNavigation
             ) {
                 filterSheet
@@ -194,10 +183,20 @@ struct PuzzleList: View {
             PuzzleShareSheet(payload: payload)
                 .presentationDetents([.medium, .large])
         }
+        .onChange(of: browse.selectedPuzzleID) { _, newID in
+            guard let newID, browse.editFormVm?.puzzle.id != newID else { return }
+            browse.editFormVm = nil
+        }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
         }
-        .onChange(of: ps.puzzles.map(\.id)) { _, _ in
+        .onChange(of: ps.puzzles.map(\.id)) { _, ids in
+            if let selectedPuzzleID = browse.selectedPuzzleID, !ids.contains(selectedPuzzleID) {
+                browse.selectedPuzzleID = nil
+                if browse.editFormVm?.puzzle.id == selectedPuzzleID {
+                    browse.editFormVm = nil
+                }
+            }
             applyMarketingSnapshotNavigation()
         }
         .onAppear {
@@ -225,42 +224,46 @@ struct PuzzleList: View {
         }
     }
 
-    /// iPad / regular width: full-width list with push navigation (same model as iPhone).
-    private var regularWidthLayout: some View {
-        NavigationStack {
-            puzzleListChrome
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                .navigationDestination(item: $openPuzzleRequest) { request in
-                    puzzleDetailContent(for: request.id)
-                }
-                .toolbar { puzzleToolbar }
-                .toolbarBackground(Brand.background, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
-                .navigationTitle("Puzzle Buddy")
-                .navigationBarTitleDisplayMode(.inline)
+    /// One split view at every width. Regular width (Duo inner, iPad) shows list and detail
+    /// together. Compact width collapses to a stack. The view identity does not change on fold.
+    private var puzzlesNavigationLayout: some View {
+        NavigationSplitView {
+            puzzleListColumn
+        } detail: {
+            puzzleDetailColumn
         }
+        .navigationSplitViewStyle(.balanced)
     }
 
-    /// iPhone (and compact width): list with push navigation to detail.
-    private var compactNavigationLayout: some View {
-        VStack(spacing: 0) {
-            puzzleListChrome
-            Spacer(minLength: 0)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottomTrailing) {
-            if usesLandscapePhoneLayout {
-                addPuzzleFloatingButton
+    private var puzzleListColumn: some View {
+        puzzleListChrome
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .overlay(alignment: .bottomTrailing) {
+                if usesLandscapePhoneLayout {
+                    addPuzzleFloatingButton
+                }
             }
+            .navigationSplitViewColumnWidth(min: 300, ideal: 380, max: 460)
+            .toolbar { puzzleToolbar }
+            .brandNavigationBarBackground()
+            .navigationTitle("Puzzle Buddy")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private var puzzleDetailColumn: some View {
+        if let selectedPuzzleID = browse.selectedPuzzleID {
+            puzzleDetailContent(for: selectedPuzzleID)
+                .id(selectedPuzzleID)
+        } else {
+            ContentUnavailableView {
+                Label("No puzzle selected", systemImage: "square.grid.2x2")
+            } description: {
+                Text("Choose a puzzle from the list.")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .readableBrandScreenChrome()
         }
-        .navigationDestination(item: $openPuzzleRequest) { request in
-            puzzleDetailContent(for: request.id)
-        }
-        .toolbar { puzzleToolbar }
-        .toolbarBackground(Brand.background, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .navigationTitle("Puzzle Buddy")
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var puzzleListChrome: some View {
@@ -276,7 +279,7 @@ struct PuzzleList: View {
     @ToolbarContentBuilder
     private var puzzleToolbar: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            if usesSplitNavigation, showsAddPuzzleAction {
+            if usesSplitNavigation {
                 addPuzzleToolbarButton
             }
         }
@@ -301,7 +304,7 @@ struct PuzzleList: View {
     private var pickNextToolbarButton: some View {
         if ProductService.isPickNextEnabled {
             Button {
-                showPickNext = true
+                browse.showPickNext = true
             } label: {
                 Image(systemName: "dice")
                     .frame(minWidth: 44, minHeight: 44)
@@ -317,7 +320,7 @@ struct PuzzleList: View {
     private var shoppingModeToolbarButton: some View {
         if ProductService.isShoppingModeEnabled {
             Button {
-                showShoppingMode = true
+                browse.showShoppingMode = true
             } label: {
                 Image(systemName: "barcode.viewfinder")
                     .frame(minWidth: 44, minHeight: 44)
@@ -334,7 +337,7 @@ struct PuzzleList: View {
         Menu {
             if ProductService.isPickNextEnabled {
                 Button {
-                    showPickNext = true
+                    browse.showPickNext = true
                 } label: {
                     Label("Pick next puzzle", systemImage: "dice")
                 }
@@ -342,7 +345,7 @@ struct PuzzleList: View {
 
             if ProductService.isShoppingModeEnabled {
                 Button {
-                    showShoppingMode = true
+                    browse.showShoppingMode = true
                 } label: {
                     Label("Check duplicate", systemImage: "barcode.viewfinder")
                 }
@@ -428,14 +431,14 @@ struct PuzzleList: View {
     @ViewBuilder
     private var addPuzzleMenuContents: some View {
         Button {
-            present = true
+            browse.showAddForm = true
         } label: {
             Label("Add puzzle", systemImage: "plus")
         }
         .accessibilityIdentifier(A11yID.addPuzzleButton)
 
         Button {
-            showScanner = true
+            browse.showScanner = true
         } label: {
             Label {
                 VStack(alignment: .leading, spacing: 2) {
@@ -486,14 +489,42 @@ struct PuzzleList: View {
     @ViewBuilder
     private func puzzleDetailContent(for id: UUID) -> some View {
         if let index = ps.puzzles.firstIndex(where: { $0.id == id }) {
-            PuzzleDetail(ps: ps, puzzle: $ps.puzzles[index], zoomNamespace: puzzleZoomNamespace)
+            PuzzleDetail(
+                ps: ps,
+                browse: browse,
+                puzzle: $ps.puzzles[index],
+                zoomNamespace: puzzleZoomNamespace
+            )
         } else {
             MissingPuzzleDestination()
         }
     }
 
+    private var listSelection: Binding<UUID?> {
+        Binding(
+            get: { browse.selectedPuzzleID },
+            set: { newValue in
+                guard let newValue else { return }
+                browse.selectedPuzzleID = newValue
+                if browse.editFormVm?.puzzle.id != newValue {
+                    browse.editFormVm = nil
+                }
+            }
+        )
+    }
+
     private func navigateToPuzzle(id: UUID) {
-        openPuzzleRequest = OpenPuzzleRequest(id: id)
+        if horizontalSizeClass == .compact, browse.selectedPuzzleID == id {
+            browse.selectedPuzzleID = nil
+            Task { @MainActor in
+                browse.selectedPuzzleID = id
+            }
+            return
+        }
+        browse.selectedPuzzleID = id
+        if browse.editFormVm?.puzzle.id != id {
+            browse.editFormVm = nil
+        }
     }
 
     private var puzzleCollection: some View {
@@ -501,7 +532,7 @@ struct PuzzleList: View {
     }
 
     private var puzzleListView: some View {
-        List {
+        List(selection: listSelection) {
             if displayedPuzzles.isEmpty {
                 emptyStateRow
             } else {
@@ -510,8 +541,10 @@ struct PuzzleList: View {
                         PuzzleCell(
                             ps: ps,
                             puzzle: $ps.puzzles[index],
+                            selectedPuzzleID: browse.selectedPuzzleID,
                             zoomNamespace: puzzleZoomNamespace
                         )
+                            .tag(puzzle.id)
                             .id(ps.puzzles[index].id)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
@@ -536,9 +569,6 @@ struct PuzzleList: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background {
                 Brand.background
-                    .overlay(alignment: .bottom) {
-                        Divider()
-                    }
                     // Bleed the sticky header band into the landscape safe-area inset
                     // (e.g. Dynamic Island side) so it doesn't stop short of the edge.
                     .ignoresSafeArea(edges: .horizontal)
@@ -591,23 +621,16 @@ struct PuzzleList: View {
         }
     }
 
-    /// iPad split sidebar: menu status picker, inline search, secondary filters in a sheet.
-    /// Avoids a six-segment control clipping in a narrow column.
+    /// Regular-width chrome: menu status picker, inline search, secondary filters in a sheet.
+    /// Avoids a six-segment control clipping. Nav title already says Puzzle Buddy.
     private var splitFilterHeader: some View {
         VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-            Text("Puzzle Buddy")
-                .font(.title2.weight(.bold))
-                .foregroundStyle(Brand.textPrimary)
-                .accessibilityAddTraits(.isHeader)
             HStack(spacing: DS.Spacing.s2) {
-                if showsAddPuzzleAction {
-                    addPuzzleToolbarButton
-                }
                 splitStatusMenuPicker
                 Spacer(minLength: DS.Spacing.s2)
                 if !ps.puzzles.isEmpty {
                     resultCountText
-                        .lineLimit(1)
+                        .lineLimit(2)
                         .minimumScaleFactor(0.85)
                 }
                 filterSheetButton
@@ -642,7 +665,7 @@ struct PuzzleList: View {
 
     private var filterSheetButton: some View {
         Button {
-            showFilterSheet = true
+            browse.showFilterSheet = true
         } label: {
             ZStack(alignment: .topTrailing) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
@@ -764,7 +787,7 @@ struct PuzzleList: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        showFilterSheet = false
+                        browse.showFilterSheet = false
                     }
                 }
             }
@@ -874,12 +897,12 @@ struct PuzzleList: View {
     ) -> some View {
         Label(title, systemImage: systemImage)
             .font(.subheadline.weight(.medium))
-            .foregroundStyle(isActive ? activeColor : Brand.textPrimary)
+            .foregroundStyle(isActive ? chipTextColor(activeColor) : Brand.textPrimary)
             .lineLimit(1)
             .padding(.horizontal, DS.Spacing.s3)
             .padding(.vertical, 10)
             .frame(minHeight: 44)
-            .background(isActive ? activeColor.opacity(0.14) : Brand.card)
+            .background(isActive ? chipWashColor(activeColor) : Brand.card)
             .clipShape(Capsule())
             .overlay {
                 Capsule()
@@ -889,6 +912,14 @@ struct PuzzleList: View {
                     )
             }
             .contentShape(Capsule())
+    }
+
+    private func chipTextColor(_ activeColor: Color) -> Color {
+        activeColor == Brand.accent ? Brand.accentText : activeColor
+    }
+
+    private func chipWashColor(_ activeColor: Color) -> Color {
+        (activeColor == Brand.accent ? Brand.accent : activeColor).opacity(0.14)
     }
 
     private var pieceCountFilterMenu: some View {
@@ -1038,7 +1069,7 @@ struct PuzzleList: View {
         ) {
             if showsAddPuzzleAction {
                 Button("Add puzzle") {
-                    present = true
+                    browse.showAddForm = true
                 }
                 .buttonStyle(BrandPrimaryButtonStyle())
                 .accessibilityHint("Opens the form to add a new puzzle")
@@ -1116,7 +1147,7 @@ struct PuzzleList: View {
         guard MarketingSnapshotBootstrap.isMarketingCapture else { return }
 
         if MarketingSnapshotBootstrap.shouldShowAddPuzzle {
-            present = true
+            browse.showAddForm = true
         }
 
         guard !ps.puzzles.isEmpty else { return }
@@ -1183,10 +1214,6 @@ private struct ListScanDuplicateRequest: Identifiable {
         id = puzzle.id
         self.puzzle = puzzle
     }
-}
-
-private struct OpenPuzzleRequest: Identifiable, Hashable {
-    let id: UUID
 }
 
 private struct TagFilterSheet: View {
@@ -1322,15 +1349,21 @@ private struct FilterSheetPresentation<SheetContent: View>: ViewModifier {
     func body(content: Content) -> some View {
         content
             .sheet(isPresented: $isPresented) {
-                if usesFullScreen {
-                    sheetContent()
-                        .presentationSizing(.page)
-                } else {
-                    sheetContent()
-                        .presentationDetents([.fraction(0.48), .large])
-                        .presentationDragIndicator(.visible)
-                }
+                sheetContent()
+                    .modifier(FilterSheetPresentationChrome(usesFullScreen: usesFullScreen))
             }
+    }
+}
+
+private struct FilterSheetPresentationChrome: ViewModifier {
+    let usesFullScreen: Bool
+
+    func body(content: Content) -> some View {
+        content
+            .presentationSizing(.page)
+            .presentationDragIndicator(.visible)
+            .presentationCompactAdaptation(.none)
+            .presentationDetents(usesFullScreen ? [.large] : [.fraction(0.48), .large])
     }
 }
 
@@ -1353,7 +1386,7 @@ struct PuzzleListPreviews: PreviewProvider {
     static var previews: some View {
         Group {
             let ps = PreviewSupport.puzzleStore
-            PuzzleList(ps: ps)
+            PuzzleList(ps: ps, browse: PuzzleBrowseState())
                 .task {
                     ps.puzzles.append(.fixture())
                     ps.puzzles.append(.fixture())

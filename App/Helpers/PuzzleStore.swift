@@ -351,7 +351,6 @@ class PuzzleStore: ObservableObject {
         }
 
         let recordsBeforeDelete = fetchCompletionRecords(puzzleID: puzzleID)
-        let isRemovingLast = recordsBeforeDelete.count == 1
         let removedNumber = recordsBeforeDelete.first(where: { $0.id == snapshot.completionID })?.completionNumber
 
         try deleteCompletion(
@@ -361,7 +360,7 @@ class PuzzleStore: ObservableObject {
             logDeletedEvent: false
         )
 
-        if isRemovingLast, let record = fetchRecord(id: puzzleID) {
+        if let record = fetchRecord(id: puzzleID) {
             record.status = snapshot.previousStatus.rawValue
             record.progressPercent = snapshot.previousProgressPercent
             if let index = puzzles.firstIndex(where: { $0.id == puzzleID }) {
@@ -387,6 +386,12 @@ class PuzzleStore: ObservableObject {
             puzzleID: puzzleID,
             now: now
         )
+    }
+
+    func expireCompletionUndoIfNeeded(puzzleID: UUID, now: Date = Date()) {
+        guard let snapshot = pendingCompletionUndo, snapshot.puzzleID == puzzleID else { return }
+        guard !snapshot.isActive(now: now) else { return }
+        pendingCompletionUndo = nil
     }
 
     func dismissCompletionUndo(for puzzleID: UUID) {
@@ -524,6 +529,7 @@ class PuzzleStore: ObservableObject {
         puzzle.prepareForPersistence()
         record.apply(from: puzzle)
 
+        var stagedUndoID: UUID?
         do {
             if puzzle.status == .completed && previousStatus != .completed {
                 let completionID = try appendCompletion(for: puzzle)
@@ -533,6 +539,7 @@ class PuzzleStore: ObservableObject {
                     previousStatus: previousStatus,
                     previousProgressPercent: previousProgressPercent
                 )
+                stagedUndoID = completionID
             }
 
             try syncPhotos(for: puzzle)
@@ -543,6 +550,9 @@ class PuzzleStore: ObservableObject {
             BarcodeMetadataCache.store(from: puzzle)
             try saveContext()
         } catch {
+            if let stagedUndoID, pendingCompletionUndo?.completionID == stagedUndoID {
+                pendingCompletionUndo = nil
+            }
             modelContext.rollback()
             loadLocalPuzzles()
             throw error
@@ -551,7 +561,7 @@ class PuzzleStore: ObservableObject {
 
     @discardableResult
     private func appendCompletion(for puzzle: Puzzle) throws -> UUID {
-        let existing = fetchCompletionRecords(puzzleID: puzzle.id)
+        let existing = try fetchCompletionRecordsThrowing(puzzleID: puzzle.id)
         let nextNumber = (existing.map(\.completionNumber).max() ?? 0) + 1
         let completion = PuzzleCompletionSemantics.makeCompletion(from: puzzle, number: nextNumber)
         modelContext.insert(PuzzleCompletionRecord(from: completion, puzzleID: puzzle.id))

@@ -7,9 +7,12 @@ Professional App Store and marketing assets for **Puzzle Buddy**.
 Before 1.1.0 Connect upload, recapture at least:
 
 1. Puzzle list showing **On loan** / **Overdue** chips
-2. Puzzle detail with **completion history**
+2. Puzzle detail with **completion history** (Floral Arch)
 3. iPad / `sidebarAdaptable` tabs
-4. Keep the first frame reading as a **catalog**, not a kids’ game
+4. **iPhone Duo** outer + inner (Connect badge) — [`../Scripts/capture-duo-marketing-screenshots.sh`](../Scripts/capture-duo-marketing-screenshots.sh)
+5. Keep the first frame reading as a **catalog**, not a kids’ game
+
+Paste-ready Connect copy: [`../docs/release/1.1.0-connect-paste.md`](../docs/release/1.1.0-connect-paste.md)
 
 ## Folder layout
 
@@ -19,7 +22,7 @@ Screenshots are sorted by **device → appearance → orientation**:
 marketing-screenshots/
   iphone/
     dark/
-      portrait/          ← App Store iPhone upload
+      portrait/          ← App Store iPhone 6.5" upload
       landscape/
     light/
       portrait/
@@ -31,6 +34,9 @@ marketing-screenshots/
     light/
       portrait/
       landscape/
+  iphone-duo/
+    outer/light/portrait/   ← 1398×2034 Connect Duo outer
+    inner/light/landscape/  ← 2853×2007 Connect Duo inner (Open pose)
   framed/
     iphone/
       dark/portrait/     ← bezels for web/social only
@@ -55,6 +61,9 @@ Legacy flat folders (`raw/`, `ipad/raw/`) are migrated with:
 # Full matrix: iphone + ipad × dark + light × portrait + landscape
 ./Scripts/capture-all-marketing-screenshots.sh
 
+# iPhone Duo outer + inner (Device Hub must show the Duo window)
+./Scripts/capture-duo-marketing-screenshots.sh
+
 # Optional bezels (portrait iPhone only)
 brew install imagemagick   # once
 ./Scripts/frame-marketing-screenshots.sh
@@ -70,6 +79,8 @@ Upload from **`iphone/`** and **`ipad/`** subfolders only — no device frames.
 |------|----------|-----------|
 | iPhone 6.5" | 1284 × 2778 | 2778 × 1284 |
 | iPad 13" | 2064 × 2752 | 2752 × 2064 |
+| iPhone Duo outer | 1398 × 2034 | 2034 × 1398 |
+| iPhone Duo inner | 2007 × 2853 | 2853 × 2007 |
 
 Fix existing PNGs without re-capturing:
 
@@ -104,6 +115,7 @@ RAW_DIR=marketing-screenshots/iphone/light/portrait ./Scripts/frame-marketing-sc
 |--------|-----------|
 | Reset + seed demo | `-ui_test_reset -disable_firebase_analytics -ui_testing_seed_puzzles` |
 | Tab | `-snapshot_tab puzzles` / `stats` / `settings` |
+| Appearance | `-snapshot_appearance light` / `dark` |
 | Puzzle detail | `-snapshot_puzzle_detail Paris in a Day` |
 | Add puzzle form | `-snapshot_add_puzzle` |
 | Duplicate check sheet | `-snapshot_duplicate_check The Bizarre Bookshop` |

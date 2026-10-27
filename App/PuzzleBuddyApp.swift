@@ -16,7 +16,10 @@ struct PuzzleBuddyApp: App {
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
 
     private var preferredColorScheme: ColorScheme? {
-        AppearancePreference(rawValue: appearanceRaw)?.colorScheme
+        if let forced = MarketingSnapshotBootstrap.forcedAppearance {
+            return forced.colorScheme
+        }
+        return AppearancePreference(rawValue: appearanceRaw)?.colorScheme
     }
 
     var body: some Scene {
@@ -24,6 +27,8 @@ struct PuzzleBuddyApp: App {
             AppShell(modelContext: sharedModelContainer.mainContext)
                 .withErrorHandling()
                 .preferredColorScheme(preferredColorScheme)
+                .background(Brand.background.ignoresSafeArea())
+                .brandWindowBackground()
                 .task {
                     SnapshotOrientationLock.applyIfNeeded()
                 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct CollectionStatsView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ObservedObject var ps: PuzzleStore
+    @StateObject private var pickNextBrowse = PuzzleBrowseState()
     @State private var showPickNext = false
     @State private var pendingMilestone: CollectionMilestone?
     @State private var selectedYear = Calendar.current.component(.year, from: Date())
@@ -35,9 +36,8 @@ struct CollectionStatsView: View {
     }
 
     private var availableActivityYears: [Int] {
-        let completionYears = ps.puzzles
-            .filter { $0.status == .completed }
-            .map { Calendar.current.component(.year, from: $0.completionDate) }
+        let completionYears = CollectionStats.completionDates(from: ps.puzzles)
+            .map { Calendar.current.component(.year, from: $0) }
 
         let years = Array(Set(completionYears)).sorted(by: >)
         return years.isEmpty ? [currentYear] : years
@@ -140,7 +140,7 @@ struct CollectionStatsView: View {
             }
         }
         .adaptiveLongFormSheet(isPresented: $showPickNext) {
-            PickNextPuzzleView(ps: ps, entryPoint: "stats")
+            PickNextPuzzleView(ps: ps, browse: pickNextBrowse, entryPoint: "stats")
         }
     }
 

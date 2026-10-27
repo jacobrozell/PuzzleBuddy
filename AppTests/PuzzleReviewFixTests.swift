@@ -4,6 +4,7 @@
 //
 
 import SwiftData
+import UIKit
 import XCTest
 @testable import PuzzleBuddy
 
@@ -28,6 +29,13 @@ final class PuzzleReviewFixTests: XCTestCase {
 
         let puzzleID = UUID()
         let photoID = UUID()
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 8, height: 8))
+        let jpeg = try XCTUnwrap(
+            renderer.image { context in
+                UIColor.systemTeal.setFill()
+                context.fill(CGRect(x: 0, y: 0, width: 8, height: 8))
+            }.jpegData(compressionQuality: 0.8)
+        )
         let firstCompletionID = UUID()
         let secondCompletionID = UUID()
         let firstDate = Date(timeIntervalSince1970: 1_700_000_000)
@@ -50,7 +58,7 @@ final class PuzzleReviewFixTests: XCTestCase {
                     id: photoID,
                     puzzleID: puzzleID,
                     sortOrder: 0,
-                    imageData: Data([0xFF, 0xD8, 0xFF])
+                    imageData: jpeg
                 )
             )
             context.insert(
@@ -85,6 +93,9 @@ final class PuzzleReviewFixTests: XCTestCase {
 
         let photos = try context.fetch(FetchDescriptor<PuzzlePhotoRecord>())
         XCTAssertEqual(photos.map(\.id), [photoID])
+        let migratedPhoto = try XCTUnwrap(photos.first?.imageData)
+        XCTAssertNotNil(UIImage(data: migratedPhoto))
+        XCTAssertGreaterThan(migratedPhoto.count, 100)
 
         let completions = try context.fetch(FetchDescriptor<PuzzleCompletionRecord>())
             .sorted { $0.completionNumber < $1.completionNumber }
