@@ -7,7 +7,7 @@ Prioritized backlog. Shipped behavior: [`docs/feature-inventory.md`](../docs/fea
 
 **Competitor gaps:** [`docs/competitive-gap-analysis.md`](../docs/competitive-gap-analysis.md)
 
-**Last updated:** 2026-09-25
+**Last updated:** 2026-10-27
 
 ---
 
@@ -48,7 +48,8 @@ Settings UI **removed in 1.1.0** (GA4: zero `puzzle_import_completed` / `setting
 
 | Idea | Spec | Notes |
 |------|------|-------|
-| **In-app timer (pause)** | [`in-app-timer.md`](../specs/planned/in-app-timer.md) | Puzzle Tracker core loop |
+| **In-app timer (pause)** | [`in-app-timer.md`](../specs/planned/in-app-timer.md) | 1.2.0 — in progress on `feature/1.2.0-puzzle-timer` (schema V3). |
+| **Timer Live Activity** | [`in-app-timer.md`](../specs/planned/in-app-timer.md) | After the 1.2.0 timer ships. |
 | **Re-ship import/export UI** | [`collection-import-export.md`](../specs/planned/collection-import-export.md) | Helpers already in tree |
 | **Attach barcode to existing puzzle** | [`barcode-scan-polish.md`](../ongoing/barcode-scan-polish.md) §13 | |
 | **Tappable similar-match prefills** | Same §8 | |

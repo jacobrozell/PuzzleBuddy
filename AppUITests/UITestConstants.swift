@@ -46,6 +46,7 @@ enum UITestA11yID {
     static let puzzleDetailCompletionHistory = "puzzle_detail_completion_history"
     static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
     static let puzzleDetailCompletionRemoveButton = "puzzle_detail_completion_remove_button"
+    static let puzzleDetailTimerToggleButton = "puzzle_detail_timer_toggle_button"
 
     static func puzzleDetailCompletionRow(number: Int) -> String {
         "puzzle_detail_completion_\(number)"

@@ -417,6 +417,10 @@ enum A11yID {
     static let puzzleDetailUndoCompletionBanner = "puzzle_detail_undo_completion_banner"
     static let puzzleDetailUndoCompletionButton = "puzzle_detail_undo_completion_button"
     static let puzzleDetailDueBackOverdue = "puzzle_detail_due_back_overdue"
+    static let puzzleDetailTimerCard = "puzzle_detail_timer_card"
+    static let puzzleDetailTimerToggleButton = "puzzle_detail_timer_toggle_button"
+    static let puzzleDetailTimerResetButton = "puzzle_detail_timer_reset_button"
+    static let puzzleFormUseTimerTimeButton = "puzzle_form_use_timer_time_button"
     static let whatsNewSheet = "whats_new_sheet"
     static let whatsNewDismissButton = "whats_new_dismiss_button"
 
@@ -473,6 +477,7 @@ enum A11yID {
     static let puzzleCellMissingPieces = "puzzle_cell_missing_pieces"
     static let puzzleCellOnLoan = "puzzle_cell_on_loan"
     static let puzzleCellOverdue = "puzzle_cell_overdue"
+    static let puzzleCellTimerRunning = "puzzle_cell_timer_running"
     static let puzzleCellProgress = "puzzle_cell_progress"
     static let puzzleShareButton = "puzzle_share_button"
 }

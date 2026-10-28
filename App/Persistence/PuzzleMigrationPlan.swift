@@ -6,22 +6,28 @@
 import Foundation
 import SwiftData
 
-/// SwiftData migration plan. V1 is the 1.0.0 store shape; V2 adds FriendRecord + loan fields.
+/// SwiftData migration plan. V1 is the 1.0.0 store shape; V2 adds FriendRecord + loan fields;
+/// V3 adds timer fields.
 ///
 /// Additive optional / defaulted properties use `MigrationStage.lightweight`.
 ///
 /// Policy for agents: `docs/swiftdata-migrations.md`
 enum PuzzleMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [PuzzleSchemaV1.self, PuzzleSchemaV2.self]
+        [PuzzleSchemaV1.self, PuzzleSchemaV2.self, PuzzleSchemaV3.self]
     }
 
     static var stages: [MigrationStage] {
-        [migrateV1ToV2]
+        [migrateV1ToV2, migrateV2ToV3]
     }
 
     static let migrateV1ToV2 = MigrationStage.lightweight(
         fromVersion: PuzzleSchemaV1.self,
         toVersion: PuzzleSchemaV2.self
+    )
+
+    static let migrateV2ToV3 = MigrationStage.lightweight(
+        fromVersion: PuzzleSchemaV2.self,
+        toVersion: PuzzleSchemaV3.self
     )
 }

@@ -29,7 +29,7 @@ Not in the app unless noted otherwise in [feature-inventory.md](../docs/feature-
 | [puzzle-redo-completions.md](planned/puzzle-redo-completions.md) | Redo + completion history (1.0) |
 | [multi-photo-gallery.md](planned/multi-photo-gallery.md) | Progress photos (1.0) |
 | [box-photo-ocr.md](planned/box-photo-ocr.md) | On-device box OCR (1.2.0) |
-| [in-app-timer.md](planned/in-app-timer.md) | Pause timer (1.1.0) |
+| [in-app-timer.md](planned/in-app-timer.md) | Pause timer (1.2.0) |
 | Others | See folder listing |
 
 ---

@@ -139,6 +139,8 @@ private struct PuzzleBackupImportRecord: Decodable {
     let loanedAt: Date?
     let dueBackDate: Date?
     let lastLoanNudgeAt: Date?
+    let timerAccumulatedSeconds: Int?
+    let timerRunningSince: Date?
     let hasImage: Bool?
     let photoCount: Int?
     let photos: [PuzzleExportPhotoRecord]?
@@ -197,7 +199,9 @@ private enum PuzzleBackupNormalizer {
             loanedToFriendID: record.loanedToFriendId.flatMap(UUID.init(uuidString:)),
             loanedAt: record.loanedAt,
             dueBackDate: record.dueBackDate,
-            lastLoanNudgeAt: record.lastLoanNudgeAt
+            lastLoanNudgeAt: record.lastLoanNudgeAt,
+            timerAccumulatedSeconds: record.timerAccumulatedSeconds ?? 0,
+            timerRunningSince: record.timerRunningSince
         )
 
         if let idString = record.id, let uuid = UUID(uuidString: idString) {
@@ -227,6 +231,10 @@ private enum PuzzleBackupNormalizer {
 
         if puzzle.progressPercent == 0 {
             puzzle.progressPercent = PuzzleProgressSemantics.progress(for: puzzle.status, current: 0)
+        }
+
+        if puzzle.status != .inProgress {
+            PuzzleTimerSemantics.pause(puzzle, now: Date())
         }
 
         if puzzle.timesCompleted < puzzle.completions.count {

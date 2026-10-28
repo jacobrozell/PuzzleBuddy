@@ -59,6 +59,8 @@ struct PuzzleExportRecord: Codable, Equatable {
     let loanedAt: Date?
     let dueBackDate: Date?
     let lastLoanNudgeAt: Date?
+    let timerAccumulatedSeconds: Int?
+    let timerRunningSince: Date?
     let hasImage: Bool
     let photoCount: Int
     let photos: [PuzzleExportPhotoRecord]
@@ -175,6 +177,8 @@ enum PuzzleCollectionExporter {
             loanedAt: puzzle.loanedAt,
             dueBackDate: puzzle.dueBackDate,
             lastLoanNudgeAt: puzzle.lastLoanNudgeAt,
+            timerAccumulatedSeconds: puzzle.timerAccumulatedSeconds,
+            timerRunningSince: puzzle.timerRunningSince,
             hasImage: puzzle.coverImage != nil,
             photoCount: puzzle.photos.filter { $0.image != nil }.count,
             photos: exportPhotos(from: puzzle.photos),

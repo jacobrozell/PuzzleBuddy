@@ -47,6 +47,8 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.puzzleDetailUndoCompletionButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleListOverdueFilter.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellOverdue.isEmpty)
+        XCTAssertFalse(A11yID.puzzleDetailTimerToggleButton.isEmpty)
+        XCTAssertFalse(A11yID.puzzleCellTimerRunning.isEmpty)
         XCTAssertTrue(A11yID.puzzleRow(id: UUID(), name: "The Bizarre Bookshop").contains("the_bizarre_bookshop"))
     }
 

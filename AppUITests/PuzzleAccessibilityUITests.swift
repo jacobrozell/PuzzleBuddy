@@ -624,6 +624,33 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         )
     }
 
+    func testInProgressPuzzleTimerStartsAndPauses() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        let row = puzzleRow(named: "Venice Romance", in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 8), "In-progress demo puzzle should be seeded")
+        row.tap()
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+
+        let toggle = app.buttons[UITestA11yID.puzzleDetailTimerToggleButton]
+        XCTAssertTrue(revealElement(toggle, in: app), "Timer card should be on In-Progress detail")
+        if !toggle.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertEqual(toggle.label, "Start timer")
+        toggle.tap()
+
+        let pause = app.buttons["Pause timer"]
+        XCTAssertTrue(pause.waitForExistence(timeout: 4), "Start should switch the button to Pause")
+        XCTAssertTrue((pause.value as? String)?.contains("running") ?? false, "VoiceOver value should say running")
+        pause.tap()
+        XCTAssertTrue(app.buttons["Start timer"].waitForExistence(timeout: 4), "Pause should switch back to Start")
+
+        runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.nameRoleValue)
+    }
+
     func testPuzzleListDynamicTypeAudit() throws {
         let app = launchForBypassOnboarding(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
         _ = waitForMainApp(in: app)

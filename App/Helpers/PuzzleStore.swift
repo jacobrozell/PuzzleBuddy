@@ -272,6 +272,8 @@ class PuzzleStore: ObservableObject {
         puzzle.status = .inProgress
         puzzle.progressPercent = 0
         puzzle.startDate = Date()
+        puzzle.timerAccumulatedSeconds = 0
+        puzzle.timerRunningSince = nil
         // Keep completionDate as the latest finish so history, sort, and stats stay accurate.
         clearPendingUndo(for: puzzle.id)
         try update(puzzle: puzzle)
@@ -289,6 +291,47 @@ class PuzzleStore: ObservableObject {
         PuzzleLoanSemantics.clearLoan(on: puzzle)
         try update(puzzle: puzzle)
         AppLog.shared.info(.puzzles, eventName: "puzzle_marked_returned", message: "Puzzle marked returned.")
+    }
+
+    /// Starts the In-Progress timer, pausing any other running timer first.
+    func startTimer(id: UUID, now: Date = Date()) throws {
+        guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
+        guard Puzzle.Status(rawValue: record.status) == .inProgress,
+              !PuzzleTimerSemantics.isRunning(runningSince: record.timerRunningSince, now: now) else { return }
+
+        let others = PuzzleTimerSemantics.idsToPause(startingID: id, in: puzzles).compactMap { fetchRecord(id: $0) }
+        others.forEach { foldTimer($0, now: now) }
+        foldTimer(record, now: now)
+        record.timerRunningSince = now
+        try commitTimerChange(ids: [id] + others.map(\.id))
+
+        for other in others {
+            logTimerPaused(reason: .otherStarted, seconds: other.timerAccumulatedSeconds)
+        }
+        AppLog.shared.info(.puzzles, eventName: "puzzle_timer_started", message: "Started puzzle timer.")
+    }
+
+    func pauseTimer(id: UUID, now: Date = Date()) throws {
+        guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
+        guard record.timerRunningSince != nil else { return }
+        foldTimer(record, now: now)
+        try commitTimerChange(ids: [id])
+        logTimerPaused(reason: .pause, seconds: record.timerAccumulatedSeconds)
+    }
+
+    /// Zeroes the timer. Logged hours/minutes are not touched.
+    func resetTimer(id: UUID, now: Date = Date()) throws {
+        guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
+        let total = PuzzleTimerSemantics.elapsedSeconds(
+            accumulated: record.timerAccumulatedSeconds,
+            runningSince: record.timerRunningSince,
+            now: now
+        )
+        guard total > 0 || record.timerRunningSince != nil else { return }
+        record.timerAccumulatedSeconds = 0
+        record.timerRunningSince = nil
+        try commitTimerChange(ids: [id])
+        logTimerPaused(reason: .reset, seconds: total)
     }
 
     /// Removes one completion log. When deleting the last log on a completed puzzle,
@@ -440,7 +483,9 @@ class PuzzleStore: ObservableObject {
             let descriptor = FetchDescriptor<PuzzleRecord>(
                 sortBy: [SortDescriptor(\.completionDate, order: .reverse)]
             )
-            puzzles = try modelContext.fetch(descriptor).map { puzzleFromRecord($0) }
+            let records = try modelContext.fetch(descriptor)
+            try pauseSkewedTimers(in: records, now: Date())
+            puzzles = records.map { puzzleFromRecord($0) }
             friends.reload()
             BarcodeMetadataCache.warmCache(from: puzzles)
             state = .done
@@ -527,6 +572,20 @@ class PuzzleStore: ObservableObject {
         var puzzle = puzzle
         try prepareLoanFields(&puzzle)
         puzzle.prepareForPersistence()
+
+        let now = Date()
+        var leftStatusTimerSeconds: Int?
+        if puzzle.status != .inProgress, puzzle.timerRunningSince != nil {
+            PuzzleTimerSemantics.pause(puzzle, now: now)
+            leftStatusTimerSeconds = puzzle.timerAccumulatedSeconds
+        }
+        if puzzle.status == .completed && previousStatus != .completed,
+           let prefill = PuzzleTimerSemantics.completionPrefill(
+               timerSeconds: PuzzleTimerSemantics.elapsedSeconds(for: puzzle, now: now),
+               logged: puzzle.estimatedTimeSpent
+           ) {
+            puzzle.estimatedTimeSpent = prefill
+        }
         record.apply(from: puzzle)
 
         var stagedUndoID: UUID?
@@ -557,6 +616,55 @@ class PuzzleStore: ObservableObject {
             loadLocalPuzzles()
             throw error
         }
+
+        if let leftStatusTimerSeconds {
+            logTimerPaused(reason: .statusLeft, seconds: leftStatusTimerSeconds)
+        }
+    }
+
+    private func foldTimer(_ record: PuzzleRecord, now: Date) {
+        record.timerAccumulatedSeconds = PuzzleTimerSemantics.elapsedSeconds(
+            accumulated: record.timerAccumulatedSeconds,
+            runningSince: record.timerRunningSince,
+            now: now
+        )
+        record.timerRunningSince = nil
+    }
+
+    private func pauseSkewedTimers(in records: [PuzzleRecord], now: Date) throws {
+        let skewed = records.filter {
+            PuzzleTimerSemantics.isClockSkewed(runningSince: $0.timerRunningSince, now: now)
+        }
+        guard !skewed.isEmpty else { return }
+        skewed.forEach { foldTimer($0, now: now) }
+        try saveContext()
+    }
+
+    private func commitTimerChange(ids: [UUID]) throws {
+        do {
+            try saveContext()
+        } catch {
+            modelContext.rollback()
+            loadLocalPuzzles()
+            throw error
+        }
+        for id in ids {
+            guard let index = puzzles.firstIndex(where: { $0.id == id }),
+                  let record = fetchRecord(id: id) else { continue }
+            puzzles[index] = puzzleFromRecord(record)
+        }
+    }
+
+    private func logTimerPaused(reason: PuzzleTimerSemantics.PauseReason, seconds: Int) {
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_timer_paused",
+            message: "Paused puzzle timer.",
+            metadata: [
+                "reason": reason.rawValue,
+                "duration_bucket": PuzzleTimerSemantics.durationBucket(seconds: seconds)
+            ]
+        )
     }
 
     @discardableResult

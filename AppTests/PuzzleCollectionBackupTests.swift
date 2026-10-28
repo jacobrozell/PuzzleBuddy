@@ -85,6 +85,32 @@ final class PuzzleCollectionBackupTests: XCTestCase {
         }
     }
 
+    func testTimerFieldsRoundTripThroughJSON() throws {
+        let puzzle = makeRichPuzzle()
+        let anchor = Date(timeIntervalSince1970: 1_800_000_000)
+        puzzle.timerAccumulatedSeconds = 4_321
+        puzzle.timerRunningSince = anchor
+
+        let data = try PuzzleCollectionExporter.jsonData(from: [puzzle])
+        let restored = try XCTUnwrap(PuzzleCollectionJSONImporter.puzzles(from: data).first)
+
+        XCTAssertEqual(restored.timerAccumulatedSeconds, 4_321)
+        XCTAssertEqual(restored.timerRunningSince, anchor)
+    }
+
+    func testOldBackupWithoutTimerKeysImportsWithDefaults() throws {
+        let json = """
+        {"backupFormatVersion":1,"puzzles":[{
+        "name":"Pre-timer","status":"In-Progress","rating":0,"difficulty":"0",
+        "completionDate":"2024-01-01T00:00:00Z","progressPercent":30,"tags":[]
+        }]}
+        """
+        let restored = try XCTUnwrap(PuzzleCollectionJSONImporter.puzzles(from: Data(json.utf8)).first)
+        XCTAssertEqual(restored.name, "Pre-timer")
+        XCTAssertEqual(restored.timerAccumulatedSeconds, 0)
+        XCTAssertNil(restored.timerRunningSince)
+    }
+
     // MARK: - Store restore
 
     @MainActor
