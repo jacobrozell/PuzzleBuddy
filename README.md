@@ -2,9 +2,9 @@
 
 Track your jigsaw puzzle collection — piece counts, ratings, difficulty, photos, and completion dates. Built with SwiftUI and SwiftData, with Firebase Analytics and Crashlytics.
 
-**Status:** Pre-ship polish · v1.0.0 (2) · **Branch:** `main` · Local-first inaugural release
+**Status:** **1.0.0** Ready for Distribution. Next is 1.1.0 Connect prep · v1.1.0 (1) · **Branch:** `release/1.1.0` · Local-first.
 
-Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.0.0** is local-only on device — no account. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
+Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.1.0** is still local-only on device — no account. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
 
 **Agents:** start with [AGENTS.md](AGENTS.md).
 
@@ -33,6 +33,15 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - **Pick my next puzzle:** random selector from backlog with tag and piece-count filters (dice toolbar button)
 - **SwiftData** persistence — no account required
 
+### 1.1 (next update)
+
+- **Completion history** — edit or delete a finish, with an undo banner after marking a puzzle complete
+- **On loan** — borrower and due date, plus On loan and Overdue filters
+- **iPhone Duo** — vertical tabs on the outer display, wide catalog on the inner display
+- **Abandoned** status alongside Wishlist, To-Do, In-Progress, and Completed
+
+Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release/1.1.0-connect-paste.md). The in-app timer is **1.2** ([`docs/implementation/1.2.0-timer-redesign.md`](docs/implementation/1.2.0-timer-redesign.md)), on `feature/1.2.0-puzzle-timer`.
+
 ### Shopping & barcode
 
 - Barcode scan for quick-add and **shopping duplicate-check** (offline; suggests details from your saved puzzles when available)
@@ -53,7 +62,7 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 
 ### Roadmap
 
-Post-1.0 plans: see [`docs/implementation/1.0.0-expanded-feature-sprint.md`](docs/implementation/1.0.0-expanded-feature-sprint.md) (active), [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md).
+**1.1.0** is in Connect prep (completion history, on loan, Duo). **1.2** is the timer. Backlog: [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md), [`ongoing/README.md`](ongoing/README.md).
 
 ## Requirements
 
