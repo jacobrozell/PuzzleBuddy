@@ -39,8 +39,9 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - **On loan** — borrower and due date, plus On loan and Overdue filters
 - **iPhone Duo** — vertical tabs on the outer display, wide catalog on the inner display
 - **Abandoned** status alongside Wishlist, To-Do, In-Progress, and Completed
+- **In-app timer** — start and pause on In Progress; can fill logged time when you complete
 
-Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release/1.1.0-connect-paste.md). The in-app timer is **1.2** ([`docs/implementation/1.2.0-timer-redesign.md`](docs/implementation/1.2.0-timer-redesign.md)), on `feature/1.2.0-puzzle-timer`.
+Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release/1.1.0-connect-paste.md). The in-app stopwatch ships in **1.1.0**. Session redesign is later — [`docs/implementation/1.2.0-timer-redesign.md`](docs/implementation/1.2.0-timer-redesign.md).
 
 ### Shopping & barcode
 
@@ -62,7 +63,7 @@ Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release
 
 ### Roadmap
 
-**1.1.0** is in Connect prep (completion history, on loan, Duo). **1.2** is the timer. Backlog: [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md), [`ongoing/README.md`](ongoing/README.md).
+**1.1.0** is in Connect prep (completion history, on loan, Duo, in-app stopwatch). Session redesign is later. Backlog: [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md), [`ongoing/README.md`](ongoing/README.md).
 
 ## Requirements
 

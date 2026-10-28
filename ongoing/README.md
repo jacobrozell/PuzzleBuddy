@@ -14,7 +14,7 @@
 | **Landscape UI** | [`landscape-ui.md`](landscape-ui.md) | In progress | Items 1–3 done (condensed header, FAB clearance, iPad grid); 4–7 pending |
 | WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2 manual pass after sprint UI |
 | Future backlog | [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) | Maintained | Import/export UI deferred; helpers kept |
-| **1.1.0 in-app timer** | [`specs/planned/in-app-timer.md`](../specs/planned/in-app-timer.md) | **Code done** | Stopwatch ships in the 1.1.0 binary on `feature/1.2.0-puzzle-timer` (schema V3). |
+| **1.1.0 in-app timer** | [`specs/planned/in-app-timer.md`](../specs/planned/in-app-timer.md) | **Code done** | Stopwatch is on `release/1.1.0` (schema V3). |
 | **Timer session redesign** | [`docs/implementation/1.2.0-timer-redesign.md`](../docs/implementation/1.2.0-timer-redesign.md) | Planned | After 1.1. Owner decisions are at the top of that doc. New schema; do not edit V3. |
 | **1.1.1 file split** | [`docs/implementation/1.1.1-file-split.md`](../docs/implementation/1.1.1-file-split.md) | Planned | After 1.1.0: extract list filters/actions and store completions. No product change. |
 

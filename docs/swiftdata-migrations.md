@@ -10,7 +10,7 @@ Authoritative policy for on-device persistence versioning. Follow this **before*
 
 | Item | Value |
 |------|--------|
-| Live schema | `PuzzleSchemaV3` @ `Schema.Version(1, 2, 0)` (branch `feature/1.2.0-puzzle-timer`) |
+| Live schema | `PuzzleSchemaV3` @ `Schema.Version(1, 2, 0)` (`release/1.1.0`) |
 | Frozen | `PuzzleSchemaV1` @ `1.0.0` and `PuzzleSchemaV2` @ `1.1.0` — **nested** model copies (do not edit) |
 | Migration plan | `PuzzleMigrationPlan` — lightweight V1→V2, lightweight V2→V3 |
 | Container | `PuzzleModelContainer` (versioned + plan on disk; unversioned 1.0.0 stores are copied to the current schema; wipe is last resort) |

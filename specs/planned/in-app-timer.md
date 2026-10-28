@@ -1,6 +1,6 @@
 # In-app puzzle timer
 
-**Target:** ships in **1.1.0** as this stopwatch (branch `feature/1.2.0-puzzle-timer`, schema V3).  
+**Target:** ships in **1.1.0** as this stopwatch (`release/1.1.0`, schema V3).  
 **Next:** session redesign — [1.2.0-timer-redesign.md](../../docs/implementation/1.2.0-timer-redesign.md). Do not change this 1.1 behavior while that plan is future work.  
 **Competitor gap:** Puzzle Tracker core feature  
 **Last updated:** 2026-10-28
