@@ -81,11 +81,13 @@ final class WhatsNewPromptTests: XCTestCase {
         XCTAssertFalse(WhatsNewPrompt.isVersion("1.2.0", olderThan: "1.1.0"))
     }
 
-    func testCopyMentionsHistoryLoanAndRedo() {
+    func testCopyMentionsHistoryLoanTimerAndRedo() {
         let joined = WhatsNewCopy.items.map { "\($0.title) \($0.message)" }.joined(separator: " ")
         XCTAssertTrue(joined.localizedCaseInsensitiveContains("finish"))
         XCTAssertTrue(joined.localizedCaseInsensitiveContains("loan"))
+        XCTAssertTrue(joined.localizedCaseInsensitiveContains("timer"))
+        XCTAssertTrue(joined.localizedCaseInsensitiveContains("duo"))
         XCTAssertTrue(joined.localizedCaseInsensitiveContains("again"))
-        XCTAssertEqual(WhatsNewCopy.items.count, 3)
+        XCTAssertEqual(WhatsNewCopy.items.count, 5)
     }
 }

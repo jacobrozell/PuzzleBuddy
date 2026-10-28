@@ -1,8 +1,9 @@
 # In-app puzzle timer
 
-**Target:** 1.2.0 (branch `feature/1.2.0-puzzle-timer`, not on `release/1.1.0`)  
+**Target:** ships in **1.1.0** as this stopwatch (branch `feature/1.2.0-puzzle-timer`, schema V3).  
+**Next:** session redesign — [1.2.0-timer-redesign.md](../../docs/implementation/1.2.0-timer-redesign.md). Do not change this 1.1 behavior while that plan is future work.  
 **Competitor gap:** Puzzle Tracker core feature  
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 
 ## Behavior
 
@@ -44,7 +45,9 @@ The edit form shows "Timer recorded 2 hr 14 min" with a **Use timer time** butto
 
 ## Non-goals (later)
 
-- Live Activity / lock-screen timer
-- Per-attempt timer history table
+Owned by [1.2.0-timer-redesign.md](../../docs/implementation/1.2.0-timer-redesign.md). Read the **Owner decisions** there before implementing.
+
+- Sessions, Focus mode, forgot-to-pause, pace/ETA — next version, new schema after V3
+- Live Activity / lock-screen timer, Shortcuts, and a tab-bar mini-bar — later than that
 - Pausing when the app backgrounds
-- Changing how collection stats sum time
+- Changing how collection stats sum `estimatedTimeSpent`

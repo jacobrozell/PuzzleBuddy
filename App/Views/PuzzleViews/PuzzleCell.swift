@@ -105,7 +105,7 @@ struct PuzzleCell: View {
             let started = puzzle.startDate ?? puzzle.completionDate
             parts.append("Started \(started.formatted(date: .abbreviated, time: .omitted))")
             parts.append(PuzzleProgressSemantics.displayLabel(for: puzzle.progressPercent))
-            if puzzle.timerRunningSince != nil {
+            if PuzzleTimerSemantics.isRunning(runningSince: puzzle.timerRunningSince, now: Date()) {
                 parts.append("Timer running")
             }
         }
@@ -274,7 +274,8 @@ private struct PuzzleCellView: View {
                 .accessibilityIdentifier(overdue ? A11yID.puzzleCellOverdue : A11yID.puzzleCellOnLoan)
             }
 
-            if puzzle.status == .inProgress, puzzle.timerRunningSince != nil {
+            if puzzle.status == .inProgress,
+               PuzzleTimerSemantics.isRunning(runningSince: puzzle.timerRunningSince, now: Date()) {
                 Label("Timer running", systemImage: "timer")
                     .font(.caption)
                     .foregroundStyle(Brand.accentText)

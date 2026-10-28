@@ -7,7 +7,7 @@ Prioritized backlog. Shipped behavior: [`docs/feature-inventory.md`](../docs/fea
 
 **Competitor gaps:** [`docs/competitive-gap-analysis.md`](../docs/competitive-gap-analysis.md)
 
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 
 ---
 
@@ -48,8 +48,9 @@ Settings UI **removed in 1.1.0** (GA4: zero `puzzle_import_completed` / `setting
 
 | Idea | Spec | Notes |
 |------|------|-------|
-| **In-app timer (pause)** | [`in-app-timer.md`](../specs/planned/in-app-timer.md) | 1.2.0 — in progress on `feature/1.2.0-puzzle-timer` (schema V3). |
-| **Timer Live Activity** | [`in-app-timer.md`](../specs/planned/in-app-timer.md) | After the 1.2.0 timer ships. |
+| **In-app timer (stopwatch)** | [`in-app-timer.md`](../specs/planned/in-app-timer.md) | Ships in **1.1.0** on `feature/1.2.0-puzzle-timer` (schema V3). Do not redesign it in that binary. |
+| **Timer sessions redesign** | [`1.2.0-timer-redesign.md`](../docs/implementation/1.2.0-timer-redesign.md) | After 1.1 ships. New schema (not an edit to V3). Sessions, Focus, 4-hour forgot-to-pause, list-row clock. No pause-progress prompt, no mini-bar. |
+| **Timer Live Activity** | [`1.2.0-timer-redesign.md`](../docs/implementation/1.2.0-timer-redesign.md) | After the session redesign. Phase 6. No widget target until then. |
 | **Re-ship import/export UI** | [`collection-import-export.md`](../specs/planned/collection-import-export.md) | Helpers already in tree |
 | **Attach barcode to existing puzzle** | [`barcode-scan-polish.md`](../ongoing/barcode-scan-polish.md) §13 | |
 | **Tappable similar-match prefills** | Same §8 | |

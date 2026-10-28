@@ -1,6 +1,6 @@
 # SwiftData schema & migrations
 
-**Last updated:** 2026-10-27 · **Agent entry:** [AGENTS.md](../AGENTS.md)
+**Last updated:** 2026-10-28 · **Agent entry:** [AGENTS.md](../AGENTS.md)
 
 Authoritative policy for on-device persistence versioning. Follow this **before** changing any `@Model` stored property.
 
@@ -15,7 +15,7 @@ Authoritative policy for on-device persistence versioning. Follow this **before*
 | Migration plan | `PuzzleMigrationPlan` — lightweight V1→V2, lightweight V2→V3 |
 | Container | `PuzzleModelContainer` (versioned + plan on disk; unversioned 1.0.0 stores are copied to the current schema; wipe is last resort) |
 | Models (V3) | `FriendRecord`, `PuzzleRecord`, `PuzzlePhotoRecord`, `PuzzleCompletionRecord` |
-| Git contract | Tag `1.0.0` freezes V1; 1.1.0 freezes V2 (On loan); 1.2.0 timer adds V3 |
+| Git contract | Tag `1.0.0` freezes V1; 1.1.0 freezes V2 (On loan). The 1.1.0 stopwatch build ships V3. Do not edit V3 after that upload. Timer sessions are the next schema version — [1.2.0-timer-redesign.md](implementation/1.2.0-timer-redesign.md). |
 
 **1.1.0 completion history** did not change stored properties. **On loan / Friends** is the first real store shape change (V2). **In-app timer** (1.2.0) adds `timerAccumulatedSeconds: Int = 0` and `timerRunningSince: Date?` on `PuzzleRecord` (V3).
 

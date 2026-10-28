@@ -4,7 +4,7 @@ This document consolidates planned work across releases, accessibility phases, a
 
 For **current shipped behavior**, see [features.md](features.md) and [feature-inventory.md](feature-inventory.md). For agents: [AGENTS.md](../AGENTS.md).
 
-**Last updated:** 2026-10-27
+**Last updated:** 2026-10-28
 
 **Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `PuzzleBuddyApp.version`). Follow-on releases use semver: **1.1.0** (import/export, polish), **1.2.0+**, etc. Account sync is **not** scheduled for 1.1 — see [Future: auth + cloud sync](#future-auth--cloud-sync).
 
@@ -82,7 +82,7 @@ See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle
 
 | Field / feature | Description | Target | Spec |
 |-----------------|-------------|--------|------|
-| In-app timer | Background timer; Live Activity later | 1.2.0 | [in-app-timer.md](../specs/planned/in-app-timer.md) |
+| In-app timer | Stopwatch ships in 1.1.0 (V3). Sessions, Focus, and forgot-to-pause are the next version (new schema). Live Activity later. | 1.1 then next | [in-app-timer.md](../specs/planned/in-app-timer.md) · [1.2.0-timer-redesign.md](implementation/1.2.0-timer-redesign.md) |
 | Box photo OCR | On-device Vision; IPDb Digital Assistant equivalent | 1.2.0 | [box-photo-ocr.md](../specs/planned/box-photo-ocr.md) |
 | Multi-photo gallery | Cover + progress shots | 1.2.0 | [multi-photo-gallery.md](../specs/planned/multi-photo-gallery.md) |
 | Artist field | Separate from brand | 1.2.0 | Backlog |

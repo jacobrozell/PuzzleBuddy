@@ -95,7 +95,10 @@ struct PuzzleList: View {
     }
 
     private var usesSplitNavigation: Bool {
-        AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+        AdaptiveLayout.usesSplitNavigation(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: verticalSizeClass
+        )
     }
 
     private var usesLandscapePhoneLayout: Bool {
@@ -224,8 +227,10 @@ struct PuzzleList: View {
         }
     }
 
-    /// One split view at every width. Regular width (Duo inner, iPad) shows list and detail
-    /// together. Compact width collapses to a stack. The view identity does not change on fold.
+    /// One split view at every width so a size-class change keeps the same container.
+    /// iPad and Duo inner (regular width and height) show list and detail together.
+    /// A wide but short phone, such as Pro Max landscape, is given a compact width
+    /// so the split view stays a stack.
     private var puzzlesNavigationLayout: some View {
         NavigationSplitView {
             puzzleListColumn
@@ -233,6 +238,7 @@ struct PuzzleList: View {
             puzzleDetailColumn
         }
         .navigationSplitViewStyle(.balanced)
+        .environment(\.horizontalSizeClass, usesSplitNavigation ? horizontalSizeClass : .compact)
     }
 
     private var puzzleListColumn: some View {
@@ -513,6 +519,12 @@ struct PuzzleList: View {
         )
     }
 
+    /// Includes the timer anchor so a paused row drops “Timer running” when another puzzle starts.
+    private func puzzleListRowIdentity(_ puzzle: Puzzle) -> String {
+        let anchor = puzzle.timerRunningSince?.timeIntervalSinceReferenceDate ?? 0
+        return "\(puzzle.id.uuidString)-\(anchor)"
+    }
+
     private func navigateToPuzzle(id: UUID) {
         if horizontalSizeClass == .compact, browse.selectedPuzzleID == id {
             browse.selectedPuzzleID = nil
@@ -545,7 +557,7 @@ struct PuzzleList: View {
                             zoomNamespace: puzzleZoomNamespace
                         )
                             .tag(puzzle.id)
-                            .id(ps.puzzles[index].id)
+                            .id(puzzleListRowIdentity(ps.puzzles[index]))
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                             .listRowInsets(EdgeInsets(

@@ -99,8 +99,30 @@ final class AdaptiveLayoutTests: XCTestCase {
         )
     }
 
-    func testUsesSplitNavigationAtRegularWidthRegardlessOfIdiom() {
-        XCTAssertTrue(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .regular))
-        XCTAssertFalse(AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: .compact))
+    func testUsesSplitNavigationOnlyWhenBothSizeClassesAreRegular() {
+        XCTAssertTrue(
+            AdaptiveLayout.usesSplitNavigation(
+                horizontalSizeClass: .regular,
+                verticalSizeClass: .regular
+            )
+        )
+        XCTAssertFalse(
+            AdaptiveLayout.usesSplitNavigation(
+                horizontalSizeClass: .regular,
+                verticalSizeClass: .compact
+            )
+        )
+        XCTAssertFalse(
+            AdaptiveLayout.usesSplitNavigation(
+                horizontalSizeClass: .compact,
+                verticalSizeClass: .regular
+            )
+        )
+        XCTAssertFalse(
+            AdaptiveLayout.usesSplitNavigation(
+                horizontalSizeClass: .compact,
+                verticalSizeClass: .compact
+            )
+        )
     }
 }

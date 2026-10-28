@@ -18,6 +18,7 @@ private enum PuzzleBuddyTab: String, Hashable {
 struct PuzzleTabbar: View {
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @ObservedObject var ps: PuzzleStore
     @ObservedObject var browse: PuzzleBrowseState
 
@@ -30,7 +31,10 @@ struct PuzzleTabbar: View {
     }()
 
     private var usesSplitNavigation: Bool {
-        AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+        AdaptiveLayout.usesSplitNavigation(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: verticalSizeClass
+        )
     }
 
     var body: some View {
@@ -69,7 +73,7 @@ struct PuzzleTabbar: View {
             }
             .accessibilityIdentifier(A11yID.settingsTab)
         }
-        .tabViewStyle(.sidebarAdaptable)
+        .modifier(PuzzleTabStyle(sidebar: usesSplitNavigation))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .modifier(PuzzleTabRootChrome(regularWidth: usesSplitNavigation))
         .tint(Brand.accent)
@@ -97,6 +101,18 @@ struct PuzzleTabbar: View {
         case .puzzles: return "puzzles"
         case .stats: return "stats"
         case .settings: return "settings"
+        }
+    }
+}
+
+private struct PuzzleTabStyle: ViewModifier {
+    let sidebar: Bool
+
+    func body(content: Content) -> some View {
+        if sidebar {
+            content.tabViewStyle(.sidebarAdaptable)
+        } else {
+            content.tabViewStyle(.tabBarOnly)
         }
     }
 }
