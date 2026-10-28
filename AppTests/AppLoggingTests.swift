@@ -153,6 +153,27 @@ final class AppLoggingTests: XCTestCase {
         XCTAssertEqual(updated?.name, "puzzle_completion_updated")
     }
 
+    func testAnalyticsAllowlistsTimerEvents() {
+        let started = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_timer_started",
+            category: .puzzles,
+            metadata: [:],
+            appVersion: "1.2.0"
+        )
+        XCTAssertEqual(started?.name, "puzzle_timer_started")
+
+        let paused = PuzzleAnalyticsEventMapping.map(
+            eventName: "puzzle_timer_paused",
+            category: .puzzles,
+            metadata: ["reason": "other_started", "duration_bucket": "1h_3h", "seconds": "4000"],
+            appVersion: "1.2.0"
+        )
+        XCTAssertEqual(paused?.name, "puzzle_timer_paused")
+        XCTAssertEqual(paused?.parameters["reason"] as? String, "other_started")
+        XCTAssertEqual(paused?.parameters["duration_bucket"] as? String, "1h_3h")
+        XCTAssertNil(paused?.parameters["seconds"])
+    }
+
     func testAnalyticsAllowlistsOnboardingCompleted() {
         let mapped = PuzzleAnalyticsEventMapping.map(
             eventName: "onboarding_completed",

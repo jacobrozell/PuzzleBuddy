@@ -61,14 +61,20 @@ enum AdaptiveLayout {
     static func presentsLongFormAsFullScreenCover(
         horizontalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
-        usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+        usesSplitNavigation(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: .regular
+        )
     }
 
-    /// Regular horizontal size class: wide chrome (iPad, iPhone Duo inner display, resizable iPhone).
+    /// Sidebar and list-detail split only when both size classes are regular
+    /// (iPad, iPhone Duo inner display). iPhone Pro Max landscape is regular width
+    /// and compact height, so it keeps the phone tab bar and a pushed detail.
     static func usesSplitNavigation(
-        horizontalSizeClass: UserInterfaceSizeClass?
+        horizontalSizeClass: UserInterfaceSizeClass?,
+        verticalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
-        horizontalSizeClass == .regular
+        horizontalSizeClass == .regular && verticalSizeClass == .regular
     }
 
     /// Stat cards: two columns at compact width; adaptive grid at regular width.

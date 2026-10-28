@@ -42,7 +42,7 @@ First-time users see a four-page onboarding carousel (`OnboardingView`) stored i
 | 3 | Build Your Collection | Brands, piece counts, tags, ratings, **on loan**, pick-next |
 | 4 | Ready to Puzzle? | Local-first — **undo or fix an accidental Complete** in history |
 
-**1.1 upgraders** (onboarding already complete) see a one-time **What's New** sheet (`WhatsNewPrompt` / `WhatsNewView`) after splash: fix a finish, On loan, Puzzle again. First-run users skip it because `OnboardingStorage.markComplete()` marks the notes as seen. Hidden during UI tests and marketing snapshots.
+**1.1 upgraders** (onboarding already complete) see a one-time **What's New** sheet (`WhatsNewPrompt` / `WhatsNewView`) after splash: fix a finish, On loan, time a puzzle, iPhone Duo, Puzzle again. First-run users skip it because `OnboardingStorage.markComplete()` marks the notes as seen. Hidden during UI tests and marketing snapshots.
 
 Navigation:
 

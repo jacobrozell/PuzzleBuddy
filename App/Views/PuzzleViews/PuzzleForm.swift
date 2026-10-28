@@ -340,6 +340,25 @@ struct PuzzleFormInternal: View {
                         .foregroundStyle(Brand.accent)
                         .accessibilityLabel("Total time: \(preview)")
                 }
+
+                if let timerTime = PuzzleTimerSemantics.formSuggestion(
+                    timerSeconds: PuzzleTimerSemantics.elapsedSeconds(for: formVm.puzzle, now: Date()),
+                    logged: formVm.puzzle.estimatedTimeSpent
+                ), let timerLabel = timerTime.displayLabel {
+                    VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                        Text("Timer recorded \(timerLabel)")
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.textSecondary)
+                        Button("Use timer time") {
+                            formVm.objectWillChange.send()
+                            formVm.puzzle.estimatedTimeSpent = timerTime
+                        }
+                        .buttonStyle(.borderless)
+                        .frame(minHeight: 44)
+                        .optionalAccessibilityIdentifier(A11yID.puzzleFormUseTimerTimeButton)
+                        .accessibilityHint("Fills hours and minutes with \(timerLabel)")
+                    }
+                }
             } header: {
                 Text("How long did it take?")
             } footer: {

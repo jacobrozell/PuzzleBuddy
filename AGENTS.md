@@ -2,7 +2,7 @@
 
 Read this file first when working in this repo. It summarizes product reality, conventions, and where authoritative docs live.
 
-**Last updated:** 2026-09-21
+**Last updated:** 2026-10-28
 
 ---
 
@@ -17,7 +17,7 @@ Read this file first when working in this repo. It summarizes product reality, c
 | **Min iOS** | 18.0 |
 | **Apple team** | `7JT2JB89AV` (personal) |
 | **Version source** | `project.yml` `MARKETING_VERSION` + `PuzzleBuddyApp.version` (keep in sync) |
-| **SwiftData schema** | `PuzzleSchemaV2` @ `1.1.0` + lightweight V1→V2 — see [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) |
+| **SwiftData schema** | `PuzzleSchemaV3` stopwatch ships in 1.1.0. V1/V2 nested frozen. Session redesign is the next schema — [1.2.0-timer-redesign.md](docs/implementation/1.2.0-timer-redesign.md) |
 
 Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Future account sync is a **planned spec only** — see [specs/planned/auth-cloud-sync.md](specs/planned/auth-cloud-sync.md). Do not reintroduce Auth/Firestore without an approved spec and explicit user request.
 
@@ -154,7 +154,7 @@ See `UITestSupport.swift` and `UITestLaunch` in UI test target.
 5. Add/update tests: `PuzzleSerializationTests`, `PuzzlePersistenceTests`, `PuzzleMigrationPlanTests` (and a Vn→V{n+1} disk test when migrating).
 6. Update [docs/features.md](docs/features.md) field tables if user-visible; update the migration doc.
 
-**Current lock:** `PuzzleSchemaV2` @ `1.1.0` with lightweight V1→V2 (On loan + `FriendRecord`). After 1.1.0 ships, do not edit V2 stored properties — add V3 + a stage.
+**Current lock:** `PuzzleSchemaV3` (timer stopwatch fields) with lightweight V1→V2→V3. V1 and V2 are nested frozen copies — never edit them. V3 ships in the 1.1.0 stopwatch build. Freeze V3 the same way before the session redesign, which needs the next schema version. Plan: [docs/implementation/1.2.0-timer-redesign.md](docs/implementation/1.2.0-timer-redesign.md).
 
 ---
 

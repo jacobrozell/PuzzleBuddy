@@ -13,7 +13,7 @@
       <p class="subtitle">Puzzle Buddy</p>
     </header>
 
-    <p><em>Last updated: September 2026</em></p>
+    <p><em>Last updated: October 2026</em></p>
 
     <h2>Overview</h2>
     <p>Puzzle Buddy stores your puzzle collection on your device. We do not sell your data. No account is required.</p>
@@ -22,7 +22,8 @@
     <ul>
       <li>Puzzle metadata you enter (title, piece count, ratings, photos, notes) — stored on your device</li>
       <li>Optional borrower names when you mark a puzzle On loan — stored on your device, not uploaded as contacts</li>
-      <li>Anonymous usage analytics (Firebase Analytics) and crash reports (Firebase Crashlytics). Events are allowlisted and do not include puzzle titles, photos, or names.</li>
+      <li>Anonymous usage analytics (Firebase Analytics) and crash reports (Firebase Crashlytics). Events are allowlisted and do not include puzzle titles, photos, or names. A timer event may include a duration bucket (such as under 15 minutes) and never the raw seconds.</li>
+      <li>In-progress timer duration — stored on your device with the puzzle</li>
     </ul>
 
     <h2>Analytics and crash reporting</h2>

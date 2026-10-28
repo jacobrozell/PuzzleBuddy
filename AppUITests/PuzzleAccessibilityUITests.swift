@@ -624,6 +624,163 @@ final class PuzzleAccessibilityUITests: XCTestCase {
         )
     }
 
+    func testInProgressPuzzleTimerStartsAndPauses() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        let row = puzzleRow(named: "Venice Romance", in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 8), "In-progress demo puzzle should be seeded")
+        row.tap()
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+
+        let toggle = app.buttons[UITestA11yID.puzzleDetailTimerToggleButton]
+        XCTAssertTrue(revealElement(toggle, in: app), "Timer card should be on In-Progress detail")
+        if !toggle.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertEqual(toggle.label, "Start timer")
+        toggle.tap()
+
+        let pause = app.buttons["Pause timer"]
+        XCTAssertTrue(pause.waitForExistence(timeout: 4), "Start should switch the button to Pause")
+        XCTAssertTrue((pause.value as? String)?.contains("running") ?? false, "VoiceOver value should say running")
+        pause.tap()
+        XCTAssertTrue(app.buttons["Start timer"].waitForExistence(timeout: 4), "Pause should switch back to Start")
+
+        runWCAGAudit(on: app, auditTypes: WCAGAccessibilityAuditProfile.nameRoleValue)
+    }
+
+    func testResetTimerConfirmsBeforeClearing() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+        openInProgressPuzzle("Venice Romance", in: app)
+        startTimer(in: app)
+
+        let reset = app.buttons[UITestA11yID.puzzleDetailTimerResetButton]
+        XCTAssertTrue(reset.waitForExistence(timeout: 4), "Reset appears once the timer has elapsed time")
+        reset.tap()
+
+        let confirm = app.sheets.buttons["Reset timer"]
+        let alertConfirm = app.alerts.buttons["Reset timer"]
+        XCTAssertTrue(
+            confirm.waitForExistence(timeout: 3) || alertConfirm.waitForExistence(timeout: 2),
+            "Reset should ask before clearing"
+        )
+        if confirm.exists {
+            confirm.tap()
+        } else {
+            alertConfirm.tap()
+        }
+
+        XCTAssertTrue(app.buttons["Start timer"].waitForExistence(timeout: 4))
+        XCTAssertFalse(app.buttons[UITestA11yID.puzzleDetailTimerResetButton].exists)
+    }
+
+    func testStartingSecondPuzzleClearsTheRunningBadge() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+
+        openInProgressPuzzle("Venice Romance", in: app)
+        startTimer(in: app)
+        backToPuzzleList(in: app)
+        XCTAssertTrue(runningTimerBadge(in: app).waitForExistence(timeout: 4), "The started puzzle should show Timer running")
+
+        openInProgressPuzzle("Underwater Paradise", in: app)
+        startTimer(in: app)
+        backToPuzzleList(in: app)
+
+        let underwater = puzzleRow(named: "Underwater Paradise", in: app)
+        let venice = puzzleRow(named: "Venice Romance", in: app)
+        XCTAssertTrue(underwater.label.localizedCaseInsensitiveContains("timer running"))
+        XCTAssertFalse(venice.label.localizedCaseInsensitiveContains("timer running"))
+    }
+
+    func testEditFormOffersUseTimerTime() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        waitForSeededPuzzles(in: app)
+        openInProgressPuzzle("Venice Romance", in: app)
+        startTimer(in: app)
+
+        XCTAssertTrue(
+            app.buttons[UITestA11yID.puzzleDetailTimerResetButton].waitForExistence(timeout: 4),
+            "Timer needs elapsed time before the form can suggest it"
+        )
+        let edit = app.buttons[UITestA11yID.puzzleDetailEditButton]
+        XCTAssertTrue(revealElement(edit, in: app))
+        edit.tap()
+
+        let useTimer = app.buttons["Use timer time"]
+        XCTAssertTrue(
+            revealElement(useTimer, in: app, scroller: formScroller(in: app)),
+            "Edit should offer the timer when it differs from logged time"
+        )
+        useTimer.tap()
+        XCTAssertTrue(
+            app.staticTexts["Total time: 1 min"].waitForExistence(timeout: 4)
+                || app.descendants(matching: .any)["Total time: 1 min"].waitForExistence(timeout: 2),
+            "Use timer time should fill one minute"
+        )
+    }
+
+    private func openInProgressPuzzle(_ name: String, in app: XCUIApplication) {
+        let row = puzzleRow(named: name, in: app)
+        XCTAssertTrue(row.waitForExistence(timeout: 8), "\(name) should be seeded")
+        row.tap()
+        XCTAssertTrue(app.otherElements[UITestA11yID.puzzleDetailSummary].waitForExistence(timeout: 5))
+    }
+
+    private func startTimer(in app: XCUIApplication) {
+        let toggle = app.buttons[UITestA11yID.puzzleDetailTimerToggleButton]
+        XCTAssertTrue(revealElement(toggle, in: app), "Timer card should be on In-Progress detail")
+        if !toggle.isHittable {
+            app.swipeUp()
+        }
+        if toggle.label == "Pause timer" {
+            return
+        }
+        XCTAssertEqual(toggle.label, "Start timer")
+        toggle.tap()
+        XCTAssertTrue(app.buttons["Pause timer"].waitForExistence(timeout: 4))
+    }
+
+    private func backToPuzzleList(in app: XCUIApplication) {
+        let back = app.navigationBars.buttons["Puzzles"]
+        if back.waitForExistence(timeout: 2), back.isHittable {
+            back.tap()
+        } else if app.buttons["Puzzles"].waitForExistence(timeout: 2) {
+            app.buttons["Puzzles"].firstMatch.tap()
+        } else {
+            app.navigationBars.buttons.element(boundBy: 0).tap()
+        }
+        XCTAssertTrue(
+            app.descendants(matching: .any)[UITestA11yID.puzzleList].waitForExistence(timeout: 5),
+            "Back should return to the puzzle list"
+        )
+    }
+
+    private func runningTimerBadge(in app: XCUIApplication) -> XCUIElement {
+        app.descendants(matching: .any)[UITestA11yID.puzzleCellTimerRunning]
+    }
+
+    func testProMaxLandscapeKeepsASinglePuzzleList() throws {
+        let app = launchForBypassOnboarding()
+        _ = waitForMainApp(in: app)
+        app.rotateToLandscape()
+
+        XCTAssertFalse(
+            app.staticTexts["No puzzle selected"].waitForExistence(timeout: 2),
+            "A wide short phone should keep the list as a stack, not open a split detail column"
+        )
+        XCTAssertTrue(
+            puzzleRow(named: "Venice Romance", in: app).waitForExistence(timeout: 8),
+            "The puzzle list should stay on screen in landscape"
+        )
+    }
+
     func testPuzzleListDynamicTypeAudit() throws {
         let app = launchForBypassOnboarding(contentSizeCategory: "UIAccessibilityExtraExtraExtraLargeCategory")
         _ = waitForMainApp(in: app)

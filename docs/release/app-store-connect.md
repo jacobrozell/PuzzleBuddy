@@ -21,7 +21,8 @@ Use this when submitting. Aligns with [`todo.md`](todo.md) and [`../privacy.html
 > - Completion history: open **Floral Arch** (completed twice) → edit or delete a finish.
 > - Undo complete: mark a puzzle Complete, then use the undo banner (same session).
 > - On loan: **Paris in a Day** is already on loan to “Mom.” Filters: On loan. To see **Overdue**, edit that puzzle and set Due back to a past date.
-> - What’s New sheet appears only for users who already finished 1.0 onboarding. A fresh install sees 1.1 features in onboarding instead.
+> - In-app timer: open **Venice Romance** or **Underwater Paradise** (both already In Progress) → Timer. Start, Pause, and Reset. Only one timer runs. Time keeps accumulating across background and quit. No Live Activity. The first Complete with empty hours and minutes fills “How long did it take?” from the rounded timer.
+> - What’s New sheet appears only for users who already finished 1.0 onboarding. A fresh install sees 1.1 features in onboarding instead. The sheet lists completion history, On loan, the timer, iPhone Duo, and Puzzle again.
 > - StoreKit `requestReview` may appear once after a barcode scan or after saving a non-demo edit. Settings → Write a Review opens the App Store write-review URL.
 > - **iPhone Duo:** outer display uses a vertical tab bar with the status cluster on the trailing edge. Inner display uses regular-width chrome. No Duo-only APIs.
 >
@@ -33,7 +34,7 @@ Use this when submitting. Aligns with [`todo.md`](todo.md) and [`../privacy.html
 
 ### 1.1.0 What’s New (App Store)
 
-> Track every finish. 1.1 adds completion history (edit or delete a log), undo after you mark a puzzle complete, and On loan / overdue filters. The catalog fills iPhone Duo on both the outer and inner displays.
+> Track every finish. 1.1 adds completion history (edit or delete a log), undo after you mark a puzzle complete, On loan / overdue filters, and a timer on In Progress puzzles (one at a time; it can fill in logged time when you complete). The catalog fills iPhone Duo on both the outer and inner displays.
 
 **Paste-ready 1.1.0 Connect fields:** [`1.1.0-connect-paste.md`](1.1.0-connect-paste.md)
 
@@ -52,7 +53,7 @@ Uploading Duo screenshots shows the **optimized for iPhone Duo** product-page ba
 
 ### Privacy nutrition (1.1.0)
 
-Product interaction: `session_snapshot`, `milestone_reached`. Friend / borrower names: Other user content (not Contacts / Name).
+Product interaction: `session_snapshot`, `milestone_reached`, and timer duration buckets (`under_15m`, `15m_1h`, `1h_3h`, `over_3h`). No raw seconds. Friend / borrower names: Other user content (not Contacts / Name). Do not declare Device ID or Coarse Location.
 
 ---
 

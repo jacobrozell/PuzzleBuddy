@@ -245,6 +245,9 @@ struct DetailView: View {
             if !puzzle.completions.isEmpty {
                 PuzzleCompletionHistorySection(ps: ps, puzzle: $puzzle)
             }
+            if puzzle.status == .inProgress {
+                PuzzleTimerCard(puzzle: $puzzle, ps: ps)
+            }
             statsPanel
         }
         .padding(.horizontal)

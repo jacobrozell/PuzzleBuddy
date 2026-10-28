@@ -97,6 +97,18 @@ enum WhatsNewCopy {
             symbolName: "person.fill.checkmark"
         ),
         Item(
+            id: "timer",
+            title: "Time a puzzle",
+            message: "Start and pause a timer on an in-progress puzzle. Only one runs at a time, and it can fill in how long it took.",
+            symbolName: "timer"
+        ),
+        Item(
+            id: "duo",
+            title: "iPhone Duo",
+            message: "The catalog fills the outer display and opens wide on the inner display.",
+            symbolName: "rectangle.split.2x1"
+        ),
+        Item(
             id: "redo",
             title: "Puzzle again",
             message: "Start another go without losing the finishes you already logged.",

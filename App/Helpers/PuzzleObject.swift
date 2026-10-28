@@ -124,6 +124,8 @@ class Puzzle: ObservableObject {
     @Published var loanedAt: Date? = nil
     @Published var dueBackDate: Date? = nil
     @Published var lastLoanNudgeAt: Date? = nil
+    @Published var timerAccumulatedSeconds: Int = 0
+    @Published var timerRunningSince: Date? = nil
     @Published var image: UIImage? = nil {
         didSet {
             syncCoverPhotoFromLegacyImage()
@@ -179,7 +181,9 @@ class Puzzle: ObservableObject {
                   loanedToDisplayName: String? = nil,
                   loanedAt: Date? = nil,
                   dueBackDate: Date? = nil,
-                  lastLoanNudgeAt: Date? = nil
+                  lastLoanNudgeAt: Date? = nil,
+                  timerAccumulatedSeconds: Int = 0,
+                  timerRunningSince: Date? = nil
     ) {
         self.name = name
         self.pieces = pieces
@@ -215,6 +219,8 @@ class Puzzle: ObservableObject {
         self.loanedAt = loanedAt
         self.dueBackDate = dueBackDate
         self.lastLoanNudgeAt = lastLoanNudgeAt
+        self.timerAccumulatedSeconds = max(timerAccumulatedSeconds, 0)
+        self.timerRunningSince = timerRunningSince
         self.image = PuzzlePhotoSemantics.coverImage(from: self.photos)
     }
 
@@ -295,7 +301,9 @@ class Puzzle: ObservableObject {
             loanedToDisplayName: loanedToDisplayName,
             loanedAt: loanedAt,
             dueBackDate: dueBackDate,
-            lastLoanNudgeAt: lastLoanNudgeAt
+            lastLoanNudgeAt: lastLoanNudgeAt,
+            timerAccumulatedSeconds: timerAccumulatedSeconds,
+            timerRunningSince: timerRunningSince
         )
         copy.id = id
         copy.image = image

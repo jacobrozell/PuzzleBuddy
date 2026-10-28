@@ -16,7 +16,8 @@
 
 | Signal | Behavior |
 |--------|----------|
-| `horizontalSizeClass == .regular` | Wide chrome: toolbar vs FAB, page-sized long-form sheets, **list + detail `NavigationSplitView`** (iPad, **iPhone Duo inner display**, resizable iPhone). Compact width collapses the same split view to a stack. |
+| Regular width **and** regular height | Sidebar tabs and list + detail split (iPad, iPhone Duo inner display, a tall resizable window). |
+| Regular width **and** compact height | Phone stack. iPhone Pro Max landscape stays on the tab bar and pushes detail. |
 | `verticalSizeClass == .compact` | Short-height chrome: compact filter header, landscape-style scroll insets |
 | Removed | `userInterfaceIdiom`, `interfaceOrientation` / `isLandscapeInterface` for chrome |
 

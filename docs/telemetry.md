@@ -10,7 +10,7 @@ Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytic
 
 **Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
-**Last updated:** 2026-09-25
+**Last updated:** 2026-10-27
 
 ---
 
@@ -113,6 +113,8 @@ Defined in `PuzzleAnalyticsEventMapping.allowlistedEvents`:
 | `puzzle_completion_deleted` | same | `PuzzleStore.deleteCompletion` | User removed a completion log |
 | `puzzle_completion_updated` | same | `PuzzleStore.updateCompletion` | User edited completion date/time |
 | `puzzle_completion_undone` | same | `PuzzleStore.undoLastCompletion` | Same-session accidental-complete undo |
+| `puzzle_timer_started` | same | `PuzzleStore.startTimer` | In-Progress timer started (1.2.0) |
+| `puzzle_timer_paused` | same | `PuzzleStore.pauseTimer` / `resetTimer` / `startTimer` / `update` | `reason` + `duration_bucket`; no per-tick events |
 | `whats_new_shown` | same | `WhatsNewView` | 1.1 upgrader notes sheet |
 | `whats_new_dismissed` | same | `PuzzleView` | User dismissed What's New |
 | `settings_collection_exported` | same | *(legacy allowlist; Settings export UI removed 1.1.0)* | — |
@@ -162,6 +164,8 @@ Only these metadata keys are forwarded (max 100 chars each):
 | `completed_count_bucket` | Snapshot / user property — `0`, `1`, `2_5`, `6_plus` |
 | `days_since_last_open_bucket` | `session_snapshot` — `first_open`, `0`, `1`, `2_7`, `8_30`, `31_plus` |
 | `milestone_id` | `milestone_reached` |
+| `reason` | `puzzle_timer_paused` — `pause`, `reset`, `other_started`, `status_left` |
+| `duration_bucket` | `puzzle_timer_paused` — `under_15m`, `15m_1h`, `1h_3h`, `over_3h` (no raw seconds) |
 
 ### User properties
 

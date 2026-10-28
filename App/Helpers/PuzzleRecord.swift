@@ -42,6 +42,8 @@ final class PuzzleRecord {
     var loanedAt: Date?
     var dueBackDate: Date?
     var lastLoanNudgeAt: Date?
+    var timerAccumulatedSeconds: Int = 0
+    var timerRunningSince: Date?
     @Attribute(.externalStorage) var imageData: Data?
 
     init(
@@ -78,6 +80,8 @@ final class PuzzleRecord {
         loanedAt: Date? = nil,
         dueBackDate: Date? = nil,
         lastLoanNudgeAt: Date? = nil,
+        timerAccumulatedSeconds: Int = 0,
+        timerRunningSince: Date? = nil,
         imageData: Data? = nil
     ) {
         self.id = id
@@ -113,6 +117,8 @@ final class PuzzleRecord {
         self.loanedAt = loanedAt
         self.dueBackDate = dueBackDate
         self.lastLoanNudgeAt = lastLoanNudgeAt
+        self.timerAccumulatedSeconds = timerAccumulatedSeconds
+        self.timerRunningSince = timerRunningSince
         self.imageData = imageData
     }
 
@@ -152,6 +158,8 @@ final class PuzzleRecord {
             loanedAt: puzzle.loanedAt,
             dueBackDate: puzzle.dueBackDate,
             lastLoanNudgeAt: puzzle.lastLoanNudgeAt,
+            timerAccumulatedSeconds: puzzle.timerAccumulatedSeconds,
+            timerRunningSince: puzzle.timerRunningSince,
             imageData: puzzle.image?.jpegData(compressionQuality: 0.30)
         )
     }
@@ -189,6 +197,8 @@ final class PuzzleRecord {
         loanedAt = puzzle.loanedAt
         dueBackDate = puzzle.dueBackDate
         lastLoanNudgeAt = puzzle.lastLoanNudgeAt
+        timerAccumulatedSeconds = puzzle.timerAccumulatedSeconds
+        timerRunningSince = puzzle.timerRunningSince
         imageData = puzzle.image?.jpegData(compressionQuality: 0.30)
     }
 
@@ -224,7 +234,9 @@ final class PuzzleRecord {
             loanedToFriendID: loanedToFriendID,
             loanedAt: loanedAt,
             dueBackDate: dueBackDate,
-            lastLoanNudgeAt: lastLoanNudgeAt
+            lastLoanNudgeAt: lastLoanNudgeAt,
+            timerAccumulatedSeconds: timerAccumulatedSeconds,
+            timerRunningSince: timerRunningSince
         )
         puzzle.id = id
         if let imageData, let image = UIImage(data: imageData) {

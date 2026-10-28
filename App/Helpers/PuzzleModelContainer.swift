@@ -20,7 +20,7 @@ enum PuzzleModelContainer {
 
     /// Versioned schema used for on-disk opens with `PuzzleMigrationPlan`.
     static var versionedSchema: Schema {
-        Schema(versionedSchema: PuzzleSchemaV2.self)
+        Schema(versionedSchema: PuzzleSchemaV3.self)
     }
 
     /// 1.0.0 production opener: unversioned three-model schema (no FriendRecord, no plan).
@@ -69,7 +69,7 @@ enum PuzzleModelContainer {
         return openPersistentStore(at: configuration.url)
     }
 
-    /// Opens a versioned V2 store at `url`. Used by disk-migration tests.
+    /// Opens the latest versioned store at `url`. Used by disk-migration tests.
     static func makeVersionedPersistent(url: URL) throws -> ModelContainer {
         let configuration = ModelConfiguration(schema: versionedSchema, url: url, cloudKitDatabase: .none)
         return try ModelContainer(
@@ -100,7 +100,7 @@ enum PuzzleModelContainer {
                 AppLog.shared.info(
                     .puzzles,
                     eventName: "model_container_unversioned_migrated",
-                    message: "Preserved an unversioned 1.0.0 store as V2."
+                    message: "Preserved an unversioned 1.0.0 store as the current schema."
                 )
                 UserPreferences.isRunningInEphemeralStore = false
                 return migrated
@@ -129,7 +129,7 @@ enum PuzzleModelContainer {
         }
     }
 
-    /// Copies an unversioned 1.0.0 store into a fresh V2 store at the same URL.
+    /// Copies an unversioned 1.0.0 store into a fresh current-schema store at the same URL.
     /// Does **not** call `markStoreWasReset()` — the collection is preserved.
     static func migrateUnversionedStore(url: URL) throws -> ModelContainer {
         let snapshot = try snapshotUnversionedV1Store(url: url)
