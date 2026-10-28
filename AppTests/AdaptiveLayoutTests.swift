@@ -58,10 +58,18 @@ final class AdaptiveLayoutTests: XCTestCase {
     func testStatsGridColumnsUseAdaptiveLayoutAtRegularWidth() {
         let regular = AdaptiveLayout.statsGridColumns(horizontalSizeClass: .regular)
         XCTAssertEqual(regular.count, 1)
-        XCTAssertEqual(regular[0].size, .adaptive(minimum: 220))
+        if case .adaptive(let minimum, _) = regular[0].size {
+            XCTAssertEqual(minimum, 220)
+        } else {
+            XCTFail("Expected an adaptive column at regular width, got \(regular[0].size)")
+        }
 
         let compact = AdaptiveLayout.statsGridColumns(horizontalSizeClass: .compact)
         XCTAssertEqual(compact.count, 2)
+        for item in compact {
+            if case .flexible = item.size { continue }
+            XCTFail("Expected flexible columns at compact width, got \(item.size)")
+        }
     }
 
     func testUsesLandscapePhoneLayoutOnCompactHeightOnly() {
