@@ -17,7 +17,7 @@ This document is the developer-facing WCAG conformance guide for the Puzzle Budd
 |----------|--------------|
 | Puzzle Buddy iOS app (SwiftUI) | Third-party Firebase Console |
 | GitHub Pages legal/support HTML | App Store listing screenshots |
-| iOS 17.0+ on iPhone and iPad | watchOS, macOS, web |
+| iOS 18.0+ on iPhone and iPad | watchOS, macOS, web |
 
 **Note:** Version 1.0 launches directly into the puzzle list (no sign-in). Login was removed from the app in June 2026; see [specs/planned/auth-cloud-sync.md](../specs/planned/auth-cloud-sync.md).
 

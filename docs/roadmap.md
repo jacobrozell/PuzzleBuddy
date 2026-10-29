@@ -4,7 +4,7 @@ This document consolidates planned work across releases, accessibility phases, a
 
 For **current shipped behavior**, see [features.md](features.md) and [feature-inventory.md](feature-inventory.md). For agents: [AGENTS.md](../AGENTS.md).
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-10-28
 
 **Versioning:** Puzzle Buddy has never been released publicly. The first App Store version is **1.0.0** (`MARKETING_VERSION` in `project.yml`, `PuzzleBuddyApp.version`). Follow-on releases use semver: **1.1.0** (import/export, polish), **1.2.0+**, etc. Account sync is **not** scheduled for 1.1 — see [Future: auth + cloud sync](#future-auth--cloud-sync).
 
@@ -30,9 +30,9 @@ Puzzle Buddy uses **staged releases** controlled by `ProductService` feature fla
 
 | Release | Theme | Gated features | Data store |
 |---------|-------|----------------|------------|
-| **1.0.0** (inaugural) | Local-first catalog | Import/export off | SwiftData on device |
-| **1.1.0** (target) | Import/export + polish | `isCollectionImportExportEnabled` | SwiftData on device |
-| **Future** | Richer metadata, widgets, optional accounts | TBD | SwiftData; cloud TBD |
+| **1.0.0** (inaugural) | Local-first catalog | — | SwiftData on device |
+| **1.1.0** (target) | Completion history, On loan, analytics depth | `isFriendsListEnabled` (off) | SwiftData on device |
+| **Future** | Timer, widgets, optional accounts; re-ship import/export UI | TBD | SwiftData; cloud TBD |
 
 Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telemetry.md)). No Auth, Firestore, or push in the app today.
 
@@ -40,9 +40,9 @@ Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telem
 
 | Flag | Default | Override |
 |------|---------|----------|
-| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
 | `isBarcodeScanEnabled` | device capability | — |
 | `isPickNextEnabled` | `true` | — |
+| `isFriendsListEnabled` | `false` | code flag only |
 
 Remote Config for flags is a future option — not implemented.
 
@@ -82,7 +82,7 @@ See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle
 
 | Field / feature | Description | Target | Spec |
 |-----------------|-------------|--------|------|
-| In-app timer | Background timer, optional Live Activity | 1.1.0 | [in-app-timer.md](../specs/planned/in-app-timer.md) |
+| In-app timer | Stopwatch ships in 1.1.0 (V3). Sessions, Focus, and forgot-to-pause are the next version (new schema). Live Activity later. | 1.1 then next | [in-app-timer.md](../specs/planned/in-app-timer.md) · [1.2.0-timer-redesign.md](implementation/1.2.0-timer-redesign.md) |
 | Box photo OCR | On-device Vision; IPDb Digital Assistant equivalent | 1.2.0 | [box-photo-ocr.md](../specs/planned/box-photo-ocr.md) |
 | Multi-photo gallery | Cover + progress shots | 1.2.0 | [multi-photo-gallery.md](../specs/planned/multi-photo-gallery.md) |
 | Artist field | Separate from brand | 1.2.0 | Backlog |
@@ -97,7 +97,7 @@ See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle
 
 **Shipped:** Wishlist, To-Do, In-Progress, Completed, Abandoned.
 
-New statuses in the future require SwiftData migration planning (none implemented yet).
+New statuses in the future require a SwiftData schema bump if they need new persisted fields — see [swiftdata-migrations.md](swiftdata-migrations.md). Status is already a `String` on `PuzzleRecord`, so new enum cases that fit the same column usually need **no** migration.
 
 ### UI improvements (near-term)
 
@@ -282,7 +282,7 @@ Reference: [Puzzle Tracker on the App Store](https://apps.apple.com/us/app/puzzl
 |------------|----------------|---------------------|---------|
 | Photo gallery per puzzle | ✅ | Single cover photo | 1.2.0 multi-photo |
 | Status folders | Wishlist, Waiting, Completed, Abandoned, In progress | ✅ All five (To-Do = waiting) | — |
-| Built-in timer (pause) | ✅ Core feature | ❌ Manual time only | 1.1.0 timer |
+| Built-in timer (pause) | ✅ Core feature | ❌ Manual time only | 1.2.0 timer |
 | Progress by photos + days | ✅ | Days ✅; photos ❌ | 1.2.0 multi-photo |
 | Progress % in-progress | ✅ | ✅ | — |
 | Filtering and sorting | ✅ Extensive | ✅ Search, tabs, sort, filters, tags | 1.2.x tag cloud |
@@ -475,7 +475,7 @@ No push notification telemetry — FCM removed from app.
 | **iPad-optimized navigation** | Adaptive layouts exist; consider sidebar on regular size class |
 | **Widgets / Live Activities** | Puzzle timer or backlog widget — [spec](../specs/planned/home-screen-widget.md) |
 | **Share extension** | Add puzzle from Safari or Photos share sheet |
-| **macOS / visionOS** | Not planned; iOS 17+ iPhone and iPad only |
+| **macOS / visionOS** | Not planned; iOS 18+ iPhone and iPad only |
 | **Android** | Out of scope |
 
 ---

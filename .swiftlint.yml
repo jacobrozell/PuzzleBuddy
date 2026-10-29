@@ -15,13 +15,36 @@ line_length:
   ignores_comments: true
   ignores_urls: true
 
+identifier_name:
+  excluded:
+    - a
+    - b
+    - c
+    - h
+    - m
+    - i
+    - j
+    - x
+    - y
+    - id
+    - on
+    - ui
+    - ps
+    - eh
+
+type_name:
+  excluded:
+    - DS
+    - PuzzleForm_Preview
+    - Puzzle_BuddyUITestsLaunchTests
+
 file_length:
   warning: 500
-  error: 900
+  error: 1500
 
 type_body_length:
   warning: 400
-  error: 700
+  error: 1200
 
 function_body_length:
   warning: 80

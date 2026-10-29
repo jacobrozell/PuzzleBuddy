@@ -2,15 +2,16 @@
 
 How Puzzle Buddy is structured: app entry, persistence, navigation, telemetry, and cross-cutting concerns.
 
-**Last updated:** 2026-06-29 · **Agent guide:** [AGENTS.md](../AGENTS.md)
+**Last updated:** 2026-09-21 · **Agent guide:** [AGENTS.md](../AGENTS.md)
 
 ---
 
-## Release model (1.0)
+## Release model
 
-Version **1.0** ships as a **local-first** app:
+Version **1.0** shipped as a **local-first** app; **1.1.0** continues on the same store shape:
 
-- Puzzles persist on device via **SwiftData** (`PuzzleRecord`)
+- Puzzles persist on device via **SwiftData** (`PuzzleRecord` + photo/completion records)
+- Schema versioning: [swiftdata-migrations.md](swiftdata-migrations.md) (`PuzzleSchemaV2` live; nested V1 frozen at App Store 1.0.0)
 - No sign-in — launch goes splash → onboarding (first run) → main tabs
 - **Firebase Analytics + Crashlytics** when a valid `GoogleService-Info.plist` is present (Release by default)
 - Auth, Firestore, and push were **removed** from the app (June 2026)
@@ -104,12 +105,12 @@ No push notification registration.
 
 | Flag | Default | Launch argument |
 |------|---------|-----------------|
-| `isCollectionImportExportEnabled` | `false` | `-enable_collection_import_export` |
 | `isBarcodeScanEnabled` | device has scanner | — |
 | `isShoppingModeEnabled` | `true` | — |
 | `isPickNextEnabled` | `true` | — |
+| `isFriendsListEnabled` | `false` | — (Friends list UI stub; On loan uses FriendStore) |
 
-There is no login or cloud sync flag.
+There is no login, cloud sync, or Settings import/export flag. Collection import/export UI was removed in 1.1.0.
 
 ---
 
@@ -136,6 +137,10 @@ Serialization for **export/import tests** (not cloud):
 ### `PuzzleRecord` (SwiftData)
 
 `@Model` persisted on device. Mirrors puzzle fields; see [features.md](features.md) for the full field list.
+
+Also persisted: `PuzzlePhotoRecord`, `PuzzleCompletionRecord`.
+
+**Versioning:** containers open via `PuzzleModelContainer` with `PuzzleSchemaV2` + `PuzzleMigrationPlan`. Unversioned 1.0.0 stores are copied into V2 instead of wiped. Policy and how to bump: [swiftdata-migrations.md](swiftdata-migrations.md).
 
 ### `PuzzleStore`
 
@@ -227,7 +232,7 @@ Declared in `project.yml`; resolve via SPM.
 | Setting | Value |
 |---------|-------|
 | Bundle ID | `com.jacobrozell.Puzzle-Buddy` |
-| Deployment target | iOS 17.0 |
+| Deployment target | iOS 18.0 |
 | Devices | iPhone + iPad |
 | Team | `7JT2JB89AV` |
 | Entitlements | Empty (no Sign in with Apple / push) |
@@ -241,4 +246,4 @@ Account + cloud sync: [specs/planned/auth-cloud-sync.md](../specs/planned/auth-c
 
 Product roadmap: [roadmap.md](roadmap.md), [FutureIdeas/backlog.md](../FutureIdeas/backlog.md).
 
-SwiftData migrations not yet implemented — plan before breaking schema changes.
+SwiftData: [swiftdata-migrations.md](swiftdata-migrations.md) — `PuzzleSchemaV2` / `PuzzleMigrationPlan`. Add a schema version + stage before breaking stored-property changes.

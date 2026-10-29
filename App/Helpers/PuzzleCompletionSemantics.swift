@@ -20,4 +20,17 @@ enum PuzzleCompletionSemantics {
     static func sortedNewestFirst(_ completions: [PuzzleCompletion]) -> [PuzzleCompletion] {
         completions.sorted { $0.completionNumber > $1.completionNumber }
     }
+
+    /// Keeps `completionNumber` sequential (1…N) by `completedAt` on existing SwiftData rows.
+    static func renumberRecords(_ records: [PuzzleCompletionRecord]) {
+        let sorted = records.sorted { lhs, rhs in
+            if lhs.completedAt != rhs.completedAt {
+                return lhs.completedAt < rhs.completedAt
+            }
+            return lhs.completionNumber < rhs.completionNumber
+        }
+        for (index, record) in sorted.enumerated() {
+            record.completionNumber = index + 1
+        }
+    }
 }

@@ -1,22 +1,93 @@
-# Puzzle Buddy — GA4 Phase B console checklist
+# Puzzle Buddy — GA4 console checklist (Phase B + 1.1.0 depth)
 
-Register **custom dimensions** in Firebase Console so Phase B events and parameters appear in Explorations and funnels.
+Register **custom dimensions** (and user properties) in Firebase Console so events and parameters appear in Explorations and funnels.
 
 **Property:** Puzzle Buddy Firebase project (Analytics → select Puzzle Buddy app)  
 **Spec:** [ga4-analytics-spec.md](../ga4-analytics-spec.md)  
-**Code:** Phase B shipped in iOS + Android allowlists (`AppLogging.swift`, `FirebaseAnalyticsEventMapping.kt`)
+**Code:** iOS allowlists in `AppLogging.swift`; Android twins in `FirebaseAnalyticsEventMapping.kt` / `AnalyticsMetadataKeys.kt`
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-21
 
 ---
 
-## Before you start
+## Do this now — 1.1.0 analytics depth
+
+New on `release/1.1.0`: `session_snapshot`, `milestone_reached`, collection count params, and user properties.
+
+### A. Custom definitions → Event-scoped dimensions
+
+For each row: **Create custom dimension** → **Scope = Event** → Event parameter = name exactly (snake_case).
+
+| Done | Parameter name | Display name | Events that send it |
+|------|----------------|--------------|---------------------|
+| [ ] | `count_wishlist` | Count wishlist | `puzzle_list_refreshed`, `session_snapshot` |
+| [ ] | `count_todo` | Count to-do | same |
+| [ ] | `count_in_progress` | Count in-progress | same |
+| [ ] | `count_completed` | Count completed | same |
+| [ ] | `count_abandoned` | Count abandoned | same |
+| [ ] | `collection_size_bucket` | Collection size bucket | `session_snapshot`, `puzzle_list_refreshed` |
+| [ ] | `completed_count_bucket` | Completed count bucket | same |
+| [ ] | `days_since_last_open_bucket` | Days since last open | `session_snapshot` |
+| [ ] | `milestone_id` | Milestone id | `milestone_reached` |
+
+**Expected values (QA):**
+
+| Parameter | Values |
+|-----------|--------|
+| `collection_size_bucket` | `0`, `1`, `2_5`, `6_20`, `21_50`, `51_plus` |
+| `completed_count_bucket` | `0`, `1`, `2_5`, `6_plus` |
+| `days_since_last_open_bucket` | `first_open`, `0`, `1`, `2_7`, `8_30`, `31_plus` |
+| `milestone_id` | e.g. `first_puzzle`, `first_completion`, `ten_completed` (see code) |
+
+### B. Custom definitions → User-scoped properties
+
+**Create custom dimension** → **Scope = User** → User property = name exactly.
+
+| Done | Property name | Display name | Values |
+|------|---------------|--------------|--------|
+| [ ] | `onboarding_complete` | Onboarding complete | `true`, `false` |
+| [ ] | `collection_size_bucket` | Collection size bucket | same buckets as event param |
+| [ ] | `completed_count_bucket` | Completed count bucket | same as above |
+| [ ] | `has_completed_puzzle` | Has completed puzzle | `true`, `false` |
+
+> Same string can exist as **Event** and **User** dimensions — register both scopes separately.
+
+### C. Events — no Console “create event” step
+
+Confirm in **DebugView** / **Realtime** (do not register as custom metrics):
+
+| Done | Event | How to trigger |
+|------|-------|----------------|
+| [ ] | `session_snapshot` | Cold launch → wait for puzzle list load |
+| [ ] | `milestone_reached` | First add / first completion / stats milestone banner |
+| [ ] | `puzzle_list_refreshed` | Launch / refresh list (should include count_* params) |
+
+### D. DebugView smoke (same day)
+
+1. [ ] Release / TestFlight build, **or** Debug with `-firebase_analytics_debug` + `-FIRAnalyticsDebugEnabled`
+2. [ ] Firebase Console → **Analytics** → **DebugView** → select your device
+3. [ ] Journey: cold launch → complete or skip onboarding → add puzzle → complete a puzzle → open Stats
+4. [ ] Confirm `session_snapshot` + user properties update; `milestone_reached` when thresholds fire
+5. [ ] Wait **24–48h**, then use dimensions in **Explore**
+
+### E. Sign-off
+
+| Step | Done | Date |
+|------|------|------|
+| 1.1.0 event dimensions (9) | [ ] | |
+| 1.1.0 user properties (4) | [ ] | |
+| DebugView smoke | [ ] | |
+| Explore free-form using `session_snapshot` | [ ] | |
+
+---
+
+## Before you start (any phase)
 
 1. Open [Firebase Console](https://console.firebase.google.com/) → **Puzzle Buddy** project.
 2. Go to **Analytics** → **Custom definitions**.
-3. Use **Create custom dimension** for each row below.
+3. Use **Create custom dimension** for each row.
 4. Allow **24–48 hours** after registration before breakdowns populate in Explorations.
-5. This is **separate from Dart Buddy** — repeat registration per Firebase project.
+5. This is **separate from Dart Buddy** — register per Firebase project.
 
 ---
 
@@ -29,15 +100,15 @@ These parameters were already sent before Phase B. Skip any that show **Active**
 | 1 | Event | `puzzle_status` | Puzzle status | `puzzle_added`, `puzzle_updated` |
 | 2 | Event | `puzzle_count` | Puzzle count | `puzzle_list_refreshed`, `demo_data_loaded` |
 | 3 | Event | `import_policy` | Import policy | `puzzle_import_completed`, `puzzle_backup_restored` |
-| 4 | Event | `format` | Export format | `settings_collection_exported` |
+| 4 | Event | `format` | Export format | `settings_collection_exported` *(legacy; Settings export UI removed)* |
 | 5 | Event | `completion_number` | Completion number | `puzzle_completion_recorded` |
 | 6 | Event | `completion_count` | Prior completion count | `puzzle_redo_started` |
 
 ---
 
-## Phase B — new parameters (register all)
+## Phase B — earlier parameters (register if not Active)
 
-For each: **Scope = Event**, **Event parameter** = parameter name exactly as shown (snake_case).
+For each: **Scope = Event**, **Event parameter** = name exactly as shown (snake_case).
 
 | # | Parameter name | Display name | Priority events |
 |---|----------------|--------------|-----------------|
@@ -57,6 +128,8 @@ For each: **Scope = Event**, **Event parameter** = parameter name exactly as sho
 | 20 | `rating_bucket` | Rating bucket | `puzzle_completion_recorded` |
 | 21 | `has_missing_pieces` | Missing pieces | `puzzle_completion_recorded` |
 
+Rows for counts / buckets / `milestone_id` are under **Do this now** above.
+
 ### Expected parameter values (for QA)
 
 | Parameter | Values |
@@ -73,68 +146,18 @@ For each: **Scope = Event**, **Event parameter** = parameter name exactly as sho
 
 ---
 
-## Phase B — new events (no separate registration)
-
-Custom **events** do not need Console registration. Confirm they appear in **DebugView** or **Realtime** after a TestFlight smoke:
+## Phase B — events to confirm in DebugView
 
 | Event | How to trigger |
 |-------|----------------|
 | `puzzle_status_changed` | Edit puzzle → change status |
 | `tab_selected` | Switch Puzzles / Stats / Settings tabs |
-| `pick_next_puzzle_selected` | Pick next → Spin (iOS) |
+| `pick_next_puzzle_selected` | Pick next → Spin |
 | `barcode_scan_completed` | Scan barcode in list or shopping mode |
 | `onboarding_skipped` | Skip onboarding on page 1 |
-| `demo_data_loaded` | Load demo data in Settings |
-| `demo_data_removed` | Remove demo data in Settings |
-
-Enriched existing events (`puzzle_added`, `puzzle_completion_recorded`) gain Phase B parameters automatically.
-
----
-
-## Verification steps
-
-### 1. DebugView smoke (same day)
-
-1. Install a **Release** or TestFlight build (or Debug with `-firebase_analytics_debug` + `-FIRAnalyticsDebugEnabled`).
-2. Firebase Console → **Analytics** → **DebugView**.
-3. Run this journey:
-   - Skip or complete onboarding
-   - Add a puzzle manually
-   - Change status To-Do → In-Progress → Completed
-   - Switch to Stats tab
-   - Scan a barcode (match or no match)
-4. Confirm events above appear with expected parameters.
-
-### 2. Custom definitions (same day)
-
-In **Custom definitions**, each Phase A + B dimension shows **Active** (not Pending indefinitely).
-
-### 3. Exploration smoke (24–48h later)
-
-**Explore → Funnel exploration:**
-
-```
-app_open  →  onboarding_completed  →  puzzle_added
-```
-
-Add breakdown on step 3 by **Add source** (`add_source`).
-
-**Explore → Free form:**
-
-- Rows: `puzzle_status_changed`
-- Columns: **Status after** (`status_to`)
-- Values: Event count
-
----
-
-## Sign-off
-
-| Step | Done | Date | Notes |
-|------|------|------|-------|
-| Phase A dimensions (6) | [ ] | | |
-| Phase B dimensions (15) | [ ] | | |
-| DebugView smoke | [ ] | | |
-| Funnel exploration | [ ] | | |
+| `demo_data_loaded` / `demo_data_removed` | Settings demo controls |
+| `session_snapshot` | Cold launch after list load |
+| `milestone_reached` | First puzzle / first completion / stats banner |
 
 ---
 

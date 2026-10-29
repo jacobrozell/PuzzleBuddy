@@ -27,7 +27,7 @@ Puzzle data is stored **only on device** via SwiftData (`PuzzleRecord`).
 ## Prerequisites
 
 - Firebase project at [console.firebase.google.com](https://console.firebase.google.com/)
-- Xcode 16+, iOS 17 deployment target
+- Xcode 16+, iOS 18 deployment target
 - Optional: real `GoogleService-Info.plist` for local Analytics/Crashlytics verification (not required for builds/tests)
 
 ---

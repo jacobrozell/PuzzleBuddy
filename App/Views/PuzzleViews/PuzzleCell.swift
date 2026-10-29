@@ -12,36 +12,19 @@ struct PuzzleCell: View {
     @ObservedObject var ps: PuzzleStore
     @EnvironmentObject var eh: ErrorHandling
     @Binding var puzzle: Puzzle
-    /// When set, row selects into `NavigationSplitView` instead of pushing via `NavigationLink`.
-    var selectedPuzzleID: Binding<UUID?>? = nil
+    /// Selection highlight for the surrounding `List(selection:)`.
+    var selectedPuzzleID: UUID? = nil
+    var zoomNamespace: Namespace.ID? = nil
     @State private var showDeleteConfirmation = false
 
-    private var usesSplitSelection: Bool { selectedPuzzleID != nil }
-    private var isSelected: Bool {
-        guard let selectedPuzzleID else { return false }
-        return selectedPuzzleID.wrappedValue == puzzle.id
-    }
+    private var isSelected: Bool { selectedPuzzleID == puzzle.id }
 
     var body: some View {
-        Group {
-            if usesSplitSelection {
-                Button {
-                    selectedPuzzleID?.wrappedValue = puzzle.id
-                } label: {
-                    PuzzleCellView(puzzle: $puzzle)
-                }
-                .buttonStyle(.plain)
-            } else {
-                NavigationLink {
-                    PuzzleDetail(ps: ps, puzzle: $puzzle)
-                } label: {
-                    PuzzleCellView(puzzle: $puzzle)
-                }
-            }
-        }
+        puzzleCellLabel
         .accessibilityElement(children: .ignore)
-        .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id))
+        .accessibilityIdentifier(A11yID.puzzleRow(id: puzzle.id, name: puzzle.name))
         .accessibilityLabel(cellAccessibilityLabel)
+        .accessibilityValue(puzzle.name)
         .accessibilityHint("Opens puzzle details. Use the actions rotor to delete.")
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .accessibilityAction(named: "Delete puzzle") {
@@ -69,6 +52,16 @@ struct PuzzleCell: View {
         .frame(maxWidth: .infinity)
     }
 
+    @ViewBuilder
+    private var puzzleCellLabel: some View {
+        if let zoomNamespace {
+            PuzzleCellView(puzzle: $puzzle)
+                .matchedTransitionSource(id: puzzle.id, in: zoomNamespace)
+        } else {
+            PuzzleCellView(puzzle: $puzzle)
+        }
+    }
+
     private func deletePuzzle() {
         guard let index = ps.puzzles.firstIndex(where: { $0.id == puzzle.id }) else { return }
         do {
@@ -94,8 +87,14 @@ struct PuzzleCell: View {
             parts.append(puzzle.difficulty.accessibilityDescription)
         }
         parts.append(puzzle.status.accessibilityDescription)
+        if puzzle.timesCompleted > 1 {
+            parts.append("Completed \(puzzle.timesCompleted) times")
+        }
         if puzzle.hasMissingPieces {
             parts.append("Missing pieces")
+        }
+        if puzzle.isOnLoan {
+            parts.append(PuzzleLoanSemantics.listBadgeAccessibilityLabel(for: puzzle))
         }
         if !puzzle.tags.isEmpty {
             parts.append("Tags: \(puzzle.tags.joined(separator: ", "))")
@@ -103,8 +102,12 @@ struct PuzzleCell: View {
         if puzzle.status == .completed {
             parts.append("Completed \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
         } else if puzzle.status == .inProgress {
-            parts.append("Started \(puzzle.completionDate.formatted(date: .abbreviated, time: .omitted))")
+            let started = puzzle.startDate ?? puzzle.completionDate
+            parts.append("Started \(started.formatted(date: .abbreviated, time: .omitted))")
             parts.append(PuzzleProgressSemantics.displayLabel(for: puzzle.progressPercent))
+            if PuzzleTimerSemantics.isRunning(runningSince: puzzle.timerRunningSince, now: Date()) {
+                parts.append("Timer running")
+            }
         }
         return parts.joined(separator: ", ")
     }
@@ -210,28 +213,7 @@ private struct PuzzleCellView: View {
                     .accessibilityIdentifier(A11yID.puzzleCellRating)
             }
 
-            HStack(spacing: DS.Spacing.s2) {
-                PuzzleStatusPill(status: puzzle.status)
-
-                if puzzle.timesCompleted > 1 {
-                    Text("×\(puzzle.timesCompleted)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Brand.textSecondary)
-                        .padding(.horizontal, DS.Spacing.s2)
-                        .padding(.vertical, 2)
-                        .background(Brand.cardElevated)
-                        .clipShape(Capsule())
-                        .accessibilityLabel("Completed \(puzzle.timesCompleted) times")
-                }
-
-                if puzzle.hasMissingPieces {
-                    Label("Missing pieces", systemImage: "exclamationmark.triangle.fill")
-                        .font(.caption)
-                        .foregroundStyle(Brand.accentWarm)
-                        .labelStyle(.titleAndIcon)
-                        .accessibilityIdentifier(A11yID.puzzleCellMissingPieces)
-                }
-            }
+            badgeRow
 
             if puzzle.status == .inProgress {
                 PuzzleListProgressBar(progress: puzzle.progressPercent)
@@ -254,6 +236,59 @@ private struct PuzzleCellView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private var badgeRow: some View {
+        let badges = Group {
+            PuzzleStatusPill(status: puzzle.status)
+
+            if puzzle.timesCompleted > 1 {
+                Text("×\(puzzle.timesCompleted)")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Brand.textSecondary)
+                    .padding(.horizontal, DS.Spacing.s2)
+                    .padding(.vertical, 2)
+                    .background(Brand.cardElevated)
+                    .clipShape(Capsule())
+                    .accessibilityLabel("Completed \(puzzle.timesCompleted) times")
+            }
+
+            if puzzle.hasMissingPieces {
+                Label("Missing pieces", systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(Brand.accentWarmText)
+                    .labelStyle(.titleAndIcon)
+                    .accessibilityIdentifier(A11yID.puzzleCellMissingPieces)
+            }
+
+            if puzzle.isOnLoan {
+                let overdue = PuzzleLoanSemantics.isOverdue(puzzle)
+                Label(
+                    PuzzleLoanSemantics.listBadgeTitle(for: puzzle),
+                    systemImage: overdue ? "clock.badge.exclamationmark" : "person.fill.checkmark"
+                )
+                .font(.caption)
+                .foregroundStyle(Brand.accentWarmText)
+                .labelStyle(.titleAndIcon)
+                .accessibilityIdentifier(overdue ? A11yID.puzzleCellOverdue : A11yID.puzzleCellOnLoan)
+            }
+
+            if puzzle.status == .inProgress,
+               PuzzleTimerSemantics.isRunning(runningSince: puzzle.timerRunningSince, now: Date()) {
+                Label("Timer running", systemImage: "timer")
+                    .font(.caption)
+                    .foregroundStyle(Brand.accentText)
+                    .labelStyle(.titleAndIcon)
+                    .accessibilityIdentifier(A11yID.puzzleCellTimerRunning)
+            }
+        }
+
+        if dynamicTypeSize.isAccessibilitySize {
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) { badges }
+        } else {
+            HStack(spacing: DS.Spacing.s2) { badges }
+        }
     }
 }
 

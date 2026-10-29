@@ -36,7 +36,12 @@ final class PuzzleCollectionBackupTests: XCTestCase {
 
     func testImporterRejectsNewerBackupFormatVersion() {
         let json = """
-        {"backupFormatVersion":99,"puzzles":[{"name":"Future","status":"To-Do","rating":0,"difficulty":"0","completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None","disposition":"None","progressPercent":0,"timesCompleted":0,"tags":[],"hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]}]}
+        {"backupFormatVersion":99,"puzzles":[{
+        "name":"Future","status":"To-Do","rating":0,"difficulty":"0",
+        "completionDate":"2024-01-01T00:00:00Z","puzzleType":"None","material":"None",
+        "disposition":"None","progressPercent":0,"timesCompleted":0,"tags":[],
+        "hasMissingPieces":false,"hasImage":false,"photoCount":0,"completions":[]
+        }]}
         """
         XCTAssertThrowsError(try PuzzleCollectionJSONImporter.puzzles(from: Data(json.utf8))) { error in
             guard case PuzzleCollectionJSONImportError.unsupportedFormatVersion(99) = error else {
@@ -78,6 +83,32 @@ final class PuzzleCollectionBackupTests: XCTestCase {
             let match = try XCTUnwrap(restored.first { $0.id == original.id })
             assertPuzzlesEqual(match, original)
         }
+    }
+
+    func testTimerFieldsRoundTripThroughJSON() throws {
+        let puzzle = makeRichPuzzle()
+        let anchor = Date(timeIntervalSince1970: 1_800_000_000)
+        puzzle.timerAccumulatedSeconds = 4_321
+        puzzle.timerRunningSince = anchor
+
+        let data = try PuzzleCollectionExporter.jsonData(from: [puzzle])
+        let restored = try XCTUnwrap(PuzzleCollectionJSONImporter.puzzles(from: data).first)
+
+        XCTAssertEqual(restored.timerAccumulatedSeconds, 4_321)
+        XCTAssertEqual(restored.timerRunningSince, anchor)
+    }
+
+    func testOldBackupWithoutTimerKeysImportsWithDefaults() throws {
+        let json = """
+        {"backupFormatVersion":1,"puzzles":[{
+        "name":"Pre-timer","status":"In-Progress","rating":0,"difficulty":"0",
+        "completionDate":"2024-01-01T00:00:00Z","progressPercent":30,"tags":[]
+        }]}
+        """
+        let restored = try XCTUnwrap(PuzzleCollectionJSONImporter.puzzles(from: Data(json.utf8)).first)
+        XCTAssertEqual(restored.name, "Pre-timer")
+        XCTAssertEqual(restored.timerAccumulatedSeconds, 0)
+        XCTAssertNil(restored.timerRunningSince)
     }
 
     // MARK: - Store restore
@@ -219,7 +250,7 @@ final class PuzzleCollectionBackupTests: XCTestCase {
 
     private func makeContainer() throws -> ModelContainer {
         try ModelContainer(
-            for: PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
+            for: FriendRecord.self, PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
             configurations: ModelConfiguration(isStoredInMemoryOnly: true)
         )
     }

@@ -4,6 +4,18 @@ Status legend: `[ ]` todo · `[x]` done
 
 Strategy: [`../roadmap.md`](../roadmap.md) · Shipped scope: [`../features.md`](../features.md) · Inventory: [`../feature-inventory.md`](../feature-inventory.md)
 
+## 1.1.0 TestFlight / App Review
+
+- [x] **iPhone Duo readiness** — size-class layout + top-edge fill; Xcode 27.1; Duo sim smoke — [`../../ongoing/iphone-duo-1.1.0.md`](../../ongoing/iphone-duo-1.1.0.md)
+- [x] Review-lane fixes — [`../../ongoing/1.1.0-review-fixes.md`](../../ongoing/1.1.0-review-fixes.md)
+- [ ] **Connect version** `1.1.0` · this build · **minimum iOS 18.0**
+- [ ] **Notes for Review / What’s New / description** — text is ready in [`1.1.0-connect-paste.md`](1.1.0-connect-paste.md) (timer + Duo). Paste into Connect.
+- [ ] **Screenshots** — Duo outer + inner (see paste doc); recapture iPhone 6.5" / iPad list + history; first frame still reads as a catalog
+- [ ] **Privacy + support Pages** — repo HTML matches 1.1 (timer bucket, borrower names, Delete All Data). Push `docs/privacy.html` / `docs/support.html` to `main` so the live URLs match.
+- [ ] **Nutrition / privacy label** — Product interaction (`session_snapshot`, `milestone_reached`); friend names under Other user content
+- [x] **Age 4+** and export-compliance exemption — re-confirm, no change expected
+- [x] AppUITests on iPhone 17 · units cover migrate / history / loan
+
 ## 1.0.0 App Store
 
 - [x] **No login / cloud sync** — Auth, Firestore, FCM removed from app (June 2026)

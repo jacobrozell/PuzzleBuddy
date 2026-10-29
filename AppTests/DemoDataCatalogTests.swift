@@ -22,6 +22,7 @@ final class DemoDataCatalogTests: XCTestCase {
         XCTAssertEqual(stats.wishlistCount, 1)
         XCTAssertEqual(stats.abandonedCount, 1)
         XCTAssertEqual(stats.missingPiecesCount, 1)
+        XCTAssertEqual(stats.onLoanCount, 1)
         XCTAssertEqual(stats.replayedPuzzleCount, 1)
         XCTAssertNotNil(stats.averageRating)
         XCTAssertNotNil(stats.averageDaysToComplete)

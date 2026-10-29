@@ -2,9 +2,9 @@
 
 Track your jigsaw puzzle collection — piece counts, ratings, difficulty, photos, and completion dates. Built with SwiftUI and SwiftData, with Firebase Analytics and Crashlytics.
 
-**Status:** Pre-ship polish · v1.0.0 (2) · **Branch:** `main` · Local-first inaugural release
+**Status:** **1.0.0** Ready for Distribution. Next is 1.1.0 Connect prep · v1.1.0 (1) · **Branch:** `release/1.1.0` · Local-first.
 
-Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.0.0** is local-only on device — no account. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
+Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.1.0** is still local-only on device — no account. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
 
 **Agents:** start with [AGENTS.md](AGENTS.md).
 
@@ -33,6 +33,16 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - **Pick my next puzzle:** random selector from backlog with tag and piece-count filters (dice toolbar button)
 - **SwiftData** persistence — no account required
 
+### 1.1 (next update)
+
+- **Completion history** — edit or delete a finish, with an undo banner after marking a puzzle complete
+- **On loan** — borrower and due date, plus On loan and Overdue filters
+- **iPhone Duo** — vertical tabs on the outer display, wide catalog on the inner display
+- **Abandoned** status alongside Wishlist, To-Do, In-Progress, and Completed
+- **In-app timer** — start and pause on In Progress; can fill logged time when you complete
+
+Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release/1.1.0-connect-paste.md). The in-app stopwatch ships in **1.1.0**. Session redesign is later — [`docs/implementation/1.2.0-timer-redesign.md`](docs/implementation/1.2.0-timer-redesign.md).
+
 ### Shopping & barcode
 
 - Barcode scan for quick-add and **shopping duplicate-check** (offline; suggests details from your saved puzzles when available)
@@ -41,12 +51,6 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 
 - Stats tab: completed count, pieces assembled, backlog, time at the table, top tags
 - Share collage of collection or filtered list
-
-### Gated for dogfood (implemented, off in 1.0)
-
-| Feature | Flag | Dogfood launch arg |
-|---------|------|-------------------|
-| IPDb CSV import + JSON/CSV export | `isCollectionImportExportEnabled` | `-enable_collection_import_export` |
 
 ### Observability
 
@@ -59,14 +63,14 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 
 ### Roadmap
 
-Post-1.0 plans: see [`docs/implementation/1.0.0-expanded-feature-sprint.md`](docs/implementation/1.0.0-expanded-feature-sprint.md) (active), [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md).
+**1.1.0** is in Connect prep (completion history, on loan, Duo, in-app stopwatch). Session redesign is later. Backlog: [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md), [`ongoing/README.md`](ongoing/README.md).
 
 ## Requirements
 
 | Tool | Version |
 |------|---------|
 | Xcode | 16+ |
-| iOS deployment target | 17.0+ |
+| iOS deployment target | 18.0+ |
 | Swift | 5.0 |
 | macOS (for local builds) | macOS 15+ recommended (matches CI) |
 | Firebase project | Analytics + Crashlytics only |
@@ -157,7 +161,7 @@ PuzzleBuddy/
 
 - **SwiftUI** for all UI; `@MainActor` on `PuzzleStore` and `ErrorHandling`
 - **SwiftData** for on-device persistence
-- **ProductService** gates import/export and other staged features
+- **ProductService** gates staged features (Friends list UI off; no Settings import/export)
 - **Firebase** for Analytics and Crashlytics only
 - **Puzzle** is an `ObservableObject`; **PuzzleRecord** is the SwiftData `@Model`
 - **ErrorHandling** is injected via `.withErrorHandling()` at the app root
@@ -178,6 +182,7 @@ Full details: [docs/architecture.md](docs/architecture.md).
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Code style, PR checklist |
 | [docs/development.md](docs/development.md) | Local setup, debugging |
 | [docs/architecture.md](docs/architecture.md) | App layers, data model, navigation |
+| [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md) | **SwiftData VersionedSchema / migration policy** |
 | [docs/firebase-setup.md](docs/firebase-setup.md) | Firebase Console, plist, Crashlytics |
 | [docs/analytics.md](docs/analytics.md) | AppLog quick reference |
 | [docs/testing.md](docs/testing.md) | Unit tests, UI tests, CI |

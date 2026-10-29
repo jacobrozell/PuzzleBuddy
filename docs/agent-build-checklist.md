@@ -24,7 +24,7 @@ Rules:
 5. Accessibility is a release gate (WCAG 2.1 AA)
 6. Update feature-inventory.md and telemetry.md when shipping behavior changes
 
-App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytics+Crashlytics only
+App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 18+ · Firebase Analytics+Crashlytics only
 ```
 
 ---
@@ -76,13 +76,13 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
   - [ ] `Features/` — SwiftUI + MVVM per flow
   - [ ] `Domain/` — pure business logic (no SwiftUI)
   - [ ] `Data/` — repository protocols + implementations
-  - [ ] `Persistence/` — schema, migrations, container factory
+  - [x] `Persistence/` — `PuzzleSchemaV1`, `PuzzleMigrationPlan`, `PuzzleModelContainer`
   - [x] `DesignSystem/` — *de facto* `Util/DesignTokens.swift`
   - [x] `Support/` — *de facto* `Util/` (logging, flags, layout)
   - [x] `Resources/` — assets, launch storyboard, plist templates
   - [x] `Tests/` — `AppTests/`, `AppUITests/`
   - *Current:* flat `Login/`, `Views/`, `Helpers/`, `Util/` — functional, not checklist layout
-- [x] **0.4** Pin deployment target (iOS 17), bundle ID, team ID, Swift version in `project.yml`
+- [x] **0.4** Pin deployment target (iOS 18), bundle ID, team ID, Swift version in `project.yml`
 - [x] **0.5** `.gitignore`: generated `.xcodeproj`, `GoogleService-Info.plist`, DerivedData
 - [x] **0.6** **Git hooks** — `.githooks/pre-commit` blocks Firebase plist (`Scripts/install-git-hooks.sh`)
 - [ ] **0.7** **`.cursor/mcp.json`** — XcodeBuildMCP documented in repo (`.cursor/` gitignored locally)
@@ -100,7 +100,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
   - [x] Architecture — [architecture.md](architecture.md)
   - [x] Tech stack — README + architecture
   - [x] Design system — `DesignTokens.swift` + architecture
-  - [ ] Data schema + migration policy — partial in architecture; no versioned migrations
+  - [x] Data schema + migration policy — [swiftdata-migrations.md](swiftdata-migrations.md)
   - [x] Accessibility — [wcag.md](wcag.md), `accessibility/`
   - [ ] Localization policy — not written
   - [x] Test plan + CI — [testing.md](testing.md)
@@ -141,11 +141,11 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 
 ## Phase 4 — Persistence & repositories
 
-- [ ] **4.1** Versioned schema (`SchemaV1`, `SchemaV2`, …) — single `PuzzleRecord` today
+- [x] **4.1** Versioned schema — `PuzzleSchemaV1` + `PuzzleMigrationPlan` ([swiftdata-migrations.md](swiftdata-migrations.md)); add V2 when stored properties change
 - [x] **4.2** **Repository** — `PuzzleStore` is concrete SwiftData store (no remote layer)
 - [x] **4.3** **Dependency bootstrap** — `ModelContainer` + `@EnvironmentObject` at app root
-- [ ] **4.4** Migration tests in CI
-- [x] **4.5** Bootstrap failure policy — Firebase skipped when plist placeholder; SwiftData always runs
+- [x] **4.4** Migration plan baseline tests — `PuzzleMigrationPlanTests` (add Vn→V{n+1} disk test when introducing a stage)
+- [x] **4.5** Bootstrap failure policy — Firebase skipped when plist placeholder; SwiftData always runs (wipe-on-unreadable last resort)
 - [ ] **4.6** Features depend on `any FooRepository` — direct `PuzzleStore` usage
 
 ---
@@ -194,7 +194,7 @@ App: Puzzle Buddy / com.jacobrozell.Puzzle-Buddy · iOS 17+ · Firebase Analytic
 - [x] **8.4** Settings / store tests — persistence tests exist
 - [ ] **8.5** **AppLinks** registry — URLs hardcoded in `SettingsView`
 - [ ] **8.6** Tip/donate row — not applicable (nil = hidden pattern not wired)
-- [ ] **8.7** **Delete all local data** — `Delete All Puzzles` in Settings (verify ship checklist)
+- [ ] **8.7** **Delete all local data** — `Delete All Data` in Settings (verify ship checklist)
 
 ---
 

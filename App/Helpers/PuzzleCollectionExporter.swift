@@ -54,10 +54,27 @@ struct PuzzleExportRecord: Codable, Equatable {
     let barcode: String?
     let tags: [String]
     let hasMissingPieces: Bool
+    let isOnLoan: Bool
+    let loanedToFriendId: String?
+    let loanedAt: Date?
+    let dueBackDate: Date?
+    let lastLoanNudgeAt: Date?
+    let timerAccumulatedSeconds: Int?
+    let timerRunningSince: Date?
     let hasImage: Bool
     let photoCount: Int
     let photos: [PuzzleExportPhotoRecord]
     let completions: [PuzzleExportCompletionRecord]
+    let isDemo: Bool
+}
+
+struct FriendExportRecord: Codable, Equatable {
+    let id: String
+    let displayName: String
+    let createdAt: Date
+    let updatedAt: Date
+    let remoteId: String?
+    let isDemo: Bool
 }
 
 struct PuzzleExportCompletionRecord: Codable, Equatable {
@@ -74,12 +91,26 @@ enum PuzzleCollectionExporter {
         puzzles.map(exportRecord(from:))
     }
 
-    static func jsonData(from puzzles: [Puzzle]) throws -> Data {
+    static func exportFriendRecords(from friends: [Friend]) -> [FriendExportRecord] {
+        friends.map {
+            FriendExportRecord(
+                id: $0.id.uuidString,
+                displayName: $0.displayName,
+                createdAt: $0.createdAt,
+                updatedAt: $0.updatedAt,
+                remoteId: $0.remoteId,
+                isDemo: $0.isDemo
+            )
+        }
+    }
+
+    static func jsonData(from puzzles: [Puzzle], friends: [Friend] = []) throws -> Data {
         let payload = ExportPayload(
             backupFormatVersion: PuzzleCollectionBackupFormat.currentVersion,
             exportedAt: Date(),
             appVersion: PuzzleBuddyApp.version,
             puzzleCount: puzzles.count,
+            friends: exportFriendRecords(from: friends),
             puzzles: exportRecords(from: puzzles)
         )
         let encoder = JSONEncoder()
@@ -94,12 +125,13 @@ enum PuzzleCollectionExporter {
 
     static func writeTemporaryFile(
         from puzzles: [Puzzle],
+        friends: [Friend] = [],
         format: PuzzleCollectionExportFormat
     ) throws -> URL {
         let data: Data
         switch format {
         case .json:
-            data = try jsonData(from: puzzles)
+            data = try jsonData(from: puzzles, friends: friends)
         case .csv:
             data = try csvData(from: puzzles)
         }
@@ -140,6 +172,13 @@ enum PuzzleCollectionExporter {
             barcode: puzzle.barcode,
             tags: puzzle.tags,
             hasMissingPieces: puzzle.hasMissingPieces,
+            isOnLoan: puzzle.isOnLoan,
+            loanedToFriendId: puzzle.loanedToFriendID?.uuidString,
+            loanedAt: puzzle.loanedAt,
+            dueBackDate: puzzle.dueBackDate,
+            lastLoanNudgeAt: puzzle.lastLoanNudgeAt,
+            timerAccumulatedSeconds: puzzle.timerAccumulatedSeconds,
+            timerRunningSince: puzzle.timerRunningSince,
             hasImage: puzzle.coverImage != nil,
             photoCount: puzzle.photos.filter { $0.image != nil }.count,
             photos: exportPhotos(from: puzzle.photos),
@@ -152,7 +191,8 @@ enum PuzzleCollectionExporter {
                     timeSpentMinutes: $0.timeSpentMinutes,
                     rating: $0.rating
                 )
-            }
+            },
+            isDemo: puzzle.isDemo
         )
     }
 
@@ -180,6 +220,7 @@ enum PuzzleCollectionExporter {
         let exportedAt: Date
         let appVersion: String
         let puzzleCount: Int
+        let friends: [FriendExportRecord]
         let puzzles: [PuzzleExportRecord]
     }
 }

@@ -31,8 +31,20 @@ enum UITestSupport {
             || ProcessInfo.processInfo.arguments.contains(disableFirebaseAnalytics)
     }
 
+    /// True only for explicit UI-test seed flags — not `-disable_firebase_analytics` alone.
+    static var shouldForceSeedDemoCatalog: Bool {
+        ProcessInfo.processInfo.arguments.contains(seedPuzzles)
+            || ProcessInfo.processInfo.environment["UI_TESTING_SEED_PUZZLES"] == "1"
+    }
+
     @MainActor
     static func seedPuzzlesIfNeeded(into store: PuzzleStore) {
+        if shouldForceSeedDemoCatalog,
+           !store.puzzles.contains(where: { $0.name == DemoDataCatalog.primarySeededPuzzleName }) {
+            try? store.clearAllPuzzles()
+            try? store.loadDemoPuzzles()
+            return
+        }
         guard shouldSeedPuzzles, store.puzzles.isEmpty else { return }
         try? store.loadDemoPuzzles()
     }

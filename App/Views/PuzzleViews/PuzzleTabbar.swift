@@ -8,7 +8,7 @@
 import SwiftData
 import SwiftUI
 
-private enum PuzzleBuddyTab: String {
+private enum PuzzleBuddyTab: String, Hashable {
     case puzzles = "Puzzle Buddy"
     case stats = "Collection Stats"
     case settings = "Settings"
@@ -18,7 +18,9 @@ private enum PuzzleBuddyTab: String {
 struct PuzzleTabbar: View {
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
     @ObservedObject var ps: PuzzleStore
+    @ObservedObject var browse: PuzzleBrowseState
 
     @State private var tab: PuzzleBuddyTab = {
         switch MarketingSnapshotBootstrap.forcedTab {
@@ -29,61 +31,49 @@ struct PuzzleTabbar: View {
     }()
 
     private var usesSplitNavigation: Bool {
-        AdaptiveLayout.usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+        AdaptiveLayout.usesSplitNavigation(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: verticalSizeClass
+        )
     }
 
     var body: some View {
         TabView(selection: $tab) {
-            Group {
-                if usesSplitNavigation {
-                    PuzzleList(ps: ps)
-                        .background(Brand.background.ignoresSafeArea())
-                } else {
-                    NavigationStack {
-                        PuzzleList(ps: ps)
-                    }
-                }
-            }
-            .tag(PuzzleBuddyTab.puzzles)
-            .tabItem {
-                Label {
-                    Text("Puzzles")
-                } icon: {
-                    Image(systemName: "list.bullet.circle.fill")
-                }
+            Tab(value: PuzzleBuddyTab.puzzles) {
+                PuzzleList(ps: ps, browse: browse)
+                    .background(Brand.background.ignoresSafeArea())
+            } label: {
+                Label("Puzzles", systemImage: "list.bullet.circle.fill")
             }
             .accessibilityIdentifier(A11yID.puzzlesTab)
 
-            NavigationStack {
-                CollectionStatsView(ps: ps)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(PuzzleBuddyTab.stats.rawValue)
-            }
-            .tag(PuzzleBuddyTab.stats)
-            .tabItem {
-                Label {
-                    Text("Stats")
-                } icon: {
-                    Image(systemName: "chart.bar.fill")
+            Tab(value: PuzzleBuddyTab.stats) {
+                NavigationStack {
+                    CollectionStatsView(ps: ps)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .navigationTitle(PuzzleBuddyTab.stats.rawValue)
+                        .brandNavigationBarBackground()
                 }
+                .background(Brand.background.ignoresSafeArea())
+            } label: {
+                Label("Stats", systemImage: "chart.bar.fill")
             }
             .accessibilityIdentifier(A11yID.statsTab)
 
-            NavigationStack {
-                SettingsView(ps: ps)
-                    .navigationBarTitleDisplayMode(.inline)
-                    .navigationTitle(PuzzleBuddyTab.settings.rawValue)
-            }
-            .tag(PuzzleBuddyTab.settings)
-            .tabItem {
-                Label {
-                    Text("Settings")
-                } icon: {
-                    Image(systemName: "gearshape")
+            Tab(value: PuzzleBuddyTab.settings) {
+                NavigationStack {
+                    SettingsView(ps: ps)
+                        .navigationBarTitleDisplayMode(.inline)
+                        .navigationTitle(PuzzleBuddyTab.settings.rawValue)
+                        .brandNavigationBarBackground()
                 }
+                .background(Brand.background.ignoresSafeArea())
+            } label: {
+                Label("Settings", systemImage: "gearshape")
             }
             .accessibilityIdentifier(A11yID.settingsTab)
         }
+        .modifier(PuzzleTabStyle(sidebar: usesSplitNavigation))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .modifier(PuzzleTabRootChrome(regularWidth: usesSplitNavigation))
         .tint(Brand.accent)
@@ -115,8 +105,20 @@ struct PuzzleTabbar: View {
     }
 }
 
+private struct PuzzleTabStyle: ViewModifier {
+    let sidebar: Bool
+
+    func body(content: Content) -> some View {
+        if sidebar {
+            content.tabViewStyle(.sidebarAdaptable)
+        } else {
+            content.tabViewStyle(.tabBarOnly)
+        }
+    }
+}
+
 struct PuzzleTabbar_Previews: PreviewProvider {
     static var previews: some View {
-        PuzzleTabbar(ps: PreviewSupport.puzzleStore)
+        PuzzleTabbar(ps: PreviewSupport.puzzleStore, browse: PuzzleBrowseState())
     }
 }

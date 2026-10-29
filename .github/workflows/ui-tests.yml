@@ -23,21 +23,21 @@ jobs:
     strategy:
       matrix:
         include:
-          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17
             test_class: PuzzleAccessibilityUITests/testLoginScreenAccessibilityAudit
-          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17
             test_class: PuzzleAccessibilityUITests/testLoginScreenDynamicTypeAudit
-          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max
             test_class: PuzzleAccessibilityUITests/testLoginScreenLandscapeLayout
-          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17
             test_class: PuzzleAccessibilityUITests/testPuzzleListAccessibilityAudit
-          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max
             test_class: PuzzleAccessibilityUITests/testPuzzleListLandscapeLayout
-          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17
             test_class: PuzzleAccessibilityUITests/testSettingsAccessibilityAudit
-          - destination: platform=iOS Simulator,name=iPhone 17,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17
             test_class: PuzzleAccessibilityUITests/testAddPuzzleFormAccessibilityAudit
-          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max,OS=26.3.1
+          - destination: platform=iOS Simulator,name=iPhone 17 Pro Max
             test_class: PuzzleAccessibilityUITests/testAddPuzzleFormLandscapeLayout
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
