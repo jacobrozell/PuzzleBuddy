@@ -69,6 +69,14 @@ cp GoogleService-Info.plist.example GoogleService-Info.plist
 
 `FirebaseBootstrap.shouldConfigure` returns `false` for placeholders — Firebase does not initialize, but the app and tests run normally with SwiftData-only persistence.
 
+### Xcode Cloud
+
+`ci_scripts/ci_post_clone.sh` writes `GoogleService-Info.plist` before `xcodegen`. Set `GOOGLE_SERVICE_INFO_PLIST_BASE64` on that workflow (secret, base64 of the real plist). Without it, the archive uses the example plist and GA4 stays off. The variable is per workflow, not shared with other apps.
+
+```bash
+base64 -i GoogleService-Info.plist | pbcopy
+```
+
 ---
 
 ## 3. Enable Crashlytics in Console

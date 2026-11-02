@@ -14,5 +14,15 @@ if [ -z "$yml" ]; then
 fi
 
 brew install xcodegen
-(cd "$(dirname "$yml")" && xcodegen generate)
+
+root="$(cd "$(dirname "$yml")" && pwd)"
+if [ -n "${GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]; then
+  echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 --decode \
+    > "$root/GoogleService-Info.plist"
+else
+  echo "warning: GOOGLE_SERVICE_INFO_PLIST_BASE64 not set; using example plist"
+  cp "$root/GoogleService-Info.plist.example" "$root/GoogleService-Info.plist"
+fi
+
+(cd "$root" && xcodegen generate)
 echo "Generated Xcode project from $yml"
