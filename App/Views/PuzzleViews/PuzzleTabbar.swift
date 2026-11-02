@@ -110,7 +110,17 @@ private struct PuzzleTabStyle: ViewModifier {
 
     func body(content: Content) -> some View {
         if sidebar {
-            content.tabViewStyle(.sidebarAdaptable)
+            // iPhone (including Duo’s inner display) keeps a tab bar unless the
+            // adaptable style is told to prefer a sidebar. iPad already did.
+            if #available(iOS 27, *) {
+                content
+                    .tabViewStyle(.sidebarAdaptable)
+                    .defaultTabBarPlacement(.sidebar)
+            } else {
+                content
+                    .tabViewStyle(.sidebarAdaptable)
+                    .defaultAdaptableTabBarPlacement(.sidebar)
+            }
         } else {
             content.tabViewStyle(.tabBarOnly)
         }

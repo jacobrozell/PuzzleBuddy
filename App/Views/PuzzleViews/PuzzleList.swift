@@ -146,9 +146,11 @@ struct PuzzleList: View {
                 .navigationTitle("Already in collection")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Done") {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button {
                             listScanDuplicate = nil
+                        } label: {
+                            Label("Done", systemImage: "checkmark")
                         }
                     }
                 }
@@ -244,9 +246,11 @@ struct PuzzleList: View {
     private var puzzleListColumn: some View {
         puzzleListChrome
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .overlay(alignment: .bottomTrailing) {
+            .overlay(alignment: .bottom) {
                 if usesLandscapePhoneLayout {
-                    addPuzzleFloatingButton
+                    DuoFloatingAddBar(bottomPadding: addPuzzleFABBottomPadding, passesTouchesThroughGap: true) {
+                        addPuzzleControl
+                    }
                 }
             }
             .navigationSplitViewColumnWidth(min: 300, ideal: 380, max: 460)
@@ -275,34 +279,30 @@ struct PuzzleList: View {
     private var puzzleListChrome: some View {
         puzzleListScrollContent
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .safeAreaInset(edge: .bottom, alignment: .trailing, spacing: 0) {
+            .safeAreaInset(edge: .bottom, spacing: 0) {
                 if showsFloatingAddButton {
-                    addPuzzleFloatingButton
+                    DuoFloatingAddBar(bottomPadding: addPuzzleFABBottomPadding) {
+                        addPuzzleControl
+                    }
                 }
             }
     }
 
     @ToolbarContentBuilder
     private var puzzleToolbar: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            if usesSplitNavigation {
-                addPuzzleToolbarButton
+        if usesSplitNavigation {
+            ToolbarItem(placement: .primaryAction) { addPuzzleToolbarButton }
+            ToolbarItem(placement: .primaryAction) { pickNextToolbarButton }
+            ToolbarItem(placement: .primaryAction) { shoppingModeToolbarButton }
+            ToolbarItem(placement: .primaryAction) {
+                PuzzleShareMenu(
+                    entireCollection: ps.puzzles,
+                    visibleList: displayedPuzzles
+                )
             }
-        }
-        ToolbarItem(placement: .navigationBarTrailing) {
-            if usesSplitNavigation {
-                HStack(spacing: DS.Spacing.s3) {
-                    pickNextToolbarButton
-                    shoppingModeToolbarButton
-                    PuzzleShareMenu(
-                        entireCollection: ps.puzzles,
-                        visibleList: displayedPuzzles
-                    )
-                    sortMenu
-                }
-            } else {
-                compactPuzzleActionsMenu
-            }
+            ToolbarItem(placement: .primaryAction) { sortMenu }
+        } else {
+            ToolbarItem(placement: .primaryAction) { compactPuzzleActionsMenu }
         }
     }
 
@@ -312,9 +312,7 @@ struct PuzzleList: View {
             Button {
                 browse.showPickNext = true
             } label: {
-                Image(systemName: "dice")
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
+                Label("Pick my next puzzle", systemImage: "dice")
             }
             .accessibilityLabel("Pick my next puzzle")
             .accessibilityHint("Opens a random picker from your To-Do backlog")
@@ -328,9 +326,7 @@ struct PuzzleList: View {
             Button {
                 browse.showShoppingMode = true
             } label: {
-                Image(systemName: "barcode.viewfinder")
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
+                Label("Check duplicate", systemImage: "barcode.viewfinder")
             }
             .accessibilityLabel("Check duplicate")
             .accessibilityHint("Scan a barcode to see if you already own this puzzle while shopping")
@@ -389,10 +385,7 @@ struct PuzzleList: View {
                 }
             }
         } label: {
-            Image(systemName: "ellipsis.circle")
-                .font(.title3)
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(Rectangle())
+            Label("More", systemImage: "ellipsis.circle")
         }
         .accessibilityLabel("More puzzle actions")
     }
@@ -416,8 +409,7 @@ struct PuzzleList: View {
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if usesLandscapePhoneLayout {
-                    // Reserve list scroll room above the floating tab bar in landscape.
-                    Color.clear.frame(height: 72)
+                    LandscapeTabClearance()
                 }
             }
     }
@@ -461,7 +453,7 @@ struct PuzzleList: View {
         .disabled(!ProductService.isBarcodeScanEnabled && !AppInfo.isUITesting)
     }
 
-    private var addPuzzleFloatingButton: some View {
+    private var addPuzzleControl: some View {
         Menu {
             addPuzzleMenuContents
         } label: {
@@ -474,18 +466,13 @@ struct PuzzleList: View {
         .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
         .accessibilityIdentifier(A11yID.addPuzzleFloatingButton)
         .fixedSize()
-        .padding(.trailing, DS.Spacing.s4)
-        .padding(.bottom, addPuzzleFABBottomPadding)
     }
 
     private var addPuzzleToolbarButton: some View {
         Menu {
             addPuzzleMenuContents
         } label: {
-            Image(systemName: "plus")
-                .font(.title3)
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(Rectangle())
+            Label("Add puzzle", systemImage: "plus")
         }
         .accessibilityLabel("Add puzzle")
         .accessibilityHint("Opens menu to add a puzzle or scan a barcode")
@@ -800,8 +787,10 @@ struct PuzzleList: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button {
                         browse.showFilterSheet = false
+                    } label: {
+                        Label("Done", systemImage: "checkmark")
                     }
                 }
             }
@@ -1068,10 +1057,7 @@ struct PuzzleList: View {
                 .accessibilityLabel(option.accessibilityLabel)
             }
         } label: {
-            Image(systemName: "arrow.up.arrow.down.circle")
-                .font(.title3)
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(Rectangle())
+            Label("Sort", systemImage: "arrow.up.arrow.down.circle")
         }
         .accessibilityIdentifier(A11yID.puzzleListSortMenu)
         .accessibilityLabel("Sort puzzles, \(sortOption.title)")
@@ -1304,8 +1290,10 @@ private struct TagFilterSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                 }
             }
@@ -1385,6 +1373,92 @@ private struct PuzzleListScreenChrome: ViewModifier {
                 .brandScreenChrome(ignoredSafeAreaEdges: .all)
         } else {
             content.readableBrandScreenChrome()
+        }
+    }
+}
+
+/// Places the add button on the opposite side of a vertical Duo tab bar.
+private struct DuoFloatingAddBar<Button: View>: View {
+    var bottomPadding: CGFloat
+    var passesTouchesThroughGap: Bool = false
+    @ViewBuilder var button: () -> Button
+
+    var body: some View {
+        if #available(iOS 27.1, *) {
+            DuoFloatingAddBarOn27(
+                bottomPadding: bottomPadding,
+                passesTouchesThroughGap: passesTouchesThroughGap,
+                button: button
+            )
+        } else {
+            DuoFloatingAddBarLayout(
+                avoidTrailing: false,
+                padding: bottomPadding,
+                passesTouchesThroughGap: passesTouchesThroughGap,
+                button: button
+            )
+        }
+    }
+}
+
+@available(iOS 27.1, *)
+private struct DuoFloatingAddBarOn27<Button: View>: View {
+    @Environment(\.toolbarVerticalEdge) private var toolbarVerticalEdge
+    var bottomPadding: CGFloat
+    var passesTouchesThroughGap: Bool
+    @ViewBuilder var button: () -> Button
+
+    var body: some View {
+        DuoFloatingAddBarLayout(
+            avoidTrailing: toolbarVerticalEdge == .trailing,
+            padding: toolbarVerticalEdge == nil ? bottomPadding : DS.Spacing.s3,
+            passesTouchesThroughGap: passesTouchesThroughGap,
+            button: button
+        )
+    }
+}
+
+private struct DuoFloatingAddBarLayout<Button: View>: View {
+    var avoidTrailing: Bool
+    var padding: CGFloat
+    var passesTouchesThroughGap: Bool
+    @ViewBuilder var button: () -> Button
+
+    var body: some View {
+        HStack(spacing: 0) {
+            if avoidTrailing {
+                button()
+            }
+            Spacer(minLength: 0)
+                .allowsHitTesting(!passesTouchesThroughGap)
+            if !avoidTrailing {
+                button()
+            }
+        }
+        .padding(.leading, avoidTrailing ? DS.Spacing.s4 : 0)
+        .padding(.trailing, avoidTrailing ? 0 : DS.Spacing.s4)
+        .padding(.bottom, padding)
+    }
+}
+
+/// Extra list space for a bottom tab bar. Duo's vertical bar does not need it.
+private struct LandscapeTabClearance: View {
+    var body: some View {
+        if #available(iOS 27.1, *) {
+            LandscapeTabClearanceOn27()
+        } else {
+            Color.clear.frame(height: 72)
+        }
+    }
+}
+
+@available(iOS 27.1, *)
+private struct LandscapeTabClearanceOn27: View {
+    @Environment(\.toolbarVerticalEdge) private var toolbarVerticalEdge
+
+    var body: some View {
+        if toolbarVerticalEdge == nil {
+            Color.clear.frame(height: 72)
         }
     }
 }

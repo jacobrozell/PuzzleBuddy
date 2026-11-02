@@ -319,12 +319,14 @@ private struct CompletionEditSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button {
                         var updated = completion
                         updated.completedAt = completedAt
                         if tracksTime {
@@ -339,6 +341,8 @@ private struct CompletionEditSheet: View {
                             updated.timeSpentMinutes = nil
                         }
                         onSave(updated)
+                    } label: {
+                        Label("Save", systemImage: "checkmark")
                     }
                     .accessibilityIdentifier(A11yID.puzzleDetailCompletionSaveButton)
                 }

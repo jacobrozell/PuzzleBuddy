@@ -51,9 +51,11 @@ struct PickNextPuzzleView: View {
             .navigationTitle("Pick my next puzzle")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") { dismiss() }
-                        .accessibilityIdentifier(A11yID.pickNextDoneButton)
+                ToolbarItem(placement: .confirmationAction) {
+                    Button { dismiss() } label: {
+                        Label("Done", systemImage: "checkmark")
+                    }
+                    .accessibilityIdentifier(A11yID.pickNextDoneButton)
                 }
             }
             .navigationDestination(item: $openPuzzleRequest) { request in

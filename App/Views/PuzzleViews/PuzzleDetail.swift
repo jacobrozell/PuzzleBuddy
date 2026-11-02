@@ -79,25 +79,29 @@ struct PuzzleDetail: View {
         .navigationBarTitleDisplayMode(.inline)
         .brandNavigationBarBackground()
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                if isEditable {
-                    Button("Cancel") {
+            if isEditable {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
                         browse.editFormVm = nil
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                     .optionalAccessibilityIdentifier(A11yID.puzzleDetailCancelButton)
                     .accessibilityLabel("Cancel editing")
                     .accessibilityHint("Discards unsaved changes and returns to details")
-                } else if horizontalSizeClass == .compact {
+                }
+            } else if horizontalSizeClass == .compact {
+                ToolbarItem(placement: .cancellationAction) {
                     Button {
                         browse.editFormVm = nil
                         browse.selectedPuzzleID = nil
                     } label: {
-                        Image(systemName: "chevron.backward")
+                        Label("Back", systemImage: "chevron.backward")
                     }
                     .accessibilityLabel("Back")
                 }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .confirmationAction) {
                 Button {
                     guard isEditable else {
                         browse.editFormVm = PuzzleFormViewModel(puzzle: puzzle.copy())
@@ -120,7 +124,10 @@ struct PuzzleDetail: View {
                         eh.handle(title: "Could not save puzzle", message: error.localizedDescription)
                     }
                 } label: {
-                    Text("\(isEditable ? "Save" : "Edit")")
+                    Label(
+                        isEditable ? "Save" : "Edit",
+                        systemImage: isEditable ? "checkmark" : "pencil"
+                    )
                 }
                 .disabled(isEditable && trimmedNameIsEmpty)
                 .opacity(isEditable && trimmedNameIsEmpty ? 0.6 : 1.0)

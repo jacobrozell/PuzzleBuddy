@@ -68,8 +68,10 @@ struct PuzzleForm: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         isPresented = false
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                     .accessibilityLabel("Cancel")
                     .accessibilityHint("Closes the add puzzle form without saving")
@@ -631,7 +633,11 @@ struct SubmitAddButton: View {
         Button {
             save()
         } label: {
-            Text("Save")
+            if compact {
+                Label("Save", systemImage: "checkmark")
+            } else {
+                Text("Save")
+            }
         }
         .modifier(SubmitAddButtonStyle(compact: compact))
         .optionalAccessibilityIdentifier(A11yID.puzzleFormSubmitButton)
