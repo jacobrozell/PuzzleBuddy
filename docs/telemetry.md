@@ -6,7 +6,7 @@ Authoritative reference for logging, Firebase Analytics, and Firebase Crashlytic
 
 **Android implementation:** `PuzzleBuddy-Android/.../support/logging/` (`AppLogger.kt`, `FirebaseAnalyticsEventMapping.kt`, `FirebaseCrashlyticsEventMapping.kt`, `LogSinks.kt`), `FirebaseBootstrap.kt`, `PuzzleBuddyDatabaseFactory.kt`
 
-**Cross-platform parity:** [`workspace/firebase-cross-platform-parity.md`](../../workspace/firebase-cross-platform-parity.md) · verify with `~/Desktop/personal/DaRules/scripts/check-firebase-parity.sh`
+**Cross-platform parity:** [`workspace/firebase-cross-platform-parity.md`](../../../workspace/firebase-cross-platform-parity.md) · verify with `~/Desktop/personal/DaRules/scripts/check-firebase-parity.sh`
 
 **Pattern:** Matches [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy) — single `AppLog` / `AppLogger` API, allowlisted remote events, Release-only collection by default.
 
