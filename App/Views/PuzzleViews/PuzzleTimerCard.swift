@@ -25,7 +25,8 @@ struct PuzzleTimerCard: View {
                         .foregroundStyle(Brand.textPrimary)
                         .lineLimit(1)
                         .minimumScaleFactor(0.6)
-                        .accessibilityHidden(true)
+                        .accessibilityLabel(PuzzleTimerSemantics.spokenLabel(seconds: elapsed))
+                        .accessibilityAddTraits(.updatesFrequently)
 
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: DS.Spacing.s3) {
@@ -76,7 +77,7 @@ struct PuzzleTimerCard: View {
         .buttonStyle(BrandPrimaryButtonStyle())
         .frame(minHeight: 44)
         .accessibilityIdentifier(A11yID.puzzleDetailTimerToggleButton)
-        .accessibilityValue("\(PuzzleTimerSemantics.spokenLabel(seconds: elapsed)), \(isRunning ? "running" : "paused")")
+        .accessibilityValue(isRunning ? "running" : "paused")
         .accessibilityHint(isRunning ? "Pauses the timer for this puzzle" : "Starts timing this puzzle. Any other running timer pauses.")
     }
 
@@ -88,6 +89,8 @@ struct PuzzleTimerCard: View {
             }
             .font(.subheadline.weight(.semibold))
             .foregroundStyle(Brand.accentText)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
             .accessibilityIdentifier(A11yID.puzzleDetailTimerResetButton)

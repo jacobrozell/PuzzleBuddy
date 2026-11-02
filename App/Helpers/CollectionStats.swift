@@ -90,13 +90,13 @@ struct CollectionStats: Equatable {
             favoritePuzzleType: favoritePuzzleType(from: completed),
             topPurchaseLocations: topPurchaseLocations(from: puzzles, limit: 3),
             completionsThisMonth: completionCount(
-                in: completed,
+                in: puzzles,
                 calendar: calendar,
                 now: now,
                 component: .month
             ),
             completionsThisYear: completionCount(
-                in: completed,
+                in: puzzles,
                 calendar: calendar,
                 now: now,
                 component: .year
@@ -114,7 +114,7 @@ struct CollectionStats: Equatable {
             paceBuckets: paceBuckets(from: completed),
             purchaseLocationCounts: purchaseLocationCounts(from: puzzles, limit: 3),
             completionsByMonthThisYear: completionsByMonth(
-                in: completed,
+                in: puzzles,
                 calendar: calendar,
                 now: now
             )

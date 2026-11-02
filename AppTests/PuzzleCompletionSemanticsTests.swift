@@ -39,5 +39,15 @@ final class PuzzleCompletionSemanticsTests: XCTestCase {
             timeSpentMinutes: 5
         )
         XCTAssertEqual(completion.timeSpentLabel, "1 hr 5 min")
+        XCTAssertNil(completion.ratingLabel)
+    }
+
+    func testRatingLabelOmitsUnratedAndKeepsHalves() {
+        let unrated = PuzzleCompletion(completionNumber: 1, completedAt: Date(), rating: 0)
+        let whole = PuzzleCompletion(completionNumber: 1, completedAt: Date(), rating: 4)
+        let half = PuzzleCompletion(completionNumber: 1, completedAt: Date(), rating: 4.5)
+        XCTAssertNil(unrated.ratingLabel)
+        XCTAssertEqual(whole.ratingLabel, "Rated 4")
+        XCTAssertEqual(half.ratingLabel, "Rated 4.5")
     }
 }

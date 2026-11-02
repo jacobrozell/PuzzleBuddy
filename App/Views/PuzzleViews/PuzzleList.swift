@@ -611,15 +611,17 @@ struct PuzzleList: View {
             if !ps.puzzles.isEmpty {
                 HStack(alignment: .center, spacing: DS.Spacing.s2) {
                     resultCountText
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
 
                     if hasSecondaryFilters {
                         clearFiltersButton
                     }
 
                     Spacer(minLength: 0)
-
-                    listFilterControls
                 }
+
+                listFilterControls
             }
         }
     }
@@ -694,7 +696,7 @@ struct PuzzleList: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .foregroundStyle(hasSecondaryFilters ? Brand.accent : Brand.textPrimary)
+        .foregroundStyle(hasSecondaryFilters ? Brand.accentText : Brand.textPrimary)
         .accessibilityIdentifier(A11yID.puzzleListFilterButton)
         .accessibilityLabel("Search and filters")
         .accessibilityValue(hasSecondaryFilters ? "Filters active" : "No filters")
@@ -752,7 +754,7 @@ struct PuzzleList: View {
             clearSecondaryFilters()
         }
         .font(.caption.weight(.semibold))
-        .foregroundStyle(Brand.accent)
+        .foregroundStyle(Brand.accentText)
         .frame(minHeight: 44)
         .accessibilityIdentifier(A11yID.puzzleListClearFilters)
         .accessibilityHint("Clears search, tag, and other list filters")
@@ -820,6 +822,7 @@ struct PuzzleList: View {
                 overdueFilterToggle
             }
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private func clearSecondaryFilters() {
@@ -911,6 +914,7 @@ struct PuzzleList: View {
             .font(.subheadline.weight(.medium))
             .foregroundStyle(isActive ? chipTextColor(activeColor) : Brand.textPrimary)
             .lineLimit(1)
+            .minimumScaleFactor(0.8)
             .padding(.horizontal, DS.Spacing.s3)
             .padding(.vertical, 10)
             .frame(minHeight: 44)
@@ -1091,19 +1095,11 @@ struct PuzzleList: View {
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
         .accessibilityIdentifier(A11yID.puzzleListEmptyState)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(emptyStateAccessibilityLabel)
+        .accessibilityElement(children: showsAddPuzzleAction ? .contain : .combine)
     }
 
     private var showsAddPuzzleAction: Bool {
         ps.puzzles.isEmpty && !hasActiveFilters
-    }
-
-    private var emptyStateAccessibilityLabel: String {
-        if showsAddPuzzleAction {
-            return "\(emptyStateMessage) Add puzzle button available."
-        }
-        return emptyStateMessage
     }
 
     private var emptyStateMessage: String {

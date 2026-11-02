@@ -337,7 +337,7 @@ struct PuzzleFormInternal: View {
                 if let preview = formVm.puzzle.estimatedTimeSpent?.displayLabel {
                     Label(preview, systemImage: "clock")
                         .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Brand.accent)
+                        .foregroundStyle(Brand.accentText)
                         .accessibilityLabel("Total time: \(preview)")
                 }
 
@@ -354,6 +354,7 @@ struct PuzzleFormInternal: View {
                             formVm.puzzle.estimatedTimeSpent = timerTime
                         }
                         .buttonStyle(.borderless)
+                        .foregroundStyle(Brand.accentText)
                         .frame(minHeight: 44)
                         .optionalAccessibilityIdentifier(A11yID.puzzleFormUseTimerTimeButton)
                         .accessibilityHint("Fills hours and minutes with \(timerLabel)")

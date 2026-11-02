@@ -8,7 +8,7 @@
 |------|-----|--------|-------|
 | **iPhone Duo (1.1.0)** | [`iphone-duo-1.1.0.md`](iphone-duo-1.1.0.md) | **Connect assets** | Screenshots + listing copy: [`../docs/release/1.1.0-connect-paste.md`](../docs/release/1.1.0-connect-paste.md) |
 | **1.1.0 completion history** | [`docs/implementation/1.1.0-completion-history.md`](../docs/implementation/1.1.0-completion-history.md) | **In progress** | Edit/delete + swipe + undo banner; What's New + overdue loan polish on `release/1.1.0` |
-| **1.1.0 review-lane fixes** | [`1.1.0-review-fixes.md`](1.1.0-review-fixes.md) | **In progress** | Open: #10 Pages, #21–#22 Connect assets, #24 checklist, #30 disk migrate, #32 manual a11y, #37 navigation hoist, #40 timer metadata if the timer ships in 1.1. #19/#20/#41 deferred. #42–#43 closed. |
+| **1.1.0 review-lane fixes** | [`1.1.0-review-fixes.md`](1.1.0-review-fixes.md) | **In progress** | Open: #10 Pages, #21–#22 Connect assets, #24 checklist, #30 disk migrate, #32 manual a11y, #37 navigation hoist. 2026-11-01 tests: AppTests 341/341, UI Skip flake passed on rerun. #44 stats month/year cards fixed, uncommitted. #19/#20/#41 deferred. #40 and #42–#43 closed. |
 | **App Store 1.0.0** | [`docs/release/todo.md`](../docs/release/todo.md) | **App Review** | Tag `1.0.0` on `main`; 1.1.0 work on release branch |
 | **Barcode scan polish** | [`barcode-scan-polish.md`](barcode-scan-polish.md) | In progress | Items 8, 13 post-sprint or parallel |
 | **Landscape UI** | [`landscape-ui.md`](landscape-ui.md) | In progress | Items 1–3 done (condensed header, FAB clearance, iPad grid); 4–7 pending |

@@ -160,7 +160,7 @@ struct BrandSecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.headline)
-            .foregroundStyle(Brand.accent)
+            .foregroundStyle(Brand.accentText)
             .lineLimit(1)
             .minimumScaleFactor(0.85)
             .frame(maxWidth: expandHorizontally ? .infinity : nil)
@@ -171,7 +171,7 @@ struct BrandSecondaryButtonStyle: ButtonStyle {
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .strokeBorder(Brand.accent.opacity(0.35), lineWidth: 1)
+                    .strokeBorder(Brand.accentText.opacity(0.45), lineWidth: 1)
             )
     }
 }

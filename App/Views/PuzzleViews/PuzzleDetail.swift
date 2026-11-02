@@ -14,6 +14,7 @@ struct PuzzleDetail: View {
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.requestReview) private var requestReview
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showRedoConfirmation = false
     @State private var showMarkReturnedConfirmation = false
@@ -174,50 +175,24 @@ struct PuzzleDetail: View {
     }
 
     private var undoCompletionBanner: some View {
-        HStack(alignment: .top, spacing: DS.Spacing.s3) {
-            Image(systemName: "arrow.uturn.backward.circle.fill")
-                .foregroundStyle(Brand.accent)
-                .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                Text("Marked complete")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Brand.textPrimary)
-                Text("Undo if that was an accident. Your previous status comes back.")
-                    .font(.caption)
-                    .foregroundStyle(Brand.textSecondary)
-            }
-
-            Spacer(minLength: DS.Spacing.s2)
-
-            Button("Undo") {
-                do {
-                    try ps.undoLastCompletion(puzzleID: puzzle.id)
-                    if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
-                        puzzle = refreshed
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    undoBannerMessage
+                    HStack(spacing: DS.Spacing.s2) {
+                        undoCompletionButton
+                        dismissUndoButton
+                        Spacer(minLength: 0)
                     }
-                    BarcodeScanFeedback.scanAccepted()
-                } catch {
-                    eh.handle(title: "Could not undo completion", message: error.localizedDescription)
+                }
+            } else {
+                HStack(alignment: .top, spacing: DS.Spacing.s3) {
+                    undoBannerMessage
+                    Spacer(minLength: DS.Spacing.s2)
+                    undoCompletionButton
+                    dismissUndoButton
                 }
             }
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Brand.accentText)
-            .frame(minWidth: 44, minHeight: 44)
-            .contentShape(Rectangle())
-            .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionButton)
-            .accessibilityHint("Removes the finish you just logged and restores the previous status")
-
-            Button {
-                ps.dismissCompletionUndo(for: puzzle.id)
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Brand.textSecondary)
-                    .frame(minWidth: 44, minHeight: 44)
-                    .contentShape(Rectangle())
-            }
-            .accessibilityLabel("Dismiss undo completion")
         }
         .padding(DS.Spacing.s3)
         .background(Brand.accent.opacity(0.12))
@@ -225,6 +200,61 @@ struct PuzzleDetail: View {
         .accessibilityAddTraits(.updatesFrequently)
         .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionBanner)
         .accessibilityLabel("Marked complete. Undo if that was an accident.")
+    }
+
+    private var undoBannerMessage: some View {
+        HStack(alignment: .top, spacing: DS.Spacing.s3) {
+            Image(systemName: "arrow.uturn.backward.circle.fill")
+                .foregroundStyle(Brand.accentText)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                Text("Marked complete")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Undo if that was an accident. Your previous status comes back.")
+                    .font(.caption)
+                    .foregroundStyle(Brand.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var undoCompletionButton: some View {
+        Button("Undo") {
+            do {
+                try ps.undoLastCompletion(puzzleID: puzzle.id)
+                if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                    puzzle = refreshed
+                }
+                BarcodeScanFeedback.scanAccepted()
+            } catch {
+                eh.handle(title: "Could not undo completion", message: error.localizedDescription)
+            }
+        }
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(Brand.accentText)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
+        .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionButton)
+        .accessibilityHint("Removes the finish you just logged and restores the previous status")
+    }
+
+    private var dismissUndoButton: some View {
+        Button {
+            ps.dismissCompletionUndo(for: puzzle.id)
+        } label: {
+            Image(systemName: "xmark")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Brand.textSecondary)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Dismiss undo completion")
     }
 }
 
@@ -242,7 +272,7 @@ struct DetailView: View {
         VStack(spacing: DS.Spacing.s4) {
             summaryPanel
             progressPanel
-            if !puzzle.completions.isEmpty {
+            if !puzzle.completions.isEmpty || puzzle.status == .completed {
                 PuzzleCompletionHistorySection(ps: ps, puzzle: $puzzle)
             }
             if puzzle.status == .inProgress {
@@ -427,6 +457,7 @@ struct DetailView: View {
                         detailRow(
                             label: "Due back",
                             value: dueBack,
+                            valueColor: PuzzleLoanSemantics.isOverdue(puzzle) ? Brand.accentWarmText : Brand.textPrimary,
                             accessibilityIdentifier: PuzzleLoanSemantics.isOverdue(puzzle)
                                 ? A11yID.puzzleDetailDueBackOverdue
                                 : nil
@@ -474,6 +505,7 @@ struct DetailView: View {
     private func detailRow(
         label: String,
         value: String,
+        valueColor: Color = Brand.textPrimary,
         accessibilityIdentifier: String? = nil
     ) -> some View {
         if AdaptiveLayout.usesStackedRowLayout(
@@ -486,7 +518,7 @@ struct DetailView: View {
                     .foregroundStyle(Brand.textSecondary)
                 Text(value)
                     .font(.subheadline.bold())
-                    .foregroundStyle(Brand.textPrimary)
+                    .foregroundStyle(valueColor)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -501,8 +533,10 @@ struct DetailView: View {
                 Spacer()
                 Text(value)
                     .font(.subheadline.bold())
-                    .foregroundStyle(Brand.textPrimary)
+                    .foregroundStyle(valueColor)
                     .multilineTextAlignment(.trailing)
+                    .lineLimit(4)
+                    .minimumScaleFactor(0.85)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

@@ -25,6 +25,7 @@ struct PuzzleCompletionHistorySection: View {
                     .font(.subheadline)
                     .foregroundStyle(Brand.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityLabel("No completion logs yet")
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(sortedCompletions.enumerated()), id: \.element.id) { index, completion in
@@ -41,6 +42,9 @@ struct PuzzleCompletionHistorySection: View {
                 Text("Completion history")
                     .font(.headline)
                     .foregroundStyle(Brand.textPrimary)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .fixedSize(horizontal: false, vertical: true)
                 if puzzle.timesCompleted > 0 {
                     Text("\(puzzle.timesCompleted)")
                         .font(.caption.weight(.semibold))
@@ -116,43 +120,50 @@ struct PuzzleCompletionHistorySection: View {
 
     @ViewBuilder
     private func completionRow(_ completion: PuzzleCompletion) -> some View {
-        Button {
-            editingCompletion = completion
-        } label: {
-            HStack(alignment: .top, spacing: DS.Spacing.s3) {
-                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                    Text("Completion \(completion.completionNumber)")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Brand.textPrimary)
-                    Text(completionSummary(completion))
-                        .font(.subheadline)
-                        .foregroundStyle(Brand.textSecondary)
-                        .multilineTextAlignment(.leading)
-                }
-                Spacer(minLength: DS.Spacing.s2)
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(Brand.textSecondary)
-            }
-            .padding(.vertical, DS.Spacing.s2)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(A11yID.puzzleDetailCompletionRow(number: completion.completionNumber))
-        .accessibilityLabel(completionAccessibilityLabel(completion))
-        .accessibilityHint("Opens editor for this completion log")
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+        HStack(alignment: .center, spacing: DS.Spacing.s2) {
             Button {
                 editingCompletion = completion
             } label: {
-                Label(PuzzleCompletionHistoryCopy.swipeEditTitle, systemImage: "pencil")
+                HStack(alignment: .top, spacing: DS.Spacing.s3) {
+                    VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                        Text("Completion \(completion.completionNumber)")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Brand.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Text(completionSummary(completion))
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.textSecondary)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    Spacer(minLength: DS.Spacing.s2)
+                    Image(systemName: "chevron.right")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Brand.textSecondary)
+                        .accessibilityHidden(true)
+                }
+                .padding(.vertical, DS.Spacing.s2)
+                .contentShape(Rectangle())
             }
-            Button(role: .destructive) {
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .accessibilityIdentifier(A11yID.puzzleDetailCompletionRow(number: completion.completionNumber))
+            .accessibilityLabel(completionAccessibilityLabel(completion))
+            .accessibilityHint("Opens editor for this completion log")
+
+            Button {
                 pendingDelete = completion
                 showDeleteConfirm = true
             } label: {
-                Label(PuzzleCompletionHistoryCopy.swipeRemoveTitle, systemImage: "trash")
+                Image(systemName: "trash")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(Brand.accentWarmText)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Remove completion \(completion.completionNumber)")
+            .accessibilityHint("Asks before removing this finish log")
         }
         .contextMenu {
             Button {
@@ -174,6 +185,9 @@ struct PuzzleCompletionHistorySection: View {
         if let timeLabel = completion.timeSpentLabel {
             parts.append(timeLabel)
         }
+        if let ratingLabel = completion.ratingLabel {
+            parts.append(ratingLabel)
+        }
         return parts.joined(separator: " · ")
     }
 
@@ -181,6 +195,9 @@ struct PuzzleCompletionHistorySection: View {
         var label = "Completion \(completion.completionNumber), \(completion.completedAt.formatted(date: .abbreviated, time: .omitted))"
         if let timeLabel = completion.timeSpentLabel {
             label += ", \(timeLabel)"
+        }
+        if let ratingLabel = completion.ratingLabel {
+            label += ", \(ratingLabel)"
         }
         return label
     }

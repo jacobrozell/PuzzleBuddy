@@ -271,6 +271,8 @@ private struct PuzzleCellView: View {
                 .font(.caption)
                 .foregroundStyle(Brand.accentWarmText)
                 .labelStyle(.titleAndIcon)
+                .lineLimit(2)
+                .minimumScaleFactor(0.85)
                 .accessibilityIdentifier(overdue ? A11yID.puzzleCellOverdue : A11yID.puzzleCellOnLoan)
             }
 
@@ -280,6 +282,8 @@ private struct PuzzleCellView: View {
                     .font(.caption)
                     .foregroundStyle(Brand.accentText)
                     .labelStyle(.titleAndIcon)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
                     .accessibilityIdentifier(A11yID.puzzleCellTimerRunning)
             }
         }
@@ -287,7 +291,10 @@ private struct PuzzleCellView: View {
         if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: DS.Spacing.s2) { badges }
         } else {
-            HStack(spacing: DS.Spacing.s2) { badges }
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .center, spacing: DS.Spacing.s2) { badges }
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) { badges }
+            }
         }
     }
 }

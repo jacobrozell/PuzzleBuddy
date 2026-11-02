@@ -149,6 +149,25 @@ final class CollectionStatsTests: XCTestCase {
         XCTAssertEqual(stats.topTags.first?.count, 2)
     }
 
+    func testReplayLogCountsWhilePuzzleIsInProgress() {
+        let again = makePuzzle(name: "Again", pieces: 500, status: .inProgress)
+        again.completions = [
+            PuzzleCompletion(completionNumber: 1, completedAt: referenceDate)
+        ]
+        again.timesCompleted = 1
+
+        let stats = CollectionStats.compute(from: [again], calendar: calendar, now: referenceDate)
+
+        XCTAssertEqual(stats.completedCount, 0)
+        XCTAssertEqual(stats.completionsThisMonth, 1)
+        XCTAssertEqual(stats.completionsThisYear, 1)
+        XCTAssertEqual(stats.completionsByMonthThisYear[5], 1)
+        XCTAssertEqual(
+            CollectionStats.monthlyCompletionCounts(from: [again], year: 2026, calendar: calendar)[5],
+            1
+        )
+    }
+
     func testCompletionsFilterByMonthAndYear() {
         let thisMonth = makePuzzle(name: "June", pieces: 500, status: .completed)
         thisMonth.completionDate = referenceDate

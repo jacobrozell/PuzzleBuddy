@@ -24,13 +24,13 @@ struct PuzzleStatusPill: View {
     private var foregroundColor: Color {
         switch status {
         case .wishlist:
-            return Brand.accentWarm
+            return Brand.accentWarmText
         case .todo:
             return Brand.textSecondary
         case .inProgress:
             return Brand.textOnAccent
         case .completed:
-            return Brand.accent
+            return Brand.accentText
         case .abandoned:
             return Brand.textSecondary
         }

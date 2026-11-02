@@ -46,4 +46,14 @@ struct PuzzleCompletion: Identifiable, Equatable {
         }
         return parts.joined(separator: " ")
     }
+
+    /// Snapshot rating for history rows. Nil when the finish was unrated.
+    var ratingLabel: String? {
+        guard let rating, rating > 0 else { return nil }
+        let tenths = (rating * 10).rounded() / 10
+        if tenths == tenths.rounded() {
+            return "Rated \(Int(tenths))"
+        }
+        return String(format: "Rated %.1f", tenths)
+    }
 }
