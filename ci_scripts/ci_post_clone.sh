@@ -50,3 +50,15 @@ PY
 
 (cd "$root" && xcodegen generate)
 echo "Generated Xcode project from $yml"
+
+# Xcode Cloud will not resolve Swift packages on its own. The generated
+# project needs the same pin file a local build already produced.
+resolved_src="$root/ci/Package.resolved"
+resolved_dest="$root/PuzzleBuddy.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+if [ ! -f "$resolved_src" ]; then
+  echo "error: ci/Package.resolved is missing" >&2
+  exit 1
+fi
+mkdir -p "$(dirname "$resolved_dest")"
+cp "$resolved_src" "$resolved_dest"
+echo "Installed Package.resolved"
