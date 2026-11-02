@@ -71,7 +71,7 @@ cp GoogleService-Info.plist.example GoogleService-Info.plist
 
 ### Xcode Cloud
 
-`ci_scripts/ci_post_clone.sh` writes `GoogleService-Info.plist` before `xcodegen`. Set `GOOGLE_SERVICE_INFO_PLIST_BASE64` on that workflow (secret, base64 of the real plist). Without it, the archive uses the example plist and GA4 stays off. The variable is per workflow, not shared with other apps.
+`ci_scripts/ci_post_clone.sh` writes `GoogleService-Info.plist` before `xcodegen`. Set `GOOGLE_SERVICE_INFO_PLIST_BASE64` on that workflow (secret, base64 of the real plist). Without a real plist the script stops the archive, so a TestFlight build cannot ship with GA4 off. The variable is per workflow, not shared with other apps.
 
 ```bash
 base64 -i GoogleService-Info.plist | pbcopy
