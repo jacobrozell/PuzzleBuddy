@@ -6,9 +6,6 @@
 //
 
 import SwiftUI
-#if canImport(UIKit)
-import UIKit
-#endif
 
 enum AdaptiveLayout {
     /// Prefer vertical stacking only at accessibility Dynamic Type sizes.
@@ -20,7 +17,7 @@ enum AdaptiveLayout {
         dynamicType.isAccessibilitySize
     }
 
-    /// Side-by-side summary + stats on iPad and iPhone landscape.
+    /// Side-by-side summary + stats at regular width or compact height (landscape).
     static func usesWideDetailLayout(
         horizontalSizeClass: UserInterfaceSizeClass?,
         verticalSizeClass: UserInterfaceSizeClass? = nil
@@ -31,32 +28,15 @@ enum AdaptiveLayout {
         return verticalSizeClass == .compact
     }
 
-    /// iPhone landscape chrome: compact height, or large phones that report regular in both axes.
+    /// Short-height chrome (landscape phones, resizable windows): compact vertical size class only.
     static func usesLandscapePhoneLayout(
-        horizontalSizeClass: UserInterfaceSizeClass?,
+        horizontalSizeClass _: UserInterfaceSizeClass?,
         verticalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
-        #if canImport(UIKit)
-        guard UIDevice.current.userInterfaceIdiom == .phone else { return false }
-        if verticalSizeClass == .compact { return true }
-        return horizontalSizeClass == .regular && isLandscapeInterface
-        #else
-        return verticalSizeClass == .compact
-        #endif
+        verticalSizeClass == .compact
     }
 
-    #if canImport(UIKit)
-    /// Active window scene is landscape (for size-class edge cases on large iPhones).
-    static var isLandscapeInterface: Bool {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first { $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive }
-            .map(\.interfaceOrientation.isLandscape)
-            ?? false
-    }
-    #endif
-
-    /// Max content width on iPad / regular width. Uses most of the available width with sensible caps.
+    /// Max content width at regular width / compact height. Uses most of the available width with sensible caps.
     static func contentMaxWidth(
         containerWidth: CGFloat,
         verticalSizeClass: UserInterfaceSizeClass? = nil
@@ -77,26 +57,27 @@ enum AdaptiveLayout {
         return 88
     }
 
-    /// Long add/edit forms use full-screen cover on iPad; sheet on iPhone.
+    /// Long add/edit forms use page-sized presentation at regular width.
     static func presentsLongFormAsFullScreenCover(
         horizontalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
-        usesSplitNavigation(horizontalSizeClass: horizontalSizeClass)
+        usesSplitNavigation(
+            horizontalSizeClass: horizontalSizeClass,
+            verticalSizeClass: .regular
+        )
     }
 
-    /// iPad regular width: list + detail via `NavigationSplitView`.
-    /// iPhone landscape can report regular horizontal size class — keep split navigation iPad-only.
+    /// Sidebar and list-detail split only when both size classes are regular
+    /// (iPad, iPhone Duo inner display). iPhone Pro Max landscape is regular width
+    /// and compact height, so it keeps the phone tab bar and a pushed detail.
     static func usesSplitNavigation(
-        horizontalSizeClass: UserInterfaceSizeClass?
+        horizontalSizeClass: UserInterfaceSizeClass?,
+        verticalSizeClass: UserInterfaceSizeClass?
     ) -> Bool {
-        #if canImport(UIKit)
-        UIDevice.current.userInterfaceIdiom == .pad && horizontalSizeClass == .regular
-        #else
-        horizontalSizeClass == .regular
-        #endif
+        horizontalSizeClass == .regular && verticalSizeClass == .regular
     }
 
-    /// Stat cards: two columns on iPhone; adaptive grid on iPad.
+    /// Stat cards: two columns at compact width; adaptive grid at regular width.
     static func statsGridColumns(
         horizontalSizeClass: UserInterfaceSizeClass?,
         minimumWidth: CGFloat = 220,
@@ -130,12 +111,8 @@ private struct AdaptiveScrollChrome: ViewModifier {
             .frame(maxWidth: .infinity, alignment: .top)
             .padding(.bottom, AdaptiveLayout.tabBarClearance(for: dynamicTypeSize))
 
-        if #available(iOS 16.4, *) {
-            ScrollView { padded }
-                .scrollBounceBehavior(.basedOnSize)
-        } else {
-            ScrollView { padded }
-        }
+        ScrollView { padded }
+            .scrollBounceBehavior(.basedOnSize)
     }
 }
 
@@ -145,7 +122,7 @@ extension View {
         modifier(AdaptiveScrollChrome())
     }
 
-    /// Centers content in a readable column on iPad / regular width.
+    /// Centers content in a readable column at regular width or compact height.
     func readableContentWidth() -> some View {
         modifier(ReadableContentWidth())
     }
@@ -158,9 +135,9 @@ extension View {
     }
 
     /// Readable column with full-bleed brand background (apply background after width constraint).
-    /// Pass `ignoresSafeAreaEdges: .all` for full-screen surfaces (e.g. onboarding) where the
-    /// gradient should extend into the top status bar.
-    func readableBrandBackground(ignoresSafeAreaEdges edges: Edge.Set = [.horizontal, .bottom]) -> some View {
+    /// Defaults to all edges so iPhone Duo (status bar on the trailing edge) does not show a
+    /// white strip at the top of the display.
+    func readableBrandBackground(ignoresSafeAreaEdges edges: Edge.Set = .all) -> some View {
         readableContentWidth()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .brandBackground(ignoresSafeAreaEdges: edges)
@@ -172,7 +149,7 @@ extension View {
             .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
     }
 
-    /// Long forms (add puzzle, quick add): full-screen on iPad, large sheet on iPhone.
+    /// Long forms (add puzzle, quick add): page-sized sheet at regular width, large sheet otherwise.
     func adaptiveLongFormSheet<SheetContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder content: @escaping () -> SheetContent
@@ -187,91 +164,55 @@ extension View {
     ) -> some View {
         modifier(AdaptiveLongFormItemSheetModifier(item: item, sheetContent: content))
     }
+
+    /// Near-full page sheet at regular width; no-op at compact width.
+    func adaptiveIPadPageSheet() -> some View {
+        modifier(AdaptiveIPadPageSheet())
+    }
 }
 
 // MARK: - Long form modal presentation
 
 private struct AdaptiveLongFormSheetModifier<SheetContent: View>: ViewModifier {
     @Binding var isPresented: Bool
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @ViewBuilder var sheetContent: () -> SheetContent
 
     func body(content: Content) -> some View {
         content
-            .sheet(isPresented: compactWidthPresentation) {
+            .sheet(isPresented: $isPresented) {
                 sheetContent()
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
+                    .modifier(AdaptiveLongFormPresentationChrome())
             }
-            .fullScreenCover(isPresented: regularWidthPresentation) {
-                sheetContent()
-            }
-    }
-
-    private var compactWidthPresentation: Binding<Bool> {
-        Binding(
-            get: {
-                isPresented && !AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                )
-            },
-            set: { newValue in
-                if !newValue { isPresented = false }
-            }
-        )
-    }
-
-    private var regularWidthPresentation: Binding<Bool> {
-        Binding(
-            get: {
-                isPresented && AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                )
-            },
-            set: { newValue in
-                if !newValue { isPresented = false }
-            }
-        )
     }
 }
 
 private struct AdaptiveLongFormItemSheetModifier<Item: Identifiable, SheetContent: View>: ViewModifier {
     @Binding var item: Item?
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     let sheetContent: (Item) -> SheetContent
 
     func body(content: Content) -> some View {
         content
-            .sheet(item: compactWidthItem) { unwrapped in
+            .sheet(item: $item) { unwrapped in
                 sheetContent(unwrapped)
-                    .presentationDetents([.large])
-                    .presentationDragIndicator(.visible)
-            }
-            .fullScreenCover(item: regularWidthItem) { unwrapped in
-                sheetContent(unwrapped)
+                    .modifier(AdaptiveLongFormPresentationChrome())
             }
     }
+}
 
-    private var compactWidthItem: Binding<Item?> {
-        Binding(
-            get: {
-                AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                ) ? nil : item
-            },
-            set: { item = $0 }
-        )
+private struct AdaptiveLongFormPresentationChrome: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .presentationDragIndicator(.visible)
+            .presentationSizing(.page)
+            .presentationCompactAdaptation(.none)
     }
+}
 
-    private var regularWidthItem: Binding<Item?> {
-        Binding(
-            get: {
-                AdaptiveLayout.presentsLongFormAsFullScreenCover(
-                    horizontalSizeClass: horizontalSizeClass
-                ) ? item : nil
-            },
-            set: { item = $0 }
-        )
+private struct AdaptiveIPadPageSheet: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .presentationSizing(.page)
+            .presentationCompactAdaptation(.none)
     }
 }
 

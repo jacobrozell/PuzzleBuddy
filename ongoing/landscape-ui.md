@@ -107,13 +107,12 @@
 
 ---
 
-## 7. NavigationSplitView on iPad (1.0)
+## 7. NavigationSplitView on iPad and iPhone Duo (1.1)
 
 **Deliverables:**
-- [x] On regular width, `PuzzleList` uses `NavigationSplitView` — collection list in sidebar, detail on the right.
-- [x] Programmatic navigation (shopping mode, marketing snapshots) sets `selectedPuzzleID` on iPad.
-- [x] iPhone keeps `NavigationStack` + `NavigationLink` push.
-- [ ] Evaluate sidebar tabs vs. bottom `TabView` for iPad (deferred).
+- [x] One `NavigationSplitView` for every width. Regular width (iPad, Duo inner display, resizable window) shows list and detail together. Compact width collapses to a stack so fold does not rebuild navigation.
+- [x] Row selection is `selectedPuzzleID` on the list. Programmatic navigation (shopping mode, marketing snapshots) sets that selection.
+- [x] iOS 18 sidebar-adaptable tabs stay on `PuzzleTabbar`.
 
 **Files:** `PuzzleTabbar.swift`, `PuzzleList.swift`, `PuzzleCell.swift`, `AdaptiveLayout.swift`
 
@@ -123,7 +122,7 @@
 
 | Item | Notes |
 |------|--------|
-| Sidebar-adaptable `TabView` (iOS 18+) | Less bottom chrome on iPad |
+| Sidebar-adaptable `TabView` (iOS 18+) | **Done in 1.1.0** — `PuzzleTabbar` uses `Tab` + `.sidebarAdaptable` |
 | Widen `contentMaxWidth` on 13" iPad | Stats/list feel letterboxed above ~1020pt |
 | iPad filter/tag sheets | Inline filters on regular width today; sheet polish optional |
 | Multi-column grid browse mode | Superseded by split list + detail; revisit if needed |

@@ -13,6 +13,8 @@ struct PuzzleView: View {
     @StateObject var ps: PuzzleStore
     @AppStorage(UserPreferences.ephemeralStoreBannerDismissedKey) private var ephemeralBannerDismissed = false
     @AppStorage(UserPreferences.storeWasResetNoticePendingKey) private var storeWasResetNoticePending = false
+    @State private var showWhatsNew = false
+    @StateObject private var browse = PuzzleBrowseState()
 
     init(modelContext: ModelContext) {
         _ps = StateObject(wrappedValue: PuzzleStore(modelContext: modelContext))
@@ -25,17 +27,29 @@ struct PuzzleView: View {
             } else if showsStoreResetBanner {
                 storeResetBanner
             }
-            PuzzleTabbar(ps: ps)
+            PuzzleTabbar(ps: ps, browse: browse)
         }
         .task {
             if MarketingSnapshotBootstrap.shouldResetCollection {
                 try? ps.clearAllPuzzles()
             }
-            if UITestSupport.shouldSeedPuzzles, ps.puzzles.isEmpty {
+            if UITestSupport.shouldForceSeedDemoCatalog {
+                if !ps.puzzles.contains(where: { $0.name == DemoDataCatalog.primarySeededPuzzleName }) {
+                    try? ps.clearAllPuzzles()
+                    try? ps.loadDemoPuzzles()
+                }
+            } else if UITestSupport.shouldSeedPuzzles, ps.puzzles.isEmpty {
                 try? ps.loadDemoPuzzles()
             } else if ps.puzzles.isEmpty {
                 await ps.fetchPuzzles()
             }
+            if WhatsNewPrompt.shouldPresent() {
+                showWhatsNew = true
+            }
+        }
+        .sheet(isPresented: $showWhatsNew, onDismiss: dismissWhatsNew) {
+            WhatsNewView(onDismiss: { showWhatsNew = false })
+                .presentationDetents([.medium, .large])
         }
     }
 
@@ -71,6 +85,11 @@ struct PuzzleView: View {
             accessibilityLabel: "Notice. Your previous collection could not be opened and was reset. New puzzles will save normally.",
             onDismiss: { storeWasResetNoticePending = false }
         )
+    }
+
+    private func dismissWhatsNew() {
+        WhatsNewPrompt.markSeen()
+        AppLog.shared.info(.ui, eventName: "whats_new_dismissed", message: "Dismissed 1.1 What's New notes.")
     }
 
     private func noticeBanner(

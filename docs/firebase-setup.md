@@ -27,7 +27,7 @@ Puzzle data is stored **only on device** via SwiftData (`PuzzleRecord`).
 ## Prerequisites
 
 - Firebase project at [console.firebase.google.com](https://console.firebase.google.com/)
-- Xcode 16+, iOS 17 deployment target
+- Xcode 16+, iOS 18 deployment target
 - Optional: real `GoogleService-Info.plist` for local Analytics/Crashlytics verification (not required for builds/tests)
 
 ---
@@ -68,6 +68,14 @@ cp GoogleService-Info.plist.example GoogleService-Info.plist
 ```
 
 `FirebaseBootstrap.shouldConfigure` returns `false` for placeholders — Firebase does not initialize, but the app and tests run normally with SwiftData-only persistence.
+
+### Xcode Cloud
+
+`ci_scripts/ci_post_clone.sh` writes `GoogleService-Info.plist` before `xcodegen`. Set `GOOGLE_SERVICE_INFO_PLIST_BASE64` on that workflow (secret, base64 of the real plist). Without a real plist the script stops the archive, so a TestFlight build cannot ship with GA4 off. The variable is per workflow, not shared with other apps.
+
+```bash
+base64 -i GoogleService-Info.plist | pbcopy
+```
 
 ---
 

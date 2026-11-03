@@ -2,7 +2,7 @@
 
 Puzzle Buddy uses XCTest for unit tests and XCUITest for UI automation. CI runs the full suite on every push and pull request.
 
-**Last updated:** 2026-06-29
+**Last updated:** 2026-09-25
 
 ---
 
@@ -30,13 +30,13 @@ xcodegen generate
 xcodebuild build-for-testing \
   -project "PuzzleBuddy.xcodeproj" \
   -scheme PuzzleBuddy \
-  -destination "platform=iOS Simulator,name=iPhone 16" \
+  -destination "platform=iOS Simulator,name=iPhone 17" \
   -derivedDataPath DerivedData \
   CODE_SIGN_IDENTITY=- \
   CODE_SIGNING_REQUIRED=NO \
   CODE_SIGNING_ALLOWED=NO
 
-Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 16"
+Scripts/ci/run-tests.sh "platform=iOS Simulator,name=iPhone 17"
 ```
 
 ---
@@ -66,6 +66,7 @@ When changing telemetry allowlists: update `AppLoggingTests` and [telemetry.md](
 | `-disable_firebase_analytics` | Disable Analytics + Crashlytics |
 | `-ui_testing_bypass_onboarding` | Skip onboarding |
 | `-ui_testing_seed_puzzles` | Insert demo puzzles |
+| `-ui_testing_show_whats_new` | Force the 1.1 What’s New sheet |
 
 Default UI test flow: puzzle list with seeded data — **no login screen** (auth removed from app).
 

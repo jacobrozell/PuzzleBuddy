@@ -130,10 +130,18 @@ Future account sync: [specs/planned/auth-cloud-sync.md](specs/planned/auth-cloud
 
 ### SwiftData records
 
-`PuzzleRecord` mirrors puzzle fields for on-device storage. When adding fields:
+`PuzzleRecord`, `PuzzlePhotoRecord`, and `PuzzleCompletionRecord` persist the collection. Schema is versioned:
 
-1. Update `PuzzleRecord` and its `init(from:)` / `apply(from:)` / `toPuzzle()` methods
-2. Add tests in `PuzzlePersistenceTests`
+- **Policy:** [docs/swiftdata-migrations.md](docs/swiftdata-migrations.md)
+- **Code:** `App/Persistence/PuzzleSchemaV1.swift`, `PuzzleMigrationPlan.swift`, `PuzzleModelContainer.swift`
+
+When adding **stored** fields:
+
+1. Read the migration doc — add `PuzzleSchemaV{n+1}` + `MigrationStage` (do not mutate V1 after tag `1.0.0`).
+2. Update the `@Model` type and `init(from:)` / `apply(from:)` / `toPuzzle()` (or photo/completion equivalents).
+3. Add tests in `PuzzlePersistenceTests` and `PuzzleMigrationPlanTests`.
+
+Helpers that do not change stored properties (e.g. `apply(from:)`) do **not** need a schema bump.
 
 ### Dictionary serialization (export / tests)
 

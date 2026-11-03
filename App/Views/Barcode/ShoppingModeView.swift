@@ -3,12 +3,14 @@
 //  Puzzle Buddy
 //
 
+import StoreKit
 import SwiftUI
 
 struct ShoppingModeView: View {
     @ObservedObject var ps: PuzzleStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.requestReview) private var requestReview
 
     let onAddPuzzle: (String) -> Void
     let onOpenPuzzle: (Puzzle) -> Void
@@ -92,8 +94,10 @@ struct ShoppingModeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                     .optionalAccessibilityIdentifier(A11yID.shoppingModeCancel)
                     .accessibilityLabel("Cancel shopping mode")
@@ -138,6 +142,7 @@ struct ShoppingModeView: View {
                 message: "Barcode scan completed.",
                 metadata: ["scan_context": "shopping", "scan_result": "match"]
             )
+            StoreReviewPrompt.requestIfEligible(reason: .barcodeScan, requestReview: requestReview)
             return
         }
 
@@ -163,6 +168,7 @@ struct ShoppingModeView: View {
             message: "Barcode scan completed.",
             metadata: ["scan_context": "shopping", "scan_result": "no_match"]
         )
+        StoreReviewPrompt.requestIfEligible(reason: .barcodeScan, requestReview: requestReview)
     }
 
     private func announceMatch(_ puzzle: Puzzle) {

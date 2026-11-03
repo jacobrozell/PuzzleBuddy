@@ -63,7 +63,9 @@ These events are **already allowlisted** and fire in Release builds. GA4 receive
 |-------|---------------------|-----------------|
 | `app_bootstrap_ready` → `app_open` | `app_version`, `log_category` | DAU, version mix |
 | `onboarding_completed` | — | Activation |
-| `puzzle_list_refreshed` | `puzzle_count` | Collection size at launch |
+| `puzzle_list_refreshed` | `puzzle_count`, status counts, size buckets | Collection size + mix at launch |
+| `session_snapshot` | collection snapshot + `days_since_last_open_bucket` | Habit / return gap |
+| `milestone_reached` | `milestone_id` | Activation landmarks |
 | `puzzle_added` | `puzzle_status` | New puzzle rate, status at add |
 | `puzzle_updated` | `puzzle_status` | Edit frequency |
 | `puzzle_deleted` | — | Churn signal |
@@ -191,21 +193,18 @@ No code changes required. Register after first TestFlight traffic.
 | `rating_bucket` | Rating bucket | `puzzle_completion_recorded` |
 | `has_missing_pieces` | Missing pieces flag | `puzzle_completion_recorded` |
 
-### 5.3 Phase C — user-scoped (optional, mirror Dart Buddy subset)
+### 5.3 Phase C — user-scoped (shipped in 1.1.0 analytics depth)
 
-Set via `AnalyticsUserContext` / `AnalyticsAccessibilityContext` when implemented.
+Set via `AnalyticsUserContext` on launch / collection change / onboarding.
 
 | User property | Display name | Purpose |
 |---------------|--------------|---------|
 | `onboarding_complete` | Onboarding complete | Segment new vs returning |
-| `app_locale` | App locale | Locale adoption |
-| `appearance_mode` | Appearance mode | Theme preference |
-| `collection_size_bucket` | Collection size bucket | `0`, `1_10`, `11_50`, `51_plus` |
+| `collection_size_bucket` | Collection size bucket | `0`, `1`, `2_5`, `6_20`, `21_50`, `51_plus` |
+| `completed_count_bucket` | Completed count bucket | `0`, `1`, `2_5`, `6_plus` |
 | `has_completed_puzzle` | Has completed puzzle | Power-user segment |
-| `import_export_enabled` | Import/export enabled | Product surface flag |
-| `voiceover_enabled` | VoiceOver enabled | A11y context |
-| `reduce_motion_enabled` | Reduce Motion enabled | A11y context |
-| `bold_text_enabled` | Bold Text enabled | A11y context |
+
+**Still optional / deferred:** `app_locale`, `appearance_mode`, a11y flags (Dart Buddy subset).
 
 **Do not register:** puzzle names, brands, barcodes, notes, tags, purchase locations.
 
@@ -351,7 +350,8 @@ After each phase:
 | Phase A Exploration smoke | [ ] | | |
 | Phase B events shipped | [x] | 2026-06-29 | iOS + Android |
 | Phase B dimensions registered | [ ] | | [Checklist](release/ga4-phase-b-console-checklist.md) |
-| User properties (Phase D) | [ ] | | |
+| User properties (Phase D / 1.1 depth) | [ ] | | Register §5.3 user-scoped dims |
+| `session_snapshot` / `milestone_reached` | [x] | 2026-09-25 | iOS + Android allowlist; Android call sites on launch/list |
 
 ---
 

@@ -41,8 +41,10 @@ struct BarcodeScannerSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
+                    Button {
                         dismiss()
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                     .optionalAccessibilityIdentifier(A11yID.barcodeScannerCancel)
                 }

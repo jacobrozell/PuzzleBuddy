@@ -4,7 +4,7 @@
 **Author:** Puzzle Buddy product + engineering  
 **Last updated:** 2026-06-17  
 **Target release:** 1.2+ (phased; see [Delivery phases](#delivery-phases))  
-**Deployment baseline:** iOS 17.0 (`project.yml`)  
+**Deployment baseline:** iOS 18.0 (`project.yml`)  
 **Related docs:** [roadmap.md](roadmap.md), [user-research-garage-collector.md](user-research-garage-collector.md), [implementation-playbook.md](implementation-playbook.md)
 
 ---

@@ -5,15 +5,29 @@
 //  Created by Jacob Rozell on 8/31/22.
 //
 
+import StoreKit
 import SwiftUI
 
 struct PuzzleDetail: View {
     @ObservedObject var ps: PuzzleStore
+    @ObservedObject var browse: PuzzleBrowseState
     @EnvironmentObject var eh: ErrorHandling
-    @State private var isEditable = false
-    @State private var editFormVm: PuzzleFormViewModel?
+    @Environment(\.requestReview) private var requestReview
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var showRedoConfirmation = false
+    @State private var showMarkReturnedConfirmation = false
     @Binding var puzzle: Puzzle
+    var zoomNamespace: Namespace.ID? = nil
+
+    private var isEditable: Bool {
+        browse.editFormVm?.puzzle.id == puzzle.id
+    }
+
+    private var editFormVm: PuzzleFormViewModel? {
+        isEditable ? browse.editFormVm : nil
+    }
 
     private var trimmedNameIsEmpty: Bool {
         if isEditable, let editFormVm {
@@ -24,6 +38,23 @@ struct PuzzleDetail: View {
 
     var body: some View {
         VStack {
+            if !isEditable, ps.activeCompletionUndo(for: puzzle.id) != nil {
+                undoCompletionBanner
+                    .onAppear {
+                        UIAccessibility.post(
+                            notification: .announcement,
+                            argument: "Marked complete. Undo if that was an accident."
+                        )
+                    }
+                    .task(id: ps.pendingCompletionUndo?.recordedAt) {
+                        guard let snapshot = ps.activeCompletionUndo(for: puzzle.id) else { return }
+                        let remaining = CompletionUndoSemantics.window - Date().timeIntervalSince(snapshot.recordedAt)
+                        if remaining > 0 {
+                            try? await Task.sleep(for: .seconds(remaining))
+                        }
+                        ps.expireCompletionUndoIfNeeded(puzzleID: puzzle.id)
+                    }
+            }
             if isEditable, let editFormVm {
                 PuzzleFormInternal(formVm: editFormVm, allPuzzles: ps.puzzles)
                     .keyboardDismissToolbar()
@@ -33,35 +64,47 @@ struct PuzzleDetail: View {
                     DetailView(
                         puzzle: $puzzle,
                         ps: ps,
-                        onPuzzleAgain: puzzle.status == .completed ? { showRedoConfirmation = true } : nil
+                        onPuzzleAgain: puzzle.status == .completed ? { showRedoConfirmation = true } : nil,
+                        onMarkReturned: puzzle.isOnLoan ? { showMarkReturnedConfirmation = true } : nil
                     )
                         .frame(maxWidth: .infinity)
                 }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .animation(.easeInOut, value: isEditable)
+        .modifier(PuzzleDetailZoomTransition(id: puzzle.id, namespace: zoomNamespace))
+        .animation(reduceMotion ? nil : .easeInOut, value: isEditable)
+        .navigationBarBackButtonHidden(horizontalSizeClass == .compact)
         .navigationTitle("\(puzzle.name)")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Brand.background, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        .brandNavigationBarBackground()
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                if isEditable {
-                    Button("Cancel") {
-                        editFormVm = nil
-                        isEditable = false
+            if isEditable {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        browse.editFormVm = nil
+                    } label: {
+                        Label("Cancel", systemImage: "xmark")
                     }
                     .optionalAccessibilityIdentifier(A11yID.puzzleDetailCancelButton)
                     .accessibilityLabel("Cancel editing")
                     .accessibilityHint("Discards unsaved changes and returns to details")
                 }
+            } else if horizontalSizeClass == .compact {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        browse.editFormVm = nil
+                        browse.selectedPuzzleID = nil
+                    } label: {
+                        Label("Back", systemImage: "chevron.backward")
+                    }
+                    .accessibilityLabel("Back")
+                }
             }
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .confirmationAction) {
                 Button {
                     guard isEditable else {
-                        editFormVm = PuzzleFormViewModel(puzzle: puzzle.copy())
-                        isEditable = true
+                        browse.editFormVm = PuzzleFormViewModel(puzzle: puzzle.copy())
                         return
                     }
 
@@ -72,14 +115,19 @@ struct PuzzleDetail: View {
                         if let refreshed = ps.puzzles.first(where: { $0.id == editFormVm.puzzle.id }) {
                             puzzle = refreshed
                         }
-                        self.editFormVm = nil
-                        isEditable = false
+                        if !editFormVm.puzzle.isDemo {
+                            StoreReviewPrompt.requestIfEligible(reason: .puzzleEdited, requestReview: requestReview)
+                        }
+                        browse.editFormVm = nil
                         BarcodeScanFeedback.scanAccepted()
                     } catch {
                         eh.handle(title: "Could not save puzzle", message: error.localizedDescription)
                     }
                 } label: {
-                    Text("\(isEditable ? "Save" : "Edit")")
+                    Label(
+                        isEditable ? "Save" : "Edit",
+                        systemImage: isEditable ? "checkmark" : "pencil"
+                    )
                 }
                 .disabled(isEditable && trimmedNameIsEmpty)
                 .opacity(isEditable && trimmedNameIsEmpty ? 0.6 : 1.0)
@@ -112,6 +160,108 @@ struct PuzzleDetail: View {
         } message: {
             Text("Start this puzzle again? Your previous completions stay in your history.")
         }
+        .confirmationDialog(
+            "Mark returned?",
+            isPresented: $showMarkReturnedConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Mark returned") {
+                do {
+                    try ps.markReturned(puzzle: puzzle)
+                    if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                        puzzle = refreshed
+                    }
+                } catch {
+                    eh.handle(title: "Could not mark returned", message: error.localizedDescription)
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Clear the on-loan status for this puzzle?")
+        }
+    }
+
+    private var undoCompletionBanner: some View {
+        Group {
+            if dynamicTypeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                    undoBannerMessage
+                    HStack(spacing: DS.Spacing.s2) {
+                        undoCompletionButton
+                        dismissUndoButton
+                        Spacer(minLength: 0)
+                    }
+                }
+            } else {
+                HStack(alignment: .top, spacing: DS.Spacing.s3) {
+                    undoBannerMessage
+                    Spacer(minLength: DS.Spacing.s2)
+                    undoCompletionButton
+                    dismissUndoButton
+                }
+            }
+        }
+        .padding(DS.Spacing.s3)
+        .background(Brand.accent.opacity(0.12))
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.updatesFrequently)
+        .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionBanner)
+        .accessibilityLabel("Marked complete. Undo if that was an accident.")
+    }
+
+    private var undoBannerMessage: some View {
+        HStack(alignment: .top, spacing: DS.Spacing.s3) {
+            Image(systemName: "arrow.uturn.backward.circle.fill")
+                .foregroundStyle(Brand.accentText)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
+                Text("Marked complete")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Brand.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text("Undo if that was an accident. Your previous status comes back.")
+                    .font(.caption)
+                    .foregroundStyle(Brand.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var undoCompletionButton: some View {
+        Button("Undo") {
+            do {
+                try ps.undoLastCompletion(puzzleID: puzzle.id)
+                if let refreshed = ps.puzzles.first(where: { $0.id == puzzle.id }) {
+                    puzzle = refreshed
+                }
+                BarcodeScanFeedback.scanAccepted()
+            } catch {
+                eh.handle(title: "Could not undo completion", message: error.localizedDescription)
+            }
+        }
+        .font(.subheadline.weight(.semibold))
+        .foregroundStyle(Brand.accentText)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+        .frame(minWidth: 44, minHeight: 44)
+        .contentShape(Rectangle())
+        .accessibilityIdentifier(A11yID.puzzleDetailUndoCompletionButton)
+        .accessibilityHint("Removes the finish you just logged and restores the previous status")
+    }
+
+    private var dismissUndoButton: some View {
+        Button {
+            ps.dismissCompletionUndo(for: puzzle.id)
+        } label: {
+            Image(systemName: "xmark")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Brand.textSecondary)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Dismiss undo completion")
     }
 }
 
@@ -120,6 +270,7 @@ struct DetailView: View {
     @Binding var puzzle: Puzzle
     @ObservedObject var ps: PuzzleStore
     var onPuzzleAgain: (() -> Void)?
+    var onMarkReturned: (() -> Void)?
     @EnvironmentObject var eh: ErrorHandling
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.verticalSizeClass) private var verticalSizeClass
@@ -128,6 +279,12 @@ struct DetailView: View {
         VStack(spacing: DS.Spacing.s4) {
             summaryPanel
             progressPanel
+            if !puzzle.completions.isEmpty || puzzle.status == .completed {
+                PuzzleCompletionHistorySection(ps: ps, puzzle: $puzzle)
+            }
+            if puzzle.status == .inProgress {
+                PuzzleTimerCard(puzzle: $puzzle, ps: ps)
+            }
             statsPanel
         }
         .padding(.horizontal)
@@ -186,7 +343,8 @@ struct DetailView: View {
                         eh.handle(title: "Could not save progress", message: error.localizedDescription)
                     }
                 },
-                onPuzzleAgain: onPuzzleAgain
+                onPuzzleAgain: onPuzzleAgain,
+                onMarkReturned: onMarkReturned
             )
         }
         .groupBoxStyle(BrandGroupBoxStyle())
@@ -244,20 +402,6 @@ struct DetailView: View {
                     )
                 }
 
-                if puzzle.timesCompleted > 0 {
-                    detailRow(
-                        label: "Times completed",
-                        value: "\(puzzle.timesCompleted)"
-                    )
-                }
-
-                ForEach(PuzzleCompletionSemantics.sortedNewestFirst(puzzle.completions)) { completion in
-                    detailRow(
-                        label: "Completion \(completion.completionNumber)",
-                        value: completionSummary(completion)
-                    )
-                }
-
                 if puzzle.status == .completed, puzzle.disposition != .none {
                     detailRow(label: "After finishing", value: puzzle.disposition.displayLabel)
                 }
@@ -297,6 +441,37 @@ struct DetailView: View {
                     value: puzzle.hasMissingPieces ? "Yes" : "No"
                 )
 
+                detailRow(
+                    label: "On loan",
+                    value: puzzle.isOnLoan ? "Yes" : "No"
+                )
+
+                if puzzle.isOnLoan {
+                    detailRow(
+                        label: "Loaned to",
+                        value: {
+                            let name = puzzle.loanedToDisplayName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                            return name.isEmpty ? "Someone" : name
+                        }()
+                    )
+                    if let loanedAt = puzzle.loanedAt {
+                        detailRow(
+                            label: "Loaned on",
+                            value: loanedAt.formatted(date: .abbreviated, time: .omitted)
+                        )
+                    }
+                    if let dueBack = PuzzleLoanSemantics.dueBackDisplayValue(for: puzzle) {
+                        detailRow(
+                            label: "Due back",
+                            value: dueBack,
+                            valueColor: PuzzleLoanSemantics.isOverdue(puzzle) ? Brand.accentWarmText : Brand.textPrimary,
+                            accessibilityIdentifier: PuzzleLoanSemantics.isOverdue(puzzle)
+                                ? A11yID.puzzleDetailDueBackOverdue
+                                : nil
+                        )
+                    }
+                }
+
                 if let notes = puzzle.notes?.trimmingCharacters(in: .whitespacesAndNewlines), !notes.isEmpty {
                     detailRow(label: "Notes", value: notes)
                 }
@@ -333,18 +508,11 @@ struct DetailView: View {
         .accessibilityLabel("Puzzle details")
     }
 
-    private func completionSummary(_ completion: PuzzleCompletion) -> String {
-        var parts = [completion.completedAt.formatted(date: .abbreviated, time: .omitted)]
-        if let timeLabel = completion.timeSpentLabel {
-            parts.append(timeLabel)
-        }
-        return parts.joined(separator: " · ")
-    }
-
     @ViewBuilder
     private func detailRow(
         label: String,
         value: String,
+        valueColor: Color = Brand.textPrimary,
         accessibilityIdentifier: String? = nil
     ) -> some View {
         if AdaptiveLayout.usesStackedRowLayout(
@@ -357,7 +525,7 @@ struct DetailView: View {
                     .foregroundStyle(Brand.textSecondary)
                 Text(value)
                     .font(.subheadline.bold())
-                    .foregroundStyle(Brand.textPrimary)
+                    .foregroundStyle(valueColor)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -372,8 +540,10 @@ struct DetailView: View {
                 Spacer()
                 Text(value)
                     .font(.subheadline.bold())
-                    .foregroundStyle(Brand.textPrimary)
+                    .foregroundStyle(valueColor)
                     .multilineTextAlignment(.trailing)
+                    .lineLimit(4)
+                    .minimumScaleFactor(0.85)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -384,15 +554,16 @@ struct DetailView: View {
     }
 }
 
-private struct BrandGroupBoxStyle: GroupBoxStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        VStack(alignment: .leading, spacing: DS.Spacing.s3) {
-            configuration.label
-            configuration.content
+private struct PuzzleDetailZoomTransition: ViewModifier {
+    let id: UUID
+    let namespace: Namespace.ID?
+
+    func body(content: Content) -> some View {
+        if let namespace {
+            content.navigationTransition(.zoom(sourceID: id, in: namespace))
+        } else {
+            content
         }
-        .padding(DS.Spacing.s4)
-        .background(Brand.card)
-        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
     }
 }
 
@@ -400,7 +571,7 @@ private struct BrandGroupBoxStyle: GroupBoxStyle {
 struct PuzzleDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            PuzzleDetail(ps: PreviewSupport.puzzleStore, puzzle: .constant(.fixture()))
+            PuzzleDetail(ps: PreviewSupport.puzzleStore, browse: PuzzleBrowseState(), puzzle: .constant(.fixture()))
         }
     }
 }

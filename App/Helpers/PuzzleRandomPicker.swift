@@ -29,6 +29,7 @@ enum PuzzleRandomPicker {
                 if !includeInProgress { return false }
             }
             if !pieceCountFilter.matches(puzzle) { return false }
+            if puzzle.isOnLoan { return false }
             if let tagFilter,
                !puzzle.tags.contains(where: { $0.caseInsensitiveCompare(tagFilter) == .orderedSame }) {
                 return false

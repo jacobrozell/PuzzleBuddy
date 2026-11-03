@@ -13,6 +13,7 @@ struct PuzzlePhotoGalleryEditor: View {
     @State private var pickerItems: [PhotosPickerItem] = []
     @State private var isImportingPhotos = false
     @State private var pendingPhotoRemovalID: UUID?
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     private var sortedPhotos: [PuzzlePhoto] {
         PuzzlePhotoSemantics.photosInOrder(photos)
@@ -86,7 +87,8 @@ struct PuzzlePhotoGalleryEditor: View {
                 .frame(maxWidth: .infinity)
                 .buttonStyle(BrandSecondaryButtonStyle(expandHorizontally: true))
                 .disabled(!canAddPhoto || isImportingPhotos)
-                .optionalAccessibilityIdentifier(A11yID.puzzleFormChoosePhotoButton)
+                .accessibilityElement(children: .combine)
+                .accessibilityIdentifier(A11yID.puzzleFormChoosePhotoButton)
                 .accessibilityLabel(remainingPhotoSlots == 1 ? "Add photo" : "Add photos")
                 .accessibilityHint("Choose one or more photos from your library")
 
@@ -137,7 +139,7 @@ struct PuzzlePhotoGalleryEditor: View {
     private var emptyPlaceholder: some View {
         VStack(spacing: DS.Spacing.s2) {
             Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 48))
+                .font(.system(size: verticalSizeClass == .compact ? 28 : 48))
                 .foregroundStyle(Brand.accent.opacity(0.8))
 
             Text("Add box art, progress, or finished shots")
@@ -146,7 +148,7 @@ struct PuzzlePhotoGalleryEditor: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 120)
+        .frame(height: verticalSizeClass == .compact ? 64 : 120)
         .background(Brand.cardElevated)
         .clipShape(RoundedRectangle(cornerRadius: DS.Radius.md, style: .continuous))
         .accessibilityElement(children: .combine)

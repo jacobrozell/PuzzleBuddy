@@ -153,12 +153,16 @@ struct QuickAddPuzzleSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .accessibilityLabel("Cancel quick add")
+                    Button { dismiss() } label: {
+                        Label("Cancel", systemImage: "xmark")
+                    }
+                    .accessibilityLabel("Cancel quick add")
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button {
                         savePuzzle()
+                    } label: {
+                        Label("Save", systemImage: "checkmark")
                     }
                     .disabled(formVm.puzzle.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isSaving)
                     .optionalAccessibilityIdentifier(A11yID.quickAddSaveButton)

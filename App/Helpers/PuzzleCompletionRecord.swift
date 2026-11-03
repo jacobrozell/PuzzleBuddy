@@ -50,6 +50,15 @@ final class PuzzleCompletionRecord {
         )
     }
 
+    func apply(from completion: PuzzleCompletion) {
+        completionNumber = completion.completionNumber
+        startedAt = completion.startedAt
+        completedAt = completion.completedAt
+        timeSpentHours = completion.timeSpentHours
+        timeSpentMinutes = completion.timeSpentMinutes
+        rating = completion.rating
+    }
+
     func toPuzzleCompletion() -> PuzzleCompletion {
         PuzzleCompletion(
             id: id,

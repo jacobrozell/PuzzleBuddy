@@ -21,7 +21,9 @@ class PuzzleStore: ObservableObject {
 
     @Published var puzzles: [Puzzle] = []
     @Published var state: PuzzleStoreState = .idle
+    @Published private(set) var pendingCompletionUndo: CompletionUndoSnapshot?
 
+    let friends: FriendStore
     private let modelContext: ModelContext
     private var didRunLegacyPhotoMigration = false
 
@@ -32,6 +34,7 @@ class PuzzleStore: ObservableObject {
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        self.friends = FriendStore(modelContext: modelContext)
         self.puzzles = []
 
         if UITestSupport.shouldSeedPuzzles {
@@ -105,6 +108,7 @@ class PuzzleStore: ObservableObject {
     @discardableResult
     func importBackup(
         _ incoming: [Puzzle],
+        friends: [Friend] = [],
         policy: PuzzleBackupImportPolicy,
         preSkippedInvalid: Int = 0
     ) throws -> PuzzleImportSummary {
@@ -128,6 +132,11 @@ class PuzzleStore: ObservableObject {
             }
             try clearAllPuzzles()
         }
+
+        for friend in friends {
+            try self.friends.upsert(friend)
+        }
+        self.friends.reload()
 
         let existingIDs = Set(puzzles.map(\.id))
         var seenIDs = existingIDs
@@ -176,27 +185,37 @@ class PuzzleStore: ObservableObject {
     private func addLocally(puzzle: Puzzle, source: PuzzleAddSource) throws {
         try validateBarcodeUniqueness(for: puzzle)
         var puzzle = puzzle
+        try prepareLoanFields(&puzzle)
         puzzle.prepareForPersistence()
         let record = PuzzleRecord(from: puzzle)
         modelContext.insert(record)
-        try syncPhotos(for: puzzle)
-        if puzzle.status == .completed {
-            try appendCompletion(for: puzzle)
+        do {
+            try syncPhotos(for: puzzle)
+            if puzzle.status == .completed {
+                try appendCompletion(for: puzzle)
+            }
+            try saveContext()
+            puzzles.append(puzzleFromRecord(record))
+            BarcodeMetadataCache.store(from: puzzle)
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_added",
+                message: "Puzzle saved.",
+                metadata: PuzzleAnalyticsMetadata.metadata(for: puzzle, addSource: source)
+            )
+            AnalyticsMilestones.logCollectionSizeMilestones(puzzleCount: puzzles.count)
+            AnalyticsUserContext.syncCollection(from: puzzles)
+        } catch {
+            modelContext.rollback()
+            loadLocalPuzzles()
+            throw error
         }
-        try saveContext()
-        puzzles.append(puzzleFromRecord(record))
-        BarcodeMetadataCache.store(from: puzzle)
-        AppLog.shared.info(
-            .puzzles,
-            eventName: "puzzle_added",
-            message: "Puzzle saved.",
-            metadata: PuzzleAnalyticsMetadata.metadata(for: puzzle, addSource: source)
-        )
     }
 
     private func addFromBackup(puzzle: Puzzle) throws {
         try validateBarcodeUniqueness(for: puzzle)
         var puzzle = puzzle
+        try prepareLoanFields(&puzzle, createMissingFriends: false)
         puzzle.prepareForPersistence()
         let record = PuzzleRecord(from: puzzle)
         modelContext.insert(record)
@@ -253,13 +272,202 @@ class PuzzleStore: ObservableObject {
         puzzle.status = .inProgress
         puzzle.progressPercent = 0
         puzzle.startDate = Date()
-        puzzle.completionDate = Date()
+        puzzle.timerAccumulatedSeconds = 0
+        puzzle.timerRunningSince = nil
+        // Keep completionDate as the latest finish so history, sort, and stats stay accurate.
+        clearPendingUndo(for: puzzle.id)
         try update(puzzle: puzzle)
         AppLog.shared.info(
             .puzzles,
             eventName: "puzzle_redo_started",
             message: "Started puzzle again.",
             metadata: ["completion_count": "\(puzzle.timesCompleted)"]
+        )
+    }
+
+    func markReturned(puzzle: Puzzle) throws {
+        guard puzzle.isOnLoan else { return }
+        var puzzle = puzzle
+        PuzzleLoanSemantics.clearLoan(on: puzzle)
+        try update(puzzle: puzzle)
+        AppLog.shared.info(.puzzles, eventName: "puzzle_marked_returned", message: "Puzzle marked returned.")
+    }
+
+    /// Starts the In-Progress timer, pausing any other running timer first.
+    func startTimer(id: UUID, now: Date = Date()) throws {
+        guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
+        guard Puzzle.Status(rawValue: record.status) == .inProgress,
+              !PuzzleTimerSemantics.isRunning(runningSince: record.timerRunningSince, now: now) else { return }
+
+        let others = PuzzleTimerSemantics.idsToPause(startingID: id, in: puzzles).compactMap { fetchRecord(id: $0) }
+        others.forEach { foldTimer($0, now: now) }
+        foldTimer(record, now: now)
+        record.timerRunningSince = now
+        try commitTimerChange(ids: [id] + others.map(\.id))
+
+        for other in others {
+            logTimerPaused(reason: .otherStarted, seconds: other.timerAccumulatedSeconds)
+        }
+        AppLog.shared.info(.puzzles, eventName: "puzzle_timer_started", message: "Started puzzle timer.")
+    }
+
+    func pauseTimer(id: UUID, now: Date = Date()) throws {
+        guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
+        guard record.timerRunningSince != nil else { return }
+        foldTimer(record, now: now)
+        try commitTimerChange(ids: [id])
+        logTimerPaused(reason: .pause, seconds: record.timerAccumulatedSeconds)
+    }
+
+    /// Zeroes the timer. Logged hours/minutes are not touched.
+    func resetTimer(id: UUID, now: Date = Date()) throws {
+        guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
+        let total = PuzzleTimerSemantics.elapsedSeconds(
+            accumulated: record.timerAccumulatedSeconds,
+            runningSince: record.timerRunningSince,
+            now: now
+        )
+        guard total > 0 || record.timerRunningSince != nil else { return }
+        record.timerAccumulatedSeconds = 0
+        record.timerRunningSince = nil
+        try commitTimerChange(ids: [id])
+        logTimerPaused(reason: .reset, seconds: total)
+    }
+
+    /// Removes one completion log. When deleting the last log on a completed puzzle,
+    /// pass `statusIfRemovingLast` (e.g. `.inProgress` or `.todo`).
+    func deleteCompletion(
+        puzzleID: UUID,
+        completionID: UUID,
+        statusIfRemovingLast: Puzzle.Status? = nil,
+        logDeletedEvent: Bool = true
+    ) throws {
+        guard fetchRecord(id: puzzleID) != nil else {
+            throw PuzzleStoreError.recordNotFound
+        }
+        guard fetchCompletionRecord(id: completionID, puzzleID: puzzleID) != nil else {
+            throw PuzzleStoreError.completionNotFound
+        }
+
+        let recordsBeforeDelete = fetchCompletionRecords(puzzleID: puzzleID)
+        let isRemovingLast = recordsBeforeDelete.count == 1
+        let removedNumber = recordsBeforeDelete.first(where: { $0.id == completionID })?.completionNumber
+
+        if isRemovingLast,
+           let record = fetchRecord(id: puzzleID),
+           Puzzle.Status(rawValue: record.status) == .completed,
+           statusIfRemovingLast == nil {
+            throw PuzzleStoreError.statusRequiredAfterRemovingLastCompletion
+        }
+
+        if let record = fetchCompletionRecord(id: completionID, puzzleID: puzzleID) {
+            modelContext.delete(record)
+        }
+
+        do {
+            try reconcileCompletions(for: puzzleID, statusIfEmpty: statusIfRemovingLast)
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
+        clearPendingUndo(ifMatching: completionID)
+
+        if logDeletedEvent {
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_completion_deleted",
+                message: "Removed puzzle completion log.",
+                metadata: [
+                    "completion_number": removedNumber.map { "\($0)" } ?? "0"
+                ]
+            )
+        }
+    }
+
+    func undoLastCompletion(puzzleID: UUID, now: Date = Date()) throws {
+        guard let snapshot = pendingCompletionUndo, snapshot.puzzleID == puzzleID else {
+            throw PuzzleStoreError.completionUndoUnavailable
+        }
+        guard snapshot.isActive(now: now) else {
+            pendingCompletionUndo = nil
+            throw PuzzleStoreError.completionUndoUnavailable
+        }
+
+        let recordsBeforeDelete = fetchCompletionRecords(puzzleID: puzzleID)
+        let removedNumber = recordsBeforeDelete.first(where: { $0.id == snapshot.completionID })?.completionNumber
+
+        try deleteCompletion(
+            puzzleID: puzzleID,
+            completionID: snapshot.completionID,
+            statusIfRemovingLast: snapshot.previousStatus,
+            logDeletedEvent: false
+        )
+
+        if let record = fetchRecord(id: puzzleID) {
+            record.status = snapshot.previousStatus.rawValue
+            record.progressPercent = snapshot.previousProgressPercent
+            if let index = puzzles.firstIndex(where: { $0.id == puzzleID }) {
+                puzzles[index] = puzzleFromRecord(record)
+            }
+            try saveContext()
+        }
+
+        pendingCompletionUndo = nil
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_completion_undone",
+            message: "Undid accidental puzzle completion.",
+            metadata: [
+                "completion_number": removedNumber.map { "\($0)" } ?? "0"
+            ]
+        )
+    }
+
+    func activeCompletionUndo(for puzzleID: UUID, now: Date = Date()) -> CompletionUndoSnapshot? {
+        CompletionUndoSemantics.activeSnapshot(
+            pendingCompletionUndo,
+            puzzleID: puzzleID,
+            now: now
+        )
+    }
+
+    func expireCompletionUndoIfNeeded(puzzleID: UUID, now: Date = Date()) {
+        guard let snapshot = pendingCompletionUndo, snapshot.puzzleID == puzzleID else { return }
+        guard !snapshot.isActive(now: now) else { return }
+        pendingCompletionUndo = nil
+    }
+
+    func dismissCompletionUndo(for puzzleID: UUID) {
+        guard pendingCompletionUndo?.puzzleID == puzzleID else { return }
+        pendingCompletionUndo = nil
+    }
+
+    /// Updates an existing completion log in place (SwiftData row), then renumbers if dates shifted.
+    func updateCompletion(puzzleID: UUID, completion: PuzzleCompletion) throws {
+        guard let record = fetchCompletionRecord(id: completion.id, puzzleID: puzzleID) else {
+            throw PuzzleStoreError.completionNotFound
+        }
+
+        record.completedAt = completion.completedAt
+        record.startedAt = completion.startedAt
+        record.timeSpentHours = completion.timeSpentHours
+        record.timeSpentMinutes = completion.timeSpentMinutes
+        record.rating = completion.rating
+
+        do {
+            PuzzleCompletionSemantics.renumberRecords(try fetchCompletionRecordsThrowing(puzzleID: puzzleID))
+            try reconcileCompletions(for: puzzleID, statusIfEmpty: nil)
+        } catch {
+            modelContext.rollback()
+            throw error
+        }
+        clearPendingUndo(ifMatching: completion.id)
+
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_completion_updated",
+            message: "Updated puzzle completion log.",
+            metadata: ["completion_number": "\(completion.completionNumber)"]
         )
     }
 
@@ -275,15 +483,19 @@ class PuzzleStore: ObservableObject {
             let descriptor = FetchDescriptor<PuzzleRecord>(
                 sortBy: [SortDescriptor(\.completionDate, order: .reverse)]
             )
-            puzzles = try modelContext.fetch(descriptor).map { puzzleFromRecord($0) }
+            let records = try modelContext.fetch(descriptor)
+            try pauseSkewedTimers(in: records, now: Date())
+            puzzles = records.map { puzzleFromRecord($0) }
+            friends.reload()
             BarcodeMetadataCache.warmCache(from: puzzles)
             state = .done
             AppLog.shared.info(
                 .puzzles,
                 eventName: "puzzle_list_refreshed",
                 message: "Loaded local puzzles.",
-                metadata: ["puzzle_count": "\(puzzles.count)"]
+                metadata: PuzzleAnalyticsMetadata.collectionSnapshotMetadata(for: puzzles)
             )
+            AnalyticsSessionContext.logSnapshotIfNeeded(puzzles: puzzles)
         } catch {
             state = .idle
             AppLog.shared.warning(.puzzles, eventName: "puzzle_load_failed", message: error.localizedDescription)
@@ -299,12 +511,15 @@ class PuzzleStore: ObservableObject {
         try modelContext.fetch(FetchDescriptor<PuzzleCompletionRecord>()).forEach { modelContext.delete($0) }
         let records = try modelContext.fetch(FetchDescriptor<PuzzleRecord>())
         records.forEach { modelContext.delete($0) }
+        try modelContext.fetch(FetchDescriptor<FriendRecord>()).forEach { modelContext.delete($0) }
         try saveContext()
         puzzles = []
+        friends.reload()
+        objectWillChange.send()
         AppLog.shared.info(
             .puzzles,
             eventName: "puzzle_collection_cleared",
-            message: "Cleared all local puzzles."
+            message: "Cleared all local puzzles and people."
         )
     }
 
@@ -324,9 +539,16 @@ class PuzzleStore: ObservableObject {
         let demoIndices = puzzles.enumerated().compactMap { index, puzzle in
             puzzle.isDemo ? index : nil
         }
-        guard !demoIndices.isEmpty else { return }
-
-        try delete(at: IndexSet(demoIndices))
+        if !demoIndices.isEmpty {
+            try delete(at: IndexSet(demoIndices))
+        }
+        let protectedLoanFriendIDs = Set(
+            puzzles.compactMap { puzzle -> UUID? in
+                guard !puzzle.isDemo, puzzle.isOnLoan else { return nil }
+                return puzzle.loanedToFriendID
+            }
+        )
+        try friends.removeDemoFriends(keepingFriendIDs: protectedLoanFriendIDs)
         AppLog.shared.info(
             .puzzles,
             eventName: "demo_data_removed",
@@ -346,25 +568,108 @@ class PuzzleStore: ObservableObject {
         }
 
         let previousStatus = Puzzle.Status(rawValue: record.status) ?? .todo
+        let previousProgressPercent = record.progressPercent
         var puzzle = puzzle
+        try prepareLoanFields(&puzzle)
         puzzle.prepareForPersistence()
+
+        let now = Date()
+        var leftStatusTimerSeconds: Int?
+        if puzzle.status != .inProgress, puzzle.timerRunningSince != nil {
+            PuzzleTimerSemantics.pause(puzzle, now: now)
+            leftStatusTimerSeconds = puzzle.timerAccumulatedSeconds
+        }
+        if puzzle.status == .completed && previousStatus != .completed,
+           let prefill = PuzzleTimerSemantics.completionPrefill(
+               timerSeconds: PuzzleTimerSemantics.elapsedSeconds(for: puzzle, now: now),
+               logged: puzzle.estimatedTimeSpent
+           ) {
+            puzzle.estimatedTimeSpent = prefill
+        }
         record.apply(from: puzzle)
 
-        if puzzle.status == .completed && previousStatus != .completed {
-            try appendCompletion(for: puzzle)
+        var stagedUndoID: UUID?
+        do {
+            if puzzle.status == .completed && previousStatus != .completed {
+                let completionID = try appendCompletion(for: puzzle)
+                pendingCompletionUndo = CompletionUndoSemantics.snapshot(
+                    puzzleID: puzzle.id,
+                    completionID: completionID,
+                    previousStatus: previousStatus,
+                    previousProgressPercent: previousProgressPercent
+                )
+                stagedUndoID = completionID
+            }
+
+            try syncPhotos(for: puzzle)
+
+            if let index = puzzles.firstIndex(where: { $0.id == puzzle.id }) {
+                puzzles[index] = puzzleFromRecord(record)
+            }
+            BarcodeMetadataCache.store(from: puzzle)
+            try saveContext()
+        } catch {
+            if let stagedUndoID, pendingCompletionUndo?.completionID == stagedUndoID {
+                pendingCompletionUndo = nil
+            }
+            modelContext.rollback()
+            loadLocalPuzzles()
+            throw error
         }
 
-        try syncPhotos(for: puzzle)
-
-        if let index = puzzles.firstIndex(where: { $0.id == puzzle.id }) {
-            puzzles[index] = puzzleFromRecord(record)
+        if let leftStatusTimerSeconds {
+            logTimerPaused(reason: .statusLeft, seconds: leftStatusTimerSeconds)
         }
-        BarcodeMetadataCache.store(from: puzzle)
+    }
+
+    private func foldTimer(_ record: PuzzleRecord, now: Date) {
+        record.timerAccumulatedSeconds = PuzzleTimerSemantics.elapsedSeconds(
+            accumulated: record.timerAccumulatedSeconds,
+            runningSince: record.timerRunningSince,
+            now: now
+        )
+        record.timerRunningSince = nil
+    }
+
+    private func pauseSkewedTimers(in records: [PuzzleRecord], now: Date) throws {
+        let skewed = records.filter {
+            PuzzleTimerSemantics.isClockSkewed(runningSince: $0.timerRunningSince, now: now)
+        }
+        guard !skewed.isEmpty else { return }
+        skewed.forEach { foldTimer($0, now: now) }
         try saveContext()
     }
 
-    private func appendCompletion(for puzzle: Puzzle) throws {
-        let existing = fetchCompletionRecords(puzzleID: puzzle.id)
+    private func commitTimerChange(ids: [UUID]) throws {
+        do {
+            try saveContext()
+        } catch {
+            modelContext.rollback()
+            loadLocalPuzzles()
+            throw error
+        }
+        for id in ids {
+            guard let index = puzzles.firstIndex(where: { $0.id == id }),
+                  let record = fetchRecord(id: id) else { continue }
+            puzzles[index] = puzzleFromRecord(record)
+        }
+    }
+
+    private func logTimerPaused(reason: PuzzleTimerSemantics.PauseReason, seconds: Int) {
+        AppLog.shared.info(
+            .puzzles,
+            eventName: "puzzle_timer_paused",
+            message: "Paused puzzle timer.",
+            metadata: [
+                "reason": reason.rawValue,
+                "duration_bucket": PuzzleTimerSemantics.durationBucket(seconds: seconds)
+            ]
+        )
+    }
+
+    @discardableResult
+    private func appendCompletion(for puzzle: Puzzle) throws -> UUID {
+        let existing = try fetchCompletionRecordsThrowing(puzzleID: puzzle.id)
         let nextNumber = (existing.map(\.completionNumber).max() ?? 0) + 1
         let completion = PuzzleCompletionSemantics.makeCompletion(from: puzzle, number: nextNumber)
         modelContext.insert(PuzzleCompletionRecord(from: completion, puzzleID: puzzle.id))
@@ -377,18 +682,36 @@ class PuzzleStore: ObservableObject {
             message: "Recorded puzzle completion.",
             metadata: PuzzleAnalyticsMetadata.completionMetadata(for: puzzle, completionNumber: nextNumber)
         )
+        var completedCount = puzzles.filter { $0.status == .completed }.count
+        if !puzzles.contains(where: { $0.id == puzzle.id && $0.status == .completed }) {
+            completedCount += 1
+        }
+        AnalyticsMilestones.logCompletionMilestones(completedCount: completedCount)
+        AnalyticsUserContext.syncCollection(from: puzzles)
+        return completion.id
+    }
+
+    private func clearPendingUndo(for puzzleID: UUID) {
+        guard pendingCompletionUndo?.puzzleID == puzzleID else { return }
+        pendingCompletionUndo = nil
+    }
+
+    private func clearPendingUndo(ifMatching completionID: UUID) {
+        guard pendingCompletionUndo?.completionID == completionID else { return }
+        pendingCompletionUndo = nil
     }
 
     private func syncPhotos(for puzzle: Puzzle) throws {
-        let existing = fetchPhotoRecords(puzzleID: puzzle.id)
-        existing.forEach { modelContext.delete($0) }
-
         let normalized = PuzzlePhotoSemantics.sortedAndNormalized(
-            puzzle.photos.filter { $0.image != nil }.prefix(PuzzlePhotoLimits.maxCount).map { $0 }
+            Array(puzzle.photos.filter { $0.image != nil }.prefix(PuzzlePhotoLimits.maxCount))
         )
-        for photo in normalized {
-            modelContext.insert(PuzzlePhotoRecord(from: photo, puzzleID: puzzle.id))
-        }
+        let existing = fetchPhotoRecords(puzzleID: puzzle.id)
+
+        // Build replacements first, then delete old rows so a failure before insert
+        // never leaves the puzzle with zero photos in the pending context.
+        let replacements = normalized.map { PuzzlePhotoRecord(from: $0, puzzleID: puzzle.id) }
+        existing.forEach { modelContext.delete($0) }
+        replacements.forEach { modelContext.insert($0) }
 
         if let record = fetchRecord(id: puzzle.id) {
             if normalized.isEmpty {
@@ -410,6 +733,52 @@ class PuzzleStore: ObservableObject {
         if let record = fetchRecord(id: puzzle.id) {
             record.timesCompleted = max(puzzle.timesCompleted, puzzle.completions.count)
         }
+    }
+
+    /// Syncs denormalized puzzle fields after completion rows change. Mutates existing
+    /// `PuzzleCompletionRecord` rows in place — does not delete/reinsert the full set.
+    private func reconcileCompletions(
+        for puzzleID: UUID,
+        statusIfEmpty: Puzzle.Status?
+    ) throws {
+        guard let puzzleRecord = fetchRecord(id: puzzleID) else {
+            throw PuzzleStoreError.recordNotFound
+        }
+
+        let records: [PuzzleCompletionRecord]
+        do {
+            records = try fetchCompletionRecordsThrowing(puzzleID: puzzleID)
+        } catch {
+            throw PuzzleStoreError.completionHistoryUnavailable
+        }
+        PuzzleCompletionSemantics.renumberRecords(records)
+
+        let count = records.count
+        puzzleRecord.timesCompleted = count
+
+        let currentStatus = Puzzle.Status(rawValue: puzzleRecord.status) ?? .todo
+
+        if count == 0 {
+            if currentStatus == .completed {
+                guard let statusIfEmpty else {
+                    throw PuzzleStoreError.statusRequiredAfterRemovingLastCompletion
+                }
+                puzzleRecord.status = statusIfEmpty.rawValue
+                if statusIfEmpty == .todo {
+                    puzzleRecord.progressPercent = 0
+                } else if statusIfEmpty == .inProgress, puzzleRecord.progressPercent >= 100 {
+                    puzzleRecord.progressPercent = 0
+                }
+            }
+        } else if let newest = records.max(by: { $0.completedAt < $1.completedAt }) {
+            puzzleRecord.completionDate = newest.completedAt
+        }
+
+        if let index = puzzles.firstIndex(where: { $0.id == puzzleID }) {
+            puzzles[index] = puzzleFromRecord(puzzleRecord)
+        }
+
+        try saveContext()
     }
 
     private func migrateLegacyCoverPhotosIfNeeded() throws {
@@ -437,7 +806,42 @@ class PuzzleStore: ObservableObject {
         puzzle.completions = fetchCompletionRecords(puzzleID: record.id).map { $0.toPuzzleCompletion() }
         puzzle.timesCompleted = max(record.timesCompleted, puzzle.completions.count)
         puzzle.image = puzzle.coverImage
+        if let friendID = puzzle.loanedToFriendID {
+            puzzle.loanedToDisplayName = friends.friend(id: friendID)?.displayName
+        }
         return puzzle
+    }
+
+    private func prepareLoanFields(_ puzzle: inout Puzzle, createMissingFriends: Bool = true) throws {
+        let wasOnLoan = puzzles.first(where: { $0.id == puzzle.id })?.isOnLoan ?? false
+        PuzzleLoanSemantics.prepareLoanState(puzzle: puzzle)
+
+        if puzzle.isOnLoan {
+            if let name = puzzle.loanedToDisplayName {
+                if createMissingFriends {
+                    puzzle.loanedToFriendID = try friends.findOrCreate(
+                        displayName: name,
+                        isDemo: puzzle.isDemo
+                    ).id
+                } else if let existing = friends.friends.first(where: {
+                    $0.displayName.caseInsensitiveCompare(name) == .orderedSame
+                }) {
+                    puzzle.loanedToFriendID = existing.id
+                }
+                // else keep loanedToFriendID from backup when friends were imported first
+            } else if puzzle.loanedToFriendID == nil {
+                // anonymous loan
+            }
+            // else keep existing loanedToFriendID from backup
+        }
+
+        if puzzle.isOnLoan && !wasOnLoan {
+            AppLog.shared.info(.puzzles, eventName: "puzzle_marked_on_loan", message: "Puzzle marked on loan.")
+        }
+    }
+
+    func loanReferenceCount(for friendID: UUID) -> Int {
+        puzzles.filter { $0.loanedToFriendID == friendID }.count
     }
 
     private func deleteRelatedRecords(puzzleID: UUID) {
@@ -463,6 +867,10 @@ class PuzzleStore: ObservableObject {
     }
 
     private func fetchCompletionRecords(puzzleID: UUID) -> [PuzzleCompletionRecord] {
+        (try? fetchCompletionRecordsThrowing(puzzleID: puzzleID)) ?? []
+    }
+
+    private func fetchCompletionRecordsThrowing(puzzleID: UUID) throws -> [PuzzleCompletionRecord] {
         var descriptor = FetchDescriptor<PuzzleCompletionRecord>(
             predicate: #Predicate { $0.puzzleID == puzzleID },
             sortBy: [SortDescriptor(\.completionNumber)]
@@ -475,7 +883,28 @@ class PuzzleStore: ObservableObject {
                 eventName: "puzzle_completion_fetch_failed",
                 message: error.localizedDescription
             )
-            return []
+            throw error
+        }
+    }
+
+    private func fetchCompletionRecord(id: UUID, puzzleID: UUID) -> PuzzleCompletionRecord? {
+        let completionID = id
+        let parentID = puzzleID
+        var descriptor = FetchDescriptor<PuzzleCompletionRecord>(
+            predicate: #Predicate { record in
+                record.id == completionID && record.puzzleID == parentID
+            }
+        )
+        descriptor.fetchLimit = 1
+        do {
+            return try modelContext.fetch(descriptor).first
+        } catch {
+            AppLog.shared.warning(
+                .puzzles,
+                eventName: "puzzle_completion_fetch_failed",
+                message: error.localizedDescription
+            )
+            return nil
         }
     }
 

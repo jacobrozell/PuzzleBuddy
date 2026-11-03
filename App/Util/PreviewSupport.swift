@@ -18,10 +18,6 @@ enum PreviewSupport {
 
     @MainActor
     private static var previewContainer: ModelContainer = {
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-        return try! ModelContainer(
-            for: PuzzleRecord.self, PuzzlePhotoRecord.self, PuzzleCompletionRecord.self,
-            configurations: configuration
-        )
+        PuzzleModelContainer.makeInMemory()
     }()
 }
