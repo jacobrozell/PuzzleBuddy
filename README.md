@@ -2,7 +2,7 @@
 
 Track your jigsaw puzzle collection — piece counts, ratings, difficulty, photos, and completion dates. Built with SwiftUI and SwiftData, with Firebase Analytics and Crashlytics.
 
-**Status:** **1.0.0** Ready for Distribution. Next is 1.1.0 Connect prep · v1.1.0 (1) · **Branch:** `release/1.1.0` · Local-first.
+**Status:** **1.1.0** live on the App Store (build 5, released 2026-11-02) · v1.1.0 (1) · **Branch:** `release/1.1.0` · Local-first.
 
 Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalog of puzzles they've completed or plan to finish. Version **1.1.0** is still local-only on device — no account. The app follows the same production patterns as [Dart Buddy](https://github.com/jacobrozell/Dart-Buddy): privacy-safe analytics, design tokens, accessibility identifiers, XcodeGen, and GitHub Actions CI.
 
@@ -33,7 +33,7 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - **Pick my next puzzle:** random selector from backlog with tag and piece-count filters (dice toolbar button)
 - **SwiftData** persistence — no account required
 
-### 1.1 (next update)
+### 1.1 (shipped)
 
 - **Completion history** — edit or delete a finish, with an undo banner after marking a puzzle complete
 - **On loan** — borrower and due date, plus On loan and Overdue filters
@@ -41,7 +41,7 @@ Puzzle Buddy is a native iOS app for puzzle enthusiasts who want a simple catalo
 - **Abandoned** status alongside Wishlist, To-Do, In-Progress, and Completed
 - **In-app timer** — start and pause on In Progress; can fill logged time when you complete
 
-Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release/1.1.0-connect-paste.md). The in-app stopwatch ships in **1.1.0**. Session redesign is later — [`docs/implementation/1.2.0-timer-redesign.md`](docs/implementation/1.2.0-timer-redesign.md).
+Session redesign is later — [`docs/implementation/1.2.0-timer-redesign.md`](docs/implementation/1.2.0-timer-redesign.md). Connect paste (historical): [`docs/release/1.1.0-connect-paste.md`](docs/release/1.1.0-connect-paste.md).
 
 ### Shopping & barcode
 
@@ -63,7 +63,7 @@ Paste-ready Connect fields: [`docs/release/1.1.0-connect-paste.md`](docs/release
 
 ### Roadmap
 
-**1.1.0** is in Connect prep (completion history, on loan, Duo, in-app stopwatch). Session redesign is later. Backlog: [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md), [`ongoing/README.md`](ongoing/README.md).
+**1.1.0** is live. Next: 1.1.1 file split, then timer session redesign. Backlog: [`FutureIdeas/backlog.md`](FutureIdeas/backlog.md), [`docs/competitive-gap-analysis.md`](docs/competitive-gap-analysis.md), [`ongoing/README.md`](ongoing/README.md).
 
 ## Requirements
 

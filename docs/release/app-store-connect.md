@@ -4,6 +4,8 @@ Use this when submitting. Aligns with [`todo.md`](todo.md) and [`../privacy.html
 
 ## 1.1.0 package
 
+**Shipped:** approved and released 2026-11-02 (Connect build 5).
+
 | Field | Value |
 | ----- | ----- |
 | **Version** | 1.1.0 |
@@ -53,7 +55,7 @@ Uploading Duo screenshots shows the **optimized for iPhone Duo** product-page ba
 
 ### Privacy nutrition (1.1.0)
 
-Product interaction: `session_snapshot`, `milestone_reached`, and timer duration buckets (`under_15m`, `15m_1h`, `1h_3h`, `over_3h`). No raw seconds. Friend / borrower names: Other user content (not Contacts / Name). Do not declare Device ID or Coarse Location.
+Leave the accepted 1.0 label: Product Interaction, Performance Data, and Crash Data. Not linked, not tracking. Product interaction covers `session_snapshot`, `milestone_reached`, and timer duration buckets (`under_15m`, `15m_1h`, `1h_3h`, `over_3h`). No raw seconds. Photos and borrower names stay on device, so do not declare Photos or Other user content. Do not declare Device ID or Coarse Location.
 
 ---
 
