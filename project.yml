@@ -18,6 +18,8 @@ settings:
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: 7JT2JB89AV
     CODE_SIGN_STYLE: Automatic
+fileGroups:
+  - StoreKit
 targets:
   PuzzleBuddy:
     type: application
@@ -35,6 +37,8 @@ targets:
         type: file
         buildPhase: resources
     dependencies:
+      - target: PuzzleBuddyWidget
+        embed: true
       - package: Firebase
         product: FirebaseCore
       - package: Firebase
@@ -78,18 +82,53 @@ targets:
         DEVELOPMENT_ASSET_PATHS: '"App/Preview Content"'
         ENABLE_PREVIEWS: YES
         CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.1.0
+        MARKETING_VERSION: 1.2.0
     info:
       path: Info.plist
       properties:
-        CFBundleShortVersionString: "1.1.0"
+        CFBundleShortVersionString: "1.2.0"
         CFBundleVersion: "1"
+        CFBundleURLTypes:
+          - CFBundleURLName: com.jacobrozell.Puzzle-Buddy
+            CFBundleURLSchemes:
+              - puzzlebuddy
         FirebaseAppDelegateProxyEnabled: false
         UILaunchStoryboardName: LaunchScreen
     scheme:
+      storeKitConfiguration: StoreKit/PuzzleBuddy.storekit
       testTargets:
         - AppTests
         - AppUITests
+  PuzzleBuddyWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widget
+        excludes:
+          - PrivacyInfo.xcprivacy
+      - path: Widget/PrivacyInfo.xcprivacy
+        buildPhase: resources
+      - path: App/Widget/CollectionWidgetSnapshot.swift
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: YES
+        CODE_SIGN_ENTITLEMENTS: Widget/PuzzleBuddyWidget.entitlements
+        CURRENT_PROJECT_VERSION: 1
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_FILE: Widget/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: Puzzle Buddy
+        MARKETING_VERSION: 1.2.0
+        PRODUCT_BUNDLE_IDENTIFIER: com.jacobrozell.Puzzle-Buddy.widget
+        PRODUCT_MODULE_NAME: PuzzleBuddyWidget
+        SKIP_INSTALL: YES
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: Puzzle Buddy
+        CFBundleShortVersionString: "1.2.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
   AppTests:
     type: bundle.unit-test
     platform: iOS
@@ -107,7 +146,7 @@ targets:
         BUNDLE_LOADER: "$(TEST_HOST)"
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
         CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.1.0
+        MARKETING_VERSION: 1.2.0
   AppUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -123,4 +162,4 @@ targets:
         TEST_TARGET_NAME: PuzzleBuddy
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
         CURRENT_PROJECT_VERSION: 1
-        MARKETING_VERSION: 1.1.0
+        MARKETING_VERSION: 1.2.0

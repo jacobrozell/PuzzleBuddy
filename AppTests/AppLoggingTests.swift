@@ -267,4 +267,14 @@ final class AppLoggingTests: XCTestCase {
         XCTAssertEqual(error?.code, 2006)
         XCTAssertEqual(error?.userInfo["event_name"] as? String, "model_container_store_reset")
     }
+
+    func testTipJarPurchaseStaysOffAnalytics() {
+        let mapped = PuzzleAnalyticsEventMapping.map(
+            eventName: "tip_jar_purchase_completed",
+            category: .ui,
+            metadata: ["product_id": TipJarProductIDs.small, "display_price": "0.99"],
+            appVersion: "1.2.0"
+        )
+        XCTAssertNil(mapped)
+    }
 }

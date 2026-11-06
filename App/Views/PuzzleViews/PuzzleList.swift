@@ -35,6 +35,7 @@ struct PuzzleList: View {
     @State private var showTagFilterSheet = false
     @State private var pendingDeleteOffsets: IndexSet?
     @State private var sharePayload: PuzzleSharePayload?
+    @State private var isRevealingWidgetPuzzle = false
     @Namespace private var puzzleZoomNamespace
 
     private var displayedPuzzles: [Puzzle] {
@@ -189,8 +190,11 @@ struct PuzzleList: View {
                 .presentationDetents([.medium, .large])
         }
         .onChange(of: browse.selectedPuzzleID) { _, newID in
-            guard let newID, browse.editFormVm?.puzzle.id != newID else { return }
-            browse.editFormVm = nil
+            guard let newID else { return }
+            if browse.editFormVm?.puzzle.id != newID {
+                browse.editFormVm = nil
+            }
+            revealFilteredPuzzle(newID)
         }
         .onChange(of: statusFilter) { _, newValue in
             sortOption = PuzzleListSortOption.defaultFor(statusFilter: newValue)
@@ -812,6 +816,24 @@ struct PuzzleList: View {
             }
         }
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// A widget tap sets the selection even when the current filter hides that puzzle.
+    /// Clear the filter, then set the selection again once the row is in the list.
+    private func revealFilteredPuzzle(_ id: UUID) {
+        if isRevealingWidgetPuzzle {
+            isRevealingWidgetPuzzle = false
+            return
+        }
+        guard ps.puzzles.contains(where: { $0.id == id }) else { return }
+        guard !displayedPuzzles.contains(where: { $0.id == id }) else { return }
+        statusFilter = .all
+        clearSecondaryFilters()
+        isRevealingWidgetPuzzle = true
+        browse.selectedPuzzleID = nil
+        Task { @MainActor in
+            browse.selectedPuzzleID = id
+        }
     }
 
     private func clearSecondaryFilters() {

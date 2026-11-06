@@ -1,13 +1,15 @@
 # Ongoing work
 
-**Last updated:** 2026-11-02
+**Last updated:** 2026-11-06
 
 ## Active
 
 | Plan | Doc | Status | Notes |
 |------|-----|--------|-------|
-| **1.1.1 file split** | [`docs/implementation/1.1.1-file-split.md`](../docs/implementation/1.1.1-file-split.md) | Planned | After 1.1.0: extract list filters/actions and store completions. No product change. |
-| **Timer session redesign** | [`docs/implementation/1.2.0-timer-redesign.md`](../docs/implementation/1.2.0-timer-redesign.md) | Planned | After 1.1. Owner decisions are at the top of that doc. New schema; do not edit V3. |
+| **1.2.0 widget + tip jar** | [`docs/implementation/1.2.0-extensions-and-tips.md`](../docs/implementation/1.2.0-extensions-and-tips.md) | In progress | `release/1.2.0`. Home screen widget and Settings consumable tips. |
+| **1.2.0 review lanes** | [`1.2.0-review-fixes.md`](1.2.0-review-fixes.md) | In progress | Bugbot, Tests, Security on the working tree. |
+| **1.1.1 file split** | [`docs/implementation/1.1.1-file-split.md`](../docs/implementation/1.1.1-file-split.md) | Planned | Extract list filters/actions and store completions. No product change. Not the 1.2.0 slice. |
+| **Timer session redesign** | [`docs/implementation/1.2.0-timer-redesign.md`](../docs/implementation/1.2.0-timer-redesign.md) | Planned | New schema; do not edit V3. Not the first 1.2.0 slice. |
 | **Barcode scan polish** | [`barcode-scan-polish.md`](barcode-scan-polish.md) | In progress | Items 8, 13 post-sprint or parallel |
 | **Landscape UI** | [`landscape-ui.md`](landscape-ui.md) | In progress | Items 1–3 done (condensed header, FAB clearance, iPad grid); 4–7 pending |
 | WCAG conformance | [`docs/wcag.md`](../docs/wcag.md) | In progress | Phase 2 manual pass after sprint UI |

@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var showClearCollectionAlert = false
     @State private var showLoadDemoAlert = false
     @State private var showRemoveDemoAlert = false
+    @State private var showTipJar = false
 
     private var appearance: Binding<AppearancePreference> {
         Binding(
@@ -54,6 +55,9 @@ struct SettingsView: View {
             }
         } message: {
             Text("This permanently removes every puzzle, photo, completion, and borrower name on this device. This cannot be undone.")
+        }
+        .sheet(isPresented: $showTipJar) {
+            TipJarSheet()
         }
     }
 
@@ -121,15 +125,29 @@ struct SettingsView: View {
                     ? "No data to delete"
                     : "Removes every puzzle, photo, completion, and borrower name from this device"
             )
+
+            Text("Your collection stays on this device. Demo data is optional sample puzzles for exploring the app.")
+                .font(.footnote)
+                .foregroundStyle(Brand.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .accessibilityIdentifier(A11yID.settingsCollectionFooter)
         } header: {
             Text("Collection")
-        } footer: {
-            Text("Your collection stays on this device. Demo data is optional sample puzzles for exploring the app.")
         }
     }
 
     private var supportSection: some View {
         Section {
+            Button {
+                showTipJar = true
+            } label: {
+                Label(TipJarCopy.rowTitle, systemImage: "cup.and.saucer")
+            }
+            .accessibilityIdentifier(A11yID.settingsSupportDeveloperButton)
+            .accessibilityHint("Optional tip processed by Apple. Does not unlock features.")
+
             Button {
                 StoreReviewPrompt.recordSettingsLinkOpened()
                 openURL(AppLinks.appStoreWriteReview)
@@ -142,18 +160,22 @@ struct SettingsView: View {
             Link("Privacy Policy", destination: AppLinks.privacyPolicy)
             Link("Support", destination: AppLinks.support)
             Link("Accessibility", destination: AppLinks.accessibility)
+
+            Text("Barcodes work offline. The barcode icon on your puzzle list checks for duplicates while shopping. Scanning to add can suggest details from puzzles you already saved — always review before saving.")
+                .font(.footnote)
+                .foregroundStyle(Brand.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+
+            LegalDisclaimerFooter(
+                text: LegalCopy.brandTrademarkDisclaimer,
+                accessibilityIdentifier: A11yID.settingsBrandDisclaimerFooter
+            )
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         } header: {
             Text("Help & Legal")
-        } footer: {
-            VStack(alignment: .leading, spacing: DS.Spacing.s2) {
-                Text("Barcodes work offline. The barcode icon on your puzzle list checks for duplicates while shopping. Scanning to add can suggest details from puzzles you already saved — always review before saving.")
-                    .font(.footnote)
-                    .foregroundStyle(Brand.textSecondary)
-                LegalDisclaimerFooter(
-                    text: LegalCopy.brandTrademarkDisclaimer,
-                    accessibilityIdentifier: A11yID.settingsBrandDisclaimerFooter
-                )
-            }
         }
     }
 

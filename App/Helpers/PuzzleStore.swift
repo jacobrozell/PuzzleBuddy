@@ -197,6 +197,7 @@ class PuzzleStore: ObservableObject {
             try saveContext()
             puzzles.append(puzzleFromRecord(record))
             BarcodeMetadataCache.store(from: puzzle)
+            publishWidgetSnapshot()
             AppLog.shared.info(
                 .puzzles,
                 eventName: "puzzle_added",
@@ -224,6 +225,7 @@ class PuzzleStore: ObservableObject {
         try saveContext()
         puzzles.append(puzzleFromRecord(record))
         BarcodeMetadataCache.store(from: puzzle)
+        publishWidgetSnapshot()
     }
 
     func delete(at offsets: IndexSet) throws {
@@ -241,6 +243,7 @@ class PuzzleStore: ObservableObject {
         }
         puzzles.remove(atOffsets: offsets)
         try saveContext()
+        publishWidgetSnapshot()
     }
 
     func update(puzzle: Puzzle) throws {
@@ -410,6 +413,7 @@ class PuzzleStore: ObservableObject {
                 puzzles[index] = puzzleFromRecord(record)
             }
             try saveContext()
+            publishWidgetSnapshot()
         }
 
         pendingCompletionUndo = nil
@@ -489,6 +493,7 @@ class PuzzleStore: ObservableObject {
             friends.reload()
             BarcodeMetadataCache.warmCache(from: puzzles)
             state = .done
+            publishWidgetSnapshot()
             AppLog.shared.info(
                 .puzzles,
                 eventName: "puzzle_list_refreshed",
@@ -515,6 +520,7 @@ class PuzzleStore: ObservableObject {
         try saveContext()
         puzzles = []
         friends.reload()
+        publishWidgetSnapshot()
         objectWillChange.send()
         AppLog.shared.info(
             .puzzles,
@@ -608,6 +614,7 @@ class PuzzleStore: ObservableObject {
             }
             BarcodeMetadataCache.store(from: puzzle)
             try saveContext()
+            publishWidgetSnapshot()
         } catch {
             if let stagedUndoID, pendingCompletionUndo?.completionID == stagedUndoID {
                 pendingCompletionUndo = nil
@@ -653,6 +660,11 @@ class PuzzleStore: ObservableObject {
                   let record = fetchRecord(id: id) else { continue }
             puzzles[index] = puzzleFromRecord(record)
         }
+        publishWidgetSnapshot()
+    }
+
+    private func publishWidgetSnapshot() {
+        CollectionWidgetPublisher.publish(from: puzzles)
     }
 
     private func logTimerPaused(reason: PuzzleTimerSemantics.PauseReason, seconds: Int) {
@@ -779,6 +791,7 @@ class PuzzleStore: ObservableObject {
         }
 
         try saveContext()
+        publishWidgetSnapshot()
     }
 
     private func migrateLegacyCoverPhotosIfNeeded() throws {

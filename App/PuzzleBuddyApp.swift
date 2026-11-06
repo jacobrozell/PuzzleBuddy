@@ -10,7 +10,7 @@ import SwiftUI
 
 @main
 struct PuzzleBuddyApp: App {
-    public static let version = "1.1.0" // Keep in sync with MARKETING_VERSION in project.yml
+    public static let version = "1.2.0" // Keep in sync with MARKETING_VERSION in project.yml
 
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @AppStorage(UserPreferences.appearanceStorageKey) private var appearanceRaw = AppearancePreference.system.rawValue
@@ -31,6 +31,10 @@ struct PuzzleBuddyApp: App {
                 .brandWindowBackground()
                 .task {
                     SnapshotOrientationLock.applyIfNeeded()
+                    TipJarStore.shared.start()
+                }
+                .onOpenURL { url in
+                    WidgetDeepLink.remember(url)
                 }
         }
         .modelContainer(sharedModelContainer)

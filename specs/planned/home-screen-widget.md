@@ -1,13 +1,13 @@
 # Home screen widget
 
-**Target:** 1.3.0
+**Target:** 1.2.0, started on `release/1.2.0`  
+**Plan:** [1.2.0-extensions-and-tips.md](../../docs/implementation/1.2.0-extensions-and-tips.md)
 
-## Ideas
+## In this slice
 
-- Small: backlog count (To-Do)
-- Medium: in-progress puzzle cover + days puzzling
-- Tap opens app to detail or pick-next
+- **On the table:** the current puzzle (title, pieces, progress, timer or days out). Tap opens that puzzle.
+- **Collection:** shelf counts. Small is the total plus in progress and to do. Medium is to do, in progress, done, and wishlist. Tap opens the collection.
 
-## Depends on
+## Later
 
-- Stable `startDate` / in-progress semantics (shipped 1.0)
+- Cover thumbnail on On the table

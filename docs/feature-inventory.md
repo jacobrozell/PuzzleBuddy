@@ -2,12 +2,12 @@
 
 **What exists in the build today.** For behavior detail see [features.md](features.md). For future work see [FutureIdeas/backlog.md](../FutureIdeas/backlog.md). For competitor gaps see [competitive-gap-analysis.md](competitive-gap-analysis.md).
 
-**Last updated:** 2026-09-25  
-**Target:** 1.1.0 on `release/1.1.0`
+**Last updated:** 2026-11-06  
+**Live:** 1.1.0. **Branch:** 1.2.0 on `release/1.2.0` (widget + tip jar are in the build; not submitted).
 
 ---
 
-## In build (1.1.0)
+## In build
 
 | Area | Feature | Code paths |
 |------|---------|------------|
@@ -31,7 +31,8 @@
 | Stats | **Completion milestones** banner | `CollectionMilestones` |
 | Stats | Per-puzzle pace metrics | `PuzzleDetailMetrics` |
 | Stats | Share collage | `PuzzleShareMenu` |
-| Settings | Appearance, demo data, legal links, **Write a Review** | `SettingsView`, `AppLinks.appStoreWriteReview` |
+| Settings | Appearance, demo data, legal links, **Write a Review**, **Support the Developer** (consumable tips) | `SettingsView`, `TipJarSheet`, `TipJarStore` |
+| Home screen | **On the table** and **Collection** glance | `CollectionWidget`, `CollectionGlanceWidget`, `CollectionWidgetPublisher` |
 | Settings | One-time StoreKit review prompt after scan or edit | `StoreReviewPrompt` |
 | Observability | Allowlisted Analytics + Crashlytics | `AppLog`, [telemetry.md](telemetry.md) |
 | A11y | Phase 1 + automated audits | `A11yID`, `PuzzleAccessibilityUITests` |

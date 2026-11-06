@@ -15,7 +15,18 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.0</string>
+	<string>1.2.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.jacobrozell.Puzzle-Buddy</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>puzzlebuddy</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>

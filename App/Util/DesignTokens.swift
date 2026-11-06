@@ -349,8 +349,17 @@ enum A11yID {
     static let puzzleDetailProgress = "puzzle_detail_progress"
     static let puzzleDetailProgressSlider = "puzzle_detail_progress_slider"
     static let settingsLoadDemoButton = "settings_load_demo_button"
+    static let settingsCollectionFooter = "settings_collection_footer"
     static let settingsRemoveDemoButton = "settings_remove_demo_button"
     static let settingsWriteReviewButton = "settings_write_review_button"
+    static let settingsSupportDeveloperButton = "settings_support_developer_button"
+    static let settingsTipJarSheet = "settings_tip_jar_sheet"
+    static let settingsTipJarCloseButton = "settings_tip_jar_close_button"
+    static let settingsTipJarThankYou = "settings_tip_jar_thank_you"
+
+    static func settingsTipJarProduct(_ suffix: String) -> String {
+        "settings_tip_jar_\(suffix)"
+    }
     static let settingsBrandDisclaimerFooter = "settings_brand_disclaimer_footer"
     static let settingsTab = "settings_tab"
     static let puzzlesTab = "puzzles_tab"

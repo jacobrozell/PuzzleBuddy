@@ -40,6 +40,8 @@ final class AccessibilityLabelTests: XCTestCase {
         XCTAssertFalse(A11yID.settingsLoadDemoButton.isEmpty)
         XCTAssertFalse(A11yID.settingsRemoveDemoButton.isEmpty)
         XCTAssertFalse(A11yID.settingsWriteReviewButton.isEmpty)
+        XCTAssertFalse(A11yID.settingsSupportDeveloperButton.isEmpty)
+        XCTAssertEqual(A11yID.settingsTipJarProduct("small"), "settings_tip_jar_small")
         XCTAssertFalse(A11yID.puzzleShareButton.isEmpty)
         XCTAssertFalse(A11yID.puzzleCellProgress.isEmpty)
         XCTAssertFalse(A11yID.whatsNewSheet.isEmpty)

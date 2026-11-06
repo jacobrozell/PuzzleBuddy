@@ -4,9 +4,9 @@ This document consolidates planned work across releases, accessibility phases, a
 
 For **current shipped behavior**, see [features.md](features.md) and [feature-inventory.md](feature-inventory.md). For agents: [AGENTS.md](../AGENTS.md).
 
-**Last updated:** 2026-11-02
+**Last updated:** 2026-11-06
 
-**Versioning:** **1.0.0** shipped 2026-10-28. **1.1.0** shipped 2026-11-02 (`MARKETING_VERSION` in `project.yml`, `PuzzleBuddyApp.version`). Follow-ons: **1.1.1** (file split), then timer session redesign / **1.2.0+**. Account sync is **not** scheduled — see [Future: auth + cloud sync](#future-auth--cloud-sync).
+**Versioning:** **1.0.0** shipped 2026-10-28. **1.1.0** shipped 2026-11-02. **1.2.0** is on `release/1.2.0`: home screen widget and a Settings tip jar ([1.2.0-extensions-and-tips.md](implementation/1.2.0-extensions-and-tips.md)). File split and timer sessions stay planned. Account sync is **not** scheduled — see [Future: auth + cloud sync](#future-auth--cloud-sync).
 
 ### Contents
 
@@ -32,7 +32,8 @@ Puzzle Buddy uses **staged releases** controlled by `ProductService` feature fla
 |---------|-------|----------------|------------|
 | **1.0.0** (shipped) | Local-first catalog | — | SwiftData on device |
 | **1.1.0** (shipped) | Completion history, On loan, Duo, in-app stopwatch | `isFriendsListEnabled` (off) | SwiftData on device |
-| **Future** | Timer sessions, widgets, optional accounts; re-ship import/export UI | TBD | SwiftData; cloud TBD |
+| **1.2.0** (in progress) | Home screen widget, optional consumable tips | — | SwiftData on device; widget reads an App Group snapshot |
+| **Later** | Timer sessions, optional accounts; re-ship import/export UI | TBD | SwiftData; cloud TBD |
 
 Firebase in all releases: **Analytics + Crashlytics only** ([telemetry.md](telemetry.md)). No Auth, Firestore, or push in the app today.
 
@@ -91,7 +92,7 @@ See [competitive-gap-analysis.md](competitive-gap-analysis.md) for IPDb + Puzzle
 | `urlLink` | Link to manufacturer or review | 1.2.x | Backlog |
 | Tag cloud / brand favorites | Organize polish | 1.2.x | Find & organize section |
 | JSON backup / restore | In-app restore | 1.1.0 | [json-backup-restore.md](../specs/planned/json-backup-restore.md) |
-| Home screen widget | In-progress or random To-Do | 1.3.0 | [home-screen-widget.md](../specs/planned/home-screen-widget.md) |
+| Home screen widget | In-progress count, to-do count, one title | 1.2.0 | [home-screen-widget.md](../specs/planned/home-screen-widget.md) · [1.2.0-extensions-and-tips.md](implementation/1.2.0-extensions-and-tips.md) |
 
 ### Status enum
 

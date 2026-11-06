@@ -22,6 +22,8 @@ struct PuzzleTabbar: View {
     @ObservedObject var ps: PuzzleStore
     @ObservedObject var browse: PuzzleBrowseState
 
+    @AppStorage(WidgetDeepLink.pendingPuzzleIDKey) private var pendingWidgetPuzzleID = ""
+
     @State private var tab: PuzzleBuddyTab = {
         switch MarketingSnapshotBootstrap.forcedTab {
         case .stats: .stats
@@ -85,6 +87,13 @@ struct PuzzleTabbar: View {
                 case .settings: tab = .settings
                 }
             }
+            openPendingWidgetPuzzle()
+        }
+        .onChange(of: pendingWidgetPuzzleID) { _, _ in
+            openPendingWidgetPuzzle()
+        }
+        .onChange(of: ps.puzzles.count) { _, _ in
+            openPendingWidgetPuzzle()
         }
         .onChange(of: tab) { _, newTab in
             AppLog.shared.info(
@@ -94,6 +103,14 @@ struct PuzzleTabbar: View {
                 metadata: ["tab": analyticsTabID(for: newTab)]
             )
         }
+    }
+
+    private func openPendingWidgetPuzzle() {
+        guard let id = UUID(uuidString: pendingWidgetPuzzleID) else { return }
+        guard ps.puzzles.contains(where: { $0.id == id }) else { return }
+        pendingWidgetPuzzleID = ""
+        tab = .puzzles
+        browse.selectedPuzzleID = id
     }
 
     private func analyticsTabID(for tab: PuzzleBuddyTab) -> String {

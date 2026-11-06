@@ -16,7 +16,7 @@ Read this file first when working in this repo. It summarizes product reality, c
 | **Bundle ID** | `com.jacobrozell.Puzzle-Buddy` |
 | **Min iOS** | 18.0 |
 | **Apple team** | `7JT2JB89AV` (personal) |
-| **Version source** | `project.yml` `MARKETING_VERSION` + `PuzzleBuddyApp.version` (keep in sync) |
+| **Version source** | `project.yml` `MARKETING_VERSION` + `PuzzleBuddyApp.version` (keep in sync). 1.2.0 is on `release/1.2.0`. |
 | **SwiftData schema** | `PuzzleSchemaV3` stopwatch shipped in 1.1.0. V1/V2 nested frozen. Session redesign is the next schema — [1.2.0-timer-redesign.md](docs/implementation/1.2.0-timer-redesign.md) |
 
 Auth + Firestore were **removed June 2026** (Firebase Console cleaned up). Future account sync is a **planned spec only** — see [specs/planned/auth-cloud-sync.md](specs/planned/auth-cloud-sync.md). Do not reintroduce Auth/Firestore without an approved spec and explicit user request.

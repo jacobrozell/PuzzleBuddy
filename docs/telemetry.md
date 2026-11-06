@@ -195,6 +195,7 @@ These appear in Console / Crashlytics breadcrumbs but **not** as Analytics event
 | `puzzle_record_fetch_failed` | warning | `PuzzleStore.fetchRecord` |
 | `store_review_requested` | info | `StoreReviewPrompt` after scan/edit (`entry_point`) |
 | `store_review_link_opened` | info | `SettingsView` write-review (`entry_point` `settings_link`) |
+| `tip_jar_purchase_completed` | info | `TipJarStore` after a verified StoreKit tip | iOS 1.2.0 only. Stays off Analytics while Android 1.0.0 matches iOS tag `1.1.0`. |
 
 Promote to Analytics allowlist only with product approval.
 
