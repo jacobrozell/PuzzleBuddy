@@ -278,12 +278,12 @@ struct DetailView: View {
     var body: some View {
         VStack(spacing: DS.Spacing.s4) {
             summaryPanel
+            if puzzle.status == .inProgress || puzzle.status == .todo {
+                PuzzleTimerCard(puzzle: $puzzle, ps: ps)
+            }
             progressPanel
             if !puzzle.completions.isEmpty || puzzle.status == .completed {
                 PuzzleCompletionHistorySection(ps: ps, puzzle: $puzzle)
-            }
-            if puzzle.status == .inProgress {
-                PuzzleTimerCard(puzzle: $puzzle, ps: ps)
             }
             statsPanel
         }

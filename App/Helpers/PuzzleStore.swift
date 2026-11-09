@@ -296,11 +296,23 @@ class PuzzleStore: ObservableObject {
         AppLog.shared.info(.puzzles, eventName: "puzzle_marked_returned", message: "Puzzle marked returned.")
     }
 
-    /// Starts the In-Progress timer, pausing any other running timer first.
+    /// Starts the timer, pausing any other running timer first.
+    /// A To-Do puzzle is one you are about to build, so starting its timer moves it to In progress.
     func startTimer(id: UUID, now: Date = Date()) throws {
         guard let record = fetchRecord(id: id) else { throw PuzzleStoreError.recordNotFound }
-        guard Puzzle.Status(rawValue: record.status) == .inProgress,
-              !PuzzleTimerSemantics.isRunning(runningSince: record.timerRunningSince, now: now) else { return }
+        let status = Puzzle.Status(rawValue: record.status) ?? .todo
+        guard status == .inProgress || status == .todo else { return }
+        guard !PuzzleTimerSemantics.isRunning(runningSince: record.timerRunningSince, now: now) else { return }
+
+        var promotedFrom: Puzzle.Status?
+        if status == .todo {
+            record.status = Puzzle.Status.inProgress.rawValue
+            record.progressPercent = PuzzleProgressSemantics.progress(for: .inProgress, current: record.progressPercent)
+            if record.startDate == nil {
+                record.startDate = now
+            }
+            promotedFrom = .todo
+        }
 
         let others = PuzzleTimerSemantics.idsToPause(startingID: id, in: puzzles).compactMap { fetchRecord(id: $0) }
         others.forEach { foldTimer($0, now: now) }
@@ -310,6 +322,18 @@ class PuzzleStore: ObservableObject {
 
         for other in others {
             logTimerPaused(reason: .otherStarted, seconds: other.timerAccumulatedSeconds)
+        }
+        if let promotedFrom {
+            AppLog.shared.info(
+                .puzzles,
+                eventName: "puzzle_status_changed",
+                message: "Puzzle status changed.",
+                metadata: [
+                    "status_from": promotedFrom.rawValue,
+                    "status_to": Puzzle.Status.inProgress.rawValue,
+                    "piece_count_bucket": PuzzleAnalyticsMetadata.pieceCountBucket(for: record.pieces)
+                ]
+            )
         }
         AppLog.shared.info(.puzzles, eventName: "puzzle_timer_started", message: "Started puzzle timer.")
     }

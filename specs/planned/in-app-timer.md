@@ -1,7 +1,9 @@
 # In-app puzzle timer
 
 **Target:** ships in **1.1.0** as this stopwatch (`release/1.1.0`, schema V3).  
-**Next:** session redesign — [1.2.0-timer-redesign.md](../../docs/implementation/1.2.0-timer-redesign.md). Do not change this 1.1 behavior while that plan is future work.  
+**Next:** session redesign — [1.2.0-timer-redesign.md](../../docs/implementation/1.2.0-timer-redesign.md).
+
+**1.2.0** (`release/1.2.0`) also shows this stopwatch on a To-Do puzzle. Starting it moves the puzzle to In progress. See [1.2.0-extensions-and-tips.md](../../docs/implementation/1.2.0-extensions-and-tips.md).  
 **Competitor gap:** Puzzle Tracker core feature  
 **Last updated:** 2026-10-28
 

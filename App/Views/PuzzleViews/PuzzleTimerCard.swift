@@ -28,6 +28,13 @@ struct PuzzleTimerCard: View {
                         .accessibilityLabel(PuzzleTimerSemantics.spokenLabel(seconds: elapsed))
                         .accessibilityAddTraits(.updatesFrequently)
 
+                    if puzzle.status == .todo {
+                        Text("Starting the timer moves this puzzle to In progress.")
+                            .font(.subheadline)
+                            .foregroundStyle(Brand.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
                     ViewThatFits(in: .horizontal) {
                         HStack(spacing: DS.Spacing.s3) {
                             toggleButton(isRunning: isRunning, elapsed: elapsed)

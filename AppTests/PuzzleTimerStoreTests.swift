@@ -56,10 +56,27 @@ final class PuzzleTimerStoreTests: XCTestCase {
         XCTAssertNil(puzzle(id).timerRunningSince)
     }
 
-    func testStartIgnoredWhenNotInProgress() throws {
+    func testStartOnToDoMovesItToInProgress() throws {
         try store.add(puzzle: Puzzle.fixture(name: "Shelf", pieces: 500))
         let id = try XCTUnwrap(store.puzzles.first?.id)
+        let started = Date().addingTimeInterval(-30)
+
+        try store.startTimer(id: id, now: started)
+
+        let loaded = puzzle(id)
+        XCTAssertEqual(loaded.status, .inProgress)
+        XCTAssertEqual(loaded.progressPercent, 10)
+        XCTAssertEqual(loaded.startDate, started)
+        XCTAssertEqual(loaded.timerRunningSince, started)
+    }
+
+    func testStartIgnoredUnlessToDoOrInProgress() throws {
+        let someday = Puzzle.fixture(name: "Someday", pieces: 500)
+        someday.status = .wishlist
+        try store.add(puzzle: someday)
+        let id = try XCTUnwrap(store.puzzles.first?.id)
         try store.startTimer(id: id)
+        XCTAssertEqual(puzzle(id).status, .wishlist)
         XCTAssertNil(puzzle(id).timerRunningSince)
     }
 
