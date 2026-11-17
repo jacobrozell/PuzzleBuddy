@@ -77,6 +77,16 @@ Same behavior on iOS and Android. Do not build this into the current one-at-a-ti
 
 ---
 
+## Later — check duplicate list
+
+Not built. Check duplicate on iOS and Android shows one card and a count, such as “3 scanned · 1 duplicate · 2 new”. Earlier barcodes are not listed, so a few boxes in one trip are hard to tell apart.
+
+**Idea:** while Check duplicate stays open, show a list of this session. Each row is either a duplicate (the puzzle you already own) or new (the barcode). Same list on iOS and Android.
+
+This is only the session list. Leaving it, editing details later, and saving when ready stays in the scan queue above.
+
+---
+
 ## Later
 
 ### Deployment target
