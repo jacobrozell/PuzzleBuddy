@@ -7,7 +7,7 @@ Prioritized backlog. Shipped behavior: [`docs/feature-inventory.md`](../docs/fea
 
 **Competitor gaps:** [`docs/competitive-gap-analysis.md`](../docs/competitive-gap-analysis.md)
 
-**Last updated:** 2026-10-28
+**Last updated:** 2026-11-17
 
 ---
 
@@ -59,6 +59,21 @@ Settings UI **removed in 1.1.0** (GA4: zero `puzzle_import_completed` / `setting
 | **Manufacturer ID / SKU field** | Roadmap | First-class vs notes hack |
 | **On loan / leased out** | [`on-loan-friends.md`](../docs/implementation/on-loan-friends.md) | Shipped foundation on 1.1.0 branch (Friends UI hidden). |
 | **Preset color themes** | [`color-themes.md`](../specs/planned/color-themes.md) | Free Settings presets (Classic / Sunset / Forest / Midnight). iOS only; separate from review thank-you unlock. |
+
+---
+
+## Later — scan queue
+
+Not in the current scanner on either platform. iOS and Android both stop after one barcode. **Scan another** reads the next box. Adding a puzzle leaves the scanner, and the next open starts empty.
+
+**Idea (2026-11-17):** a list that keeps the barcodes you scan. You can leave and come back. From the list:
+
+- Scan more barcodes onto it later, or add a puzzle to the list without scanning
+- Open one row and edit the details when you want
+- Remove a row
+- Save a row into the collection when the details are ready
+
+Same behavior on iOS and Android. Do not build this into the current one-at-a-time scanner, the 1.2.0 iOS release, or the first Play release. The older note in [`docs/spec-barcode-scanner.md`](../docs/spec-barcode-scanner.md) Phase E (“scan N barcodes → review list → batch save”) is this idea.
 
 ---
 

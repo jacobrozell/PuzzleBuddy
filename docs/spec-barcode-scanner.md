@@ -912,7 +912,7 @@ Use Apple-documented **synthetic** codes for simulator/manual QA; never use real
 **Scope:**
 
 - CSV import: `name,pieces,barcode,status,notes`
-- Multi-scan queue (scan N barcodes → review list → batch save)
+- Multi-scan queue (scan N barcodes → review list → batch save). Captured for later, not current behavior: [`FutureIdeas/backlog.md`](../FutureIdeas/backlog.md) “Later — scan queue”. Today the scanner stops after one barcode.
 
 **Estimate:** 5–8 dev days  
 **Aligns with:** user-research Phase C import spec
