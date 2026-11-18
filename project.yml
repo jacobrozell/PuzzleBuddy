@@ -83,6 +83,7 @@ targets:
         ENABLE_PREVIEWS: YES
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: 1.2.0
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
     info:
       path: Info.plist
       properties:
@@ -93,6 +94,7 @@ targets:
             CFBundleURLSchemes:
               - puzzlebuddy
         FirebaseAppDelegateProxyEnabled: false
+        ITSAppUsesNonExemptEncryption: false
         UILaunchStoryboardName: LaunchScreen
     scheme:
       storeKitConfiguration: StoreKit/PuzzleBuddy.storekit
