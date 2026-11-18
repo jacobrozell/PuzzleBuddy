@@ -23,6 +23,7 @@ struct PuzzleTabbar: View {
     @ObservedObject var browse: PuzzleBrowseState
 
     @AppStorage(WidgetDeepLink.pendingPuzzleIDKey) private var pendingWidgetPuzzleID = ""
+    @AppStorage(WidgetDeepLink.pendingDestinationKey) private var pendingWidgetDestination = ""
 
     @State private var tab: PuzzleBuddyTab = {
         switch MarketingSnapshotBootstrap.forcedTab {
@@ -87,7 +88,11 @@ struct PuzzleTabbar: View {
                 case .settings: tab = .settings
                 }
             }
+            openPendingWidgetDestination()
             openPendingWidgetPuzzle()
+        }
+        .onChange(of: pendingWidgetDestination) { _, _ in
+            openPendingWidgetDestination()
         }
         .onChange(of: pendingWidgetPuzzleID) { _, _ in
             openPendingWidgetPuzzle()
@@ -103,6 +108,18 @@ struct PuzzleTabbar: View {
                 metadata: ["tab": analyticsTabID(for: newTab)]
             )
         }
+    }
+
+    private func openPendingWidgetDestination() {
+        switch pendingWidgetDestination {
+        case WidgetDeepLink.destinationStats:
+            tab = .stats
+        case WidgetDeepLink.destinationPuzzles:
+            tab = .puzzles
+        default:
+            return
+        }
+        pendingWidgetDestination = ""
     }
 
     private func openPendingWidgetPuzzle() {

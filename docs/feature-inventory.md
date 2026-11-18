@@ -32,7 +32,7 @@
 | Stats | Per-puzzle pace metrics | `PuzzleDetailMetrics` |
 | Stats | Share collage | `PuzzleShareMenu` |
 | Settings | Appearance, demo data, legal links, **Write a Review**, **Support the Developer** (consumable tips) | `SettingsView`, `TipJarSheet`, `TipJarStore` |
-| Home screen | **On the table** and **Collection** glance | `CollectionWidget`, `CollectionGlanceWidget`, `CollectionWidgetPublisher` |
+| Home screen | **On the table** (progress, next to-do) and **Collection** (mix, year chart, pace, stat lines) | `CollectionWidget`, `CollectionGlanceWidget`, `WidgetCharts`, `CollectionWidgetPublisher` |
 | Settings | One-time StoreKit review prompt after scan or edit | `StoreReviewPrompt` |
 | Observability | Allowlisted Analytics + Crashlytics | `AppLog`, [telemetry.md](telemetry.md) |
 | A11y | Phase 1 + automated audits | `A11yID`, `PuzzleAccessibilityUITests` |

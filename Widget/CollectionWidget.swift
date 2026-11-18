@@ -23,7 +23,7 @@ struct CollectionWidget: Widget {
                 }
         }
         .configurationDisplayName("On the table")
-        .description("The puzzle you’re working on, and how many are still to do.")
+        .description("The puzzle you’re working on, or the next one on the shelf.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
@@ -65,10 +65,11 @@ struct CollectionWidgetView: View {
 
     var body: some View {
         ViewThatFits(in: .vertical) {
-            content(showsDetail: true, showsStatus: true, titleLines: 2, footerLines: 2)
-            content(showsDetail: true, showsStatus: true, titleLines: 2, footerLines: 1)
-            content(showsDetail: false, showsStatus: true, titleLines: 2, footerLines: 1)
-            content(showsDetail: true, showsStatus: false, titleLines: 1, footerLines: 1)
+            content(showsDetail: true, showsStatus: true, showsProgress: true, titleLines: 2, footerLines: 2)
+            content(showsDetail: true, showsStatus: true, showsProgress: true, titleLines: 2, footerLines: 1)
+            content(showsDetail: false, showsStatus: true, showsProgress: true, titleLines: 2, footerLines: 1)
+            content(showsDetail: true, showsStatus: false, showsProgress: false, titleLines: 1, footerLines: 1)
+            content(showsDetail: false, showsStatus: false, showsProgress: false, titleLines: 1, footerLines: 1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .widgetURL(WidgetDeepLink.url(for: entry.snapshot.featuredPuzzleID))
@@ -76,10 +77,28 @@ struct CollectionWidgetView: View {
         .accessibilityLabel(accessibilityText)
     }
 
-    private func content(showsDetail: Bool, showsStatus: Bool, titleLines: Int, footerLines: Int) -> some View {
+    private var hasFeaturedPuzzle: Bool {
+        entry.snapshot.featuredTitle != nil
+            || entry.snapshot.inProgressCount > 0
+            || entry.snapshot.featuredIsBacklog
+    }
+
+    private var headline: String {
+        if let title = entry.snapshot.featuredTitle { return title }
+        if entry.snapshot.featuredIsBacklog { return "Up next" }
+        return "In progress"
+    }
+
+    private func content(
+        showsDetail: Bool,
+        showsStatus: Bool,
+        showsProgress: Bool,
+        titleLines: Int,
+        footerLines: Int
+    ) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            if entry.snapshot.featuredTitle != nil || entry.snapshot.inProgressCount > 0 {
-                Text(entry.snapshot.featuredTitle ?? "In progress")
+            if hasFeaturedPuzzle {
+                Text(headline)
                     .font(.headline)
                     .lineLimit(titleLines)
                 if showsDetail, let detail = entry.snapshot.featuredDetail {
@@ -87,8 +106,11 @@ struct CollectionWidgetView: View {
                         .font(.subheadline)
                         .lineLimit(1)
                 }
-                if showsStatus {
+                if showsStatus, showsStatusLine {
                     statusLine
+                }
+                if showsProgress, entry.snapshot.featuredProgressPercent > 0 {
+                    WidgetProgressBar(percent: entry.snapshot.featuredProgressPercent)
                 }
             } else {
                 Text("Nothing on the table")
@@ -101,6 +123,10 @@ struct CollectionWidgetView: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(footerLines)
         }
+    }
+
+    private var showsStatusLine: Bool {
+        !(entry.snapshot.featuredIsBacklog && entry.snapshot.featuredTitle == nil)
     }
 
     @ViewBuilder
@@ -124,17 +150,18 @@ struct CollectionWidgetView: View {
 
     private var accessibilityText: String {
         var parts: [String] = []
-        if let title = entry.snapshot.featuredTitle {
-            parts.append(title)
-        } else if entry.snapshot.inProgressCount == 0 {
-            parts.append("Nothing on the table")
+        if hasFeaturedPuzzle {
+            parts.append(headline)
         } else {
-            parts.append("In progress")
+            parts.append("Nothing on the table")
         }
         if let detail = entry.snapshot.featuredDetail {
             parts.append(detail)
         }
-        if let status = entry.snapshot.featuredStatusLine(at: entry.date) {
+        if entry.snapshot.featuredProgressPercent > 0 {
+            parts.append("\(entry.snapshot.featuredProgressPercent) percent")
+        }
+        if showsStatusLine, let status = entry.snapshot.featuredStatusLine(at: entry.date), status != headline {
             parts.append(status)
         }
         parts.append(entry.snapshot.tableFooter)
